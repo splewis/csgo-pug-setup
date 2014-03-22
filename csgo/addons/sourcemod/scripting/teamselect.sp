@@ -12,7 +12,6 @@ new g_Ready[MAXPLAYERS+1];
 new g_Teams[MAXPLAYERS+1];
 new g_Active = false;
 new g_MatchLive = false;
-new String:g_demoname[PLATFORM_MAX_PATH];
 
 public Plugin:myinfo = {
 	name = "CS:GO TeamSelect",
@@ -63,10 +62,17 @@ public Action:Timer_CheckReady(Handle:timer) {
 	for (new i = 1; i <= MaxClients; i++) {
 		if (IsValidClient(i) && IsClientInGame(i) && !IsFakeClient(i)) {
 			count++;
-			if (g_Ready[i])
+			if (g_Ready[i]) {
+				CS_SetClientClanTag(i, "Ready");
 				rdy++;
+			} else {
+				CS_SetClientClanTag(i, "Not ready");
+			}
 		}
 	}
+
+	if (!g_Active)
+		return Plugin_Stop;
 
 	if (rdy == count && IsValidClient(g_cap1) && IsValidClient(g_cap2) && g_cap1 != g_cap2) {
 		StartPicking();
@@ -98,14 +104,18 @@ public Action:Command_10man(client, args) {
 }
 
 public Action:Command_Ready(client, args) {
-	g_Ready[client] = true;
-	CS_SetClientClanTag(client, "Ready");
+	if (g_Active && !g_MatchLive) {
+		g_Ready[client] = true;
+		CS_SetClientClanTag(client, "Ready");
+	}
 	return Plugin_Handled;
 }
 
 public Action:Command_Unready(client, args) {
-	g_Ready[client] = false;
-	CS_SetClientClanTag(client, "Not ready");
+	if (g_Active && !g_MatchLive) {
+		g_Ready[client] = false;
+		CS_SetClientClanTag(client, "Not ready");
+	}
 	return Plugin_Handled;
 }
 
@@ -132,7 +142,7 @@ public EndMatch() {
 }
 
 public Action:Command_Cap1(client, args) {
-	if (g_MatchLive && g_Active)
+	if (g_MatchLive || !g_Active)
 		return Plugin_Handled;
 
 	new String:arg1[32];
@@ -147,7 +157,7 @@ public Action:Command_Cap1(client, args) {
 }
 
 public Action:Command_Cap2(client, args) {
-	if (g_MatchLive && g_Active)
+	if (g_MatchLive || !g_Active)
 		return Plugin_Handled;
 
 	new String:arg1[32];
@@ -162,7 +172,7 @@ public Action:Command_Cap2(client, args) {
 }
 
 public StartPicking() {
-	if (g_MatchLive && g_Active)
+	if (g_MatchLive || !g_Active)
 		return;
 
 	ServerCommand("mp_pause_match");
@@ -255,27 +265,17 @@ public AddPlayersToMenu(Handle:menu) {
 }
 
 public Action:FinishPicking(Handle:timer) {
-	new time = GetTime();
-	decl String:timestamp[128];
-	FormatTime(timestamp, sizeof(timestamp), "%F_%H.%M", time);
-	decl String:map[256];
-	GetCurrentMap(map, sizeof(map));
-	// Strip workshop prefixes
-	decl String:strs[3][256];
-	new numStrs = ExplodeString(map, "/", strs, 3, 256);
-	Format(g_demoname, sizeof(g_demoname), "%s_%s", timestamp, strs[numStrs - 1]);
-	ServerCommand("tv_record %s.dem\n", g_demoname);
-
 	CreateTimer(7.0, Rest1);
 	ServerCommand("exec sourcemod/10man.cfg");
 	ServerCommand("mp_unpause_match");
-	PrintToChatAll("The match will begin shortly - live on 3!");
+	for (new i = 0; i < 3; i++)
+		PrintToChatAll("The match will begin shortly - live on 3!");
 }
 
-public OnClientConnected(client) {
+public OnClientPostAdminCheck(client) {
 	g_Teams[client] = CS_TEAM_SPECTATOR;
 	g_Ready[client] = false;
-	if (IsClientInGame(client) && !IsFakeClient(client))
+	if (IsClientInGame(client) && !IsFakeClient(client) && !g_MatchLive)
 		CS_SetClientClanTag(client, "Not ready");
 }
 
@@ -290,19 +290,19 @@ SwitchPlayerTeam(client, team) {
 }
 
 public Action:Rest1(Handle:timer) {
-	PrintToChatAll("Restart 1/3");
+	PrintToChatAll("*** Restart 1/3 ***");
 	ServerCommand("mp_restartgame 1");
-	CreateTimer(3.0, Rest2);
+	CreateTimer(4.0, Rest2);
 }
 
 public Action:Rest2(Handle:timer) {
-	PrintToChatAll("Restart 2/3");
+	PrintToChatAll("*** Restart 2/3 ***");
 	ServerCommand("mp_restartgame 3");
-	CreateTimer(6.0, Rest3);
+	CreateTimer(7.0, Rest3);
 }
 
 public Action:Rest3(Handle:timer) {
-	PrintToChatAll("Restart 3/3");
+	PrintToChatAll("*** Restart 3/3 ***");
 	ServerCommand("mp_restartgame 5");
 	CreateTimer(5.1, Match);
 }
