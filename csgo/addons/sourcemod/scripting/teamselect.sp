@@ -268,7 +268,7 @@ public AddPlayersToMenu(Handle:menu) {
 		if (IsValidClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && !IsFakeClient(client) && IsClientInGame(client)) {
 			IntToString(GetClientUserId(client), user_id, sizeof(user_id));
 			GetClientName(client, name, sizeof(name));
-			Format(display, sizeof(display), "%s (%s)", name, user_id);
+			Format(display, sizeof(display), "%s", name);
 			AddMenuItem(menu, user_id, display);
 			count++;
 		}
