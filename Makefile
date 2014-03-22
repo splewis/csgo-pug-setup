@@ -9,11 +9,7 @@ BINARY = csgo/addons/sourcemod/plugins/teamselect.smx
 
 build: clean
 	mkdir -p csgo/addons/sourcemod/plugins
-	$(SMC) ${SRC} ${FLAGS} _DEBUG=0 -o=${OUT}
-
-debug: clean
-	mkdir -p csgo/addons/sourcemod/plugins
-	$(SMC) ${SRC} ${FLAGS} _DEBUG=1 -o=${OUT}
+	$(SMC) ${SRC} ${FLAGS} -o=${OUT}
 
 clean:
 	rm -rf *.smx *.zip

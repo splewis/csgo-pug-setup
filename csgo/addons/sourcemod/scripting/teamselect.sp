@@ -8,6 +8,7 @@ new Handle:g_Enabled = INVALID_HANDLE;
 new g_cap1 = 0;
 new g_cap2 = 0;
 new g_PlayersLeft = 8;
+new g_PlayersPicked = 0;
 new g_Teams[MAXPLAYERS+1];
 new g_MatchLive = false;
 new String:g_demoname[PLATFORM_MAX_PATH];
@@ -52,13 +53,16 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
 }
 
 public Action:Command_EndMatch(client, args) {
-	EndMatch();
+	if (!g_MatchLive)
+		ReplyToCommand(client, "Match has not begun yet!");
+	else
+		EndMatch();
 }
 
 public EndMatch() {
 	g_MatchLive = false;
-	ServerCommand("sv_alltalk 1");
 	ServerCommand("tv_stoprecord");
+	ServerCommand("exec sourcemod/postgame.cfg");
 }
 
 public Action:Command_Cap1(client, args) {
@@ -129,7 +133,9 @@ public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 		if (client > 0) {
 			g_Teams[client] = g_Teams[param1];
 			SwitchPlayerTeam(client, g_Teams[param1]);
-			if (g_PlayersLeft > 0) {
+			g_PlayersPicked++;
+
+			if (!IsPickingFinished()) {
 				new nextCapt = -1;
 				if (param1 == g_cap1)
 					nextCapt = g_cap2;
@@ -148,9 +154,13 @@ public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 	}
 }
 
+public bool:IsPickingFinished() {
+	return (g_PlayersLeft <= 0) || (g_PlayersPicked >= 8);
+}
+
 public Action:MoreMenuPicks(Handle:timer, any:serial) {
 	new client = GetClientFromSerial(serial);
-	if (!IsValidClient(client) || !IsClientInGame(client)) {
+	if (IsPickingFinished() || !IsValidClient(client) || !IsClientInGame(client)) {
 		CreateTimer(5.0, FinishPicking);
 		return Plugin_Handled;
 	}
@@ -180,9 +190,7 @@ public AddPlayersToMenu(Handle:menu) {
 			count++;
 		}
 	}
-	g_PlayersLeft = count;
-	if (g_PlayersLeft > 8)
-		g_PlayersLeft = 8;
+	g_PlayersLeft = count - 1;
 }
 
 public Action:FinishPicking(Handle:timer) {
@@ -213,11 +221,6 @@ ResetClientVariables(client) {
 }
 
 SwitchPlayerTeam(client, team) {
-	#if _DEBUG
-	Format(dmsg, sizeof(dmsg), "[SwitchPlayerTeam] %N is being switched to team %i", client, team);
-	DebugMessage(dmsg);
-	#endif
-
 	if (team > CS_TEAM_SPECTATOR) {
 		CS_SwitchTeam(client, team);
 		CS_UpdateClientModel(client);
