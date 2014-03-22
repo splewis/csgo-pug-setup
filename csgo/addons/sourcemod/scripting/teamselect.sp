@@ -7,8 +7,8 @@
 new Handle:g_Enabled = INVALID_HANDLE;
 new g_cap1 = 0;
 new g_cap2 = 0;
-new g_PlayersLeft = 8;
 new g_PlayersPicked = 0;
+new g_Ready[MAXPLAYERS+1];
 new g_Teams[MAXPLAYERS+1];
 new g_MatchLive = false;
 new String:g_demoname[PLATFORM_MAX_PATH];
@@ -25,31 +25,86 @@ public OnPluginStart() {
 	LoadTranslations("common.phrases");
 
 	/** convars **/
-	g_Enabled = CreateConVar("teamselect_enabled", "1", "Sets whether teamselect is enabled");
+	g_Enabled = CreateConVar("sm_teamselect_enabled", "1", "Sets whether teamselect is enabled");
 
 	// Create and exec plugin's configuration file
 	AutoExecConfig(true, "teamselect");
 
 	if (GetConVarInt(g_Enabled) == 1) {
+		RegConsoleCmd("sm_ready", Command_Ready);
+		RegConsoleCmd("sm_unready", Command_Unready);
 		RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1);
 		RegAdminCmd("sm_capt2", Command_Cap2, ADMFLAG_CUSTOM1);
-		RegAdminCmd("sm_startgame", Command_StartPicking, ADMFLAG_CUSTOM1);
-		RegAdminCmd("sm_pick", Command_StartPicking, ADMFLAG_CUSTOM1);
 		RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1);
 		HookEvent("cs_win_panel_match", Event_MatchOver);
 	}
 }
 
 public OnMapStart() {
+	g_cap1 = -1;
+	g_cap2 = -1;
+	g_PlayersPicked = 0;
+	for (new i = 1; i <= MaxClients; i++) {
+		g_Ready[i] = false;
+		g_Teams[i] = CS_TEAM_SPECTATOR;
+	}
 	g_MatchLive = false;
+	CreateTimer(5.0, Timer_CheckReady, _, TIMER_REPEAT);
 }
 
 public OnMapEnd() {
 }
 
+public Action:Timer_CheckReady(Handle:timer) {
+	new rdy = 0;
+	new count = 0;
+	for (new i = 1; i <= MaxClients; i++) {
+		if (IsValidClient(i) && IsClientInGame(i) && !IsFakeClient(i)) {
+			count++;
+			if (g_Ready[i])
+				rdy++;
+		}
+	}
+
+	if (rdy == count && IsValidClient(g_cap1) && IsValidClient(g_cap2) && g_cap1 != g_cap2) {
+		StartPicking();
+		return Plugin_Stop;
+	} else {
+		decl String:cap1[20];
+		decl String:cap2[20];
+
+		if (IsValidClient(g_cap1) && !IsFakeClient(g_cap1) && IsClientInGame(g_cap1))
+			Format(cap1, sizeof(cap1), "%N");
+		else
+			Format(cap1, sizeof(cap1), "not selected");
+
+		if (IsValidClient(g_cap2) && !IsFakeClient(g_cap2) && IsClientInGame(g_cap2))
+			Format(cap2, sizeof(cap2), "%N");
+		else
+			Format(cap2, sizeof(cap2), "not selected");
+
+
+		PrintHintTextToAll("%i out of %i players are ready\nCaptain 1: %s\nCaptain 2: %s", rdy, count, cap1, cap2);
+	}
+	return Plugin_Continue;
+}
+
+public Action:Command_Ready(client, args) {
+	g_Ready[client] = true;
+	CS_SetClientClanTag(client, "Ready");
+	return Plugin_Handled;
+}
+
+public Action:Command_Unready(client, args) {
+	g_Ready[client] = false;
+	CS_SetClientClanTag(client, "Not ready");
+	return Plugin_Handled;
+}
+
+
 public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadcast) {
 	EndMatch();
-	return Plugin_Continue;
+	return Plugin_Handled;
 }
 
 public Action:Command_EndMatch(client, args) {
@@ -57,6 +112,7 @@ public Action:Command_EndMatch(client, args) {
 		ReplyToCommand(client, "Match has not begun yet!");
 	else
 		EndMatch();
+	return Plugin_Handled;
 }
 
 public EndMatch() {
@@ -72,12 +128,11 @@ public Action:Command_Cap1(client, args) {
 	new String:arg1[32];
 	GetCmdArg(1, arg1, sizeof(arg1));
 	new target = FindTarget(client, arg1);
-	if (target == -1) {
-		ReplyToCommand(client, "Invalid captain1 - try again");
+	if (target == -1)
 		return Plugin_Handled;
-	}
+
 	g_cap1 = target;
-	PrintToChatAll("Captain 1 is %N", g_cap1);
+	PrintToChatAll("Captain 1 will be %N", g_cap1);
 	return Plugin_Handled;
 }
 
@@ -88,23 +143,17 @@ public Action:Command_Cap2(client, args) {
 	new String:arg1[32];
 	GetCmdArg(1, arg1, sizeof(arg1));
 	new target = FindTarget(client, arg1);
-	if (target == -1) {
-		ReplyToCommand(client, "Invalid captain2 - try again");
+	if (target == -1)
 		return Plugin_Handled;
-	}
+
 	g_cap2 = target;
-	PrintToChatAll("Captain 2 is %N", g_cap2);
+	PrintToChatAll("Captain 2 will be %N", g_cap2);
 	return Plugin_Handled;
 }
 
-public Action:Command_StartPicking(client, args) {
+public StartPicking() {
 	if (g_MatchLive)
-		return Plugin_Handled;
-
-	if (!IsValidClient(g_cap1) || !IsValidClient(g_cap2) && g_cap1 != g_cap2) {
-		PrintToChatAll("Captains have not been selected yet!");
-		return Plugin_Handled;
-	}
+		return;
 
 	ServerCommand("mp_pause_match");
 	ServerCommand("mp_restartgame 1");
@@ -114,6 +163,7 @@ public Action:Command_StartPicking(client, args) {
 		if (IsClientInGame(i) && !IsFakeClient(i)) {
 			g_Teams[i] = CS_TEAM_SPECTATOR;
 			SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
+			CS_SetClientClanTag(i, "");
 		}
 	}
 	g_Teams[g_cap1] = CS_TEAM_T;
@@ -121,7 +171,6 @@ public Action:Command_StartPicking(client, args) {
 	g_Teams[g_cap2] = CS_TEAM_CT;
 	SwitchPlayerTeam(g_cap2, CS_TEAM_CT);
 	GiveCaptainMenu(g_cap1);
-	return Plugin_Handled;
 }
 
 public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
@@ -130,6 +179,7 @@ public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 		GetMenuItem(menu, param2, info, sizeof(info));
 		new UserID = StringToInt(info);
 		new client = GetClientOfUserId(UserID);
+
 		if (client > 0) {
 			g_Teams[client] = g_Teams[param1];
 			SwitchPlayerTeam(client, g_Teams[param1]);
@@ -145,6 +195,8 @@ public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 			} else {
 				CreateTimer(1.0, FinishPicking);
 			}
+		} else {
+			CreateTimer(0.5, MoreMenuPicks, param2);
 		}
 
 	} else if (action == MenuAction_Cancel) {
@@ -155,7 +207,7 @@ public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 }
 
 public bool:IsPickingFinished() {
-	return (g_PlayersLeft <= 0) || (g_PlayersPicked >= 8);
+	return g_PlayersPicked >= 8;
 }
 
 public Action:MoreMenuPicks(Handle:timer, any:serial) {
@@ -190,7 +242,6 @@ public AddPlayersToMenu(Handle:menu) {
 			count++;
 		}
 	}
-	g_PlayersLeft = count - 1;
 }
 
 public Action:FinishPicking(Handle:timer) {
@@ -212,12 +263,10 @@ public Action:FinishPicking(Handle:timer) {
 }
 
 public OnClientConnected(client) {
-	ResetClientVariables(client);
-}
-
-ResetClientVariables(client) {
-	if (IsClientInGame(client))
-		g_Teams[client] = CS_TEAM_SPECTATOR;
+	g_Teams[client] = CS_TEAM_SPECTATOR;
+	g_Ready[client] = false;
+	if (IsClientInGame(client) && !IsFakeClient(client))
+		CS_SetClientClanTag(client, "Not ready");
 }
 
 SwitchPlayerTeam(client, team) {
