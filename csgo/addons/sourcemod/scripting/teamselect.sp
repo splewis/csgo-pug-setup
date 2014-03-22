@@ -31,26 +31,31 @@ public OnPluginStart() {
 	AutoExecConfig(true, "teamselect");
 
 	if (GetConVarInt(g_Enabled) == 1) {
-		RegConsoleCmd("sm_10man", Command_10man);
-		RegConsoleCmd("sm_ready", Command_Ready);
-		RegConsoleCmd("sm_unready", Command_Unready);
-		RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1);
-		RegAdminCmd("sm_capt2", Command_Cap2, ADMFLAG_CUSTOM1);
-		RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1);
+		RegConsoleCmd("sm_10man", Command_10man, "Starts 10man setup (!ready, !capt commands become avaliable)");
+		RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
+		RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
+		RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
+		RegAdminCmd("sm_capt2", Command_Cap2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
+		RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
+		RegAdminCmd("sm_cancel", Command_Cancel, ADMFLAG_CUSTOM1, "Cancels 10man setup, opposite of sm_10man");
 		HookEvent("cs_win_panel_match", Event_MatchOver);
 	}
 }
 
-public OnMapStart() {
+InitializeVariables() {
 	g_Active = false;
 	g_cap1 = -1;
 	g_cap2 = -1;
 	g_PlayersPicked = 0;
 	for (new i = 1; i <= MaxClients; i++) {
 		g_Ready[i] = false;
-		g_Teams[i] = CS_TEAM_SPECTATOR;
+		g_Teams[i] = -1;
 	}
 	g_MatchLive = false;
+}
+
+public OnMapStart() {
+	InitializeVariables();
 }
 
 public OnMapEnd() {
@@ -75,7 +80,8 @@ public Action:Timer_CheckReady(Handle:timer) {
 		return Plugin_Stop;
 
 	if (rdy == count && IsValidClient(g_cap1) && IsValidClient(g_cap2) && g_cap1 != g_cap2) {
-		StartPicking();
+		PrintToChatAll("Team selection has begun!");
+		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
 	} else {
 		decl String:cap1[20];
@@ -133,6 +139,11 @@ public Action:Command_EndMatch(client, args) {
 	return Plugin_Handled;
 }
 
+public Action:Command_Cancel(client, args) {
+	InitializeVariables();
+	return Plugin_Handled;
+}
+
 public EndMatch() {
 	if (g_Active) {
 		g_MatchLive = false;
@@ -171,13 +182,12 @@ public Action:Command_Cap2(client, args) {
 	return Plugin_Handled;
 }
 
-public StartPicking() {
+public Action:StartPicking(Handle:timer) {
 	if (g_MatchLive || !g_Active)
-		return;
+		return Plugin_Handled;
 
 	ServerCommand("mp_pause_match");
 	ServerCommand("mp_restartgame 1");
-	PrintToChatAll("Team selection has begun!");
 
 	for (new i = 1; i <= MaxClients; i++) {
 		if (IsClientInGame(i) && !IsFakeClient(i)) {
@@ -191,6 +201,7 @@ public StartPicking() {
 	g_Teams[g_cap2] = CS_TEAM_CT;
 	SwitchPlayerTeam(g_cap2, CS_TEAM_CT);
 	GiveCaptainMenu(g_cap1);
+	return Plugin_Handled;
 }
 
 public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
