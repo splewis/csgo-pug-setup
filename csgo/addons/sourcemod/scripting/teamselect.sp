@@ -10,6 +10,7 @@ new g_cap2 = 0;
 new g_PlayersPicked = 0;
 new g_Ready[MAXPLAYERS+1];
 new g_Teams[MAXPLAYERS+1];
+new g_Active = false;
 new g_MatchLive = false;
 new String:g_demoname[PLATFORM_MAX_PATH];
 
@@ -31,6 +32,7 @@ public OnPluginStart() {
 	AutoExecConfig(true, "teamselect");
 
 	if (GetConVarInt(g_Enabled) == 1) {
+		RegConsoleCmd("sm_10man", Command_10man);
 		RegConsoleCmd("sm_ready", Command_Ready);
 		RegConsoleCmd("sm_unready", Command_Unready);
 		RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1);
@@ -41,6 +43,7 @@ public OnPluginStart() {
 }
 
 public OnMapStart() {
+	g_Active = false;
 	g_cap1 = -1;
 	g_cap2 = -1;
 	g_PlayersPicked = 0;
@@ -49,7 +52,6 @@ public OnMapStart() {
 		g_Teams[i] = CS_TEAM_SPECTATOR;
 	}
 	g_MatchLive = false;
-	CreateTimer(5.0, Timer_CheckReady, _, TIMER_REPEAT);
 }
 
 public OnMapEnd() {
@@ -74,12 +76,12 @@ public Action:Timer_CheckReady(Handle:timer) {
 		decl String:cap2[20];
 
 		if (IsValidClient(g_cap1) && !IsFakeClient(g_cap1) && IsClientInGame(g_cap1))
-			Format(cap1, sizeof(cap1), "%N");
+			Format(cap1, sizeof(cap1), "%N", g_cap1);
 		else
 			Format(cap1, sizeof(cap1), "not selected");
 
 		if (IsValidClient(g_cap2) && !IsFakeClient(g_cap2) && IsClientInGame(g_cap2))
-			Format(cap2, sizeof(cap2), "%N");
+			Format(cap2, sizeof(cap2), "%N", g_cap2);
 		else
 			Format(cap2, sizeof(cap2), "not selected");
 
@@ -87,6 +89,12 @@ public Action:Timer_CheckReady(Handle:timer) {
 		PrintHintTextToAll("%i out of %i players are ready\nCaptain 1: %s\nCaptain 2: %s", rdy, count, cap1, cap2);
 	}
 	return Plugin_Continue;
+}
+
+public Action:Command_10man(client, args) {
+	g_Active = true;
+	PrintToChatAll("Setting up 10man game...");
+	CreateTimer(3.0, Timer_CheckReady, _, TIMER_REPEAT);
 }
 
 public Action:Command_Ready(client, args) {
@@ -108,7 +116,7 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
 }
 
 public Action:Command_EndMatch(client, args) {
-	if (!g_MatchLive)
+	if (!g_MatchLive || !g_Active)
 		ReplyToCommand(client, "Match has not begun yet!");
 	else
 		EndMatch();
@@ -116,13 +124,15 @@ public Action:Command_EndMatch(client, args) {
 }
 
 public EndMatch() {
-	g_MatchLive = false;
-	ServerCommand("tv_stoprecord");
-	ServerCommand("exec sourcemod/postgame.cfg");
+	if (g_Active) {
+		g_MatchLive = false;
+		ServerCommand("tv_stoprecord");
+		ServerCommand("exec sourcemod/postgame.cfg");
+	}
 }
 
 public Action:Command_Cap1(client, args) {
-	if (g_MatchLive)
+	if (g_MatchLive && g_Active)
 		return Plugin_Handled;
 
 	new String:arg1[32];
@@ -137,7 +147,7 @@ public Action:Command_Cap1(client, args) {
 }
 
 public Action:Command_Cap2(client, args) {
-	if (g_MatchLive)
+	if (g_MatchLive && g_Active)
 		return Plugin_Handled;
 
 	new String:arg1[32];
@@ -152,7 +162,7 @@ public Action:Command_Cap2(client, args) {
 }
 
 public StartPicking() {
-	if (g_MatchLive)
+	if (g_MatchLive && g_Active)
 		return;
 
 	ServerCommand("mp_pause_match");
@@ -294,7 +304,7 @@ public Action:Rest2(Handle:timer) {
 public Action:Rest3(Handle:timer) {
 	PrintToChatAll("Restart 3/3");
 	ServerCommand("mp_restartgame 5");
-	CreateTimer(7.0, Match);
+	CreateTimer(5.1, Match);
 }
 
 public Action:Match(Handle:timer) {
