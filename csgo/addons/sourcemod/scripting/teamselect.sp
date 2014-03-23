@@ -213,6 +213,7 @@ public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
 		if (client > 0) {
 			g_Teams[client] = g_Teams[param1];
+			PrintToChatAll("%N picks %N", param1, client);
 			SwitchPlayerTeam(client, g_Teams[param1]);
 			g_PlayersPicked++;
 
@@ -276,11 +277,11 @@ public AddPlayersToMenu(Handle:menu) {
 }
 
 public Action:FinishPicking(Handle:timer) {
-	CreateTimer(7.0, Rest1);
 	ServerCommand("exec sourcemod/10man.cfg");
 	ServerCommand("mp_unpause_match");
 	for (new i = 0; i < 3; i++)
-		PrintToChatAll("The match will begin shortly - live on 3!");
+		PrintToChatAll("*** The match will begin shortly - live on 3! ***");
+	CreateTimer(7.0, Rest1);
 }
 
 public OnClientPostAdminCheck(client) {
