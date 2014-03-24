@@ -6,7 +6,7 @@
 
 #pragma semicolon 1
 
-new Handle:g_Enabled = INVALID_HANDLE;
+new Handle:g_RequireCommand = INVALID_HANDLE;
 new g_cap1 = 0;
 new g_cap2 = 0;
 new g_PlayersPicked = 0;
@@ -26,26 +26,30 @@ public Plugin:myinfo = {
 public OnPluginStart() {
 	LoadTranslations("common.phrases");
 
-	/** convars **/
-	g_Enabled = CreateConVar("sm_teamselect_enabled", "1", "Sets whether teamselect is enabled");
+	/** ConVars **/
+	g_RequireCommand = CreateConVar("sm_teamselect_require_load_command", "1", "Sets whether teamselect needs a command to run");
 
 	// Create and exec plugin's configuration file
 	AutoExecConfig(true, "teamselect");
 
-	if (GetConVarInt(g_Enabled) == 1) {
-		RegConsoleCmd("sm_10man", Command_10man, "Starts 10man setup (!ready, !capt commands become avaliable)");
-		RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
-		RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
-		RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
-		RegAdminCmd("sm_capt2", Command_Cap2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
-		RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
-		RegAdminCmd("sm_cancel", Command_Cancel, ADMFLAG_CUSTOM1, "Cancels 10man setup, opposite of sm_10man");
-		HookEvent("cs_win_panel_match", Event_MatchOver);
-	}
+	/** Commands **/
+	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
+	RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
+	RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
+	RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
+	RegAdminCmd("sm_capt2", Command_Cap2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
+	RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
+	RegAdminCmd("sm_cancel", Command_Cancel, ADMFLAG_CUSTOM1, "Cancels 10man setup, opposite of sm_10man");
+	HookEvent("cs_win_panel_match", Event_MatchOver);\
 }
 
 InitializeVariables() {
-	g_Active = false;
+	if (GetConVarInt(g_RequireCommand) == 1) {
+		g_Active = false;
+	} else {
+		g_Active = true;
+	}
+
 	g_cap1 = -1;
 	g_cap2 = -1;
 	g_PlayersPicked = 0;
@@ -64,6 +68,9 @@ public OnMapEnd() {
 }
 
 public Action:Timer_CheckReady(Handle:timer) {
+	if (!g_Active)
+		return Plugin_Stop;
+
 	new rdy = 0;
 	new count = 0;
 	for (new i = 1; i <= MaxClients; i++) {
@@ -77,9 +84,6 @@ public Action:Timer_CheckReady(Handle:timer) {
 			}
 		}
 	}
-
-	if (!g_Active)
-		return Plugin_Stop;
 
 	if (rdy == count && IsValidClient(g_cap1) && IsValidClient(g_cap2) && g_cap1 != g_cap2) {
 		PrintToChatAll("Team selection has begun!");
@@ -106,11 +110,15 @@ public Action:Timer_CheckReady(Handle:timer) {
 }
 
 public Action:Command_10man(client, args) {
+	if (g_MatchLive)
+		return Plugin_Handled;
+
 	g_Active = true;
 	PrintToChatAll("Setting up 10man game...");
 	ServerCommand("exec sourcemod/postgame.cfg");
 	ServerCommand("mp_restartgame 1");
 	CreateTimer(3.0, Timer_CheckReady, _, TIMER_REPEAT);
+	return Plugin_Handled;
 }
 
 public Action:Command_Ready(client, args) {
