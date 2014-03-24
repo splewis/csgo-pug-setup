@@ -4,6 +4,8 @@
 #include <cstrike>
 #include <adminmenu>
 
+#pragma semicolon 1
+
 new Handle:g_Enabled = INVALID_HANDLE;
 new g_cap1 = 0;
 new g_cap2 = 0;
@@ -106,6 +108,8 @@ public Action:Timer_CheckReady(Handle:timer) {
 public Action:Command_10man(client, args) {
 	g_Active = true;
 	PrintToChatAll("Setting up 10man game...");
+	ServerCommand("exec sourcemod/postgame.cfg");
+	ServerCommand("mp_restartgame 1");
 	CreateTimer(3.0, Timer_CheckReady, _, TIMER_REPEAT);
 }
 
@@ -147,9 +151,20 @@ public Action:Command_Cancel(client, args) {
 public EndMatch() {
 	if (g_Active) {
 		g_MatchLive = false;
-		ServerCommand("tv_stoprecord");
 		ServerCommand("exec sourcemod/postgame.cfg");
+		CreateTimer(27.0, StopDemoMessage);
+		CreateTimer(30.0, StopDemo);
 	}
+}
+
+public Action:StopDemoMessage(Handle:timer) {
+	PrintToChatAll("Stopping demo...");
+	return Plugin_Continue;
+}
+
+public Action:StopDemo(Handle:timer) {
+	ServerCommand("tv_stoprecord");
+	return Plugin_Continue;
 }
 
 public Action:Command_Cap1(client, args) {
