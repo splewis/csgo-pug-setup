@@ -3,6 +3,7 @@
 #include <sdkhooks>
 #include <cstrike>
 #include <adminmenu>
+#include "liveon3.sp"
 
 #pragma semicolon 1
 
@@ -350,7 +351,7 @@ public Action:FinishPicking(Handle:timer) {
 	ServerCommand("mp_unpause_match");
 	for (new i = 0; i < 3; i++)
 		PrintToChatAll("*** The match will begin shortly - live on 3! ***");
-	CreateTimer(7.0, Rest1);
+	CreateTimer(7.0, BeginLO3);
 }
 
 public OnClientPostAdminCheck(client) {
@@ -370,28 +371,6 @@ SwitchPlayerTeam(client, team) {
 	}
 }
 
-public Action:Rest1(Handle:timer) {
-	PrintToChatAll("*** Restart 1/3 ***");
-	ServerCommand("mp_restartgame 1");
-	CreateTimer(3.0, Rest2);
-}
-
-public Action:Rest2(Handle:timer) {
-	PrintToChatAll("*** Restart 2/3 ***");
-	ServerCommand("mp_restartgame 1");
-	CreateTimer(4.0, Rest3);
-}
-
-public Action:Rest3(Handle:timer) {
-	PrintToChatAll("*** Restart 3/3 ***");
-	ServerCommand("mp_restartgame 5");
-	CreateTimer(5.1, Match);
-}
-
-public Action:Match(Handle:timer) {
-	for (new i = 0; i < 5; i++)
-		PrintToChatAll("****** Match is LIVE ******");
-}
 
 /***************************
  * Stocks                  *
