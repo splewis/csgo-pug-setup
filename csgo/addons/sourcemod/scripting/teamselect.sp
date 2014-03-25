@@ -34,6 +34,9 @@ public OnPluginStart() {
 
 	/** Commands **/
 	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
+	AddCommandListener(Command_Say, "say");
+	AddCommandListener(Command_Say, "say2");
+	AddCommandListener(Command_Say, "say_team");
 	RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
 	RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
 	RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
@@ -89,8 +92,8 @@ public Action:Timer_CheckReady(Handle:timer) {
 		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
 	} else {
-		decl String:cap1[20];
-		decl String:cap2[20];
+		decl String:cap1[24];
+		decl String:cap2[24];
 
 		if (IsValidClient(g_cap1) && !IsFakeClient(g_cap1) && IsClientInGame(g_cap1))
 			Format(cap1, sizeof(cap1), "%N", g_cap1);
@@ -118,6 +121,24 @@ public Action:Command_10man(client, args) {
 	ServerCommand("mp_restartgame 1");
 	CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
 	return Plugin_Handled;
+}
+
+public Action:Command_Say(client, const String:command[], argc) {
+	decl String:text[192];
+	if (GetCmdArgString(text, sizeof(text)) < 1) {
+		return Plugin_Continue;
+	}
+
+	StripQuotes(text);
+	if (strcmp(text[0], ".ready", false) == 0) {
+		Command_Ready(client, 0);
+	}
+	if (strcmp(text[0], ".unready", false) == 0) {
+		Command_Unready(client, 0);
+	}
+
+	// continue normally
+	return Plugin_Continue;
 }
 
 public Action:Command_Ready(client, args) {
@@ -247,6 +268,7 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 		SwitchPlayerTeam(g_cap2, hisTeam);
 		g_Teams[g_cap1] = otherTeam;
 		SwitchPlayerTeam(g_cap1, otherTeam);
+		ServerCommand("mp_restartgame 1");
 		GivePlayerSelectionMenu(g_cap1);
 	}
 }
@@ -261,7 +283,6 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
 		if (client > 0) {
 			g_Teams[client] = g_Teams[param1];
-			PrintToChatAll("%N picks %N", param1, client);
 			SwitchPlayerTeam(client, g_Teams[param1]);
 			g_PlayersPicked++;
 
