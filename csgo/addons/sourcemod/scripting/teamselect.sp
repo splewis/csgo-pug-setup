@@ -40,16 +40,11 @@ public OnPluginStart() {
 	RegAdminCmd("sm_capt2", Command_Cap2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
 	RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
 	RegAdminCmd("sm_cancel", Command_Cancel, ADMFLAG_CUSTOM1, "Cancels 10man setup, opposite of sm_10man");
-	HookEvent("cs_win_panel_match", Event_MatchOver);\
+	HookEvent("cs_win_panel_match", Event_MatchOver);
 }
 
 InitializeVariables() {
-	if (GetConVarInt(g_RequireCommand) == 1) {
-		g_Active = false;
-	} else {
-		g_Active = true;
-	}
-
+	g_Active = false;
 	g_cap1 = -1;
 	g_cap2 = -1;
 	g_PlayersPicked = 0;
@@ -62,6 +57,10 @@ InitializeVariables() {
 
 public OnMapStart() {
 	InitializeVariables();
+	if (GetConVarInt(g_RequireCommand) == 0) {
+		// fake a sm_10man command with fake args (they aren't used)
+		Command_10man(0, 0);
+	}
 }
 
 public OnMapEnd() {
@@ -86,7 +85,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 	}
 
 	if (rdy == count && IsValidClient(g_cap1) && IsValidClient(g_cap2) && g_cap1 != g_cap2) {
-		PrintToChatAll("Team selection has begun!");
+		PrintToChatAll("Team selection will begin in a few seconds!");
 		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
 	} else {
@@ -117,7 +116,7 @@ public Action:Command_10man(client, args) {
 	PrintToChatAll("Setting up 10man game...");
 	ServerCommand("exec sourcemod/postgame.cfg");
 	ServerCommand("mp_restartgame 1");
-	CreateTimer(3.0, Timer_CheckReady, _, TIMER_REPEAT);
+	CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
 	return Plugin_Handled;
 }
 
@@ -160,7 +159,7 @@ public EndMatch() {
 	if (g_Active) {
 		g_MatchLive = false;
 		ServerCommand("exec sourcemod/postgame.cfg");
-		CreateTimer(27.0, StopDemoMessage);
+		CreateTimer(29.0, StopDemoMessage);
 		CreateTimer(30.0, StopDemo);
 	}
 }
@@ -219,15 +218,41 @@ public Action:StartPicking(Handle:timer) {
 			CS_SetClientClanTag(i, "");
 		}
 	}
-	g_Teams[g_cap1] = CS_TEAM_T;
-	SwitchPlayerTeam(g_cap1, CS_TEAM_T);
-	g_Teams[g_cap2] = CS_TEAM_CT;
+
+	// temporary teams
 	SwitchPlayerTeam(g_cap2, CS_TEAM_CT);
-	GiveCaptainMenu(g_cap1);
+	SwitchPlayerTeam(g_cap1, CS_TEAM_T);
+
+	new Handle:menu = CreateMenu(SideMenuHandler);
+	SetMenuTitle(menu, "Which side do you want first");
+	SetMenuExitButton(menu, false);
+	AddMenuItem(menu, "CT", "CT");
+	AddMenuItem(menu, "T", "T");
+	DisplayMenu(menu, g_cap2, 30);
 	return Plugin_Handled;
 }
 
-public TeamMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
+
+public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
+	if (action == MenuAction_Select) {
+		new hisTeam = CS_TEAM_CT;
+		if (param2 == 1)  // T was option index 1 in the menu
+			hisTeam = CS_TEAM_T;
+
+		new otherTeam = CS_TEAM_T;
+		if (hisTeam == CS_TEAM_T)
+			otherTeam = CS_TEAM_CT;
+
+		g_Teams[g_cap2] = hisTeam;
+		SwitchPlayerTeam(g_cap2, hisTeam);
+		g_Teams[g_cap1] = otherTeam;
+		SwitchPlayerTeam(g_cap1, otherTeam);
+		GivePlayerSelectionMenu(g_cap1);
+	}
+}
+
+
+public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 	if (action == MenuAction_Select) {
 		new String:info[32];
 		GetMenuItem(menu, param2, info, sizeof(info));
@@ -271,12 +296,12 @@ public Action:MoreMenuPicks(Handle:timer, any:serial) {
 		CreateTimer(5.0, FinishPicking);
 		return Plugin_Handled;
 	}
-	GiveCaptainMenu(client);
+	GivePlayerSelectionMenu(client);
 	return Plugin_Handled;
 }
 
-public GiveCaptainMenu(client) {
-	new Handle:menu = CreateMenu(TeamMenuHandler);
+public GivePlayerSelectionMenu(client) {
+	new Handle:menu = CreateMenu(PlayerMenuHandler);
 	SetMenuTitle(menu, "Pick your players");
 	SetMenuExitButton(menu, false);
 	AddPlayersToMenu(menu);
@@ -327,13 +352,13 @@ SwitchPlayerTeam(client, team) {
 public Action:Rest1(Handle:timer) {
 	PrintToChatAll("*** Restart 1/3 ***");
 	ServerCommand("mp_restartgame 1");
-	CreateTimer(4.0, Rest2);
+	CreateTimer(3.0, Rest2);
 }
 
 public Action:Rest2(Handle:timer) {
 	PrintToChatAll("*** Restart 2/3 ***");
-	ServerCommand("mp_restartgame 3");
-	CreateTimer(7.0, Rest3);
+	ServerCommand("mp_restartgame 1");
+	CreateTimer(4.0, Rest3);
 }
 
 public Action:Rest3(Handle:timer) {
