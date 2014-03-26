@@ -286,6 +286,7 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 			g_Teams[client] = g_Teams[param1];
 			SwitchPlayerTeam(client, g_Teams[param1]);
 			g_PlayersPicked++;
+			PrintToChatAll("%N has picked %N", param1, client);
 
 			if (!IsPickingFinished()) {
 				new nextCapt = -1;
@@ -347,6 +348,12 @@ public AddPlayersToMenu(Handle:menu) {
 }
 
 public Action:FinishPicking(Handle:timer) {
+	for (new i = 1; i < MaxClients; i++) {
+		if (IsValidClient(i) && !IsFakeClient(i)) {
+			SwitchPlayerTeam(i, g_Teams[i]);
+		}
+	}
+
 	ServerCommand("exec sourcemod/10man.cfg");
 	ServerCommand("mp_unpause_match");
 	for (new i = 0; i < 3; i++)
