@@ -275,7 +275,7 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 		g_Teams[g_capt1] = otherTeam;
 		SwitchPlayerTeam(g_capt1, otherTeam);
 		ServerCommand("mp_restartgame 1");
-		CreateTimer(2.0, Timer_GivePlayerSelectionMenu, g_capt1);
+		CreateTimer(2.0, Timer_GivePlayerSelectionMenu, GetClientSerial(g_capt1));
 	}
 }
 
@@ -304,11 +304,11 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 				CreateTimer(1.0, FinishPicking);
 			}
 		} else {
-			CreateTimer(0.5, MoreMenuPicks, param2);
+			CreateTimer(0.5, MoreMenuPicks, GetClientSerial(param1));
 		}
 
 	} else if (action == MenuAction_Cancel) {
-		CreateTimer(0.5, MoreMenuPicks, param2);
+		CreateTimer(0.5, MoreMenuPicks, GetClientSerial(param1));
 	} else if (action == MenuAction_End) {
 		CloseHandle(menu);
 	}
