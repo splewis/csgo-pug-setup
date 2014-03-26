@@ -261,6 +261,11 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 		if (param2 == 1)  // T was option index 1 in the menu
 			hisTeam = CS_TEAM_T;
 
+		if (hisTeam == CS_TEAM_T)
+			PrintToChatAll("%N has picked T first.", g_capt2);
+		else
+			PrintToChatAll("%N has picked CT first.", g_capt2);
+
 		new otherTeam = CS_TEAM_T;
 		if (hisTeam == CS_TEAM_T)
 			otherTeam = CS_TEAM_CT;
@@ -270,7 +275,7 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 		g_Teams[g_capt1] = otherTeam;
 		SwitchPlayerTeam(g_capt1, otherTeam);
 		ServerCommand("mp_restartgame 1");
-		GivePlayerSelectionMenu(g_capt1);
+		CreateTimer(2.0, Timer_GivePlayerSelectionMenu, g_capt1);
 	}
 }
 
@@ -321,6 +326,10 @@ public Action:MoreMenuPicks(Handle:timer, any:serial) {
 	}
 	GivePlayerSelectionMenu(client);
 	return Plugin_Handled;
+}
+
+public Action:Timer_GivePlayerSelectionMenu(Handle:timer, any:serial) {
+	GivePlayerSelectionMenu(GetClientFromSerial(serial));
 }
 
 public GivePlayerSelectionMenu(client) {
