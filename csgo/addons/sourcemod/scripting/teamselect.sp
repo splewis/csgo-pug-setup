@@ -8,8 +8,8 @@
 #pragma semicolon 1
 
 new Handle:g_RequireCommand = INVALID_HANDLE;
-new g_cap1 = 0;
-new g_cap2 = 0;
+new g_capt1 = 0;
+new g_capt2 = 0;
 new g_PlayersPicked = 0;
 new g_Ready[MAXPLAYERS+1];
 new g_Teams[MAXPLAYERS+1];
@@ -40,8 +40,8 @@ public OnPluginStart() {
 	AddCommandListener(Command_Say, "say_team");
 	RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
 	RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
-	RegAdminCmd("sm_capt1", Command_Cap1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
-	RegAdminCmd("sm_capt2", Command_Cap2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
+	RegAdminCmd("sm_capt1", Command_Capt1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
+	RegAdminCmd("sm_capt2", Command_Capt2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
 	RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
 	RegAdminCmd("sm_cancel", Command_Cancel, ADMFLAG_CUSTOM1, "Cancels 10man setup, opposite of sm_10man");
 	HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -49,8 +49,8 @@ public OnPluginStart() {
 
 InitializeVariables() {
 	g_Active = false;
-	g_cap1 = -1;
-	g_cap2 = -1;
+	g_capt1 = -1;
+	g_capt2 = -1;
 	g_PlayersPicked = 0;
 	for (new i = 1; i <= MaxClients; i++) {
 		g_Ready[i] = false;
@@ -88,7 +88,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 		}
 	}
 
-	if (rdy == count && IsValidClient(g_cap1) && IsValidClient(g_cap2) && g_cap1 != g_cap2) {
+	if (rdy == count && IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
 		PrintToChatAll("Team selection will begin in a few seconds!");
 		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
@@ -96,13 +96,13 @@ public Action:Timer_CheckReady(Handle:timer) {
 		decl String:cap1[24];
 		decl String:cap2[24];
 
-		if (IsValidClient(g_cap1) && !IsFakeClient(g_cap1) && IsClientInGame(g_cap1))
-			Format(cap1, sizeof(cap1), "%N", g_cap1);
+		if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1) && IsClientInGame(g_capt1))
+			Format(cap1, sizeof(cap1), "%N", g_capt1);
 		else
 			Format(cap1, sizeof(cap1), "not selected");
 
-		if (IsValidClient(g_cap2) && !IsFakeClient(g_cap2) && IsClientInGame(g_cap2))
-			Format(cap2, sizeof(cap2), "%N", g_cap2);
+		if (IsValidClient(g_capt2) && !IsFakeClient(g_capt2) && IsClientInGame(g_capt2))
+			Format(cap2, sizeof(cap2), "%N", g_capt2);
 		else
 			Format(cap2, sizeof(cap2), "not selected");
 
@@ -196,7 +196,7 @@ public Action:StopDemo(Handle:timer) {
 	return Plugin_Continue;
 }
 
-public Action:Command_Cap1(client, args) {
+public Action:Command_Capt1(client, args) {
 	if (g_MatchLive || !g_Active)
 		return Plugin_Handled;
 
@@ -206,12 +206,12 @@ public Action:Command_Cap1(client, args) {
 	if (target == -1)
 		return Plugin_Handled;
 
-	g_cap1 = target;
-	PrintToChatAll("Captain 1 will be %N", g_cap1);
+	g_capt1 = target;
+	PrintToChatAll("Captain 1 will be %N", g_capt1);
 	return Plugin_Handled;
 }
 
-public Action:Command_Cap2(client, args) {
+public Action:Command_Capt2(client, args) {
 	if (g_MatchLive || !g_Active)
 		return Plugin_Handled;
 
@@ -221,8 +221,8 @@ public Action:Command_Cap2(client, args) {
 	if (target == -1)
 		return Plugin_Handled;
 
-	g_cap2 = target;
-	PrintToChatAll("Captain 2 will be %N", g_cap2);
+	g_capt2 = target;
+	PrintToChatAll("Captain 2 will be %N", g_capt2);
 	return Plugin_Handled;
 }
 
@@ -242,15 +242,15 @@ public Action:StartPicking(Handle:timer) {
 	}
 
 	// temporary teams
-	SwitchPlayerTeam(g_cap2, CS_TEAM_CT);
-	SwitchPlayerTeam(g_cap1, CS_TEAM_T);
+	SwitchPlayerTeam(g_capt2, CS_TEAM_CT);
+	SwitchPlayerTeam(g_capt1, CS_TEAM_T);
 
 	new Handle:menu = CreateMenu(SideMenuHandler);
 	SetMenuTitle(menu, "Which side do you want first");
 	SetMenuExitButton(menu, false);
 	AddMenuItem(menu, "CT", "CT");
 	AddMenuItem(menu, "T", "T");
-	DisplayMenu(menu, g_cap2, 30);
+	DisplayMenu(menu, g_capt2, 30);
 	return Plugin_Handled;
 }
 
@@ -265,12 +265,12 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 		if (hisTeam == CS_TEAM_T)
 			otherTeam = CS_TEAM_CT;
 
-		g_Teams[g_cap2] = hisTeam;
-		SwitchPlayerTeam(g_cap2, hisTeam);
-		g_Teams[g_cap1] = otherTeam;
-		SwitchPlayerTeam(g_cap1, otherTeam);
+		g_Teams[g_capt2] = hisTeam;
+		SwitchPlayerTeam(g_capt2, hisTeam);
+		g_Teams[g_capt1] = otherTeam;
+		SwitchPlayerTeam(g_capt1, otherTeam);
 		ServerCommand("mp_restartgame 1");
-		GivePlayerSelectionMenu(g_cap1);
+		GivePlayerSelectionMenu(g_capt1);
 	}
 }
 
@@ -289,10 +289,10 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
 			if (!IsPickingFinished()) {
 				new nextCapt = -1;
-				if (param1 == g_cap1)
-					nextCapt = g_cap2;
+				if (param1 == g_capt1)
+					nextCapt = g_capt2;
 				else
-					nextCapt = g_cap1;
+					nextCapt = g_capt1;
 				CreateTimer(0.5, MoreMenuPicks, GetClientSerial(nextCapt));
 			} else {
 				CreateTimer(1.0, FinishPicking);
