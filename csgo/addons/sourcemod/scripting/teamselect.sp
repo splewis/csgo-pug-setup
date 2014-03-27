@@ -365,7 +365,8 @@ public Action:FinishPicking(Handle:timer) {
 
 	ServerCommand("exec sourcemod/10man.cfg");
 	ServerCommand("mp_unpause_match");
-	for (new i = 0; i < 3; i++)
+
+	for (new i = 0; i < 5; i++)
 		PrintToChatAll("*** The match will begin shortly - live on 3! ***");
 	CreateTimer(7.0, BeginLO3);
 }
