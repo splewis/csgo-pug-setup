@@ -116,6 +116,9 @@ public Action:Command_10man(client, args) {
 	if (g_MatchLive)
 		return Plugin_Handled;
 
+	for (new i = 1; i <= MaxClients; i++)
+		g_Ready[i] = false;
+
 	g_Active = true;
 	PrintToChatAll("Setting up 10man game...");
 	ServerCommand("exec sourcemod/postgame.cfg");
