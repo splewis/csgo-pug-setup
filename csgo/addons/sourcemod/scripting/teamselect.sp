@@ -357,8 +357,9 @@ public AddPlayersToMenu(Handle:menu) {
 }
 
 public Action:FinishPicking(Handle:timer) {
-	for (new i = 1; i < MaxClients; i++) {
+	for (new i = 1; i <= MaxClients; i++) {
 		if (IsValidClient(i) && !IsFakeClient(i)) {
+			g_Ready[i] = false;
 			SwitchPlayerTeam(i, g_Teams[i]);
 		}
 	}
