@@ -80,10 +80,10 @@ public Action:Timer_CheckReady(Handle:timer) {
 		if (IsValidClient(i) && IsClientInGame(i) && !IsFakeClient(i)) {
 			count++;
 			if (g_Ready[i]) {
-				CS_SetClientClanTag(i, "Ready");
+				CS_SetClientClanTag(i, "[Ready]");
 				rdy++;
 			} else {
-				CS_SetClientClanTag(i, "Not ready");
+				CS_SetClientClanTag(i, "[Not ready]");
 			}
 		}
 	}
@@ -349,7 +349,7 @@ public AddPlayersToMenu(Handle:menu) {
 	new String:display[MAX_NAME_LENGTH+15];
 	new count = 0;
 	for (new client = 1; client <= MaxClients; client++) {
-		if (IsValidClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && !IsFakeClient(client) && IsClientInGame(client)) {
+		if (IsValidClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && g_Ready[client] && !IsFakeClient(client) && IsClientInGame(client)) {
 			IntToString(GetClientUserId(client), user_id, sizeof(user_id));
 			GetClientName(client, name, sizeof(name));
 			Format(display, sizeof(display), "%s", name);
@@ -379,7 +379,7 @@ public OnClientPostAdminCheck(client) {
 	g_Teams[client] = CS_TEAM_SPECTATOR;
 	g_Ready[client] = false;
 	if (IsClientInGame(client) && !IsFakeClient(client) && !g_MatchLive)
-		CS_SetClientClanTag(client, "Not ready");
+		CS_SetClientClanTag(client, "[Not ready]");
 }
 
 SwitchPlayerTeam(client, team) {
