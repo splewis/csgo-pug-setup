@@ -88,7 +88,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 		}
 	}
 
-	if (rdy == count && IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
+	if (rdy == count && rdy == 10 && IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
 		PrintToChatAll("Team selection will begin in a few seconds!");
 		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
