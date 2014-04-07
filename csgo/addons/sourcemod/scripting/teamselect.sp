@@ -8,6 +8,7 @@
 #pragma semicolon 1
 
 new Handle:g_RequireCommand = INVALID_HANDLE;
+new bool:g_PluginTeamSwitch[MAXPLAYERS+1] = false;
 new g_capt1 = 0;
 new g_capt2 = 0;
 new g_PlayersPicked = 0;
@@ -15,6 +16,7 @@ new g_Ready[MAXPLAYERS+1];
 new g_Teams[MAXPLAYERS+1];
 new g_Active = false;
 new g_MatchLive = false;
+new g_PickingPlayers = false;
 
 public Plugin:myinfo = {
 	name = "CS:GO TeamSelect",
@@ -32,6 +34,9 @@ public OnPluginStart() {
 
 	// Create and exec plugin's configuration file
 	AutoExecConfig(true, "teamselect");
+
+
+	AddCommandListener(OnJoinTeamCommand, "jointeam");
 
 	/** Commands **/
 	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
@@ -70,6 +75,34 @@ public OnMapStart() {
 public OnMapEnd() {
 }
 
+/**
+ * Called when a player joins a team, silences team join events
+ */
+public Action:OnPlayerTeam(Handle:event, const String:name[], bool:dontBroadcast)  {
+	if (g_PickingPlayers) {
+		dontBroadcast = true;
+		return Plugin_Changed;
+	}
+	return Plugin_Continue;
+}
+
+public Action:OnJoinTeamCommand(client, const String:command[], argc) {
+	if (!IsValidClient(client) || argc < 1)
+		return Plugin_Handled;
+
+	decl String:arg[4];
+	GetCmdArg(1, arg, sizeof(arg));
+	new team_to = StringToInt(arg);
+	new team_from = GetClientTeam(client);
+
+	if ((team_from == team_to) || (g_PluginTeamSwitch[client] && g_PickingPlayers) || IsFakeClient(client)) {
+		return Plugin_Continue;
+	} else {
+		ChangeClientTeam(client, team_to);
+		return Plugin_Handled;
+	}
+}
+
 public Action:Timer_CheckReady(Handle:timer) {
 	if (!g_Active)
 		return Plugin_Stop;
@@ -88,13 +121,14 @@ public Action:Timer_CheckReady(Handle:timer) {
 		}
 	}
 
-	if (rdy == count && rdy == 10 && IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
+	if (rdy == count && rdy >= 10 && IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
 		PrintToChatAll("Team selection will begin in a few seconds!");
+		g_PickingPlayers = true;
 		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
 	} else {
-		decl String:cap1[24];
-		decl String:cap2[24];
+		decl String:cap1[60];
+		decl String:cap2[60];
 
 		if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1) && IsClientInGame(g_capt1))
 			Format(cap1, sizeof(cap1), "%N", g_capt1);
@@ -148,7 +182,7 @@ public Action:Command_Say(client, const String:command[], argc) {
 public Action:Command_Ready(client, args) {
 	if (g_Active && !g_MatchLive) {
 		g_Ready[client] = true;
-		CS_SetClientClanTag(client, "Ready");
+		CS_SetClientClanTag(client, "[Ready]");
 	}
 	return Plugin_Handled;
 }
@@ -156,7 +190,7 @@ public Action:Command_Ready(client, args) {
 public Action:Command_Unready(client, args) {
 	if (g_Active && !g_MatchLive) {
 		g_Ready[client] = false;
-		CS_SetClientClanTag(client, "Not ready");
+		CS_SetClientClanTag(client, "[Not ready]");
 	}
 	return Plugin_Handled;
 }
@@ -233,6 +267,8 @@ public Action:StartPicking(Handle:timer) {
 	if (g_MatchLive || !g_Active)
 		return Plugin_Handled;
 
+
+	g_MatchLive = true;
 	ServerCommand("mp_pause_match");
 	ServerCommand("mp_restartgame 1");
 
@@ -366,6 +402,7 @@ public Action:FinishPicking(Handle:timer) {
 			SwitchPlayerTeam(i, g_Teams[i]);
 		}
 	}
+	g_PickingPlayers = false;
 
 	ServerCommand("exec sourcemod/10man.cfg");
 	ServerCommand("mp_unpause_match");
@@ -383,6 +420,7 @@ public OnClientPostAdminCheck(client) {
 }
 
 SwitchPlayerTeam(client, team) {
+	g_PluginTeamSwitch[client] = true;
 	if (team > CS_TEAM_SPECTATOR) {
 		CS_SwitchTeam(client, team);
 		CS_UpdateClientModel(client);
@@ -390,6 +428,7 @@ SwitchPlayerTeam(client, team) {
 	} else {
 		ChangeClientTeam(client, team);
 	}
+	g_PluginTeamSwitch[client] = false;
 }
 
 
