@@ -35,11 +35,10 @@ public OnPluginStart() {
 	// Create and exec plugin's configuration file
 	AutoExecConfig(true, "teamselect");
 
-
-	AddCommandListener(OnJoinTeamCommand, "jointeam");
-
 	/** Commands **/
 	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
+	RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_CUSTOM1, "");
+	RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_CUSTOM1, "");
 	AddCommandListener(Command_Say, "say");
 	AddCommandListener(Command_Say, "say2");
 	AddCommandListener(Command_Say, "say_team");
@@ -48,8 +47,8 @@ public OnPluginStart() {
 	RegAdminCmd("sm_capt1", Command_Capt1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
 	RegAdminCmd("sm_capt2", Command_Capt2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
 	RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
-	RegAdminCmd("sm_cancel", Command_Cancel, ADMFLAG_CUSTOM1, "Cancels 10man setup, opposite of sm_10man");
 	HookEvent("cs_win_panel_match", Event_MatchOver);
+	HookEvent("player_team", OnPlayerTeam, EventHookMode_Pre);
 }
 
 InitializeVariables() {
@@ -86,23 +85,6 @@ public Action:OnPlayerTeam(Handle:event, const String:name[], bool:dontBroadcast
 	return Plugin_Continue;
 }
 
-public Action:OnJoinTeamCommand(client, const String:command[], argc) {
-	if (!IsValidClient(client) || argc < 1)
-		return Plugin_Handled;
-
-	decl String:arg[4];
-	GetCmdArg(1, arg, sizeof(arg));
-	new team_to = StringToInt(arg);
-	new team_from = GetClientTeam(client);
-
-	if ((team_from == team_to) || (g_PluginTeamSwitch[client] && g_PickingPlayers) || IsFakeClient(client)) {
-		return Plugin_Continue;
-	} else {
-		ChangeClientTeam(client, team_to);
-		return Plugin_Handled;
-	}
-}
-
 public Action:Timer_CheckReady(Handle:timer) {
 	if (!g_Active)
 		return Plugin_Stop;
@@ -122,7 +104,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 	}
 
 	if (rdy == count && rdy >= 10 && IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
-		PrintToChatAll("Team selection will begin in a few seconds!");
+		PrintToChatAll(" \x01\x0B\x04Team selection will begin in a few seconds!");
 		g_PickingPlayers = true;
 		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
@@ -161,6 +143,16 @@ public Action:Command_10man(client, args) {
 	return Plugin_Handled;
 }
 
+public Action:Command_Pause(client, args) {
+	ServerCommand("mp_pause_match");
+	PrintToChatAll(" \x01\x0B\x03%N \x01has called for a pause", client);
+}
+
+public Action:Command_Unpause(client, args) {
+	ServerCommand("mp_unpause_match");
+	PrintToChatAll(" \x01\x0B\x03%N \x01unpaused", client);
+}
+
 public Action:Command_Say(client, const String:command[], argc) {
 	decl String:text[192];
 	if (GetCmdArgString(text, sizeof(text)) < 1) {
@@ -168,7 +160,11 @@ public Action:Command_Say(client, const String:command[], argc) {
 	}
 
 	StripQuotes(text);
-	if (strcmp(text[0], ".ready", false) == 0) {
+	new bool:isReady = false;
+	isReady |= (strcmp(text[0], ".ready", false) == 0);
+	isReady |= (strcmp(text[0], ".gs4lyfe", false) == 0);
+
+	if (isReady) {
 		Command_Ready(client, 0);
 	}
 	if (strcmp(text[0], ".unready", false) == 0) {
@@ -209,17 +205,12 @@ public Action:Command_EndMatch(client, args) {
 	return Plugin_Handled;
 }
 
-public Action:Command_Cancel(client, args) {
-	InitializeVariables();
-	return Plugin_Handled;
-}
-
 public EndMatch() {
 	if (g_Active) {
 		g_MatchLive = false;
 		ServerCommand("exec sourcemod/postgame.cfg");
-		CreateTimer(29.0, StopDemoMessage);
-		CreateTimer(30.0, StopDemo);
+		CreateTimer(130.0, StopDemoMessage);
+		CreateTimer(131.0, StopDemo);
 	}
 }
 
@@ -244,7 +235,7 @@ public Action:Command_Capt1(client, args) {
 		return Plugin_Handled;
 
 	g_capt1 = target;
-	PrintToChatAll("Captain 1 will be %N", g_capt1);
+	PrintToChatAll("Captain 1 will be \x02%N", g_capt1);
 	return Plugin_Handled;
 }
 
@@ -259,7 +250,7 @@ public Action:Command_Capt2(client, args) {
 		return Plugin_Handled;
 
 	g_capt2 = target;
-	PrintToChatAll("Captain 2 will be %N", g_capt2);
+	PrintToChatAll("Captain 2 will be \x03%N", g_capt2);
 	return Plugin_Handled;
 }
 
@@ -301,9 +292,9 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 			hisTeam = CS_TEAM_T;
 
 		if (hisTeam == CS_TEAM_T)
-			PrintToChatAll("%N has picked T first.", g_capt2);
+			PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x02T \x01first.", g_capt2);
 		else
-			PrintToChatAll("%N has picked CT first.", g_capt2);
+			PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x03CT \x01first.", g_capt2);
 
 		new otherTeam = CS_TEAM_T;
 		if (hisTeam == CS_TEAM_T)
@@ -330,7 +321,10 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 			g_Teams[client] = g_Teams[param1];
 			SwitchPlayerTeam(client, g_Teams[param1]);
 			g_PlayersPicked++;
-			PrintToChatAll("%N has picked %N", param1, client);
+			if (param1 == g_capt1)
+				PrintToChatAll(" \x01\x0B\x02%N \x01has picked \x02%N", param1, client);
+			else
+				PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x03%N", param1, client);
 
 			if (!IsPickingFinished()) {
 				new nextCapt = -1;
