@@ -3,7 +3,7 @@
 #include <sdkhooks>
 #include <cstrike>
 #include <adminmenu>
-#include "liveon3.sp"
+#include "teamselect/liveon3.sp"
 
 #pragma semicolon 1
 
@@ -136,7 +136,6 @@ public Action:Command_10man(client, args) {
 		g_Ready[i] = false;
 
 	g_Active = true;
-	PrintToChatAll("Setting up 10man game...");
 	ServerCommand("exec sourcemod/postgame.cfg");
 	ServerCommand("mp_restartgame 1");
 	CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
