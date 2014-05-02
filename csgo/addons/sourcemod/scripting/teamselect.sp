@@ -1,13 +1,17 @@
+#define PLUGIN_VERSION 		"0.1.0"
+
 #include <sourcemod>
 #include <sdktools>
 #include <sdkhooks>
 #include <cstrike>
 #include <adminmenu>
-#include "liveon3.sp"
+#include "teamselect/liveon3.sp"
 
 #pragma semicolon 1
 
-new Handle:g_RequireCommand = INVALID_HANDLE;
+new Handle:g_hRequireCommand = INVALID_HANDLE;
+new Handle:g_hCvarVersion = INVALID_HANDLE;
+
 new bool:g_PluginTeamSwitch[MAXPLAYERS+1] = false;
 new g_capt1 = 0;
 new g_capt2 = 0;
@@ -30,7 +34,9 @@ public OnPluginStart() {
 	LoadTranslations("common.phrases");
 
 	/** ConVars **/
-	g_RequireCommand = CreateConVar("sm_teamselect_require_load_command", "1", "Sets whether teamselect needs a command to run");
+	g_hRequireCommand = CreateConVar("sm_teamselect_require_load_command", "1", "Sets whether teamselect needs a command to run");
+	g_hCvarVersion = CreateConVar("sm_teamselect_version", PLUGIN_VERSION, "Current brush version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+	SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
 	// Create and exec plugin's configuration file
 	AutoExecConfig(true, "teamselect");
@@ -65,7 +71,7 @@ InitializeVariables() {
 
 public OnMapStart() {
 	InitializeVariables();
-	if (GetConVarInt(g_RequireCommand) == 0) {
+	if (GetConVarInt(g_hRequireCommand) == 0) {
 		// fake a sm_10man command with fake args (they aren't used)
 		Command_10man(0, 0);
 	}
@@ -136,7 +142,6 @@ public Action:Command_10man(client, args) {
 		g_Ready[i] = false;
 
 	g_Active = true;
-	PrintToChatAll("Setting up 10man game...");
 	ServerCommand("exec sourcemod/postgame.cfg");
 	ServerCommand("mp_restartgame 1");
 	CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
