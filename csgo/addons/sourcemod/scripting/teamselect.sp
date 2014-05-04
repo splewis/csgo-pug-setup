@@ -50,7 +50,8 @@ public OnPluginStart() {
 	RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
 
 	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
-	RegAdminCmd("sm_start", Command_10man, ADMFLAG_CUSTOM1, "Starts the game if auto-lo3 is disabled");
+	RegAdminCmd("sm_rand", Command_RandomCaptains, ADMFLAG_CUSTOM1, "Selects random captains");
+	RegAdminCmd("sm_start", Command_Start, ADMFLAG_CUSTOM1, "Starts the game if auto-lo3 is disabled");
 	RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_CUSTOM1, "");
 	RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_CUSTOM1, "");
 	RegAdminCmd("sm_capt1", Command_Capt1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
@@ -140,6 +141,27 @@ public Action:Command_10man(client, args) {
 	return Plugin_Handled;
 }
 
+public Action:Command_RandomCaptains(client, args) {
+	if (g_MatchLive || !g_Active || GetRealClientCount() < 2)
+		return Plugin_Handled;
+
+	new c1 = -1;
+	new c2 = -1;
+
+	c1 = RandomPlayer();
+	while (!IsValidClient(c2) || c1 == c2) {
+		if (GetClientCount() < 2)
+			break;
+
+		c2 = RandomPlayer();
+	}
+
+	SetCapt1(c1);
+	SetCapt2(	c2);
+
+	return Plugin_Handled;
+}
+
 public Action:Command_Pause(client, args) {
 	ServerCommand("mp_pause_match");
 	PrintToChatAll(" \x01\x0B\x03%N \x01has called for a pause", client);
@@ -161,11 +183,20 @@ public Action:Command_Say(client, const String:command[], argc) {
 	isReady |= (strcmp(text[0], ".ready", false) == 0);
 	isReady |= (strcmp(text[0], ".gs4lyfe", false) == 0);
 
-	if (isReady) {
+	if (isReady && g_Active) {
 		Command_Ready(client, 0);
 	}
-	if (strcmp(text[0], ".unready", false) == 0) {
+	if (strcmp(text[0], ".unready", false) == 0 && g_Active) {
 		Command_Unready(client, 0);
+	}
+
+	if (strcmp(text[0], ".pause", false) == 0 && (client == g_capt1 || client == g_capt2) && g_Active && g_MatchLive) {
+		Command_Pause(client, 0);
+	}
+
+	if (strcmp(text[0], ".unpause", false) == 0 && (client == g_capt1 || client == g_capt2) && g_Active && g_MatchLive) {
+		Command_Unpause(client, 0);
+
 	}
 
 	// continue normally
@@ -231,9 +262,18 @@ public Action:Command_Capt1(client, args) {
 	if (target == -1)
 		return Plugin_Handled;
 
-	g_capt1 = target;
-	PrintToChatAll("Captain 1 will be \x02%N", g_capt1);
+	SetCapt1(client);
 	return Plugin_Handled;
+}
+
+public SetCapt1(client) {
+	g_capt1 = client;
+	PrintToChatAll("Captain 1 will be \x02%N", g_capt1);
+}
+
+public SetCapt2(client) {
+	g_capt2 = client;
+	PrintToChatAll("Captain 2 will be \x03%N", g_capt2);
 }
 
 public Action:Command_Capt2(client, args) {
@@ -246,8 +286,7 @@ public Action:Command_Capt2(client, args) {
 	if (target == -1)
 		return Plugin_Handled;
 
-	g_capt2 = target;
-	PrintToChatAll("Captain 2 will be \x03%N", g_capt2);
+	SetCapt2(target);
 	return Plugin_Handled;
 }
 
@@ -445,4 +484,26 @@ stock bool:IsValidClient(client) {
 	if (client > 0 && client <= MaxClients && IsClientConnected(client) && IsClientInGame(client))
 		return true;
 	return false;
+}
+
+public GetRealClientCount() {
+	new clients = 0;
+	for (new i = 1; i <= MaxClients; i++) {
+		if (IsClientInGame(i) && !IsFakeClient(i)) {
+			clients++;
+		}
+	}
+	return clients;
+}
+
+
+public RandomPlayer() {
+	new client = -1;
+	while (!IsValidClient(client) || IsFakeClient(client)) {
+		if (GetRealClientCount() < 1)
+			return -1;
+
+		client = GetRandomInt(1, MaxClients);
+	}
+	return client;
 }
