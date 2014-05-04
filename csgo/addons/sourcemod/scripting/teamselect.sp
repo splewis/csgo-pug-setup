@@ -11,8 +11,8 @@
 
 new Handle:g_hRequireCommand = INVALID_HANDLE;
 new Handle:g_hCvarVersion = INVALID_HANDLE;
+new Handle:g_hAutoLO3 = INVALID_HANDLE;
 
-new bool:g_PluginTeamSwitch[MAXPLAYERS+1] = false;
 new g_capt1 = 0;
 new g_capt2 = 0;
 new g_PlayersPicked = 0;
@@ -20,7 +20,6 @@ new g_Ready[MAXPLAYERS+1];
 new g_Teams[MAXPLAYERS+1];
 new g_Active = false;
 new g_MatchLive = false;
-new g_PickingPlayers = false;
 
 public Plugin:myinfo = {
 	name = "CS:GO TeamSelect",
@@ -35,6 +34,7 @@ public OnPluginStart() {
 
 	/** ConVars **/
 	g_hRequireCommand = CreateConVar("sm_teamselect_require_load_command", "1", "Sets whether teamselect needs a command to run");
+	g_hAutoLO3 = CreateConVar("sm_teamselect_autolo3", "1", "If the game starts immediately after teams are picked");
 	g_hCvarVersion = CreateConVar("sm_teamselect_version", PLUGIN_VERSION, "Current brush version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 	SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
@@ -42,19 +42,23 @@ public OnPluginStart() {
 	AutoExecConfig(true, "teamselect");
 
 	/** Commands **/
-	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
-	RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_CUSTOM1, "");
-	RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_CUSTOM1, "");
 	AddCommandListener(Command_Say, "say");
 	AddCommandListener(Command_Say, "say2");
 	AddCommandListener(Command_Say, "say_team");
+
 	RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
 	RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
+
+	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
+	RegAdminCmd("sm_start", Command_10man, ADMFLAG_CUSTOM1, "Starts the game if auto-lo3 is disabled");
+	RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_CUSTOM1, "");
+	RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_CUSTOM1, "");
 	RegAdminCmd("sm_capt1", Command_Capt1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
 	RegAdminCmd("sm_capt2", Command_Capt2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
 	RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
+
+	/** Event hooks **/
 	HookEvent("cs_win_panel_match", Event_MatchOver);
-	HookEvent("player_team", OnPlayerTeam, EventHookMode_Pre);
 }
 
 InitializeVariables() {
@@ -80,17 +84,6 @@ public OnMapStart() {
 public OnMapEnd() {
 }
 
-/**
- * Called when a player joins a team, silences team join events
- */
-public Action:OnPlayerTeam(Handle:event, const String:name[], bool:dontBroadcast)  {
-	if (g_PickingPlayers) {
-		dontBroadcast = true;
-		return Plugin_Changed;
-	}
-	return Plugin_Continue;
-}
-
 public Action:Timer_CheckReady(Handle:timer) {
 	if (!g_Active)
 		return Plugin_Stop;
@@ -111,7 +104,6 @@ public Action:Timer_CheckReady(Handle:timer) {
 
 	if (rdy == count && rdy >= 10 && IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
 		PrintToChatAll(" \x01\x0B\x04Team selection will begin in a few seconds!");
-		g_PickingPlayers = true;
 		CreateTimer(3.0, StartPicking);
 		return Plugin_Stop;
 	} else {
@@ -403,10 +395,16 @@ public Action:FinishPicking(Handle:timer) {
 			SwitchPlayerTeam(i, g_Teams[i]);
 		}
 	}
-	g_PickingPlayers = false;
-
 	ServerCommand("exec sourcemod/10man.cfg");
 	ServerCommand("mp_unpause_match");
+	if (GetConVarInt(g_hAutoLO3) != 0) {
+		Command_Start(0, 0); // fake a sm_start command
+	}
+}
+
+public Action:Command_Start(client, args) {
+	if (!g_Active)
+		return;
 
 	for (new i = 0; i < 5; i++)
 		PrintToChatAll("*** The match will begin shortly - live on 3! ***");
@@ -421,7 +419,6 @@ public OnClientPostAdminCheck(client) {
 }
 
 SwitchPlayerTeam(client, team) {
-	g_PluginTeamSwitch[client] = true;
 	if (team > CS_TEAM_SPECTATOR) {
 		CS_SwitchTeam(client, team);
 		CS_UpdateClientModel(client);
@@ -429,7 +426,6 @@ SwitchPlayerTeam(client, team) {
 	} else {
 		ChangeClientTeam(client, team);
 	}
-	g_PluginTeamSwitch[client] = false;
 }
 
 
