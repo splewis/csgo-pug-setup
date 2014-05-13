@@ -52,10 +52,10 @@ public OnPluginStart() {
 	RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CUSTOM1, "Starts 10man setup (!ready, !capt commands become avaliable)");
 	RegAdminCmd("sm_rand", Command_RandomCaptains, ADMFLAG_CUSTOM1, "Selects random captains");
 	RegAdminCmd("sm_start", Command_Start, ADMFLAG_CUSTOM1, "Starts the game if auto-lo3 is disabled");
-	RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_CUSTOM1, "");
-	RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_CUSTOM1, "");
 	RegAdminCmd("sm_capt1", Command_Capt1, ADMFLAG_CUSTOM1, "Sets captain 1 (picks first, T)");
 	RegAdminCmd("sm_capt2", Command_Capt2, ADMFLAG_CUSTOM1, "Sets captain 2 (picks second, CT)");
+	RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_CUSTOM1, "Pauses the game");
+	RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_CUSTOM1, "Unpauses the game");
 	RegAdminCmd("sm_endgame", Command_EndMatch, ADMFLAG_CUSTOM1, "Pre-emptively ends the match");
 
 	/** Event hooks **/
@@ -157,19 +157,9 @@ public Action:Command_RandomCaptains(client, args) {
 	}
 
 	SetCapt1(c1);
-	SetCapt2(	c2);
+	SetCapt2(c2);
 
 	return Plugin_Handled;
-}
-
-public Action:Command_Pause(client, args) {
-	ServerCommand("mp_pause_match");
-	PrintToChatAll(" \x01\x0B\x03%N \x01has called for a pause", client);
-}
-
-public Action:Command_Unpause(client, args) {
-	ServerCommand("mp_unpause_match");
-	PrintToChatAll(" \x01\x0B\x03%N \x01unpaused", client);
 }
 
 public Action:Command_Say(client, const String:command[], argc) {
@@ -190,17 +180,42 @@ public Action:Command_Say(client, const String:command[], argc) {
 		Command_Unready(client, 0);
 	}
 
-	if (strcmp(text[0], ".pause", false) == 0 && (client == g_capt1 || client == g_capt2) && g_Active && g_MatchLive) {
-		Command_Pause(client, 0);
+	new bool:pausePermissions = client == g_capt1 || client == g_capt2;
+
+	if (strcmp(text[0], ".pause", false) == 0) {
+		if (pausePermissions) {
+			Command_Pause(client, 0);
+		} else {
+			PrintToChat(client, " \x01\x0B\x04Only captains may pause");
+
+		}
 	}
 
-	if (strcmp(text[0], ".unpause", false) == 0 && (client == g_capt1 || client == g_capt2) && g_Active && g_MatchLive) {
-		Command_Unpause(client, 0);
+	if (strcmp(text[0], ".unpause", false) == 0) {
+		if (pausePermissions) {
+			Command_Unpause(client, 0);
+		} else {
+			PrintToChat(client, " \x01\x0B\x04Only captains may unpause");
 
+		}
 	}
 
 	// continue normally
 	return Plugin_Continue;
+}
+
+public Action:Command_Pause(client, args) {
+	if (IsValidClient(client)) {
+		ServerCommand("mp_pause_match");
+		PrintToChatAll(" \x01\x0B\x03%N \x01has called for a pause", client);
+	}
+}
+
+public Action:Command_Unpause(client, args) {
+	if (IsValidClient(client)) {
+		ServerCommand("mp_unpause_match");
+		PrintToChatAll(" \x01\x0B\x03%N \x01has unpaused", client);
+	}
 }
 
 public Action:Command_Ready(client, args) {
@@ -262,7 +277,7 @@ public Action:Command_Capt1(client, args) {
 	if (target == -1)
 		return Plugin_Handled;
 
-	SetCapt1(client);
+	SetCapt1(target);
 	return Plugin_Handled;
 }
 
@@ -316,7 +331,7 @@ public Action:StartPicking(Handle:timer) {
 	SetMenuExitButton(menu, false);
 	AddMenuItem(menu, "CT", "CT");
 	AddMenuItem(menu, "T", "T");
-	DisplayMenu(menu, g_capt2, 30);
+	DisplayMenu(menu, g_capt2, MENU_TIME_FOREVER);
 	return Plugin_Handled;
 }
 
@@ -408,7 +423,7 @@ public GivePlayerSelectionMenu(client) {
 	SetMenuTitle(menu, "Pick your players");
 	SetMenuExitButton(menu, false);
 	AddPlayersToMenu(menu);
-	DisplayMenu(menu, client, 30);
+	DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public AddPlayersToMenu(Handle:menu) {
