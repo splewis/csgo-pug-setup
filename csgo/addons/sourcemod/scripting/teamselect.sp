@@ -26,10 +26,10 @@ new Handle:g_hLiveCfg = INVALID_HANDLE;
 new g_capt1 = 0;
 new g_capt2 = 0;
 new g_PlayersPicked = 0;
-new g_Ready[MAXPLAYERS+1];
 new g_Teams[MAXPLAYERS+1];
-new g_Active = false;
-new g_MatchLive = false;
+new bool:g_Ready[MAXPLAYERS+1];
+new bool:g_Active = false;
+new bool:g_MatchLive = false;
 
 #include "teamselect/liveon3.sp"
 #include "teamselect/menus.sp"
@@ -149,7 +149,6 @@ public Action:Timer_CheckReady(Handle:timer) {
         else
             Format(cap2, sizeof(cap2), "not selected");
 
-
         PrintHintTextToAll("%i out of %i players are ready\nCaptain 1: %s\nCaptain 2: %s", rdy, count, cap1, cap2);
     }
     return Plugin_Continue;
@@ -211,6 +210,11 @@ public Action:Command_Capt1(client, args) {
     if (target == -1)
         return Plugin_Handled;
 
+    if (target == g_capt2) {
+        ReplyToCommand(client, "%N is already captain 1!", target);
+        return Plugin_Handled;
+    }
+
     SetCapt1(target);
     return Plugin_Handled;
 }
@@ -225,12 +229,17 @@ public Action:Command_Capt2(client, args) {
     if (target == -1)
         return Plugin_Handled;
 
+    if (target == g_capt1) {
+        ReplyToCommand(client, "%N is already captain 2!", target);
+        return Plugin_Handled;
+    }
+
     SetCapt2(target);
     return Plugin_Handled;
 }
 
 public Action:Command_Start(client, args) {
-    if (!g_Active)
+    if (!g_Active || !g_MatchLive)
         return;
 
     for (new i = 0; i < 5; i++)
@@ -258,7 +267,7 @@ public Action:Command_Say(client, const String:command[], argc) {
         if (pausePermissions) {
             Command_Pause(client, 0);
         } else {
-            PrintToChat(client, " \x01\x0B\x04Only captains may pause");
+            ReplyToCommand(client, " \x01\x0B\x04Only captains may pause");
         }
     }
 
@@ -266,7 +275,7 @@ public Action:Command_Say(client, const String:command[], argc) {
         if (pausePermissions) {
             Command_Unpause(client, 0);
         } else {
-            PrintToChat(client, " \x01\x0B\x04Only captains may unpause");
+            ReplyToCommand(client, " \x01\x0B\x04Only captains may unpause");
         }
     }
 
@@ -346,7 +355,9 @@ public SetCapt2(client) {
 public EndMatch() {
     if (g_Active) {
         g_MatchLive = false;
-        ServerCommand("exec sourcemod/postgame.cfg");
+        new String:warmupCfg[256];
+        GetConVarString(g_hWarmupCfg, warmupCfg, sizeof(warmupCfg));
+        ServerCommand("exec %s", warmupCfg);
     }
 }
 
