@@ -8,9 +8,14 @@ Admin Commands (given by custom admin flag 1, "o")
 - sm_start, begins the game (note that the cvar sm_teamselect_autolo3 controls if this is needed)
 - sm_capt1 <player>
 - sm_capt2 <player>
-- sm_endgame, force ends the game safely (stops any demo recording, execs postgame config)
+- sm_endgame, force ends the game safely
+- sm_pause
+- sm_unpause
 
-Client Commands:
+General client Commands:
 - sm_ready / .ready in chat
 - sm_unready / .unready in chat
 
+Captain commands:
+- .pause in chat
+- .unpause in chat
