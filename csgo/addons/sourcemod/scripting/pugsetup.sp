@@ -148,7 +148,20 @@ public Action:Timer_CheckReady(Handle:timer) {
                     CreateTimer(1.0, StartPicking);
                     return Plugin_Stop;
                 } else {
-                    PrintHintTextToAll("Waiting for captains to be picked...");
+                    decl String:cap1[60];
+                    decl String:cap2[60];
+                    if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1) && IsClientInGame(g_capt1))
+                        Format(cap1, sizeof(cap1), "%N", g_capt1);
+                    else
+                        Format(cap1, sizeof(cap1), "not selected");
+
+                    if (IsValidClient(g_capt2) && !IsFakeClient(g_capt2) && IsClientInGame(g_capt2))
+                        Format(cap2, sizeof(cap2), "%N", g_capt2);
+                    else
+                        Format(cap2, sizeof(cap2), "not selected");
+
+                    PrintHintTextToAll("Captain 1: %s\nCaptain 2: %s",cap1, cap2);
+
                 }
             } else {
                 if (GetConVarInt(g_hAutoLO3) != 0) {
