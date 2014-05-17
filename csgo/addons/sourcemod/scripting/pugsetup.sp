@@ -24,7 +24,7 @@ new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
 
 /** Setup info **/
-new g_Owner = -1;
+new g_Leader = -1;
 new bool:g_Setup = false;
 new bool:g_mapSet = false;
 new bool:g_Recording = true;
@@ -35,7 +35,7 @@ new MapType:g_MapType;
 enum Permissions {
     Permission_All = 0,
     Permission_Captains = 1,
-    Permission_Owner = 2
+    Permission_Leader = 2
 }
 
 /** Data about team selections **/
@@ -96,7 +96,7 @@ public OnPluginStart() {
     RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_GENERIC, "Pauses the game");
     RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_GENERIC, "Unpauses the game");
     RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
-    RegAdminCmd("sm_owner", Command_Owner, ADMFLAG_CHANGEMAP, "Sets the pug owner");
+    RegAdminCmd("sm_leader", Command_Leader, ADMFLAG_CHANGEMAP, "Sets the pug leader");
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -177,8 +177,8 @@ public Action:Timer_CheckReady(Handle:timer) {
                 if (GetConVarInt(g_hAutoLO3) != 0) {
                     Command_Start(0, 0);
                 } else {
-                    PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start.", GetOwner());
-                    PrintToChat(GetOwner(), "Everybody is ready! Use \x04.start \x01to begin the match.");
+                    PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start.", GetLeader());
+                    PrintToChat(GetLeader(), "Everybody is ready! Use \x04.start \x01to begin the match.");
                 }
                 return Plugin_Stop;
             }
@@ -212,7 +212,7 @@ public Action:Command_Setup(client, args) {
     }
 
     g_Setup = true;
-    g_Owner = GetSteamAccountID(client);
+    g_Leader = GetSteamAccountID(client);
     for (new i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
@@ -319,9 +319,9 @@ public Action:Command_Say(client, const String:command[], argc) {
     StripQuotes(text);
 
     ChatAlias(".setup", Command_Setup, Permission_All)
-    ChatAlias(".start", Command_Start, Permission_Owner)
-    ChatAlias(".endgame", Command_EndGame, Permission_Owner)
-    ChatAlias(".rand", Command_Rand, Permission_Owner)
+    ChatAlias(".start", Command_Start, Permission_Leader)
+    ChatAlias(".endgame", Command_EndGame, Permission_Leader)
+    ChatAlias(".rand", Command_Rand, Permission_Leader)
     ChatAlias(".gaben", Command_Ready, Permission_All)
     ChatAlias(".ready", Command_Ready, Permission_All)
     ChatAlias(".unready", Command_Unready, Permission_All)
@@ -343,11 +343,11 @@ public Action:Command_Say(client, const String:command[], argc) {
 }
 
 public bool:HasPermissions(client, Permissions:p) {
-    new bool:isOwner = GetOwner() == client;
-    new bool:isCapt = isOwner || client == g_capt1 || client == g_capt2;
+    new bool:isLeader = GetLeader() == client;
+    new bool:isCapt = isLeader || client == g_capt1 || client == g_capt2;
 
-    if (p == Permission_Owner)
-        return isOwner;
+    if (p == Permission_Leader)
+        return isLeader;
     else if (p == Permission_Captains)
         return isCapt;
     else if (p == Permission_All)
@@ -427,7 +427,7 @@ public Action:Command_Unready(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_Owner(client, args) {
+public Action:Command_Leader(client, args) {
     if (!g_Setup)
         return Plugin_Handled;
 
@@ -437,7 +437,8 @@ public Action:Command_Owner(client, args) {
     if (target == -1)
         return Plugin_Handled;
 
-    g_Owner = GetSteamAccountID(target);
+    PrintToChatAll("The new leader is \x04%N", target);
+    g_Leader = GetSteamAccountID(target);
     return Plugin_Handled;
 }
 
@@ -462,7 +463,7 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
  ***********************/
 
 public PrintSetupInfo(client) {
-        PrintToChat(client, "The game has been setup by \x04%N.", GetOwner());
+        PrintToChat(client, "The game has been setup by \x04%N.", GetLeader());
 
         decl String:buffer[32];
         GetTeamString(buffer, sizeof(buffer), g_TeamType);
@@ -512,7 +513,7 @@ public EndMatch() {
     if (g_MatchLive)
         ExecCfg(g_hWarmupCfg);
 
-    g_Owner = -1;
+    g_Leader = -1;
     g_capt1 = -1;
     g_capt2 = -1;
     g_Setup = false;
@@ -631,15 +632,15 @@ public SwitchPlayerTeam(client, team) {
 /**
  * Returns the client whose steam account id matches the parameter, or -1 if none are found.
  */
-public GetOwner() {
-    new ownerID = g_Owner;
+public GetLeader() {
+    new leaderID = g_Leader;
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == ownerID)
+        if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == leaderID)
             return i;
     }
 
     new r = RandomPlayer();
-    g_Owner = GetSteamAccountID(r);
+    g_Leader = GetSteamAccountID(r);
     return r;
 }
 
