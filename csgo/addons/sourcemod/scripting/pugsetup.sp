@@ -207,14 +207,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 
 public Action:Command_Setup(client, args) {
     if (g_Setup) {
-        PrintToChat(client, "The game has already been setup by \x04%N.", GetOwner());
-
-        decl String:buffer[32];
-        GetTeamString(buffer, sizeof(buffer), g_TeamType);
-        PrintToChat(client, "   Team setup choice: \x03%s", buffer);
-
-        GetMapString(buffer, sizeof(buffer), g_MapType);
-        PrintToChat(client, "   Map setup choice: \x03%s", buffer);
+        PrintSetupInfo(client);
         return Plugin_Handled;
     }
 
@@ -453,9 +446,20 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
 
 /***********************
  *                     *
- *  Teamselect logic   *
+ *    Pugsetup logic   *
  *                     *
  ***********************/
+
+public PrintSetupInfo(client) {
+        PrintToChat(client, "The game has been setup by \x04%N.", GetOwner());
+
+        decl String:buffer[32];
+        GetTeamString(buffer, sizeof(buffer), g_TeamType);
+        PrintToChat(client, "   Team setup choice: \x03%s", buffer);
+
+        GetMapString(buffer, sizeof(buffer), g_MapType);
+        PrintToChat(client, "   Map setup choice: \x03%s", buffer);
+}
 
 public SetCapt1(client) {
     if (IsValidClient(client)) {

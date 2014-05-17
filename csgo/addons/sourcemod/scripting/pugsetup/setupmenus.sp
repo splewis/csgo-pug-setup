@@ -1,5 +1,6 @@
 new Handle:g_MapNames = INVALID_HANDLE;
 new Handle:g_MapVotes = INVALID_HANDLE;
+new g_VotesCasted = 0;
 
 #define MAP_NAME_LENGTH 256
 
@@ -104,26 +105,34 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
 public SetupFinished() {
     ExecCfg(g_hWarmupCfg);
+    for (new i = 1; i < MaxClients; i++)
+        if (IsValidClient(i) && !IsFakeClient(i))
+            PrintSetupInfo(i);
     g_Setup = true;
     CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
 }
 
 public CreateMapVote() {
-    GetMapList();
+    GetMapList("maps.txt");
     ShowMapVote();
 }
 
-static GetMapList() {
+static GetMapList(String:fileName[]) {
     g_MapNames = CreateArray(64);
     ClearArray(g_MapNames);
     g_MapVotes = CreateArray();
     ClearArray(g_MapVotes);
 
+    // file path inside sourcemod
+    decl String:sm_filename[PLATFORM_MAX_PATH];
+    Format(sm_filename, sizeof(sm_filename), "configs/pugsetup/%s", fileName);
+
+    // full file path
     decl String:mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", mapFile);
 
     if (!FileExists(mapFile)) {
-        CreateMapFile();
+        CreateDefaultMapFile();
     }
 
     new Handle:file = OpenFile(mapFile, "r");
@@ -148,7 +157,7 @@ static GetMapList() {
 
 }
 
-static CreateMapFile() {
+static CreateDefaultMapFile() {
     PrintToChatAll("No map list was found, autogenerating one now.");
     LogMessage("No map list was found, autogenerating one.");
 
@@ -175,6 +184,7 @@ static AddMap(const String:mapName[]) {
 }
 
 static ShowMapVote() {
+    g_VotesCasted = 0;
     for (new client = 1; client <= MaxClients; client++) {
         if (IsValidClient(client) && !IsFakeClient(client)) {
             new Handle:menu = CreateMenu(MapVoteHandler);
@@ -207,7 +217,8 @@ public MapVoteHandler(Handle:menu, MenuAction:action, param1, param2) {
         GetArrayString(g_MapNames, index, mapName, sizeof(mapName));
         new count = GetArrayCell(g_MapVotes, index);
         count++;
-        PrintToChatAll(" \x01\x0B\x04%N \x01voted for \x03%s \x01(x%d)", client, mapName, count);
+        g_VotesCasted++;
+        PrintToChatAll(" \x01\x0B\x04%N \x01voted for \x03%s \x01(%d/%d)", client, mapName, count, g_VotesCasted);
         SetArrayCell(g_MapVotes, index, count);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
