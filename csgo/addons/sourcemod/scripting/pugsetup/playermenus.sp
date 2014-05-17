@@ -72,7 +72,7 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 }
 
 public bool:IsPickingFinished() {
-    return g_PlayersPicked >= 8;
+    return g_PlayersPicked >= GetConVarInt(g_hLivePlayers) - 2;
 }
 
 public Action:MoreMenuPicks(Handle:timer, any:serial) {

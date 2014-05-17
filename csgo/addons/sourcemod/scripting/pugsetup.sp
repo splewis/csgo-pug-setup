@@ -220,7 +220,7 @@ public Action:Command_Rand(client, args) {
 
 
 public Action:Command_Capt1(client, args) {
-    if (!g_Setup || g_MatchLive)
+    if (!g_Setup || g_MatchLive || g_TeamType != TeamType_Captains || !g_mapSet)
         return Plugin_Handled;
 
     new String:arg1[32];
@@ -239,7 +239,7 @@ public Action:Command_Capt1(client, args) {
 }
 
 public Action:Command_Capt2(client, args) {
-    if (!g_Setup || g_MatchLive)
+    if (!g_Setup || g_MatchLive || g_TeamType != TeamType_Captains || !g_mapSet)
         return Plugin_Handled;
 
     new String:arg1[32];
@@ -442,6 +442,7 @@ public EndMatch() {
     g_capt2 = -1;
     g_Setup = false;
     g_MatchLive = false;
+    ServerCommand("mp_unpause_match");
     ExecCfg(g_hWarmupCfg);
 }
 
