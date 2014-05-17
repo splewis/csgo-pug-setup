@@ -29,6 +29,7 @@ new bool:g_mapSet = false;
 new TeamType:g_TeamType;
 new MapType:g_MapType;
 
+/** Permissions for the chat commands **/
 enum Permissions {
     Permission_All = 0,
     Permission_Captains = 1,
@@ -38,7 +39,6 @@ enum Permissions {
 /** Data about team selections **/
 new g_capt1 = -1;
 new g_capt2 = -1;
-new g_PlayersPicked = 0;
 new g_Teams[MAXPLAYERS+1];
 new bool:g_Ready[MAXPLAYERS+1];
 new bool:g_MatchLive = false;
@@ -98,7 +98,13 @@ public OnPluginStart() {
     HookEvent("cs_win_panel_match", Event_MatchOver);
 }
 
-public OnClientPostAdminCheck(client) {
+
+public OnClientConnected(client) {
+    g_Teams[client] = CS_TEAM_SPECTATOR;
+    g_Ready[client] = false;
+}
+
+public OnClientDisconnect(client) {
     g_Teams[client] = CS_TEAM_SPECTATOR;
     g_Ready[client] = false;
 }
@@ -106,7 +112,6 @@ public OnClientPostAdminCheck(client) {
 public OnMapStart() {
     g_capt1 = -1;
     g_capt2 = -1;
-    g_PlayersPicked = 0;
 
     for (new i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -167,8 +172,8 @@ public Action:Timer_CheckReady(Handle:timer) {
                 if (GetConVarInt(g_hAutoLO3) != 0) {
                     Command_Start(0, 0);
                 } else {
-                    PrintToChatAll("Everybody is ready! Waiting for \x03%N \x01to type .start.", FindClientOfID(g_Owner));
-                    PrintToChat(FindClientOfID(g_Owner), "Everybody is ready! Use \x03.start \x01to begin the match.");
+                    PrintToChatAll("Everybody is ready! Waiting for \x03%N \x01to type .start.", GetOwner());
+                    PrintToChat(GetOwner(), "Everybody is ready! Use \x03.start \x01to begin the match.");
                 }
                 return Plugin_Stop;
             }
@@ -197,7 +202,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 
 public Action:Command_Setup(client, args) {
     if (g_Setup) {
-        PrintToChat(client, "The game has already been setup by \x03%N. \x01Use !endgame to force end it.", FindClientOfID(g_Owner));
+        PrintToChat(client, "The game has already been setup by \x03%N. \x01Use !endgame to force end it.", GetOwner());
         return Plugin_Handled;
     }
 
@@ -263,6 +268,10 @@ public Action:Command_Start(client, args) {
 
     ExecCfg(g_hLiveCfg);
     g_MatchLive = true;
+    if (g_TeamType == TeamType_Random) {
+        PrintToChatAll("*** \x04Scrambling the teams \x01***");
+        ServerCommand("mp_scrambleteams");
+    }
 
     for (new i = 0; i < 5; i++)
         PrintToChatAll("*** The match will begin shortly - live on 3! ***");
@@ -301,7 +310,7 @@ public Action:Command_Say(client, const String:command[], argc) {
 }
 
 public bool:HasPermissions(client, Permissions:p) {
-    new bool:isOwner = FindClientOfID(g_Owner) == client;
+    new bool:isOwner = GetOwner() == client;
     new bool:isCapt = isOwner || client == g_capt1 || client == g_capt2;
 
     if (p == Permission_Owner)
@@ -449,26 +458,7 @@ public EndMatch() {
 public Action:MapSetup(Handle:timer) {
     if (g_MapType == MapType_Vote) {
         CreateMapVote();
-    } else {
-        CreateTimer(1.0, TeamSetup);
     }
-    return Plugin_Handled;
-}
-
-public Action:TeamSetup(Handle:timer) {
-    if (g_TeamType == TeamType_Random) {
-        ServerCommand("mp_scrambleteams");
-        if (GetConVarInt(g_hAutoLO3) != 0) {
-            Command_Start(0, 0);
-        }
-
-    } else if (g_TeamType == TeamType_Captains) {
-        // do nothing
-
-    } else if (g_TeamType == TeamType_Manual) {
-        // do nothing
-    }
-
     return Plugin_Handled;
 }
 
@@ -565,12 +555,16 @@ public SwitchPlayerTeam(client, team) {
 /**
  * Returns the client whose steam account id matches the parameter, or -1 if none are found.
  */
-public FindClientOfID(accountID) {
+public GetOwner() {
+    new ownerID = g_Owner;
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == accountID)
+        if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == ownerID)
             return i;
     }
-    return -1;
+
+    new r = RandomPlayer();
+    g_Owner = GetSteamAccountID(r);
+    return r;
 }
 
 /**

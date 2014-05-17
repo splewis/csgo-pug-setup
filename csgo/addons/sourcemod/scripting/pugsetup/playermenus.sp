@@ -33,26 +33,25 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-
 public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
+        new client = param1;
         new String:info[32];
         GetMenuItem(menu, param2, info, sizeof(info));
         new UserID = StringToInt(info);
-        new client = GetClientOfUserId(UserID);
+        new selected = GetClientOfUserId(UserID);
 
-        if (client > 0) {
-            g_Teams[client] = g_Teams[param1];
-            SwitchPlayerTeam(client, g_Teams[param1]);
-            g_PlayersPicked++;
-            if (param1 == g_capt1)
-                PrintToChatAll(" \x01\x0B\x02%N \x01has picked \x02%N", param1, client);
+        if (selected > 0) {
+            g_Teams[selected] = g_Teams[client];
+            SwitchPlayerTeam(selected, g_Teams[client]);
+            if (client == g_capt1)
+                PrintToChatAll(" \x01\x0B\x02%N \x01has picked \x02%N", client, selected);
             else
-                PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x03%N", param1, client);
+                PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x03%N", client, selected);
 
             if (!IsPickingFinished()) {
                 new nextCapt = -1;
-                if (param1 == g_capt1)
+                if (client == g_capt1)
                     nextCapt = g_capt2;
                 else
                     nextCapt = g_capt1;
@@ -61,18 +60,24 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
                 CreateTimer(1.0, FinishPicking);
             }
         } else {
-            CreateTimer(0.5, MoreMenuPicks, GetClientSerial(param1));
+            CreateTimer(0.5, MoreMenuPicks, GetClientSerial(client));
         }
 
     } else if (action == MenuAction_Cancel) {
-        CreateTimer(0.5, MoreMenuPicks, GetClientSerial(param1));
+        new client = param1;
+        CreateTimer(0.5, MoreMenuPicks, GetClientSerial(client));
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
 
 public bool:IsPickingFinished() {
-    return g_PlayersPicked >= GetConVarInt(g_hLivePlayers) - 2;
+    new numSelected = 0;
+    for (new i = 1; i <= MaxClients; i++)
+        if (IsPlayerPicked(i))
+            numSelected++;
+
+    return numSelected >= GetConVarInt(g_hLivePlayers);
 }
 
 public Action:MoreMenuPicks(Handle:timer, any:serial) {
@@ -103,7 +108,7 @@ public AddPlayersToMenu(Handle:menu) {
     new String:display[MAX_NAME_LENGTH+15];
     new count = 0;
     for (new client = 1; client <= MaxClients; client++) {
-        if (IsValidClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && g_Ready[client] && !IsFakeClient(client) && IsClientInGame(client)) {
+        if (IsValidClient(client) && !IsPlayerPicked(client) && !IsFakeClient(client)) {
             IntToString(GetClientUserId(client), user_id, sizeof(user_id));
             GetClientName(client, name, sizeof(name));
             Format(display, sizeof(display), "%s", name);
@@ -111,4 +116,9 @@ public AddPlayersToMenu(Handle:menu) {
             count++;
         }
     }
+}
+
+static IsPlayerPicked(client) {
+    new team = g_Teams[client];
+    return team == CS_TEAM_T || team == CS_TEAM_CT;
 }
