@@ -75,15 +75,17 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             g_MapType = MapType_Current;
         }
 
-        decl String:warmupCfg[256];
-        GetConVarString(g_hWarmupCfg, warmupCfg, sizeof(warmupCfg));
-        ServerCommand("exec %s", warmupCfg);
-        ServerCommand("mp_restartgame 1");
-        g_Setup = true;
-        CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
+        SetupFinished();
+
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
+}
+
+public SetupFinished() {
+    ExecCfg(g_hWarmupCfg);
+    g_Setup = true;
+    CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
 }
 
 public CreateMapVote() {
@@ -101,26 +103,47 @@ static GetMapList() {
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
 
     if (!FileExists(mapFile)) {
-        LogError("The map file does not exist: %s", mapFile);
-        PrintToChatAll(" \x01\x0B\x04The map file does not exist: %s", mapFile);
-    } else {
-        new Handle:file = OpenFile(mapFile, "r");
-        decl String:mapName[MAP_NAME_LENGTH];
-        while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
-            TrimString(mapName);
-            AddMap(mapName);
-        }
-        CloseHandle(file);
+        CreateMapFile();
     }
 
+    new Handle:file = OpenFile(mapFile, "r");
+    decl String:mapName[MAP_NAME_LENGTH];
+    while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
+        TrimString(mapName);
+        AddMap(mapName);
+    }
+    CloseHandle(file);
+
+
     if (GetArraySize(g_MapNames) < 1) {
-        LogError("The map file was empty!");
-        PrintToChatAll(" \x01\x0B\x04The map file was empty!");
+        LogError("The map file was empty: %s", mapFile);
+        PrintToChatAll(" \x01\x0B\x04The map file was empty - adding some default maps.");
         AddMap("de_dust2");
         AddMap("de_inferno");
         AddMap("de_mirage");
     }
 
+}
+
+static CreateMapFile() {
+    PrintToChatAll("No map list was found, autogenerating one now.");
+    LogMessage("No map list was found, autogenerating one.");
+
+    decl String:dirName[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, dirName, sizeof(dirName), "configs/pugsetup", dirName);
+    if (!DirExists(dirName))
+        CreateDirectory(dirName, 511);
+
+    decl String:mapFile[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
+    new Handle:file = OpenFile(mapFile, "w");
+    WriteFileLine(file, "de_cache");
+    WriteFileLine(file, "de_dust2");
+    WriteFileLine(file, "de_inferno");
+    WriteFileLine(file, "de_mirage");
+    WriteFileLine(file, "de_nuke");
+    WriteFileLine(file, "de_train");
+    CloseHandle(file);
 }
 
 static AddMap(const String:mapName[]) {
@@ -153,11 +176,15 @@ static ShowMapVote() {
 
 public MapVoteHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
+        new client = param1;
         decl String:choice[16];
         GetMenuItem(menu, param2, choice, sizeof(choice));
         new index = StringToInt(choice);
+        decl String:mapName[MAP_NAME_LENGTH];
+        GetArrayString(g_MapNames, index, mapName, sizeof(mapName));
         new count = GetArrayCell(g_MapVotes, index);
         count++;
+        PrintToChatAll(" \x01\x0B\x04%N \x01voted for \x03%s \x01(x%d)", client, mapName, count);
         SetArrayCell(g_MapVotes, index, count);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
