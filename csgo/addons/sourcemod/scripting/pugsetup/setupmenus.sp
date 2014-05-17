@@ -113,23 +113,19 @@ public SetupFinished() {
 }
 
 public CreateMapVote() {
-    GetMapList("maps.txt");
+    GetMapList();
     ShowMapVote();
 }
 
-static GetMapList(String:fileName[]) {
+static GetMapList() {
     g_MapNames = CreateArray(64);
     ClearArray(g_MapNames);
     g_MapVotes = CreateArray();
     ClearArray(g_MapVotes);
 
-    // file path inside sourcemod
-    decl String:sm_filename[PLATFORM_MAX_PATH];
-    Format(sm_filename, sizeof(sm_filename), "configs/pugsetup/%s", fileName);
-
     // full file path
     decl String:mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", mapFile);
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
 
     if (!FileExists(mapFile)) {
         CreateDefaultMapFile();

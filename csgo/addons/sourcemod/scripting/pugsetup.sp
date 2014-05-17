@@ -275,7 +275,7 @@ public Action:Command_Start(client, args) {
         // get the time
         new timeStamp = GetTime();
         decl String:formattedTime[128];
-        FormatTime(formattedTime, sizeof(formattedTime), "%Y_%b_%d_%R", timeStamp);
+        FormatTime(formattedTime, sizeof(formattedTime), "%Y_%b_%d_%H:%M", timeStamp);
 
         // get the map
         decl String:mapName[128];
@@ -322,10 +322,21 @@ public Action:Command_Say(client, const String:command[], argc) {
     ChatAlias(".start", Command_Start, Permission_Owner)
     ChatAlias(".endgame", Command_EndGame, Permission_Owner)
     ChatAlias(".rand", Command_Rand, Permission_Owner)
+    ChatAlias(".gaben", Command_Ready, Permission_All)
     ChatAlias(".ready", Command_Ready, Permission_All)
     ChatAlias(".unready", Command_Unready, Permission_All)
     ChatAlias(".pause", Command_Pause, Permission_Captains)
     ChatAlias(".unpause", Command_Unpause, Permission_Captains)
+
+    if (StrEqual(text[0], ".help")) {
+        PrintToChat(client, " \x04Useful commands:");
+        PrintToChat(client, "   \x06.setup \x01begins the setup phase");
+        PrintToChat(client, "   \x06.start \x01starts the match if needed");
+        PrintToChat(client, "   \x06.endgame \x01ends the match");
+        PrintToChat(client, "   \x06.rand \x01selects random captains");
+        PrintToChat(client, "   \x06.ready/.unready \x01mark you as ready");
+        PrintToChat(client, "   \x06.pause/.unpause \x01pause the match");
+    }
 
     // continue normally
     return Plugin_Continue;
@@ -497,13 +508,15 @@ public EndMatch() {
         CreateTimer(4.0, StopDemo);
     }
 
+    ServerCommand("mp_unpause_match");
+    if (g_MatchLive)
+        ExecCfg(g_hWarmupCfg);
+
     g_Owner = -1;
     g_capt1 = -1;
     g_capt2 = -1;
     g_Setup = false;
     g_MatchLive = false;
-    ServerCommand("mp_unpause_match");
-    ExecCfg(g_hWarmupCfg);
 }
 
 public Action:MapSetup(Handle:timer) {
@@ -548,7 +561,7 @@ public Action:FinishPicking(Handle:timer) {
 }
 
 public Action:StopDemoMsg(Handle:timer) {
-    PrintToChatAll("Stopping the demo...");
+    PrintToChatAll("*** Stopping the demo ***");
     return Plugin_Handled;
 }
 
