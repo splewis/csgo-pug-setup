@@ -128,13 +128,18 @@ public Action:Timer_CheckReady(Handle:timer) {
         }
     }
 
-    if (rdy == count && rdy >= 1) {
+    if (rdy == count && rdy >= 10) {
         if (g_mapSet) {
-            g_MatchLive = true;
-            if (GetConVarInt(g_hAutoLO3) != 0) {
-                Command_Start(0, 0);
-                return Plugin_Stop;
+            if (g_TeamType == TeamType_Captains) {
+                if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2)
+                    GiveSideMenu(g_capt2);
+            } else {
+                g_MatchLive = true;
+                if (GetConVarInt(g_hAutoLO3) != 0)
+                    Command_Start(0, 0);
             }
+            return Plugin_Stop;
+
         } else {
             PrintToChatAll(" \x01\x0B\x04Setup will begin in a few seconds!");
             CreateTimer(2.0, MapSetup);
@@ -142,17 +147,7 @@ public Action:Timer_CheckReady(Handle:timer) {
         }
 
     } else {
-        PrintHintTextToAll("%i out of %i players are ready", rdy, count);
-    }
-
-    return Plugin_Continue;
-}
-
-public Action:Timer_CheckCaptains(Handle:timer) {
-    if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2 ) {
-        PrintToChatAll(" \x01\x0B\x04Team selection will begin in a few seconds!");
-        CreateTimer(2.0, StartPicking);
-        return Plugin_Stop;
+        PrintHintTextToAll("%i out of %i players are ready\nMap: %s, Teams: %s", rdy, count);
     }
 
     return Plugin_Continue;
@@ -391,13 +386,11 @@ public Action:TeamSetup(Handle:timer) {
         }
 
     } else if (g_TeamType == TeamType_Captains) {
-        CreateTimer(1.0, Timer_CheckCaptains, _, TIMER_REPEAT);
+        // do nothing
 
     } else if (g_TeamType == TeamType_Manual) {
         g_MatchLive = true;
-        if (GetConVarInt(g_hAutoLO3) != 0) {
-            Command_Start(0, 0);
-        }
+        PrintToChatAll("Use \x03!start \x01to start the match.");
     }
 
     return Plugin_Handled;
