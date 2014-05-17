@@ -14,9 +14,9 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             hisTeam = CS_TEAM_T;
 
         if (hisTeam == CS_TEAM_T)
-            PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x02T \x01first.", g_capt2);
+            PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x02T \x01first.", g_capt2);
         else
-            PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x03CT \x01first.", g_capt2);
+            PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x03CT \x01first.", g_capt2);
 
         new otherTeam = CS_TEAM_T;
         if (hisTeam == CS_TEAM_T)
@@ -45,9 +45,9 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             g_Teams[selected] = g_Teams[client];
             SwitchPlayerTeam(selected, g_Teams[client]);
             if (client == g_capt1)
-                PrintToChatAll(" \x01\x0B\x02%N \x01has picked \x02%N", client, selected);
+                PrintToChatAll(" \x01\x0B\x06%N \x01has picked \x05%N", client, selected);
             else
-                PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x03%N", client, selected);
+                PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x02%N", client, selected);
 
             if (!IsPickingFinished()) {
                 new nextCapt = -1;

@@ -77,7 +77,7 @@ public OnPluginStart() {
     g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
-    // Create and exec plugin's configuration file
+    /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
 
     /** Commands **/
@@ -97,7 +97,6 @@ public OnPluginStart() {
     RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_GENERIC, "Unpauses the game");
     RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
     RegAdminCmd("sm_owner", Command_Owner, ADMFLAG_CHANGEMAP, "Sets the pug owner");
-
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -178,8 +177,8 @@ public Action:Timer_CheckReady(Handle:timer) {
                 if (GetConVarInt(g_hAutoLO3) != 0) {
                     Command_Start(0, 0);
                 } else {
-                    PrintToChatAll("Everybody is ready! Waiting for \x03%N \x01to type .start.", GetOwner());
-                    PrintToChat(GetOwner(), "Everybody is ready! Use \x03.start \x01to begin the match.");
+                    PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start.", GetOwner());
+                    PrintToChat(GetOwner(), "Everybody is ready! Use \x04.start \x01to begin the match.");
                 }
                 return Plugin_Stop;
             }
@@ -208,7 +207,14 @@ public Action:Timer_CheckReady(Handle:timer) {
 
 public Action:Command_Setup(client, args) {
     if (g_Setup) {
-        PrintToChat(client, "The game has already been setup by \x03%N. \x01Use !endgame to force end it.", GetOwner());
+        PrintToChat(client, "The game has already been setup by \x04%N.", GetOwner());
+
+        decl String:buffer[32];
+        GetTeamString(buffer, sizeof(buffer), g_TeamType);
+        PrintToChat(client, "   Team setup choice: \x03%s", buffer);
+
+        GetMapString(buffer, sizeof(buffer), g_MapType);
+        PrintToChat(client, "   Map setup choice: \x03%s", buffer);
         return Plugin_Handled;
     }
 
@@ -369,7 +375,7 @@ public MatchEndHandler(Handle:menu, MenuAction:action, param1, param2) {
         decl String:choice[16];
         GetMenuItem(menu, param2, choice, sizeof(choice));
         if (StrEqual(choice, "end")) {
-            PrintToChatAll("The match was force-ended by \x03%N", client);
+            PrintToChatAll("The match was force-ended by \x04%N", client);
             EndMatch();
         }
     } else if (action == MenuAction_End) {
@@ -383,7 +389,7 @@ public Action:Command_Pause(client, args) {
 
     if (IsValidClient(client)) {
         ServerCommand("mp_pause_match");
-        PrintToChatAll(" \x01\x0B\x03%N \x01has called for a pause", client);
+        PrintToChatAll(" \x01\x0B\x04%N \x01has called for a pause", client);
     }
     return Plugin_Handled;
 }
@@ -394,7 +400,7 @@ public Action:Command_Unpause(client, args) {
 
     if (IsValidClient(client)) {
         ServerCommand("mp_unpause_match");
-        PrintToChatAll(" \x01\x0B\x03%N \x01has unpaused", client);
+        PrintToChatAll(" \x01\x0B\x04%N \x01has unpaused", client);
     }
     return Plugin_Handled;
 }
@@ -454,14 +460,14 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
 public SetCapt1(client) {
     if (IsValidClient(client)) {
         g_capt1 = client;
-        PrintToChatAll("Captain 1 will be \x02%N", g_capt1);
+        PrintToChatAll("Captain 1 will be \x06%N", g_capt1);
     }
 }
 
 public SetCapt2(client) {
     if (IsValidClient(client)) {
         g_capt2 = client;
-        PrintToChatAll("Captain 2 will be \x03%N", g_capt2);
+        PrintToChatAll("Captain 2 will be \x07%N", g_capt2);
     }
 }
 

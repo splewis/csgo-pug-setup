@@ -15,6 +15,26 @@ enum MapType {
     MapType_Manual
 };
 
+public GetTeamString(String:buffer[], length, TeamType:type) {
+    if (type == TeamType_Manual)
+        return strcopy(buffer, length, "manual teams");
+    else if (type == TeamType_Random)
+        return strcopy(buffer, length, "random teams");
+    else if (type == TeamType_Captains)
+        return strcopy(buffer, length, "captains pick players");
+    else
+        return strcopy(buffer, length, "unknown");
+}
+
+public GetMapString(String:buffer[], length, MapType:type) {
+    if (type == MapType_Current)
+        return strcopy(buffer, length, "use the current map");
+    else if (type == MapType_Vote)
+        return strcopy(buffer, length, "vote for a map");
+    else
+        return strcopy(buffer, length, "unknown");
+}
+
 public SetupMenu(client) {
     g_mapSet = false;
     new Handle:menu = CreateMenu(SetupMenuHandler);
@@ -32,13 +52,13 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
         decl String:choice[32];
         GetMenuItem(menu, param2, choice, sizeof(choice));
         if (StrEqual(choice, "manual")) {
-            PrintToChatAll("The game will be using the \x04manual team placement.");
+            PrintToChatAll("The game will be using \x04manual team placement.");
             g_TeamType = TeamType_Manual;
         } else if (StrEqual(choice, "random")) {
-            PrintToChatAll("The game will be using the \x04random teams.");
+            PrintToChatAll("The game will be using \x04random teams.");
             g_TeamType = TeamType_Random;
         } else if (StrEqual(choice, "captains")){
-            PrintToChatAll("The game will be using the \x04team captains.");
+            PrintToChatAll("The game will be using \x04team captains.");
             g_TeamType = TeamType_Captains;
         } else {
             LogError("Unknown team type choice: %s", choice);
@@ -64,11 +84,11 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
         decl String:choice[32];
         GetMenuItem(menu, param2, choice, sizeof(choice));
         if (StrEqual(choice, "current")) {
-            PrintToChatAll("The game will be using the \x03current map.");
+            PrintToChatAll("The game will be using the \x04current map.");
             g_mapSet = true;
             g_MapType = MapType_Current;
         } else if (StrEqual(choice, "vote")) {
-            PrintToChatAll("The game will be a the \x03map vote.");
+            PrintToChatAll("The game will be using a \x04map vote.");
             g_MapType = MapType_Vote;
         } else {
             LogError("Unknown map choice: %s", choice);
@@ -110,7 +130,10 @@ static GetMapList() {
     decl String:mapName[MAP_NAME_LENGTH];
     while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
         TrimString(mapName);
-        AddMap(mapName);
+        if (strlen(mapName) < 3)
+            LogError("Map name too short: %s", mapName);
+        else
+            AddMap(mapName);
     }
     CloseHandle(file);
 
