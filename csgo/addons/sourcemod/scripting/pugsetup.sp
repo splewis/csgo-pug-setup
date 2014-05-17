@@ -21,11 +21,13 @@ new Handle:g_hAutoLO3 = INVALID_HANDLE;
 new Handle:g_hLivePlayers = INVALID_HANDLE;
 new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
+new Handle:g_hAutorecord = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Owner = -1;
 new bool:g_Setup = false;
 new bool:g_mapSet = false;
+new bool:g_Recording = true;
 new TeamType:g_TeamType;
 new MapType:g_MapType;
 
@@ -71,11 +73,12 @@ public OnPluginStart() {
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live");
     g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
     g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Minimum Number of players needed to go live");
-    g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
+    g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "1", "Should the plugin attempt to record a gotv demo each game");
+    g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
     // Create and exec plugin's configuration file
-    AutoExecConfig(true, "pugsetup");
+    AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
 
     /** Commands **/
     AddCommandListener(Command_Say, "say");
@@ -93,6 +96,8 @@ public OnPluginStart() {
     RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_GENERIC, "Pauses the game");
     RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_GENERIC, "Unpauses the game");
     RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
+    RegAdminCmd("sm_owner", Command_Owner, ADMFLAG_CHANGEMAP, "Sets the pug owner");
+
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -112,6 +117,7 @@ public OnClientDisconnect(client) {
 public OnMapStart() {
     g_capt1 = -1;
     g_capt2 = -1;
+    g_Recording = false;
 
     for (new i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -266,6 +272,23 @@ public Action:Command_Start(client, args) {
     if (!g_Setup || g_MatchLive)
         return;
 
+    if (GetConVarInt(g_hAutorecord) != 0) {
+        // get the time
+        new timeStamp = GetTime();
+        decl String:formattedTime[128];
+        FormatTime(formattedTime, sizeof(formattedTime), "%Y_%b_%d_%R", timeStamp);
+
+        // get the map
+        decl String:mapName[128];
+        GetCurrentMap(mapName, sizeof(mapName));
+
+        decl String:demoName[256];
+        Format(demoName, sizeof(demoName), "pug_%s_%s", mapName, formattedTime);
+        ServerCommand("tv_record %s", demoName);
+        g_Recording = true;
+    }
+
+
     ExecCfg(g_hLiveCfg);
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {
@@ -394,6 +417,19 @@ public Action:Command_Unready(client, args) {
     return Plugin_Handled;
 }
 
+public Action:Command_Owner(client, args) {
+    if (!g_Setup)
+        return Plugin_Handled;
+
+    new String:arg1[32];
+    GetCmdArg(1, arg1, sizeof(arg1));
+    new target = FindTarget(client, arg1);
+    if (target == -1)
+        return Plugin_Handled;
+
+    g_Owner = GetSteamAccountID(target);
+    return Plugin_Handled;
+}
 
 
 /***********************
@@ -446,6 +482,11 @@ public SetRandomCaptains() {
 }
 
 public EndMatch() {
+    if (g_Recording) {
+        CreateTimer(3.0, StopDemoMsg);
+        CreateTimer(4.0, StopDemo);
+    }
+
     g_Owner = -1;
     g_capt1 = -1;
     g_capt2 = -1;
@@ -493,6 +534,18 @@ public Action:FinishPicking(Handle:timer) {
     if (GetConVarInt(g_hAutoLO3) != 0) {
         Command_Start(0, 0);
     }
+    return Plugin_Handled;
+}
+
+public Action:StopDemoMsg(Handle:timer) {
+    PrintToChatAll("Stopping the demo...");
+    return Plugin_Handled;
+}
+
+public Action:StopDemo(Handle:timer) {
+    ServerCommand("tv_stoprecord");
+    g_Recording = false;
+    return Plugin_Handled;
 }
 
 

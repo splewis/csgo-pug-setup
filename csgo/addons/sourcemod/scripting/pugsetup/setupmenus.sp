@@ -20,9 +20,9 @@ public SetupMenu(client) {
     new Handle:menu = CreateMenu(SetupMenuHandler);
     SetMenuTitle(menu, "How will teams be setup?");
     SetMenuExitButton(menu, false);
-    AddMenuItem(menu, "manual" , "Players manually switch");
-    AddMenuItem(menu, "random", "Random Teams");
     AddMenuItem(menu, "captains", "Assigned captains pick their teams");
+    AddMenuItem(menu, "random", "Random Teams");
+    AddMenuItem(menu, "manual" , "Players manually switch");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -32,7 +32,7 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
         decl String:choice[32];
         GetMenuItem(menu, param2, choice, sizeof(choice));
         if (StrEqual(choice, "manual")) {
-            PrintToChatAll("The game will be using the \x03manual team placement.");
+            PrintToChatAll("The game will be using the \x04manual team placement.");
             g_TeamType = TeamType_Manual;
         } else if (StrEqual(choice, "random")) {
             PrintToChatAll("The game will be using the \x04random teams.");
