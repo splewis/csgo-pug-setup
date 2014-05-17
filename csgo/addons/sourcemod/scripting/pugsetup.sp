@@ -144,18 +144,21 @@ public Action:Timer_CheckReady(Handle:timer) {
     if (rdy == count && rdy >= GetConVarInt(g_hLivePlayers)) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
-                if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2)
+                if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
                     CreateTimer(1.0, StartPicking);
+                    return Plugin_Stop;
+                } else {
+                    PrintHintTextToAll("Waiting for captains to be picked...");
+                }
             } else {
-
                 if (GetConVarInt(g_hAutoLO3) != 0) {
                     Command_Start(0, 0);
                 } else {
                     PrintToChatAll("Everybody is ready! Waiting for \x03%N \x01to type .start.", FindClientOfID(g_Owner));
                     PrintToChat(FindClientOfID(g_Owner), "Everybody is ready! Use \x03.start \x01to begin the match.");
                 }
+                return Plugin_Stop;
             }
-            return Plugin_Stop;
 
         } else {
             if (g_MapType == MapType_Vote)
@@ -181,7 +184,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 
 public Action:Command_Setup(client, args) {
     if (g_Setup) {
-        ReplyToCommand(client, "The game has already been setup by %N. Use !endgame to force end it.", FindClientOfID(g_Owner));
+        PrintToChat(client, "The game has already been setup by \x03%N. \x01Use !endgame to force end it.", FindClientOfID(g_Owner));
         return Plugin_Handled;
     }
 
@@ -214,7 +217,7 @@ public Action:Command_Capt1(client, args) {
         return Plugin_Handled;
 
     if (target == g_capt2) {
-        ReplyToCommand(client, "%N is already captain 1!", target);
+        PrintToChat(client, "%N is already captain 1!", target);
         return Plugin_Handled;
     }
 
@@ -233,7 +236,7 @@ public Action:Command_Capt2(client, args) {
         return Plugin_Handled;
 
     if (target == g_capt1) {
-        ReplyToCommand(client, "%N is already captain 2!", target);
+        PrintToChat(client, "%N is already captain 2!", target);
         return Plugin_Handled;
     }
 
@@ -259,7 +262,7 @@ if (StrEqual(text[0], %1)) { \
     if (HasPermissions(client, %3)) { \
         %2 (client, 0); \
     } else { \
-        ReplyToCommand(client, "You don't have the permissons to do that."); \
+        PrintToChat(client, "You don't have the permissons to do that."); \
     } \
 }
 
@@ -303,7 +306,7 @@ public bool:HasPermissions(client, Permissions:p) {
 
 public Action:Command_EndGame(client, args) {
     if (!g_Setup) {
-        ReplyToCommand(client, "The match has not begun yet!");
+        PrintToChat(client, "The match has not begun yet!");
     } else {
         new Handle:menu = CreateMenu(MatchEndHandler);
         SetMenuTitle(menu, "Are you sure you want to end the match?");
@@ -410,7 +413,7 @@ public SetRandomCaptains() {
 
     c1 = RandomPlayer();
     while (!IsValidClient(c2) || c1 == c2) {
-        if (GetClientCount() < 2)
+        if (GetRealClientCount() < 2)
             break;
 
         c2 = RandomPlayer();
