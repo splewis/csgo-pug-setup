@@ -22,6 +22,7 @@ new Handle:g_hLivePlayers = INVALID_HANDLE;
 new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
+new Handle:g_hRestoreMoney = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
@@ -64,6 +65,9 @@ new g_Teams[MAXPLAYERS+1];
 new bool:g_Ready[MAXPLAYERS+1];
 new bool:g_MatchLive = false;
 
+/** Trie that score client account id / money amounts **/
+new Handle:g_MoneyStore = INVALID_HANDLE;
+
 #include "pugsetup/liveon3.sp"
 #include "pugsetup/setupmenus.sp"
 #include "pugsetup/playermenus.sp"
@@ -93,11 +97,15 @@ public OnPluginStart() {
     g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
     g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Minimum Number of players needed to go live");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "1", "Should the plugin attempt to record a gotv demo each game");
+    g_hRestoreMoney = CreateConVar("sm_pugsetup_savemoney", "1", "Should the plugin attempt to restore player money if they must rejoin");
     g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
+
+    /** One-time handles **/
+    g_MoneyStore = CreateTrie();
 
     /** Commands **/
     AddCommandListener(Command_Say, "say");
@@ -119,6 +127,7 @@ public OnPluginStart() {
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
+    HookEvent("player_spawn", Event_PlayerSpawn);
 }
 
 
@@ -128,6 +137,13 @@ public OnClientConnected(client) {
 }
 
 public OnClientDisconnect(client) {
+    if (g_MatchLive && GetConVarInt(g_hRestoreMoney) != 0) {
+        decl String:auth[32];
+        GetClientAuthString(client, auth, sizeof(auth));
+        new cash = GetEntProp(client, Prop_Send, "m_iAccount");
+        SetTrieValue(g_MoneyStore, auth, cash);
+    }
+
     g_Teams[client] = CS_TEAM_SPECTATOR;
     g_Ready[client] = false;
 }
@@ -136,6 +152,7 @@ public OnMapStart() {
     g_capt1 = -1;
     g_capt2 = -1;
     g_Recording = false;
+    SetupMoneyStore();
 
     for (new i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -476,6 +493,20 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
     return Plugin_Handled;
 }
 
+public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroadcast) {
+    new client = GetClientOfUserId(GetEventInt(event, "userid"));
+    if (g_MatchLive) {
+        new cash;
+        decl String:auth[32];
+        GetClientAuthString(client, auth, sizeof(auth));
+        if (GetTrieValue(g_MoneyStore, auth, cash) && GetConVarInt(g_hRestoreMoney) != 0) {
+            SetEntProp(client, Prop_Send, "m_iAccount", cash);
+            RemoveFromTrie(g_MoneyStore, auth);
+        }
+    }
+    return Plugin_Handled;
+}
+
 
 
 /***********************
@@ -483,6 +514,10 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
  *    Pugsetup logic   *
  *                     *
  ***********************/
+
+public SetupMoneyStore() {
+    ClearTrie(g_MoneyStore);
+}
 
 public PrintSetupInfo(client) {
         PrintToChat(client, "The game has been setup by \x04%N.", GetLeader());
