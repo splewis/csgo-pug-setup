@@ -33,10 +33,29 @@ new MapType:g_MapType;
 
 /** Permissions for the chat commands **/
 enum Permissions {
-    Permission_All = 0,
-    Permission_Captains = 1,
-    Permission_Leader = 2
+    Permission_All,
+    Permission_Captains,
+    Permission_Leader
 }
+
+/** Different ways teams can be selected **/
+enum TeamType {
+    TeamType_Manual,
+    TeamType_Random,
+    TeamType_Captains
+};
+
+/** Different ways the map can be selected **/
+enum MapType {
+    MapType_Current,
+    MapType_Vote
+};
+
+/** Map-voting variables **/
+#define MAP_NAME_LENGTH 256
+new Handle:g_MapNames = INVALID_HANDLE;
+new Handle:g_MapVotes = INVALID_HANDLE;
+new g_VotesCasted = 0;
 
 /** Data about team selections **/
 new g_capt1 = -1;
@@ -177,7 +196,7 @@ public Action:Timer_CheckReady(Handle:timer) {
                 if (GetConVarInt(g_hAutoLO3) != 0) {
                     Command_Start(0, 0);
                 } else {
-                    PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start.", GetLeader());
+                    PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start", GetLeader());
                     PrintToChat(GetLeader(), "Everybody is ready! Use \x04.start \x01to begin the match.");
                 }
                 return Plugin_Stop;
@@ -211,6 +230,8 @@ public Action:Command_Setup(client, args) {
         return Plugin_Handled;
     }
 
+    g_capt1 = -1;
+    g_capt2 = -1;
     g_Setup = true;
     g_Leader = GetSteamAccountID(client);
     for (new i = 1; i <= MaxClients; i++)
@@ -328,6 +349,7 @@ public Action:Command_Say(client, const String:command[], argc) {
     ChatAlias(".pause", Command_Pause, Permission_Captains)
     ChatAlias(".unpause", Command_Unpause, Permission_Captains)
 
+    // there is no sm_help command since we don't want override the built-in sm_help command
     if (StrEqual(text[0], ".help")) {
         PrintToChat(client, " \x04Useful commands:");
         PrintToChat(client, "   \x06.setup \x01begins the setup phase");
@@ -542,7 +564,7 @@ public Action:StartPicking(Handle:timer) {
     // temporary teams
     SwitchPlayerTeam(g_capt2, CS_TEAM_CT);
     SwitchPlayerTeam(g_capt1, CS_TEAM_T);
-    GiveSideMenu(g_capt2);
+    InitialChoiceMenu(g_capt2);
     return Plugin_Handled;
 }
 
@@ -651,4 +673,22 @@ public ExecCfg(Handle:ConVarName) {
     new String:cfg[256];
     GetConVarString(ConVarName, cfg, sizeof(cfg));
     ServerCommand("exec %s", cfg);
+}
+
+/**
+ * Adds an integer to a menu as a string choice.
+ */
+public AddMenuInt(Handle:menu, any:value, String:display[]) {
+    decl String:buffer[8];
+    IntToString(value, buffer, sizeof(buffer));
+    AddMenuItem(menu, buffer, display);
+}
+
+/**
+ * Gets an integer to a menu from a string choice.
+ */
+public GetMenuInt(Handle:menu, any:param2) {
+    decl String:choice[8];
+    GetMenuItem(menu, param2, choice, sizeof(choice));
+    return StringToInt(choice);
 }
