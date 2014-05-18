@@ -595,7 +595,7 @@ public Action:StartPicking(Handle:timer) {
     // temporary teams
     SwitchPlayerTeam(g_capt2, CS_TEAM_CT);
     SwitchPlayerTeam(g_capt1, CS_TEAM_T);
-    InitialChoiceMenu(g_capt2);
+    InitialChoiceMenu(g_capt1);
     return Plugin_Handled;
 }
 
