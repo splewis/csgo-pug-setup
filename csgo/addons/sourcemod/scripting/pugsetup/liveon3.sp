@@ -30,7 +30,7 @@ public Action:MatchLive(Handle:timer) {
     if (!g_MatchLive)
         return;
 
-    SetupMoneyStore();
+    ClearTrie(g_MoneyStore);
     for (new i = 0; i < 5; i++)
         PrintToChatAll("****** Match is LIVE ******");
 }

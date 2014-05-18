@@ -152,7 +152,7 @@ public OnMapStart() {
     g_capt1 = -1;
     g_capt2 = -1;
     g_Recording = false;
-    SetupMoneyStore();
+    ClearTrie(g_MoneyStore);
 
     for (new i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -514,10 +514,6 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
  *    Pugsetup logic   *
  *                     *
  ***********************/
-
-public SetupMoneyStore() {
-    ClearTrie(g_MoneyStore);
-}
 
 public PrintSetupInfo(client) {
         PrintToChat(client, "The game has been setup by \x04%N.", GetLeader());
