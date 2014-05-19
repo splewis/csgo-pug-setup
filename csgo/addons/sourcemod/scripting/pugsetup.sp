@@ -159,8 +159,6 @@ public OnClientDisconnect(client) {
 }
 
 public OnMapStart() {
-    g_capt1 = -1;
-    g_capt2 = -1;
     g_Recording = false;
     ClearTrie(g_MoneyStore);
 
@@ -173,6 +171,10 @@ public OnMapStart() {
         ExecCfg(g_hWarmupCfg);
         g_Setup = true;
         CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
+    } else {
+        g_capt1 = -1;
+        g_capt2 = -1;
+        g_Leader = -1;
     }
 }
 
@@ -603,6 +605,7 @@ public EndMatch() {
     g_Leader = -1;
     g_capt1 = -1;
     g_capt2 = -1;
+    g_mapSet = false;
     g_Setup = false;
     g_MatchLive = false;
 }
