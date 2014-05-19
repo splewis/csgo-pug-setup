@@ -9,6 +9,16 @@
 
 
 
+/************************
+ *                      *
+ * Assertion/Debug info *
+ *                      *
+ ************************/
+
+#define ERROR_FUNC LogError  // change to ThrowError during debugging
+
+
+
 /***********************
  *                     *
  *   Global variables  *

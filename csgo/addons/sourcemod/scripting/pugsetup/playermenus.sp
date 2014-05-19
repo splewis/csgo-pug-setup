@@ -19,7 +19,7 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;  // should also equal g_capt1
         if (client != g_capt1)
-            ThrowError("only the first captain should have gotten the intial menu!");
+            ERROR_FUNC("only the first captain should have gotten the intial menu!");
 
         new InitialPick:choice = InitialPick:GetMenuInt(menu, param2);
         if (choice == InitialPick_Player) {
@@ -29,7 +29,7 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
             PrintToChatAll(" \x01\x0B\x07%N \x01has elected to pick the \x03starting teams.", g_capt1);
             SideMenu(g_capt1);
         } else {
-            ThrowError("unknown intial choice: %d", choice);
+            ERROR_FUNC("unknown intial choice: %d", choice);
         }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -68,7 +68,7 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x02T \x01first.", g_capt2);
             teamPick = CS_TEAM_T;
         } else {
-            ThrowError("Unknown side pick: %d", choice);
+            ERROR_FUNC("Unknown side pick: %d", choice);
         }
 
         new otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
