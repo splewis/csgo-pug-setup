@@ -2,7 +2,6 @@
  * Main .setup menu
  */
 public SetupMenu(client) {
-    g_mapSet = false;
     new Handle:menu = CreateMenu(SetupMenuHandler);
     SetMenuTitle(menu, "How will teams be setup?");
     SetMenuExitButton(menu, false);
@@ -37,6 +36,10 @@ public MapMenu(client) {
 public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         g_MapType = MapType:GetMenuInt(menu, param2);
+        if (g_MapType == MapType_Vote)
+            g_mapSet = false;
+        else
+            g_mapSet = true;
         SetupFinished();
     } else if (action == MenuAction_End) {
         CloseHandle(menu);

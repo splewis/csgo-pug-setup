@@ -228,8 +228,10 @@ public Action:Timer_CheckReady(Handle:timer) {
             }
 
         } else {
-            if (g_MapType == MapType_Vote)
-                PrintToChatAll(" \x01\x0B\x04The map vote will begin in a few seconds!");
+            if (g_MapType != MapType_Vote)
+                ERROR_FUNC("Creating map vote when g_MapType is not MapType_Vote!");
+
+            PrintToChatAll(" \x01\x0B\x04The map vote will begin in a few seconds!");
             CreateTimer(2.0, MapSetup);
             return Plugin_Stop;
         }
@@ -362,6 +364,7 @@ public Action:Command_Say(client, const String:command[], argc) {
     ChatAlias(".setup", Command_Setup, Permission_All)
     ChatAlias(".start", Command_Start, Permission_Leader)
     ChatAlias(".endgame", Command_EndGame, Permission_Leader)
+    ChatAlias(".cancel", Command_EndGame, Permission_Leader)
     ChatAlias(".capt", Command_Capt, Permission_Leader)
     ChatAlias(".leader", Command_Leader, Permission_Leader)
     ChatAlias(".rand", Command_Rand, Permission_Leader)
@@ -567,8 +570,7 @@ public ReadyToStart() {
     if (GetConVarInt(g_hAutoLO3) != 0) {
         Command_Start(0, 0);
     } else {
-        PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start", GetLeader());
-        PrintToChat(GetLeader(), "Everybody is ready! Use \x04.start \x01to begin the match.");
+        PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type \x03.start", GetLeader());
     }
 }
 
