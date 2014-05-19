@@ -5,6 +5,7 @@ public Action:BeginLO3(Handle:timer) {
 
     // reset player tags
     for (new i = 1; i <= MaxClients; i++)
+        if (IsValidClient(i) && !IsFakeClient(i))
             CS_SetClientClanTag(i, "");
 
     PrintToChatAll("*** Restart 1/3 ***");

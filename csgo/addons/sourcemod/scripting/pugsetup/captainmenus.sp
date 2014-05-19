@@ -75,14 +75,5 @@ public LeaderMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 }
 
 static AddAllPlayers(Handle:menu) {
-    new count = 0;
-    for (new client = 1; client <= MaxClients; client++) {
-        if (IsValidClient(client) && !IsFakeClient(client)) {
-            decl String:name[MAX_NAME_LENGTH];
-            GetClientName(client, name, sizeof(name));
-            AddMenuInt(menu, client, name);
-            count++;
-        }
-    }
-    return count;
+    return AddPotentialCaptains(menu, -1); // adds everyone (excludes client -1)
 }

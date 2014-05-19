@@ -63,10 +63,10 @@ enum MapType {
 };
 
 /** Map-voting variables **/
-#define MAP_NAME_LENGTH 256
 new Handle:g_MapNames = INVALID_HANDLE;
 new Handle:g_MapVotes = INVALID_HANDLE;
 new g_VotesCasted = 0;
+new g_ChosenMap = -1;
 
 /** Data about team selections **/
 new g_capt1 = -1;
@@ -82,6 +82,7 @@ new Handle:g_MoneyStore = INVALID_HANDLE;
 #include "pugsetup/liveon3.sp"
 #include "pugsetup/playermenus.sp"
 #include "pugsetup/setupmenus.sp"
+#include "pugsetup/mapvote.sp"
 
 
 
@@ -106,7 +107,7 @@ public OnPluginStart() {
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live");
     g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
-    g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Minimum Number of players needed to go live");
+    g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Minimum Number of players needed to go live", _, true, 1.0);
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRestoreMoney = CreateConVar("sm_pugsetup_savemoney", "0", "Should the plugin attempt to restore player money if they must rejoin");
     g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
@@ -279,45 +280,6 @@ public Action:Command_Rand(client, args) {
     return Plugin_Handled;
 }
 
-
-public Action:Command_Capt1(client, args) {
-    if (!g_Setup || g_MatchLive || g_TeamType != TeamType_Captains || !g_mapSet)
-        return Plugin_Handled;
-
-    new String:arg1[32];
-    GetCmdArg(1, arg1, sizeof(arg1));
-    new target = FindTarget(client, arg1);
-    if (target == -1)
-        return Plugin_Handled;
-
-    if (target == g_capt2) {
-        PrintToChat(client, "%N is already captain 1!", target);
-        return Plugin_Handled;
-    }
-
-    SetCapt1(target);
-    return Plugin_Handled;
-}
-
-public Action:Command_Capt2(client, args) {
-    if (!g_Setup || g_MatchLive || g_TeamType != TeamType_Captains || !g_mapSet)
-        return Plugin_Handled;
-
-    new String:arg1[32];
-    GetCmdArg(1, arg1, sizeof(arg1));
-    new target = FindTarget(client, arg1);
-    if (target == -1)
-        return Plugin_Handled;
-
-    if (target == g_capt1) {
-        PrintToChat(client, "%N is already captain 2!", target);
-        return Plugin_Handled;
-    }
-
-    SetCapt2(target);
-    return Plugin_Handled;
-}
-
 public Action:Command_Capt(client, args) {
     if (!g_Setup || g_MatchLive || g_TeamType != TeamType_Captains || !g_mapSet)
         return Plugin_Handled;
@@ -340,7 +302,7 @@ public Action:Command_Start(client, args) {
         decl String:mapName[128];
         GetCurrentMap(mapName, sizeof(mapName));
 
-        decl String:demoName[256];
+        decl String:demoName[PLATFORM_MAX_PATH];
         Format(demoName, sizeof(demoName), "pug_%s_%s", mapName, formattedTime);
         ServerCommand("tv_record %s", demoName);
         g_Recording = true;
@@ -408,7 +370,7 @@ public Action:Command_Say(client, const String:command[], argc) {
 
 public bool:HasPermissions(client, Permissions:p) {
     new bool:isLeader = GetLeader() == client;
-    new bool:isCapt = isLeader || client == g_capt1 || client == g_capt2;
+    new bool:isCapt = isLeader || client == g_capt1 || client == g_capt2;  // also allows the leader to do things, e.g. pause
 
     if (p == Permission_Leader)
         return isLeader;
@@ -417,7 +379,7 @@ public bool:HasPermissions(client, Permissions:p) {
     else if (p == Permission_All)
         return true;
     else
-        LogError("Unknown permission: %d", p);
+        ERROR_FUNC("Unknown permission: %d", p);
 
     return false;
 
@@ -495,14 +457,7 @@ public Action:Command_Leader(client, args) {
     if (!g_Setup)
         return Plugin_Handled;
 
-    new String:arg1[32];
-    GetCmdArg(1, arg1, sizeof(arg1));
-    new target = FindTarget(client, arg1);
-    if (target == -1)
-        return Plugin_Handled;
-
-    PrintToChatAll("The new leader is \x04%N", target);
-    g_Leader = GetSteamAccountID(target);
+    LeaderMenu(client);
     return Plugin_Handled;
 }
 
@@ -536,7 +491,7 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
 
 /***********************
  *                     *
- *    Pugsetup logic   *
+ *   Pugsetup logic    *
  *                     *
  ***********************/
 
@@ -606,6 +561,11 @@ public EndMatch() {
     ServerCommand("mp_unpause_match");
     if (g_MatchLive)
         ExecCfg(g_hWarmupCfg);
+
+    if (g_MapNames != INVALID_HANDLE)
+        CloseHandle(g_MapNames);
+    if (g_MapVotes != INVALID_HANDLE)
+        CloseHandle(g_MapVotes);
 
     g_Leader = -1;
     g_capt1 = -1;
@@ -739,7 +699,7 @@ public GetLeader() {
  * Executes a config file named by a con var.
  */
 public ExecCfg(Handle:ConVarName) {
-    new String:cfg[256];
+    new String:cfg[PLATFORM_MAX_PATH];
     GetConVarString(ConVarName, cfg, sizeof(cfg));
     ServerCommand("exec %s", cfg);
 }
