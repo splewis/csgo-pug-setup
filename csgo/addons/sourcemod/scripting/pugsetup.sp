@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION  "0.5.1"
+#define PLUGIN_VERSION  "0.6.0"
 #pragma semicolon 1
 
 #include <sourcemod>
