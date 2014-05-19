@@ -78,9 +78,10 @@ new bool:g_MatchLive = false;
 /** Trie that score client account id / money amounts **/
 new Handle:g_MoneyStore = INVALID_HANDLE;
 
+#include "pugsetup/captainmenus.sp"
 #include "pugsetup/liveon3.sp"
-#include "pugsetup/setupmenus.sp"
 #include "pugsetup/playermenus.sp"
+#include "pugsetup/setupmenus.sp"
 
 
 
@@ -128,12 +129,11 @@ public OnPluginStart() {
     RegAdminCmd("sm_setup", Command_Setup, ADMFLAG_CHANGEMAP, "Starts 10man setup (!ready, !capt commands become avaliable)");
     RegAdminCmd("sm_start", Command_Start, ADMFLAG_CHANGEMAP, "Starts the game if auto-lo3 is disabled");
     RegAdminCmd("sm_rand", Command_Rand, ADMFLAG_CHANGEMAP, "Sets random captains");
-    RegAdminCmd("sm_capt1", Command_Capt1, ADMFLAG_CHANGEMAP, "Sets captain 1 (picks first, T)");
-    RegAdminCmd("sm_capt2", Command_Capt2, ADMFLAG_CHANGEMAP, "Sets captain 2 (picks second, CT)");
     RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_GENERIC, "Pauses the game");
     RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_GENERIC, "Unpauses the game");
     RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
     RegAdminCmd("sm_leader", Command_Leader, ADMFLAG_CHANGEMAP, "Sets the pug leader");
+    RegAdminCmd("sm_capt", Command_Capt, ADMFLAG_CHANGEMAP, "Gives the client a menu to pick captains");
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -252,6 +252,11 @@ public Action:Timer_CheckReady(Handle:timer) {
  ***********************/
 
 public Action:Command_Setup(client, args) {
+    if (g_MatchLive) {
+        PrintToChat(client, "The game is already live!");
+        return Plugin_Handled;
+    }
+
     if (g_Setup) {
         PrintSetupInfo(client);
         return Plugin_Handled;
@@ -315,6 +320,14 @@ public Action:Command_Capt2(client, args) {
     return Plugin_Handled;
 }
 
+public Action:Command_Capt(client, args) {
+    if (!g_Setup || g_MatchLive || g_TeamType != TeamType_Captains || !g_mapSet)
+        return Plugin_Handled;
+
+    Captain1Menu(client);
+    return Plugin_Handled;
+}
+
 public Action:Command_Start(client, args) {
     if (!g_Setup || g_MatchLive)
         return;
@@ -359,7 +372,7 @@ if (StrEqual(text[0], %1)) { \
 }
 
 public Action:Command_Say(client, const String:command[], argc) {
-    decl String:text[192];
+    decl String:text[256];
     if (GetCmdArgString(text, sizeof(text)) < 1) {
         return Plugin_Continue;
     }
@@ -369,6 +382,8 @@ public Action:Command_Say(client, const String:command[], argc) {
     ChatAlias(".setup", Command_Setup, Permission_All)
     ChatAlias(".start", Command_Start, Permission_Leader)
     ChatAlias(".endgame", Command_EndGame, Permission_Leader)
+    ChatAlias(".capt", Command_Capt, Permission_Leader)
+    ChatAlias(".leader", Command_Leader, Permission_Leader)
     ChatAlias(".rand", Command_Rand, Permission_Leader)
     ChatAlias(".gaben", Command_Ready, Permission_All)
     ChatAlias(".ready", Command_Ready, Permission_All)
@@ -382,6 +397,8 @@ public Action:Command_Say(client, const String:command[], argc) {
         PrintToChat(client, "   \x06.setup \x01begins the setup phase");
         PrintToChat(client, "   \x06.start \x01starts the match if needed");
         PrintToChat(client, "   \x06.endgame \x01ends the match");
+        PrintToChat(client, "   \x06.leader \x01allows you to set the game leader");
+        PrintToChat(client, "   \x06.capt \x01allows you to set team captains");
         PrintToChat(client, "   \x06.rand \x01selects random captains");
         PrintToChat(client, "   \x06.ready/.unready \x01mark you as ready");
         PrintToChat(client, "   \x06.pause/.unpause \x01pause the match");
@@ -547,6 +564,13 @@ public SetCapt2(client) {
     if (IsValidClient(client)) {
         g_capt2 = client;
         PrintToChatAll("Captain 2 will be \x07%N", g_capt2);
+    }
+}
+
+public SetLeader(client) {
+    if (IsValidClient(client)) {
+        PrintToChatAll("The new leader is \x04%N", client);
+        g_Leader = GetSteamAccountID(client);
     }
 }
 

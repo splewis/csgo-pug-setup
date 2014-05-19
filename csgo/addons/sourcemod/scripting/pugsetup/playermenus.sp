@@ -104,10 +104,7 @@ public GivePlayerSelectionMenu(client) {
 public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;
-        new String:info[32];
-        GetMenuItem(menu, param2, info, sizeof(info));
-        new UserID = StringToInt(info);
-        new selected = GetClientOfUserId(UserID);
+        new selected = GetMenuInt(menu, param2);
 
         if (selected > 0) {
             g_Teams[selected] = g_Teams[client];
@@ -118,11 +115,7 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
                 PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x02%N", client, selected);
 
             if (!IsPickingFinished()) {
-                new nextCapt = -1;
-                if (client == g_capt1)
-                    nextCapt = g_capt2;
-                else
-                    nextCapt = g_capt1;
+                new nextCapt = OtherCaptain(client);
                 CreateTimer(0.5, MoreMenuPicks, GetClientSerial(nextCapt));
             } else {
                 CreateTimer(1.0, FinishPicking);
@@ -180,16 +173,12 @@ static OtherCaptain(captain) {
 }
 
 static AddPlayersToMenu(Handle:menu) {
-    new String:user_id[12];
     new String:name[MAX_NAME_LENGTH];
-    new String:display[MAX_NAME_LENGTH+15];
     new count = 0;
     for (new client = 1; client <= MaxClients; client++) {
         if (IsValidClient(client) && !IsPlayerPicked(client) && !IsFakeClient(client)) {
-            IntToString(GetClientUserId(client), user_id, sizeof(user_id));
             GetClientName(client, name, sizeof(name));
-            Format(display, sizeof(display), "%s", name);
-            AddMenuItem(menu, user_id, display);
+            AddMenuInt(menu, client, name);
             count++;
         }
     }

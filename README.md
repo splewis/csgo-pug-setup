@@ -39,18 +39,19 @@ Some commands that are important are:
 - **.unready**
 - **.pause**
 - **.unpause**
-- .rand (only the pug leader can do this)
+- **.capt** gives the pug leader a menu to select captains
+- .rand selects random captains
+- .leader gives a menu to change the game leader
 - .endgame, force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
 
 The chat commands are mostly aliases for sourcemod admin commands, so an admin can override things if needed. The bold commands are only available through these admin commands and have no chat aliases (other than the default sourcemod ones, e.g. !leader or /leader go with sm_leader)
 
 These use admin flag "g" for map change abilities:
-- **sm_leader** playername (allows you to set the pug leader)
-- **sm_capt1** playername (sets captain #1)
-- **sm_capt2** playername (sets captain #2)
 - sm_setup
+- sm_leader
 - sm_start
 - sm_rand
+- sm_capt
 - sm_endgame (note this resets the leader to none)
 
 These use the generic admin flag "b":
