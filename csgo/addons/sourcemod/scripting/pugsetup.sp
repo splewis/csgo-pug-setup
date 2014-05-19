@@ -107,8 +107,8 @@ public OnPluginStart() {
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live");
     g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
     g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Minimum Number of players needed to go live");
-    g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "1", "Should the plugin attempt to record a gotv demo each game");
-    g_hRestoreMoney = CreateConVar("sm_pugsetup_savemoney", "1", "Should the plugin attempt to restore player money if they must rejoin");
+    g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
+    g_hRestoreMoney = CreateConVar("sm_pugsetup_savemoney", "0", "Should the plugin attempt to restore player money if they must rejoin");
     g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
@@ -222,12 +222,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 
                 }
             } else {
-                if (GetConVarInt(g_hAutoLO3) != 0) {
-                    Command_Start(0, 0);
-                } else {
-                    PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start", GetLeader());
-                    PrintToChat(GetLeader(), "Everybody is ready! Use \x04.start \x01to begin the match.");
-                }
+                ReadyToStart();
                 return Plugin_Stop;
             }
 
@@ -593,6 +588,15 @@ public SetRandomCaptains() {
     SetCapt2(c2);
 }
 
+public ReadyToStart() {
+    if (GetConVarInt(g_hAutoLO3) != 0) {
+        Command_Start(0, 0);
+    } else {
+        PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type .start", GetLeader());
+        PrintToChat(GetLeader(), "Everybody is ready! Use \x04.start \x01to begin the match.");
+    }
+}
+
 public EndMatch() {
     if (g_Recording) {
         CreateTimer(3.0, StopDemoMsg);
@@ -644,9 +648,7 @@ public Action:FinishPicking(Handle:timer) {
     }
 
     ServerCommand("mp_unpause_match");
-    if (GetConVarInt(g_hAutoLO3) != 0) {
-        Command_Start(0, 0);
-    }
+    ReadyToStart();
     return Plugin_Handled;
 }
 
