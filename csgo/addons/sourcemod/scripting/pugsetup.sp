@@ -271,6 +271,7 @@ public Action:Command_Setup(client, args) {
     for (new i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
+
     SetupMenu(client);
     return Plugin_Handled;
 }
@@ -625,7 +626,6 @@ public Action:StartPicking(Handle:timer) {
         if (IsClientInGame(i) && !IsFakeClient(i)) {
             g_Teams[i] = CS_TEAM_SPECTATOR;
             SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
-            CS_SetClientClanTag(i, "");
         }
     }
 
@@ -639,7 +639,6 @@ public Action:StartPicking(Handle:timer) {
 public Action:FinishPicking(Handle:timer) {
     for (new i = 1; i <= MaxClients; i++) {
         if (IsValidClient(i) && !IsFakeClient(i)) {
-            g_Ready[i] = false;
             SwitchPlayerTeam(i, g_Teams[i]);
         }
     }

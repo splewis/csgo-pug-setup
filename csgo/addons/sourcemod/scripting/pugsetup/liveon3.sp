@@ -3,6 +3,10 @@ public Action:BeginLO3(Handle:timer) {
     if (!g_MatchLive)
         return;
 
+    // reset player tags
+    for (new i = 1; i <= MaxClients; i++)
+            CS_SetClientClanTag(i, "");
+
     PrintToChatAll("*** Restart 1/3 ***");
     ServerCommand("mp_restartgame 1");
     CreateTimer(3.0, Restart2);
