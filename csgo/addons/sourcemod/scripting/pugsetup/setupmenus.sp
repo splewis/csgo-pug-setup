@@ -16,17 +16,6 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
-
-        if (g_TeamType == TeamType_Manual) {
-            PrintToChatAll("The game will be using \x03manual team placement.");
-        } else if (g_TeamType == TeamType_Random) {
-            PrintToChatAll("The game will be using \x03random teams.");
-        } else if (g_TeamType == TeamType_Captains){
-            PrintToChatAll("The game will be using \x03team captains.");
-        } else {
-            ThrowError("Unknown team type choice: %d", g_TeamType);
-        }
-
         MapMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -48,15 +37,6 @@ public MapMenu(client) {
 public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         g_MapType = MapType:GetMenuInt(menu, param2);
-        if (g_MapType == MapType_Current) {
-            PrintToChatAll("The game will be using the \x03current map.");
-            g_mapSet = true;
-        } else if (g_MapType == MapType_Vote) {
-            PrintToChatAll("The game will be using a \x03map vote.");
-        } else {
-            ThrowError("Unknown map choice: %d", g_MapType);
-        }
-
         SetupFinished();
     } else if (action == MenuAction_End) {
         CloseHandle(menu);

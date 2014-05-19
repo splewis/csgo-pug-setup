@@ -255,7 +255,7 @@ public Action:Command_Setup(client, args) {
         return Plugin_Handled;
     }
 
-    if (g_Setup) {
+    if (g_Setup && client != GetLeader()) {
         PrintSetupInfo(client);
         return Plugin_Handled;
     }
@@ -276,13 +276,33 @@ public Action:Command_Rand(client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
+    if (g_TeamType != TeamType_Captains) {
+        PrintToChat(client, "This game isn't using team captains");
+        return Plugin_Handled;
+    }
+
+    if (!g_mapSet) {
+        PrintToChat(client, "You can't set captains until the map has been decided");
+        return Plugin_Handled;
+    }
+
     SetRandomCaptains();
     return Plugin_Handled;
 }
 
 public Action:Command_Capt(client, args) {
-    if (!g_Setup || g_MatchLive || g_TeamType != TeamType_Captains || !g_mapSet)
+    if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
+
+    if (g_TeamType != TeamType_Captains) {
+        PrintToChat(client, "This game isn't using team captains");
+        return Plugin_Handled;
+    }
+
+    if (!g_mapSet) {
+        PrintToChat(client, "You can't set captains until the map has been decided");
+        return Plugin_Handled;
+    }
 
     Captain1Menu(client);
     return Plugin_Handled;
@@ -496,7 +516,7 @@ public Action:Event_PlayerSpawn(Handle:event, const String:name[], bool:dontBroa
  ***********************/
 
 public PrintSetupInfo(client) {
-        PrintToChat(client, "The game has been setup by \x04%N.", GetLeader());
+        PrintToChat(client, "The game has been setup by \x04%N", GetLeader());
 
         decl String:buffer[32];
         GetTeamString(buffer, sizeof(buffer), g_TeamType);
