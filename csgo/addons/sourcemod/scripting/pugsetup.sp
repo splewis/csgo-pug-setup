@@ -553,6 +553,9 @@ public ReadyToStart() {
 }
 
 public EndMatch() {
+    if (!g_Setup)
+        return;
+
     if (g_Recording) {
         CreateTimer(3.0, StopDemoMsg);
         CreateTimer(4.0, StopDemo);
@@ -561,11 +564,6 @@ public EndMatch() {
     ServerCommand("mp_unpause_match");
     if (g_MatchLive)
         ExecCfg(g_hWarmupCfg);
-
-    if (g_MapNames != INVALID_HANDLE)
-        CloseHandle(g_MapNames);
-    if (g_MapVotes != INVALID_HANDLE)
-        CloseHandle(g_MapVotes);
 
     g_Leader = -1;
     g_capt1 = -1;
