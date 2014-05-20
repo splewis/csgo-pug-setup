@@ -81,7 +81,7 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
         SwitchPlayerTeam(otherCaptain, otherTeam);
 
         ServerCommand("mp_restartgame 1");
-        CreateTimer(2.0, Timer_GivePlayerSelectionMenu, GetClientSerial(otherCaptain));
+        GivePlayerSelectionMenu(otherCaptain);
 
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -116,37 +116,26 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
             if (!IsPickingFinished()) {
                 new nextCapt = OtherCaptain(client);
-                CreateTimer(0.5, MoreMenuPicks, GetClientSerial(nextCapt));
+                MoreMenuPicks(nextCapt);
             } else {
                 CreateTimer(1.0, FinishPicking);
             }
         } else {
-            CreateTimer(0.5, MoreMenuPicks, GetClientSerial(client));
+            MoreMenuPicks(client);
         }
 
-    } else if (action == MenuAction_Cancel) {
-        new client = param1;
-        CreateTimer(0.5, MoreMenuPicks, GetClientSerial(client));
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
 
-public Action:MoreMenuPicks(Handle:timer, any:serial) {
-    new client = GetClientFromSerial(serial);
+public MoreMenuPicks(client) {
     if (IsPickingFinished() || !IsValidClient(client) || !IsClientInGame(client)) {
         CreateTimer(5.0, FinishPicking);
-        return Plugin_Handled;
+        return;
     }
     GivePlayerSelectionMenu(client);
-    return Plugin_Handled;
 }
-
-public Action:Timer_GivePlayerSelectionMenu(Handle:timer, any:serial) {
-    GivePlayerSelectionMenu(GetClientFromSerial(serial));
-}
-
-
 
 /**
  * Helper functions for the player menus.
