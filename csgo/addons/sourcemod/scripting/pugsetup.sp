@@ -33,6 +33,7 @@ new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
 new Handle:g_hRestoreMoney = INVALID_HANDLE;
+new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
@@ -110,6 +111,7 @@ public OnPluginStart() {
     g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Minimum Number of players needed to go live", _, true, 1.0);
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRestoreMoney = CreateConVar("sm_pugsetup_savemoney", "0", "Should the plugin attempt to restore player money if they must rejoin");
+    g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use .setup");
     g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
@@ -254,6 +256,11 @@ public Action:Timer_CheckReady(Handle:timer) {
 public Action:Command_Setup(client, args) {
     if (g_MatchLive) {
         PrintToChat(client, "The game is already live!");
+        return Plugin_Handled;
+    }
+
+    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !(GetUserFlagBits(client) & ADMFLAG_CHANGEMAP)) {
+        PrintToChat(client, "You don't have permission to do that.");
         return Plugin_Handled;
     }
 
@@ -705,6 +712,7 @@ public SwitchPlayerTeam(client, team) {
  */
 public GetLeader() {
     new leaderID = g_Leader;
+
     for (new i = 1; i <= MaxClients; i++) {
         if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == leaderID)
             return i;
