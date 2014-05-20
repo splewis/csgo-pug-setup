@@ -337,7 +337,7 @@ public Action:Command_Start(client, args) {
         g_Recording = true;
     }
 
-
+    ServerCommand("exec gamemode_competitive.cfg");
     ExecCfg(g_hLiveCfg);
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {

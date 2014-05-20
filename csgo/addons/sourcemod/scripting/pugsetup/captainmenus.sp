@@ -52,7 +52,6 @@ static AddPotentialCaptains(Handle:menu, otherCaptain) {
     return count;
 }
 
-
 /**
  * Extra menu for selecting the leader of the game.
  */
