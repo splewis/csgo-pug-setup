@@ -23,10 +23,10 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
 
         new InitialPick:choice = InitialPick:GetMenuInt(menu, param2);
         if (choice == InitialPick_Player) {
-            PrintToChatAll(" \x01\x0B\x07%N \x01has elected to get the \x03first player pick.", g_capt1);
+            PrintToChatAll(" \x01\x0B\x05%N \x01has elected to get the \x05first player pick.", g_capt1);
             SideMenu(g_capt2);
         } else if (choice == InitialPick_Side) {
-            PrintToChatAll(" \x01\x0B\x07%N \x01has elected to pick the \x03starting teams.", g_capt1);
+            PrintToChatAll(" \x01\x0B\x05%N \x01has elected to pick the \x05starting teams.", g_capt1);
             SideMenu(g_capt1);
         } else {
             ERROR_FUNC("unknown intial choice: %d", choice);
@@ -62,10 +62,10 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
         new teamPick = -1;
         if (choice == SideChoice_CT) {
-            PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x03CT \x01first.", g_capt2);
+            PrintToChatAll(" \x01\x0B\x09%N \x01has picked \x03CT \x01first.", g_capt2);
             teamPick = CS_TEAM_CT;
         } else if (choice == SideChoice_T) {
-            PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x02T \x01first.", g_capt2);
+            PrintToChatAll(" \x01\x0B\x09%N \x01has picked \x07T \x01first.", g_capt2);
             teamPick = CS_TEAM_T;
         } else {
             ERROR_FUNC("Unknown side pick: %d", choice);
@@ -110,9 +110,9 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             g_Teams[selected] = g_Teams[client];
             SwitchPlayerTeam(selected, g_Teams[client]);
             if (client == g_capt1)
-                PrintToChatAll(" \x01\x0B\x06%N \x01has picked \x05%N", client, selected);
+                PrintToChatAll(" \x01\x0B\x05%N \x01has picked \x06%N", client, selected);
             else
-                PrintToChatAll(" \x01\x0B\x07%N \x01has picked \x02%N", client, selected);
+                PrintToChatAll(" \x01\x0B\x09%N \x01has picked \x07%N", client, selected);
 
             if (!IsPickingFinished()) {
                 new nextCapt = OtherCaptain(client);

@@ -143,6 +143,13 @@ public OnClientConnected(client) {
 public OnClientDisconnect(client) {
     g_Teams[client] = CS_TEAM_SPECTATOR;
     g_Ready[client] = false;
+    new numPlayers = 0;
+    for (new i = 1; i <= MaxClients; i++)
+        if (IsValidClient(i) && !IsFakeClient(i))
+            numPlayers++;
+
+    if (numPlayers == 0 && (g_MapType != MapType_Vote || !g_mapSet))
+        EndMatch();
 }
 
 public OnMapStart() {
