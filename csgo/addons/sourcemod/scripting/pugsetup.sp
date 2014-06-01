@@ -502,10 +502,14 @@ public Action:Command_Leader(client, args) {
  ***********************/
 
 public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadcast) {
-    EndMatch();
+    CreateTimer(15.0, Timer_EndMatch);
     return Plugin_Handled;
 }
 
+/** Helper timer to delay starting warmup period after match is over by a little bit **/
+public Action:Timer_EndMatch(Handle:timer) {
+    EndMatch();
+}
 
 
 /***********************
