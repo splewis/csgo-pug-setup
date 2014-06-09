@@ -4,7 +4,7 @@
 public SetupMenu(client) {
     new Handle:menu = CreateMenu(SetupMenuHandler);
     SetMenuTitle(menu, "How will teams be setup?");
-    SetMenuExitButton(menu, true);
+    SetMenuExitButton(menu, false);
     AddMenuInt(menu, _:TeamType_Captains, "Assigned captains pick their teams");
     AddMenuInt(menu, _:TeamType_Random, "Random teams");
     AddMenuInt(menu, _:TeamType_Manual, "Players manually switch teams");
@@ -27,7 +27,7 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 public MapMenu(client) {
     new Handle:menu = CreateMenu(MapMenuHandler);
     SetMenuTitle(menu, "How will the map be chosen?");
-    SetMenuExitButton(menu, true);
+    SetMenuExitButton(menu, false);
     AddMenuInt(menu, MapType_Current, "Use the current map");
     AddMenuInt(menu, MapType_Vote, "Vote for a map");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);

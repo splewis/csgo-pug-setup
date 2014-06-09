@@ -7,6 +7,7 @@ enum InitialPick {
 };
 
 public InitialChoiceMenu(client) {
+    g_PickingPlayers = true;
     new Handle:menu = CreateMenu(InitialChoiceHandler);
     SetMenuTitle(menu, "Which would you prefer:");
     SetMenuExitButton(menu, false);
