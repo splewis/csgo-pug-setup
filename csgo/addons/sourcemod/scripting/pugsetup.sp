@@ -107,7 +107,7 @@ public OnPluginStart() {
     g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
     g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Number of players needed to go live", _, true, 1.0);
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
-    g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the setup command");
+    g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
@@ -268,6 +268,11 @@ public Action:Command_Setup(client, args) {
         return Plugin_Handled;
     }
 
+    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP)) {
+        PrintToChat(client, "You don't have permission to do that.");
+        return Plugin_Handled;
+    }
+
     g_PickingPlayers = false;
     g_capt1 = -1;
     g_capt2 = -1;
@@ -356,7 +361,7 @@ if (StrEqual(text[0], %1)) { \
     if (HasPermissions(client, %3)) { \
         %2 (client, 0); \
     } else { \
-        PrintToChat(client, "You don't have the permissons to do that."); \
+        PrintToChat(client, "You don't have the permisson to do that."); \
     } \
 }
 
@@ -368,9 +373,7 @@ public Action:Command_Say(client, const String:command[], argc) {
 
     StripQuotes(text);
 
-    if (GetConVarInt(g_hRequireAdminToSetup) == 0)
-        ChatAlias(".setup", Command_Setup, Permission_All)
-
+    ChatAlias(".setup", Command_Setup, Permission_All)
     ChatAlias(".start", Command_Start, Permission_Leader)
     ChatAlias(".endgame", Command_EndGame, Permission_Leader)
     ChatAlias(".cancel", Command_EndGame, Permission_Leader)
@@ -502,6 +505,7 @@ public Action:Command_Leader(client, args) {
 
 public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadcast) {
     CreateTimer(15.0, Timer_EndMatch);
+    ExecCfg(g_hWarmupCfg);
     return Plugin_Handled;
 }
 
