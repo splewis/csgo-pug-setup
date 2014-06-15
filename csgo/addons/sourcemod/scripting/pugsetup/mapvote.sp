@@ -23,7 +23,7 @@ static ShowMapVote() {
             DisplayMenu(menu, client, 20);
         }
     }
-    CreateTimer(20.0, MapVoteFinished);
+    CreateTimer(GetConVarFloat(g_hMapVoteTime), MapVoteFinished);
 }
 
 public MapVoteHandler(Handle:menu, MenuAction:action, param1, param2) {
@@ -94,8 +94,12 @@ static CreateDefaultMapFile() {
 }
 
 static AddMap(const String:mapName[]) {
-    PushArrayString(g_MapNames, mapName);
-    PushArrayCell(g_MapVotes, 0);
+    if (IsMapValid(mapName)) {
+        PushArrayString(g_MapNames, mapName);
+        PushArrayCell(g_MapVotes, 0);
+    } else {
+        LogError("Invalid map name in mapfile: %s", mapName);
+    }
 }
 
 static GetMapList() {
@@ -116,10 +120,7 @@ static GetMapList() {
     decl String:mapName[PLATFORM_MAX_PATH];
     while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
         TrimString(mapName);
-        if (strlen(mapName) < 3)
-            LogError("Map name too short: %s", mapName);
-        else
-            AddMap(mapName);
+        AddMap(mapName);
     }
     CloseHandle(file);
 

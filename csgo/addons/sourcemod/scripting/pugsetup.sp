@@ -33,6 +33,7 @@ new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
 new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
+new Handle:g_hMapVoteTime = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
@@ -108,6 +109,7 @@ public OnPluginStart() {
     g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Number of players needed to go live", _, true, 1.0);
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
+    g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20.0", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
@@ -122,7 +124,7 @@ public OnPluginStart() {
     RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
 
-    RegAdminCmd("sm_setup", Command_Setup, ADMFLAG_CHANGEMAP, "Starts 10man setup (!ready, !capt commands become avaliable)");
+    RegAdminCmd("sm_setup", Command_Setup, ADMFLAG_CHANGEMAP, "Starts 10man setup (.ready, .capt commands become avaliable)");
     RegAdminCmd("sm_start", Command_Start, ADMFLAG_CHANGEMAP, "Starts the game if auto-lo3 is disabled");
     RegAdminCmd("sm_rand", Command_Rand, ADMFLAG_CHANGEMAP, "Sets random captains");
     RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_GENERIC, "Pauses the game");
@@ -150,7 +152,7 @@ public OnClientDisconnect(client) {
             numPlayers++;
 
     if (numPlayers == 0 && (g_MapType != MapType_Vote || !g_mapSet))
-        EndMatch();
+        EndMatch(true);
 }
 
 public OnMapStart() {
@@ -441,7 +443,7 @@ public MatchEndHandler(Handle:menu, MenuAction:action, param1, param2) {
         GetMenuItem(menu, param2, choice, sizeof(choice));
         if (StrEqual(choice, "end")) {
             PrintToChatAll("The match was force-ended by \x04%N", client);
-            EndMatch();
+            EndMatch(true);
         }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -497,6 +499,7 @@ public Action:Command_Leader(client, args) {
 }
 
 
+
 /***********************
  *                     *
  *       Events        *
@@ -504,15 +507,18 @@ public Action:Command_Leader(client, args) {
  ***********************/
 
 public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadcast) {
-    CreateTimer(15.0, Timer_EndMatch);
-    ExecCfg(g_hWarmupCfg);
+    if (g_MatchLive) {
+        CreateTimer(15.0, Timer_EndMatch);
+        ExecCfg(g_hWarmupCfg);
+    }
     return Plugin_Handled;
 }
 
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
 public Action:Timer_EndMatch(Handle:timer) {
-    EndMatch();
+    EndMatch(false);
 }
+
 
 
 /***********************
@@ -577,7 +583,7 @@ public ReadyToStart() {
     }
 }
 
-public EndMatch() {
+public EndMatch(bool:execConfigs) {
     if (!g_Setup)
         return;
 
@@ -587,7 +593,7 @@ public EndMatch() {
     }
 
     ServerCommand("mp_unpause_match");
-    if (g_MatchLive)
+    if (g_MatchLive && execConfigs)
         ExecCfg(g_hWarmupCfg);
 
     g_Leader = -1;

@@ -63,10 +63,10 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
         new teamPick = -1;
         if (choice == SideChoice_CT) {
-            PrintToChatAll(" \x01\x0B\x09%N \x01has picked \x03CT \x01first.", client);
+            PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x03CT \x01first.", client);
             teamPick = CS_TEAM_CT;
         } else if (choice == SideChoice_T) {
-            PrintToChatAll(" \x01\x0B\x09%N \x01has picked \x07T \x01first.", client);
+            PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x07T \x01first.", client);
             teamPick = CS_TEAM_T;
         } else {
             ERROR_FUNC("Unknown side pick: %d", choice);
@@ -113,7 +113,7 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             if (client == g_capt1)
                 PrintToChatAll(" \x01\x0B\x05%N \x01has picked \x06%N", client, selected);
             else
-                PrintToChatAll(" \x01\x0B\x09%N \x01has picked \x07%N", client, selected);
+                PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x07%N", client, selected);
 
             if (!IsPickingFinished()) {
                 new nextCapt = OtherCaptain(client);
