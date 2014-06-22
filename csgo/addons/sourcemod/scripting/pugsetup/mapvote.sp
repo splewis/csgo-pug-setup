@@ -20,7 +20,7 @@ static ShowMapVote() {
                 AddMenuInt(menu, i, mapName);
             }
 
-            DisplayMenu(menu, client, 20);
+            DisplayMenu(menu, client, RoundToNearest(GetConVarFloat(g_hMapVoteTime)));
         }
     }
     CreateTimer(GetConVarFloat(g_hMapVoteTime), MapVoteFinished);
@@ -53,86 +53,6 @@ public Action:MapVoteFinished(Handle:timer) {
         }
     }
     g_ChosenMap = bestIndex;
-
-    decl String:map[PLATFORM_MAX_PATH];
-    GetArrayString(g_MapNames, bestIndex, map, sizeof(map));
-    PrintToChatAll("Changing map to \x03%s\x01...", map);
-
-    CreateTimer(3.0, ChangeMap);
+    ChangeMap();
     return Plugin_Handled;
-}
-
-public Action:ChangeMap(Handle:timer) {
-    decl String:map[PLATFORM_MAX_PATH];
-    GetArrayString(g_MapNames, g_ChosenMap, map, sizeof(map));
-    g_mapSet = true;
-    CloseHandle(g_MapNames);
-    CloseHandle(g_MapVotes);
-    ServerCommand("changelevel %s", map);
-    return Plugin_Handled;
-}
-
-static CreateDefaultMapFile() {
-    PrintToChatAll("No map list was found, autogenerating one now.");
-    LogMessage("No map list was found, autogenerating one.");
-
-    decl String:dirName[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, dirName, sizeof(dirName), "configs/pugsetup", dirName);
-    if (!DirExists(dirName))
-        CreateDirectory(dirName, 511);
-
-    decl String:mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
-    new Handle:file = OpenFile(mapFile, "w");
-    WriteFileLine(file, "de_cache");
-    WriteFileLine(file, "de_dust2");
-    WriteFileLine(file, "de_inferno");
-    WriteFileLine(file, "de_mirage");
-    WriteFileLine(file, "de_nuke");
-    WriteFileString(file, "de_train", false); // no newline at the end
-    CloseHandle(file);
-}
-
-static AddMap(const String:mapName[]) {
-    if (IsMapValid(mapName)) {
-        PushArrayString(g_MapNames, mapName);
-        PushArrayCell(g_MapVotes, 0);
-    } else {
-        LogError("Invalid map name in mapfile: %s", mapName);
-    }
-}
-
-static GetMapList() {
-    g_MapNames = CreateArray(64);
-    ClearArray(g_MapNames);
-    g_MapVotes = CreateArray();
-    ClearArray(g_MapVotes);
-
-    // full file path
-    decl String:mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
-
-    if (!FileExists(mapFile)) {
-        CreateDefaultMapFile();
-    }
-
-    new Handle:file = OpenFile(mapFile, "r");
-    decl String:mapName[PLATFORM_MAX_PATH];
-    while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
-        TrimString(mapName);
-        AddMap(mapName);
-    }
-    CloseHandle(file);
-
-    if (GetArraySize(g_MapNames) < 1) {
-        LogError("The map file was empty: %s", mapFile);
-        PrintToChatAll(" \x01\x0B\x04The map file was empty - adding some default maps.");
-        AddMap("de_cache");
-        AddMap("de_dust2");
-        AddMap("de_inferno");
-        AddMap("de_mirage");
-        AddMap("de_nuke");
-        AddMap("de_train");
-    }
-
 }

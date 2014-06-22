@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION  "0.7.1"
+#define PLUGIN_VERSION  "0.8.0"
 #pragma semicolon 1
 
 #include <sourcemod>
@@ -37,11 +37,14 @@ new Handle:g_hMapVoteTime = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
+new g_PlayersPerTeam = 5;
 new bool:g_Setup = false;
 new bool:g_mapSet = false;
 new bool:g_Recording = true;
+new bool:g_LiveTimerRunning = false;
 new TeamType:g_TeamType;
 new MapType:g_MapType;
+new String:g_MapFile[PLATFORM_MAX_PATH];
 
 /** Permissions for the chat commands **/
 enum Permissions {
@@ -60,12 +63,14 @@ enum TeamType {
 /** Different ways the map can be selected **/
 enum MapType {
     MapType_Current,
-    MapType_Vote
+    MapType_Vote,
+    MapType_Veto
 };
 
 /** Map-voting variables **/
 new Handle:g_MapNames = INVALID_HANDLE;
 new Handle:g_MapVotes = INVALID_HANDLE;
+new Handle:g_MapVetoed = INVALID_HANDLE;
 new g_VotesCasted = 0;
 new g_ChosenMap = -1;
 
@@ -79,9 +84,11 @@ new bool:g_MatchLive = false;
 
 #include "pugsetup/captainmenus.sp"
 #include "pugsetup/liveon3.sp"
+#include "pugsetup/maps.sp"
+#include "pugsetup/mapveto.sp"
+#include "pugsetup/mapvote.sp"
 #include "pugsetup/playermenus.sp"
 #include "pugsetup/setupmenus.sp"
-#include "pugsetup/mapvote.sp"
 
 
 
@@ -106,7 +113,6 @@ public OnPluginStart() {
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live");
     g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
-    g_hLivePlayers = CreateConVar("sm_pugsetup_numplayers", "10", "Number of players needed to go live", _, true, 1.0);
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20.0", "How long the map vote should last if using map-votes", _, true, 10.0);
@@ -135,6 +141,8 @@ public OnPluginStart() {
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
+
+    g_LiveTimerRunning = false;
 }
 
 
@@ -151,7 +159,7 @@ public OnClientDisconnect(client) {
         if (IsValidClient(i) && !IsFakeClient(i))
             numPlayers++;
 
-    if (numPlayers == 0 && (g_MapType != MapType_Vote || !g_mapSet))
+    if (numPlayers == 0 && (g_MapType != MapType_Vote || g_MapType != MapType_Veto || !g_mapSet || g_MatchLive))
         EndMatch(true);
 }
 
@@ -166,7 +174,10 @@ public OnMapStart() {
     if (g_mapSet) {
         ExecCfg(g_hWarmupCfg);
         g_Setup = true;
-        CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
+        if (!g_LiveTimerRunning) {
+            CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
+            g_LiveTimerRunning = true;
+        }
     } else {
         g_capt1 = -1;
         g_capt2 = -1;
@@ -178,8 +189,10 @@ public OnMapEnd() {
 }
 
 public Action:Timer_CheckReady(Handle:timer) {
-    if (!g_Setup || g_MatchLive)
+    if (!g_Setup || g_MatchLive) {
+        g_LiveTimerRunning = false;
         return Plugin_Stop;
+    }
 
     new rdy = 0;
     new count = 0;
@@ -195,27 +208,38 @@ public Action:Timer_CheckReady(Handle:timer) {
         }
     }
 
-    if (rdy == count && rdy >= GetConVarInt(g_hLivePlayers)) {
+    if (rdy == count && rdy >= g_PlayersPerTeam) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
                     CreateTimer(1.0, StartPicking);
+                    g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
                     StatusHint(rdy, count);
                 }
             } else {
                 ReadyToStart();
+                g_LiveTimerRunning= false;
                 return Plugin_Stop;
             }
 
         } else {
-            if (g_MapType != MapType_Vote)
-                ERROR_FUNC("Creating map vote when g_MapType is not MapType_Vote!");
+            if (g_MapType == MapType_Veto) {
+                if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
+                    CreateMapVeto();
+                    g_LiveTimerRunning = false;
+                    return Plugin_Stop;
+                } else {
+                    StatusHint(rdy, count);
+                }
 
-            PrintToChatAll(" \x01\x0B\x04The map vote will begin in a few seconds!");
-            CreateTimer(2.0, MapSetup);
-            return Plugin_Stop;
+            } else {
+                PrintToChatAll(" \x01\x0B\x04The map selection will begin in a few seconds!");
+                CreateTimer(2.0, MapSetup);
+                g_LiveTimerRunning = false;
+                return Plugin_Stop;
+            }
         }
 
     } else {
@@ -226,12 +250,12 @@ public Action:Timer_CheckReady(Handle:timer) {
 }
 
 public StatusHint(numReady, numTotal) {
-    if (!g_mapSet) {
+    if (!g_mapSet && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", numReady, numTotal);
     } else {
         if (g_TeamType == TeamType_Captains) {
-            decl String:cap1[60];
-            decl String:cap2[60];
+            decl String:cap1[64];
+            decl String:cap2[64];
             if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1) && IsClientInGame(g_capt1))
                 Format(cap1, sizeof(cap1), "%N", g_capt1);
             else
@@ -297,11 +321,6 @@ public Action:Command_Rand(client, args) {
         return Plugin_Handled;
     }
 
-    if (!g_mapSet) {
-        PrintToChat(client, "You can't set captains until the map has been decided");
-        return Plugin_Handled;
-    }
-
     SetRandomCaptains();
     return Plugin_Handled;
 }
@@ -312,11 +331,6 @@ public Action:Command_Capt(client, args) {
 
     if (g_TeamType != TeamType_Captains) {
         PrintToChat(client, "This game isn't using team captains");
-        return Plugin_Handled;
-    }
-
-    if (!g_mapSet) {
-        PrintToChat(client, "You can't set captains until the map has been decided");
         return Plugin_Handled;
     }
 
@@ -528,14 +542,14 @@ public Action:Timer_EndMatch(Handle:timer) {
  ***********************/
 
 public PrintSetupInfo(client) {
-        PrintToChat(client, "The game has been setup by \x04%N", GetLeader());
+    PrintToChat(client, "The game has been setup by \x04%N", GetLeader());
 
-        decl String:buffer[32];
-        GetTeamString(buffer, sizeof(buffer), g_TeamType);
-        PrintToChat(client, "   Team setup choice: \x03%s", buffer);
+    decl String:buffer[128];
+    GetTeamString(buffer, sizeof(buffer), g_TeamType);
+    PrintToChat(client, "   Team (\x04%d vs %d\x01) setup choice: \x03%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
-        GetMapString(buffer, sizeof(buffer), g_MapType);
-        PrintToChat(client, "   Map setup choice: \x03%s", buffer);
+    GetMapString(buffer, sizeof(buffer), g_MapType);
+    PrintToChat(client, "   Map setup choice: \x03%s", buffer);
 }
 
 public SetCapt1(client) {
@@ -607,6 +621,10 @@ public EndMatch(bool:execConfigs) {
 public Action:MapSetup(Handle:timer) {
     if (g_MapType == MapType_Vote) {
         CreateMapVote();
+    } else if (g_MapType == MapType_Veto) {
+        CreateMapVeto();
+    } else {
+        ERROR_FUNC("Unexpected map type in MapSetup=%d", g_MapType);
     }
     return Plugin_Handled;
 }
@@ -714,7 +732,6 @@ public SwitchPlayerTeam(client, team) {
  */
 public GetLeader() {
     new leaderID = g_Leader;
-
     for (new i = 1; i <= MaxClients; i++) {
         if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == leaderID)
             return i;
@@ -741,6 +758,15 @@ public AddMenuInt(Handle:menu, any:value, String:display[]) {
     decl String:buffer[8];
     IntToString(value, buffer, sizeof(buffer));
     AddMenuItem(menu, buffer, display);
+}
+
+/**
+ * Adds an integer to a menu as a string choice.
+ */
+public AddMenuInt2(Handle:menu, any:value) {
+    decl String:buffer[8];
+    IntToString(value, buffer, sizeof(buffer));
+    AddMenuItem(menu, buffer, buffer);
 }
 
 /**

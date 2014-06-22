@@ -20,7 +20,7 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;  // should also equal g_capt1
         if (client != g_capt1)
-            ERROR_FUNC("only the first captain should have gotten the intial menu!");
+            ERROR_FUNC("[InitialChoiceHandler] only the first captain should have gotten the intial menu!");
 
         new InitialPick:choice = InitialPick:GetMenuInt(menu, param2);
         if (choice == InitialPick_Player) {
@@ -30,14 +30,12 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
             PrintToChatAll(" \x01\x0B\x05%N \x01has elected to pick the \x05starting teams.", g_capt1);
             SideMenu(g_capt1);
         } else {
-            ERROR_FUNC("unknown intial choice: %d", choice);
+            ERROR_FUNC("[InitialChoiceHandler] unknown intial choice=%d", choice);
         }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
-
-
 
 /**
  * Side selection. A captain chooses between CT or T side first.
@@ -69,7 +67,7 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             PrintToChatAll(" \x01\x0B\x03%N \x01has picked \x07T \x01first.", client);
             teamPick = CS_TEAM_T;
         } else {
-            ERROR_FUNC("Unknown side pick: %d", choice);
+            ERROR_FUNC("[SideMenuHandler] Unknown side pick: %d", choice);
         }
 
         new otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
@@ -95,11 +93,15 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
  * Player selection menus.
  */
 public GivePlayerSelectionMenu(client) {
-    new Handle:menu = CreateMenu(PlayerMenuHandler);
-    SetMenuTitle(menu, "Pick your players");
-    SetMenuExitButton(menu, false);
-    AddPlayersToMenu(menu);
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    if (IsPickingFinished()) {
+        CreateTimer(1.0, FinishPicking);
+    } else {
+        new Handle:menu = CreateMenu(PlayerMenuHandler);
+        SetMenuTitle(menu, "Pick your players");
+        SetMenuExitButton(menu, false);
+        AddPlayersToMenu(menu);
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    }
 }
 
 public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
@@ -155,14 +157,14 @@ static IsPlayerPicked(client) {
     return team == CS_TEAM_T || team == CS_TEAM_CT;
 }
 
-static OtherCaptain(captain) {
+public OtherCaptain(captain) {
     if (captain == g_capt1)
         return g_capt2;
     else
         return g_capt1;
 }
 
-static AddPlayersToMenu(Handle:menu) {
+static any:AddPlayersToMenu(Handle:menu) {
     new String:name[MAX_NAME_LENGTH];
     new count = 0;
     for (new client = 1; client <= MaxClients; client++) {
@@ -172,4 +174,5 @@ static AddPlayersToMenu(Handle:menu) {
             count++;
         }
     }
+    return count;
 }
