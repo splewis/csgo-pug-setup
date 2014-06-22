@@ -25,7 +25,11 @@ public GetMapList() {
 
     // full file path
     decl String:mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", g_MapFile);
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt");
+
+    if (!FileExists(mapFile)) {
+        CreateDefaultMapFile();
+    }
 
     new Handle:file = OpenFile(mapFile, "r");
     decl String:mapName[PLATFORM_MAX_PATH];
@@ -37,7 +41,6 @@ public GetMapList() {
 
     if (GetArraySize(g_MapNames) < 1) {
         LogError("The map file was empty: %s", mapFile);
-        PrintToChatAll(" \x01\x0B\x04The map file was empty - adding some default maps.");
         AddMap("de_dust2");
         AddMap("de_inferno");
         AddMap("de_mirage");
@@ -54,4 +57,23 @@ static AddMap(const String:mapName[]) {
     } else {
         LogError("Invalid map name in mapfile: %s", mapName);
     }
+}
+
+static CreateDefaultMapFile() {
+    LogError("No map list was found, autogenerating one.");
+
+    decl String:dirName[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, dirName, sizeof(dirName), "configs/pugsetup", dirName);
+    if (!DirExists(dirName))
+        CreateDirectory(dirName, 511);
+
+    decl String:mapFile[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
+    new Handle:file = OpenFile(mapFile, "w");
+    WriteFileLine(file, "de_dust2");
+    WriteFileLine(file, "de_inferno");
+    WriteFileLine(file, "de_mirage");
+    WriteFileLine(file, "de_nuke");
+    WriteFileString(file, "de_train", false); // no newline at the end
+    CloseHandle(file);
 }

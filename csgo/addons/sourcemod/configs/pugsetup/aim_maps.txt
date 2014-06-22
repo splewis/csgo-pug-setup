@@ -1,5 +1,0 @@
-workshop/122443683/aim_map
-workshop/126759439/aim_usp_a
-workshop/130327362/awp_imbarena
-workshop/164997934/awp_snow
-workshop/183511193/aim_ak47_colt

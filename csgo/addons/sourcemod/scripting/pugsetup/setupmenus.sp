@@ -15,7 +15,7 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
-        MapMenu(client);
+        GivePlayerCountMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -37,7 +37,6 @@ public MapMenu(client) {
 
 public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
         g_MapType = MapType:GetMenuInt(menu, param2);
         switch (g_MapType) {
             case MapType_Current: g_mapSet = true;
@@ -46,51 +45,8 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             default: ERROR_FUNC("unknown maptype=%d", g_MapType);
         }
 
-        if (g_MapType == MapType_Current) {
-            SetupFinished();
-        } else {
-            GiveMapListSelector(client);
-        }
+        SetupFinished();
 
-    } else if (action == MenuAction_End) {
-        CloseHandle(menu);
-    }
-}
-
-public GiveMapListSelector(client) {
-    new Handle:menu = CreateMenu(MapListSelectorHandler);
-    SetMenuTitle(menu, "What map list should we use?");
-    SetMenuExitButton(menu, false);
-
-    decl String:dirPath[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, dirPath, sizeof(dirPath), "configs/pugsetup/", dirPath);
-    new Handle:dir = OpenDirectory(dirPath);
-
-    decl String:mapFile[PLATFORM_MAX_PATH];
-    new FileType:type;
-    new count = 0;
-    while (ReadDirEntry(dir, mapFile, sizeof(mapFile), type)) {
-        if (type == FileType_File) {
-            count++;
-            AddMenuItem(menu, mapFile, mapFile);
-        }
-    }
-    CloseHandle(dir);
-
-    if (count > 0) {
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
-    } else {
-        LogError("no map lists found in %s", dirPath);
-        g_MapFile = "standard_maps.txt";
-        CloseHandle(menu);
-    }
-}
-
-public MapListSelectorHandler(Handle:menu, MenuAction:action, param1, param2) {
-    if (action == MenuAction_Select) {
-        new client = param1;
-        GetMenuItem(menu, param2, g_MapFile, sizeof(g_MapFile));
-        GivePlayerCountMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -100,23 +56,22 @@ public GivePlayerCountMenu(client) {
     new Handle:menu = CreateMenu(PlayerCountHandler);
     SetMenuTitle(menu, "How many players per team?");
     SetMenuExitButton(menu, false);
-    new any:choices[] = {1, 2, 3, 5, 6};
+    new any:choices[] = {1, 2, 3, 4, 5, 6};
     for (new i = 0; i < sizeof(choices); i++)
-        AddMenuInt2(menu, choices[i]);
+        AddMenuInt(menu, choices[i], "");
 
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public PlayerCountHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
+        new client = param1;
         g_PlayersPerTeam = GetMenuInt(menu, param2);
-        SetupFinished();
+        MapMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
-
-
 
 /**
  * Called when the setup phase is over and the ready-up period should begin.
@@ -138,7 +93,7 @@ public GetTeamString(String:buffer[], length, TeamType:type) {
         case TeamType_Manual: return strcopy(buffer, length, "manual teams");
         case TeamType_Random: return strcopy(buffer, length, "random teams");
         case TeamType_Captains: return strcopy(buffer, length, "captains pick players");
-        default: return strcopy(buffer, length, "unknown");
+        default: ERROR_FUNC("unknown teamtype=%d", type);
     }
     return 0;
 }
@@ -147,8 +102,8 @@ public GetMapString(String:buffer[], length, MapType:type) {
     switch (type) {
         case MapType_Current: return strcopy(buffer, length, "use the current map");
         case MapType_Vote: return strcopy(buffer, length, "vote for a map");
-        case MapType_Veto: return strcopy(buffer, length, "captans veto maps");
-        default: return strcopy(buffer, length, "unknown");
+        case MapType_Veto: return strcopy(buffer, length, "captains veto maps");
+        default: ERROR_FUNC("unknown maptype=%d", type);
     }
     return 0;
 }

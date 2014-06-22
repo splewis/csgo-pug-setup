@@ -149,7 +149,7 @@ static bool:IsPickingFinished() {
         if (IsPlayerPicked(i))
             numSelected++;
 
-    return numSelected >= GetConVarInt(g_hLivePlayers);
+    return numSelected >= 2*g_PlayersPerTeam;
 }
 
 static IsPlayerPicked(client) {

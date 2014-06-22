@@ -28,12 +28,12 @@
 /** ConVar handles **/
 new Handle:g_hCvarVersion = INVALID_HANDLE;
 new Handle:g_hAutoLO3 = INVALID_HANDLE;
-new Handle:g_hLivePlayers = INVALID_HANDLE;
 new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
 new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
 new Handle:g_hMapVoteTime = INVALID_HANDLE;
+new Handle:g_hLockTeams = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
@@ -44,7 +44,6 @@ new bool:g_Recording = true;
 new bool:g_LiveTimerRunning = false;
 new TeamType:g_TeamType;
 new MapType:g_MapType;
-new String:g_MapFile[PLATFORM_MAX_PATH];
 
 /** Permissions for the chat commands **/
 enum Permissions {
@@ -77,12 +76,14 @@ new g_ChosenMap = -1;
 /** Data about team selections **/
 new g_capt1 = -1;
 new g_capt2 = -1;
+new bool:g_PluginTeamSwitch[MAXPLAYERS+1] = false;  // Flags the teamswitches as being done by the plugin
 new g_Teams[MAXPLAYERS+1];
 new bool:g_Ready[MAXPLAYERS+1];
 new bool:g_PickingPlayers = false;
 new bool:g_MatchLive = false;
 
 #include "pugsetup/captainmenus.sp"
+#include "pugsetup/generic.sp"
 #include "pugsetup/liveon3.sp"
 #include "pugsetup/maps.sp"
 #include "pugsetup/mapveto.sp"
@@ -116,16 +117,19 @@ public OnPluginStart() {
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20.0", "How long the map vote should last if using map-votes", _, true, 10.0);
-    g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
-    SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
+    g_hLockTeams = CreateConVar("sm_pugsetup_lock_teams", "1", "Should the plugin lock players into teams once the game starts");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
+
+    g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+    SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
     /** Commands **/
     AddCommandListener(Command_Say, "say");
     AddCommandListener(Command_Say, "say2");
     AddCommandListener(Command_Say, "say_team");
+    AddCommandListener(Command_TeamJoin, "jointeam");
 
     RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
@@ -141,6 +145,7 @@ public OnPluginStart() {
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
+    HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Pre);
 
     g_LiveTimerRunning = false;
 }
@@ -149,6 +154,7 @@ public OnPluginStart() {
 public OnClientConnected(client) {
     g_Teams[client] = CS_TEAM_SPECTATOR;
     g_Ready[client] = false;
+    g_PluginTeamSwitch[client] = false;
 }
 
 public OnClientDisconnect(client) {
@@ -208,6 +214,7 @@ public Action:Timer_CheckReady(Handle:timer) {
         }
     }
 
+    // beware: scary spaghetti code ahead
     if (rdy == count && rdy >= g_PlayersPerTeam) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
@@ -283,6 +290,35 @@ public StatusHint(numReady, numTotal) {
  *                     *
  ***********************/
 
+/**
+ * teamjoin hook - marks a player as waiting or moves them to spec if appropriate.
+ */
+public Action:Command_TeamJoin(client, const String:command[], argc) {
+    if (!IsValidClient(client))
+        return Plugin_Handled;
+
+    if (GetConVarInt(g_hLockTeams) == 0)
+        return Plugin_Continue;
+
+    if (!g_Setup)
+        return Plugin_Continue;
+
+
+    decl String:arg[4];
+    GetCmdArg(1, arg, sizeof(arg));
+    new team_to = StringToInt(arg);
+    new team_from = GetClientTeam(client);
+
+    if (g_MatchLive || g_PickingPlayers) {
+        new bool:switchingBetweenTeams = (team_from == CS_TEAM_CT && team_to == CS_TEAM_T) || (team_from == CS_TEAM_T  && team_to == CS_TEAM_CT);
+        new bool:toFullTeam = (GetNumHumansOnTeam(team_to) >= g_PlayersPerTeam);
+        return (switchingBetweenTeams || toFullTeam) ? Plugin_Handled : Plugin_Continue;
+    }
+
+
+    return Plugin_Continue;
+}
+
 public Action:Command_Setup(client, args) {
     if (g_MatchLive) {
         PrintToChat(client, "The game is already live!");
@@ -346,14 +382,14 @@ public Action:Command_Start(client, args) {
         // get the time
         new timeStamp = GetTime();
         decl String:formattedTime[128];
-        FormatTime(formattedTime, sizeof(formattedTime), "%Y_%b_%d_%H:%M", timeStamp);
+        FormatTime(formattedTime, sizeof(formattedTime), "%F_%R", timeStamp);
 
         // get the map
         decl String:mapName[128];
         GetCurrentMap(mapName, sizeof(mapName));
 
         decl String:demoName[PLATFORM_MAX_PATH];
-        Format(demoName, sizeof(demoName), "pug_%s_%s", mapName, formattedTime);
+        Format(demoName, sizeof(demoName), "pug_%s_%dv%d_%s", mapName, g_PlayersPerTeam, g_PlayersPerTeam, formattedTime);
         ServerCommand("tv_record %s", demoName);
         g_Recording = true;
     }
@@ -398,6 +434,7 @@ public Action:Command_Say(client, const String:command[], argc) {
     ChatAlias(".rand", Command_Rand, Permission_Leader)
     ChatAlias(".gaben", Command_Ready, Permission_All)
     ChatAlias(".ready", Command_Ready, Permission_All)
+    ChatAlias(".gs4lyfe", Command_Ready, Permission_All)
     ChatAlias(".unready", Command_Unready, Permission_All)
     ChatAlias(".pause", Command_Pause, Permission_Captains)
     ChatAlias(".unpause", Command_Unpause, Permission_Captains)
@@ -520,12 +557,22 @@ public Action:Command_Leader(client, args) {
  *                     *
  ***********************/
 
+public Action:Event_OnPlayerTeam(Handle:event, const String:name[], bool:dontBroadcast) {
+    if (g_PickingPlayers) {
+        dontBroadcast = true;
+        return Plugin_Changed;
+    } else {
+        return Plugin_Continue;
+    }
+}
+
+
 public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadcast) {
     if (g_MatchLive) {
         CreateTimer(15.0, Timer_EndMatch);
         ExecCfg(g_hWarmupCfg);
     }
-    return Plugin_Handled;
+    return Plugin_Continue;
 }
 
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
@@ -670,63 +717,6 @@ public Action:StopDemo(Handle:timer) {
     return Plugin_Handled;
 }
 
-
-
-/***********************
- *                     *
- *  Generic Functions  *
- *                     *
- ***********************/
-
-/**
- * Returns if a client is valid.
- */
-public bool:IsValidClient(client) {
-    if (client > 0 && client <= MaxClients && IsClientConnected(client) && IsClientInGame(client))
-        return true;
-    return false;
-}
-
-/**
- * Returns the number of clients that are actual players in the game.
- */
-public GetRealClientCount() {
-    new clients = 0;
-    for (new i = 1; i <= MaxClients; i++) {
-        if (IsClientInGame(i) && !IsFakeClient(i)) {
-            clients++;
-        }
-    }
-    return clients;
-}
-
-/**
- * Returns a random player client on the server.
- */
-public RandomPlayer() {
-    new client = -1;
-    while (!IsValidClient(client) || IsFakeClient(client)) {
-        if (GetRealClientCount() < 1)
-            return -1;
-
-        client = GetRandomInt(1, MaxClients);
-    }
-    return client;
-}
-
-/**
- * Switches and respawns a player onto a new team.
- */
-public SwitchPlayerTeam(client, team) {
-    if (team > CS_TEAM_SPECTATOR) {
-        CS_SwitchTeam(client, team);
-        CS_UpdateClientModel(client);
-        CS_RespawnPlayer(client);
-    } else {
-        ChangeClientTeam(client, team);
-    }
-}
-
 /**
  * Returns the client whose steam account id matches the parameter, or -1 if none are found.
  */
@@ -740,40 +730,4 @@ public GetLeader() {
     new r = RandomPlayer();
     g_Leader = GetSteamAccountID(r);
     return r;
-}
-
-/**
- * Executes a config file named by a con var.
- */
-public ExecCfg(Handle:ConVarName) {
-    new String:cfg[PLATFORM_MAX_PATH];
-    GetConVarString(ConVarName, cfg, sizeof(cfg));
-    ServerCommand("exec %s", cfg);
-}
-
-/**
- * Adds an integer to a menu as a string choice.
- */
-public AddMenuInt(Handle:menu, any:value, String:display[]) {
-    decl String:buffer[8];
-    IntToString(value, buffer, sizeof(buffer));
-    AddMenuItem(menu, buffer, display);
-}
-
-/**
- * Adds an integer to a menu as a string choice.
- */
-public AddMenuInt2(Handle:menu, any:value) {
-    decl String:buffer[8];
-    IntToString(value, buffer, sizeof(buffer));
-    AddMenuItem(menu, buffer, buffer);
-}
-
-/**
- * Gets an integer to a menu from a string choice.
- */
-public GetMenuInt(Handle:menu, any:param2) {
-    decl String:choice[8];
-    GetMenuItem(menu, param2, choice, sizeof(choice));
-    return StringToInt(choice);
 }
