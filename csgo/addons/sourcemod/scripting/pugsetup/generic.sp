@@ -96,3 +96,20 @@ public GetRealClientCount() {
     }
     return clients;
 }
+
+/**
+ * Returns a random index from an array.
+ */
+public any:GetArrayRandomIndex(Handle:array) {
+    new len = GetArraySize(array);
+    if (len == 0)
+        ThrowError("Can't get random index from empty array");
+    return GetRandomInt(0, len - 1);
+}
+
+/**
+ * Returns a random element from an array.
+ */
+public any:GetArrayCellRandom(Handle:array) {
+    return GetArrayCell(array, GetArrayRandomIndex(array));
+}

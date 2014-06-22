@@ -76,6 +76,8 @@ public PlayerCountHandler(Handle:menu, MenuAction:action, param1, param2) {
  * Called when the setup phase is over and the ready-up period should begin.
  */
 public SetupFinished() {
+    g_capt1 = -1;
+    g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
     for (new i = 1; i < MaxClients; i++)
         if (IsValidClient(i) && !IsFakeClient(i))

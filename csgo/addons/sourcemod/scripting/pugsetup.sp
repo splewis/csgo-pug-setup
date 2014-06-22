@@ -368,7 +368,7 @@ public Action:Command_Capt(client, args) {
     if (!g_Setup || g_MatchLive || g_PickingPlayers)
         return Plugin_Handled;
 
-    if (g_TeamType != TeamType_Captains) {
+    if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
         PrintToChat(client, "This game isn't using team captains");
         return Plugin_Handled;
     }
@@ -378,7 +378,7 @@ public Action:Command_Capt(client, args) {
 }
 
 public Action:Command_Start(client, args) {
-    if (!g_Setup || g_MatchLive)
+    if (!g_Setup || g_MatchLive || !g_mapSet || g_LiveTimerRunning)
         return;
 
     if (GetConVarInt(g_hAutorecord) != 0) {
@@ -460,8 +460,11 @@ public Action:Command_Say(client, const String:command[], argc) {
 }
 
 public bool:HasPermissions(client, Permissions:p) {
+    if (!IsValidClient(client) || IsFakeClient(client))
+        return false;
+
     new bool:isLeader = GetLeader() == client;
-    new bool:isCapt = isLeader || client == g_capt1 || client == g_capt2;  // also allows the leader to do things, e.g. pause
+    new bool:isCapt = isLeader || client == g_capt1 || client == g_capt2 || CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
 
     if (p == Permission_Leader)
         return isLeader;
@@ -596,7 +599,7 @@ public PrintSetupInfo(client) {
 
     decl String:buffer[128];
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
-    PrintToChat(client, "   Team (\x04%d vs %d\x01) setup choice: \x03%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
+    PrintToChat(client, "   Team (\x03%d vs %d\x01) setup choice: \x03%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
     GetMapString(buffer, sizeof(buffer), g_MapType);
     PrintToChat(client, "   Map setup choice: \x03%s", buffer);
