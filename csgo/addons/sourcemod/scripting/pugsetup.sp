@@ -68,9 +68,7 @@ enum MapType {
 
 /** Map-voting variables **/
 new Handle:g_MapNames = INVALID_HANDLE;
-new Handle:g_MapVotes = INVALID_HANDLE;
 new Handle:g_MapVetoed = INVALID_HANDLE;
-new g_VotesCasted = 0;
 new g_ChosenMap = -1;
 
 /** Data about team selections **/
@@ -116,7 +114,7 @@ public OnPluginStart() {
     g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
-    g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20.0", "How long the map vote should last if using map-votes", _, true, 10.0);
+    g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hLockTeams = CreateConVar("sm_pugsetup_lock_teams", "1", "Should the plugin lock players into teams once the game starts");
 
     /** Create and exec plugin's configuration file **/
@@ -234,7 +232,8 @@ public Action:Timer_CheckReady(Handle:timer) {
         } else {
             if (g_MapType == MapType_Veto) {
                 if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
-                    CreateMapVeto();
+                    PrintToChatAll(" \x01\x0B\x04The map veto process will begin in a few seconds!");
+                    CreateTimer(2.0, MapSetup);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
@@ -242,7 +241,7 @@ public Action:Timer_CheckReady(Handle:timer) {
                 }
 
             } else {
-                PrintToChatAll(" \x01\x0B\x04The map selection will begin in a few seconds!");
+                PrintToChatAll(" \x01\x0B\x04The map voting will begin in a few seconds!");
                 CreateTimer(2.0, MapSetup);
                 g_LiveTimerRunning = false;
                 return Plugin_Stop;
@@ -260,7 +259,7 @@ public StatusHint(numReady, numTotal) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", numReady, numTotal);
     } else {
-        if (g_TeamType == TeamType_Captains) {
+        if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
             decl String:cap1[64];
             decl String:cap2[64];
             if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1) && IsClientInGame(g_capt1))
@@ -312,7 +311,11 @@ public Action:Command_TeamJoin(client, const String:command[], argc) {
     if (g_MatchLive || g_PickingPlayers) {
         new bool:switchingBetweenTeams = (team_from == CS_TEAM_CT && team_to == CS_TEAM_T) || (team_from == CS_TEAM_T  && team_to == CS_TEAM_CT);
         new bool:toFullTeam = (GetNumHumansOnTeam(team_to) >= g_PlayersPerTeam);
-        return (switchingBetweenTeams || toFullTeam) ? Plugin_Handled : Plugin_Continue;
+        new bool:shouldBlock = switchingBetweenTeams || toFullTeam;
+        if (shouldBlock) {
+            PrintToChat(client, "Sorry, the teams are already locked.");
+            return Plugin_Handled;
+        }
     }
 
 

@@ -30,8 +30,7 @@ public MapMenu(client) {
     SetMenuExitButton(menu, false);
     AddMenuInt(menu, MapType_Current, "Use the current map");
     AddMenuInt(menu, MapType_Vote, "Vote for a map");
-    if (g_TeamType == TeamType_Captains)
-        AddMenuInt(menu, MapType_Veto, "Captains veto maps until 1 left");
+    AddMenuInt(menu, MapType_Veto, "Captains veto maps until 1 left");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 

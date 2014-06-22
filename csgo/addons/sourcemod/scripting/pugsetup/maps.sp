@@ -10,7 +10,6 @@ public Action:Timer_DelayedChangeMap(Handle:timer) {
     GetArrayString(g_MapNames, g_ChosenMap, map, sizeof(map));
     g_mapSet = true;
     CloseHandle(g_MapNames);
-    CloseHandle(g_MapVotes);
     ServerCommand("changelevel %s", map);
     return Plugin_Handled;
 }
@@ -18,8 +17,6 @@ public Action:Timer_DelayedChangeMap(Handle:timer) {
 public GetMapList() {
     g_MapNames = CreateArray(PLATFORM_MAX_PATH);
     ClearArray(g_MapNames);
-    g_MapVotes = CreateArray();
-    ClearArray(g_MapVotes);
     g_MapVetoed = CreateArray();
     ClearArray(g_MapVetoed);
 
@@ -52,7 +49,6 @@ public GetMapList() {
 static AddMap(const String:mapName[]) {
     if (IsMapValid(mapName)) {
         PushArrayString(g_MapNames, mapName);
-        PushArrayCell(g_MapVotes, 0);
         PushArrayCell(g_MapVetoed, false);
     } else {
         LogError("Invalid map name in mapfile: %s", mapName);
