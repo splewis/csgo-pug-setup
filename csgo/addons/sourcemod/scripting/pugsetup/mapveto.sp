@@ -75,7 +75,7 @@ static VetoStatusDisplay(client) {
             AddMenuInt(menu, i, map);
         }
     }
-    DisplayMenu(menu, client, 20);
+    DisplayMenu(menu, client, 30);
 
 }
 
