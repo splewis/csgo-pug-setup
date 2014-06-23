@@ -33,7 +33,6 @@ new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
 new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
 new Handle:g_hMapVoteTime = INVALID_HANDLE;
-new Handle:g_hLockTeams = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
@@ -74,7 +73,6 @@ new g_ChosenMap = -1;
 /** Data about team selections **/
 new g_capt1 = -1;
 new g_capt2 = -1;
-new bool:g_PluginTeamSwitch[MAXPLAYERS+1] = false;  // Flags the teamswitches as being done by the plugin
 new g_Teams[MAXPLAYERS+1];
 new bool:g_Ready[MAXPLAYERS+1];
 new bool:g_PickingPlayers = false;
@@ -115,7 +113,6 @@ public OnPluginStart() {
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
-    g_hLockTeams = CreateConVar("sm_pugsetup_lock_teams", "1", "Should the plugin lock players into teams once the game starts");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -127,12 +124,12 @@ public OnPluginStart() {
     AddCommandListener(Command_Say, "say");
     AddCommandListener(Command_Say, "say2");
     AddCommandListener(Command_Say, "say_team");
-    AddCommandListener(Command_TeamJoin, "jointeam");
 
     RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
 
     RegAdminCmd("sm_setup", Command_Setup, ADMFLAG_CHANGEMAP, "Starts 10man setup (.ready, .capt commands become avaliable)");
+    RegAdminCmd("sm_lo3", Command_LO3, ADMFLAG_CHANGEMAP, "Restarts the game with a lo3 (generally this command is not neeeded!)");
     RegAdminCmd("sm_start", Command_Start, ADMFLAG_CHANGEMAP, "Starts the game if auto-lo3 is disabled");
     RegAdminCmd("sm_rand", Command_Rand, ADMFLAG_CHANGEMAP, "Sets random captains");
     RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_GENERIC, "Pauses the game");
@@ -143,7 +140,6 @@ public OnPluginStart() {
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
-    HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Pre);
 
     g_LiveTimerRunning = false;
 }
@@ -152,7 +148,6 @@ public OnPluginStart() {
 public OnClientConnected(client) {
     g_Teams[client] = CS_TEAM_SPECTATOR;
     g_Ready[client] = false;
-    g_PluginTeamSwitch[client] = false;
 }
 
 public OnClientDisconnect(client) {
@@ -289,38 +284,6 @@ public StatusHint(numReady, numTotal) {
  *                     *
  ***********************/
 
-/**
- * teamjoin hook - marks a player as waiting or moves them to spec if appropriate.
- */
-public Action:Command_TeamJoin(client, const String:command[], argc) {
-    if (!IsValidClient(client))
-        return Plugin_Handled;
-
-    if (GetConVarInt(g_hLockTeams) == 0)
-        return Plugin_Continue;
-
-    if (!g_Setup)
-        return Plugin_Continue;
-
-
-    decl String:arg[4];
-    GetCmdArg(1, arg, sizeof(arg));
-    new team_to = StringToInt(arg);
-    new team_from = GetClientTeam(client);
-
-    if (g_MatchLive || g_PickingPlayers) {
-        new bool:switchingBetweenTeams = (team_from == CS_TEAM_CT && team_to == CS_TEAM_T) || (team_from == CS_TEAM_T  && team_to == CS_TEAM_CT);
-        new bool:toFullTeam = (GetNumHumansOnTeam(team_to) >= g_PlayersPerTeam);
-        new bool:shouldBlock = switchingBetweenTeams || toFullTeam;
-        if (shouldBlock) {
-            PrintToChat(client, "Sorry, the teams are already locked.");
-            return Plugin_Handled;
-        }
-    }
-
-
-    return Plugin_Continue;
-}
 
 public Action:Command_Setup(client, args) {
     if (g_MatchLive) {
@@ -375,6 +338,12 @@ public Action:Command_Capt(client, args) {
 
     Captain1Menu(client);
     return Plugin_Handled;
+}
+
+public Action:Command_LO3(client, args) {
+    for (new i = 0; i < 5; i++)
+        PrintToChatAll("*** The match will begin shortly - live on 3! ***");
+    CreateTimer(2.0, BeginLO3);
 }
 
 public Action:Command_Start(client, args) {
@@ -562,16 +531,6 @@ public Action:Command_Leader(client, args) {
  *       Events        *
  *                     *
  ***********************/
-
-public Action:Event_OnPlayerTeam(Handle:event, const String:name[], bool:dontBroadcast) {
-    if (g_PickingPlayers) {
-        dontBroadcast = true;
-        return Plugin_Changed;
-    } else {
-        return Plugin_Continue;
-    }
-}
-
 
 public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadcast) {
     if (g_MatchLive) {

@@ -50,9 +50,38 @@ public VetoHandler(Handle:menu, MenuAction:action, param1, param2) {
             g_ChosenMap = GetFirstMapLeft();
             ChangeMap();
         } else {
-            GiveVetoMenu(OtherCaptain(client));
+            new other = OtherCaptain(client);
+            GiveVetoMenu(other);
+            for (new i = 1; i <= MaxClients; i++) {
+                if (IsValidClient(i) && !IsFakeClient(i) && i != other) {
+                    VetoStatusDisplay(i);
+                }
+            }
         }
 
+    } else if (action == MenuAction_End) {
+        CloseHandle(menu);
+    }
+}
+
+static VetoStatusDisplay(client) {
+    new Handle:menu = CreateMenu(VetoStatusHandler);
+    SetMenuExitButton(menu, true);
+    SetMenuTitle(menu, "Maps left");
+    for (new i = 0; i < GetArraySize(g_MapNames); i++) {
+        if (!GetArrayCell(g_MapVetoed, i)) {
+            decl String:map[PLATFORM_MAX_PATH];
+            GetArrayString(g_MapNames, i, map, sizeof(map));
+            AddMenuInt(menu, i, map);
+        }
+    }
+    DisplayMenu(menu, client, 20);
+
+}
+
+public VetoStatusHandler(Handle:menu, MenuAction:action, param1, param2) {
+    if (action == MenuAction_Select) {
+        // nothing
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }

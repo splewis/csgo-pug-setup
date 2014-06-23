@@ -64,7 +64,6 @@ public RandomPlayer() {
  * Switches and respawns a player onto a new team.
  */
 public SwitchPlayerTeam(client, team) {
-    g_PluginTeamSwitch[client] = true;
     if (team > CS_TEAM_SPECTATOR) {
         CS_SwitchTeam(client, team);
         CS_UpdateClientModel(client);
@@ -72,7 +71,6 @@ public SwitchPlayerTeam(client, team) {
     } else {
         ChangeClientTeam(client, team);
     }
-    g_PluginTeamSwitch[client] = false;
 }
 
 /**
