@@ -219,8 +219,8 @@ public Action:Timer_CheckReady(Handle:timer) {
                     StatusHint(rdy, count);
                 }
             } else {
+                g_LiveTimerRunning = false;
                 ReadyToStart();
-                g_LiveTimerRunning= false;
                 return Plugin_Stop;
             }
 
