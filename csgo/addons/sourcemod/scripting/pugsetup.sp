@@ -78,13 +78,13 @@ new bool:g_Ready[MAXPLAYERS+1];
 new bool:g_PickingPlayers = false;
 new bool:g_MatchLive = false;
 
-#include "pugsetup/captainmenus.sp"
+#include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/generic.sp"
+#include "pugsetup/leadermenus.sp"
 #include "pugsetup/liveon3.sp"
 #include "pugsetup/maps.sp"
 #include "pugsetup/mapveto.sp"
 #include "pugsetup/mapvote.sp"
-#include "pugsetup/playermenus.sp"
 #include "pugsetup/setupmenus.sp"
 
 
