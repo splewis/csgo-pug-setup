@@ -35,6 +35,21 @@ public GetMenuInt(Handle:menu, any:param2) {
 }
 
 /**
+ * Adds a boolean to a menu as a string choice.
+ */
+public AddMenuBool(Handle:menu, bool:value, String:display[]) {
+    new convertedInt = value ? 1 : 0;
+    AddMenuInt(menu, convertedInt, display);
+}
+
+/**
+ * Gets a boolean to a menu from a string choice.
+ */
+public bool:GetMenuBool(Handle:menu, any:param2) {
+    return GetMenuInt(menu, param2) != 0;
+}
+
+/**
  * Returns the number of human clients on a team.
  */
 public GetNumHumansOnTeam(team) {

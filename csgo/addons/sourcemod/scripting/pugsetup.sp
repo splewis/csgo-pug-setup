@@ -398,7 +398,7 @@ if (StrEqual(text[0], %1)) { \
     if (HasPermissions(client, %3)) { \
         %2 (client, 0); \
     } else { \
-        PrintToChat(client, "You don't have the permisson to do that."); \
+        PrintToChat(client, "You don't have permisson to do that."); \
     } \
 }
 
@@ -468,8 +468,8 @@ public Action:Command_EndGame(client, args) {
         new Handle:menu = CreateMenu(MatchEndHandler);
         SetMenuTitle(menu, "Are you sure you want to end the match?");
         SetMenuExitButton(menu, true);
-        AddMenuItem(menu, "continue", "No, continue the match");
-        AddMenuItem(menu, "end", "Yes, end the match");
+        AddMenuBool(menu, false, "No, continue the match");
+        AddMenuBool(menu, true, "Yes, end the match");
         DisplayMenu(menu, client, 20);
     }
     return Plugin_Handled;
@@ -478,9 +478,8 @@ public Action:Command_EndGame(client, args) {
 public MatchEndHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;
-        decl String:choice[16];
-        GetMenuItem(menu, param2, choice, sizeof(choice));
-        if (StrEqual(choice, "end")) {
+        new bool:choice = GetMenuBool(menu, param2);
+        if (choice) {
             PrintToChatAll("The match was force-ended by \x04%N", client);
             EndMatch(true);
         }
@@ -623,9 +622,6 @@ public ReadyToStart() {
 }
 
 public EndMatch(bool:execConfigs) {
-    if (!g_Setup)
-        return;
-
     if (g_Recording) {
         CreateTimer(3.0, StopDemoMsg);
         CreateTimer(4.0, StopDemo);
