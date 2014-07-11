@@ -57,6 +57,7 @@ public MapMenu(client) {
 
 public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
+        new client = param1;
         g_MapType = MapType:GetMenuInt(menu, param2);
         switch (g_MapType) {
             case MapType_Current: g_mapSet = true;
@@ -64,7 +65,7 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             case MapType_Veto: g_mapSet = false;
             default: ERROR_FUNC("unknown maptype=%d", g_MapType);
         }
-
+        AutoLO3Menu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
