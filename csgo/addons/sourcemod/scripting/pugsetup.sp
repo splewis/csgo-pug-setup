@@ -31,7 +31,6 @@
 /** ConVar handles **/
 new Handle:g_hCvarVersion = INVALID_HANDLE;
 new Handle:g_hAutoUpdate = INVALID_HANDLE;
-new Handle:g_hAutoLO3 = INVALID_HANDLE;
 new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
@@ -40,11 +39,15 @@ new Handle:g_hMapVoteTime = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
-new g_PlayersPerTeam = 5;
+
 new bool:g_Setup = false;
 new bool:g_mapSet = false;
 new bool:g_Recording = true;
 new bool:g_LiveTimerRunning = false;
+
+// Specific choices made when setting up
+new g_PlayersPerTeam = 5;
+new bool:g_AutoLO3 = false;
 new TeamType:g_TeamType;
 new MapType:g_MapType;
 
@@ -113,7 +116,6 @@ public OnPluginStart() {
     /** ConVars **/
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live");
-    g_hAutoLO3 = CreateConVar("sm_pugsetup_autolo3", "1", "If the game starts immediately after teams are picked");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
@@ -614,7 +616,7 @@ public SetRandomCaptains() {
 }
 
 public ReadyToStart() {
-    if (GetConVarInt(g_hAutoLO3) != 0) {
+    if (g_AutoLO3) {
         Command_Start(0, 0);
     } else {
         PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type \x03.start", GetLeader());

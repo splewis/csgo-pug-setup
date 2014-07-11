@@ -21,6 +21,27 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
+public GivePlayerCountMenu(client) {
+    new Handle:menu = CreateMenu(PlayerCountHandler);
+    SetMenuTitle(menu, "How many players per team?");
+    SetMenuExitButton(menu, false);
+    new any:choices[] = {1, 2, 3, 4, 5, 6};
+    for (new i = 0; i < sizeof(choices); i++)
+        AddMenuInt(menu, choices[i], "");
+
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+}
+
+public PlayerCountHandler(Handle:menu, MenuAction:action, param1, param2) {
+    if (action == MenuAction_Select) {
+        new client = param1;
+        g_PlayersPerTeam = GetMenuInt(menu, param2);
+        MapMenu(client);
+    } else if (action == MenuAction_End) {
+        CloseHandle(menu);
+    }
+}
+
 /**
  * Generic map choice-type menu.
  */
@@ -44,33 +65,34 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             default: ERROR_FUNC("unknown maptype=%d", g_MapType);
         }
 
-        SetupFinished();
-
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
 
-public GivePlayerCountMenu(client) {
-    new Handle:menu = CreateMenu(PlayerCountHandler);
-    SetMenuTitle(menu, "How many players per team?");
-    SetMenuExitButton(menu, false);
-    new any:choices[] = {1, 2, 3, 4, 5, 6};
-    for (new i = 0; i < sizeof(choices); i++)
-        AddMenuInt(menu, choices[i], "");
 
+/**
+ * Generic map choice-type menu.
+ */
+public AutoLO3Menu(client) {
+    new Handle:menu = CreateMenu(AutoLO3MenuHandler);
+    SetMenuTitle(menu, "Automatically start the game when ready?");
+    SetMenuExitButton(menu, false);
+    AddMenuBool(menu, true, "Yes");
+    AddMenuBool(menu, false, "No");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public PlayerCountHandler(Handle:menu, MenuAction:action, param1, param2) {
+public AutoLO3MenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
-        g_PlayersPerTeam = GetMenuInt(menu, param2);
-        MapMenu(client);
+        g_AutoLO3 = GetMenuBool(menu, param2);
+        SetupFinished();
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
+
+
 
 /**
  * Called when the setup phase is over and the ready-up period should begin.
