@@ -576,6 +576,9 @@ public PrintSetupInfo(client) {
 
     GetMapString(buffer, sizeof(buffer), g_MapType);
     PrintToChat(client, "   Map setup choice: \x03%s", buffer);
+
+    GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
+    PrintToChat(client, "   Auto live-on-3: \x03%s", buffer);
 }
 
 public SetCapt1(client) {

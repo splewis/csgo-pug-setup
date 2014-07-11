@@ -131,3 +131,11 @@ public GetMapString(String:buffer[], length, MapType:type) {
     }
     return 0;
 }
+
+public GetEnabledString(String:buffer[], length, bool:var) {
+    if (var)
+        return strcopy(buffer, length, "enabled");
+    else
+        return strcopy(buffer, length, "disabled");
+
+}
