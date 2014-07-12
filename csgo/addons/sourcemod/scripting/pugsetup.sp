@@ -190,7 +190,7 @@ public OnMapStart() {
         ExecCfg(g_hWarmupCfg);
         g_Setup = true;
         if (!g_LiveTimerRunning) {
-            CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
+            CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             g_LiveTimerRunning = true;
         }
     } else {
@@ -228,7 +228,7 @@ public Action:Timer_CheckReady(Handle:timer) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
-                    CreateTimer(1.0, StartPicking);
+                    CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
@@ -244,7 +244,7 @@ public Action:Timer_CheckReady(Handle:timer) {
             if (g_MapType == MapType_Veto) {
                 if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
                     PrintToChatAll(" \x01\x0B\x04The map veto process will begin in a few seconds!");
-                    CreateTimer(2.0, MapSetup);
+                    CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
@@ -253,7 +253,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 
             } else {
                 PrintToChatAll(" \x01\x0B\x04The map voting will begin in a few seconds!");
-                CreateTimer(2.0, MapSetup);
+                CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                 g_LiveTimerRunning = false;
                 return Plugin_Stop;
             }
@@ -358,7 +358,7 @@ public Action:Command_Capt(client, args) {
 public Action:Command_LO3(client, args) {
     for (new i = 0; i < 5; i++)
         PrintToChatAll("*** The match will begin shortly - live on 3! ***");
-    CreateTimer(2.0, BeginLO3);
+    CreateTimer(2.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action:Command_Start(client, args) {
@@ -391,7 +391,7 @@ public Action:Command_Start(client, args) {
 
     for (new i = 0; i < 5; i++)
         PrintToChatAll("*** The match will begin shortly - live on 3! ***");
-    CreateTimer(7.0, BeginLO3);
+    CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 // ChatAlias(String:chatAlias, commandfunction, Permissions:permissions)
@@ -628,8 +628,8 @@ public ReadyToStart() {
 
 public EndMatch(bool:execConfigs) {
     if (g_Recording) {
-        CreateTimer(3.0, StopDemoMsg);
-        CreateTimer(4.0, StopDemo);
+        CreateTimer(3.0, StopDemoMsg, _, TIMER_FLAG_NO_MAPCHANGE);
+        CreateTimer(4.0, StopDemo, _, TIMER_FLAG_NO_MAPCHANGE);
     }
 
     ServerCommand("mp_unpause_match");
