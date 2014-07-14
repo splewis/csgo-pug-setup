@@ -1,5 +1,4 @@
 #define PLUGIN_VERSION  "1.0.0"
-#define UPDATE_URL "https://dl.dropboxusercontent.com/u/76035852/csgo-pug-setup/csgo-pug-setup.txt"
 #pragma semicolon 1
 
 #include <adminmenu>
@@ -8,8 +7,6 @@
 #include <sdktools>
 #include <sourcemod>
 
-#undef REQUIRE_PLUGIN
-#include <updater>
 
 
 /************************
@@ -30,7 +27,6 @@
 
 /** ConVar handles **/
 new Handle:g_hCvarVersion = INVALID_HANDLE;
-new Handle:g_hAutoUpdate = INVALID_HANDLE;
 new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
@@ -119,7 +115,6 @@ public OnPluginStart() {
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
-    g_hAutoUpdate = CreateConVar("sm_multi1v1_autoupdate", "0", "Should the plugin attempt to use the auto-update (Updater) plugin?");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -148,18 +143,9 @@ public OnPluginStart() {
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
 
-    if (GetConVarInt(g_hAutoUpdate) != 0 && LibraryExists("updater")) {
-        Updater_AddPlugin(UPDATE_URL);
-    }
-
     g_LiveTimerRunning = false;
 }
 
-public OnLibraryAdded(const String:name[]) {
-    if (GetConVarInt(g_hAutoUpdate) != 0 && LibraryExists("updater")) {
-        Updater_AddPlugin(UPDATE_URL);
-    }
-}
 
 public OnClientConnected(client) {
     g_Teams[client] = CS_TEAM_SPECTATOR;

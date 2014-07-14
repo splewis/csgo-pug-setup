@@ -14,4 +14,4 @@ clean:
 	rm -rf *.smx *.zip
 
 package: build
-	zip -r pugsetup csgo
+	zip -r pugsetup csgo README.md LICENSE

@@ -61,7 +61,7 @@ static CreateDefaultMapFile() {
     decl String:dirName[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, dirName, sizeof(dirName), "configs/pugsetup", dirName);
     if (!DirExists(dirName))
-        CreateDirectory(dirName, 511);
+        CreateDirectory(dirName, 751);
 
     decl String:mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
