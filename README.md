@@ -21,6 +21,24 @@ Download pugsetup.zip and extract the files to the game server. You should have 
 - csgo/cfg/sourcemod/pugsetup/warmup.cfg **(you might want to edit this)**
 - csgo/cfg/sourcemod/pugsetup/standard.cfg **(you might want to edit this)**
 
+### Enabling GOTV
+You need to enable gotv to use the demo-recording feature. Adding the following to your ``server.cfg`` will work:
+
+    tv_enable 1
+    tv_delaymapchange 1
+    tv_delay 45
+    tv_deltacache 2
+    tv_dispatchmode 1
+    tv_maxclients 10
+    tv_maxrate 0
+    tv_overridemaster 0
+    tv_relayvoice 1
+    tv_snapshotrate 20
+    tv_timeout 60
+    tv_transmitall 1
+
+Of course, you can tweak the values.
+
 
 ### Usage
 There is a notion of the the pug/game "leader". This is the player that writes .setup first and goes through the setup menu. The leader has elevated permissions and can use some extra commands (e.g. pause). To prevent some abuse there is also an admin command sm_leader to manually change the leader.
