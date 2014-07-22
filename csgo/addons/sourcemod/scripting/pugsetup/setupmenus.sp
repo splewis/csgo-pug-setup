@@ -107,6 +107,7 @@ public SetupFinished() {
             PrintSetupInfo(i);
     g_Setup = true;
     CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
+    g_LiveTimerRunning = true;
 }
 
 /**
