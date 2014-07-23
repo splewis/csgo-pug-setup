@@ -106,7 +106,8 @@ public SetupFinished() {
         if (IsValidClient(i) && !IsFakeClient(i))
             PrintSetupInfo(i);
     g_Setup = true;
-    CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
+    if (!g_LiveTimerRunning)
+        CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
     g_LiveTimerRunning = true;
 }
 
