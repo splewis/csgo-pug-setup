@@ -71,7 +71,6 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-
 /**
  * Generic map choice-type menu.
  */
@@ -92,8 +91,6 @@ public AutoLO3MenuHandler(Handle:menu, MenuAction:action, param1, param2) {
         CloseHandle(menu);
     }
 }
-
-
 
 /**
  * Called when the setup phase is over and the ready-up period should begin.

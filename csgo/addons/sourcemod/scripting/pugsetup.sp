@@ -1,7 +1,9 @@
 #define PLUGIN_VERSION  "1.0.0"
+#define MESSAGE_PREFIX "\x01[\x06PugSetup\x01]\x01 "
 #pragma semicolon 1
 
 #include <adminmenu>
+#include <clientprefs>
 #include <cstrike>
 #include <sdkhooks>
 #include <sdktools>
@@ -32,6 +34,16 @@ new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
 new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
 new Handle:g_hMapVoteTime = INVALID_HANDLE;
+
+/** Client cookie handles **/
+new Handle:g_teamNameCookie = INVALID_HANDLE;
+new Handle:g_teamFlagCookie = INVALID_HANDLE;
+
+/** Team flag/names associated with each client **/
+#define TEAM_NAME_LENGTH 128
+#define TEAM_FLAG_LENGTH 4
+new String:g_teamNames[MAXPLAYERS+1][TEAM_NAME_LENGTH];
+new String:g_teamFlags[MAXPLAYERS+1][TEAM_FLAG_LENGTH];
 
 /** Setup info **/
 new g_Leader = -1;
@@ -89,6 +101,7 @@ new bool:g_MatchLive = false;
 #include "pugsetup/mapveto.sp"
 #include "pugsetup/mapvote.sp"
 #include "pugsetup/setupmenus.sp"
+#include "pugsetup/teamnames.sp"
 
 
 
@@ -139,10 +152,14 @@ public OnPluginStart() {
     RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
     RegAdminCmd("sm_leader", Command_Leader, ADMFLAG_CHANGEMAP, "Sets the pug leader");
     RegAdminCmd("sm_capt", Command_Capt, ADMFLAG_CHANGEMAP, "Gives the client a menu to pick captains");
+    RegAdminCmd("sm_name", Command_Name, ADMFLAG_CHANGEMAP, "Sets a team name/flag to go with a player: sm_name <player> <teamname> <teamflag>, use quotes for the team name if it includes a space!");
+    RegAdminCmd("sm_listnames", Command_ListNames, ADMFLAG_CHANGEMAP, "Lists all players' and their team names/flag, if they have one set.");
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
 
+    g_teamNameCookie = RegClientCookie("pugsetup_teamname", "Multi-1v1 allow AWP rounds", CookieAccess_Protected);
+    g_teamFlagCookie = RegClientCookie("pugsetup_teamflag", "Multi-1v1 allow AWP rounds", CookieAccess_Protected);
     g_LiveTimerRunning = false;
 }
 
@@ -190,7 +207,7 @@ public OnMapEnd() {
 }
 
 public Action:Timer_CheckReady(Handle:timer) {
-    if (!g_Setup || g_MatchLive) {
+    if (!g_Setup || g_MatchLive || !g_LiveTimerRunning) {
         g_LiveTimerRunning = false;
         return Plugin_Stop;
     }
@@ -229,7 +246,7 @@ public Action:Timer_CheckReady(Handle:timer) {
         } else {
             if (g_MapType == MapType_Veto) {
                 if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
-                    PrintToChatAll(" \x01\x0B\x04The map veto process will begin in a few seconds!");
+                    PluginMessage("The map veto process will begin in a few seconds!");
                     CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
@@ -238,7 +255,7 @@ public Action:Timer_CheckReady(Handle:timer) {
                 }
 
             } else {
-                PrintToChatAll(" \x01\x0B\x04The map voting will begin in a few seconds!");
+                PluginMessage("The map voting will begin in a few seconds!");
                 CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                 g_LiveTimerRunning = false;
                 return Plugin_Stop;
@@ -298,7 +315,7 @@ public Action:Command_Setup(client, args) {
     }
 
     if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP)) {
-        PrintToChat(client, "You don't have permission to do that.");
+        PluginMessageToClient(client, "You don't have permission to do that.");
         return Plugin_Handled;
     }
 
@@ -320,7 +337,7 @@ public Action:Command_Rand(client, args) {
         return Plugin_Handled;
 
     if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
-        PrintToChat(client, "This game isn't using team captains");
+        PluginMessageToClient(client, "This game isn't using team captains");
         return Plugin_Handled;
     }
 
@@ -343,7 +360,7 @@ public Action:Command_Capt(client, args) {
 
 public Action:Command_LO3(client, args) {
     for (new i = 0; i < 5; i++)
-        PrintToChatAll("*** The match will begin shortly - live on 3! ***");
+        PluginMessage("*** The match will begin shortly - live on 3! ***");
     CreateTimer(2.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -355,7 +372,7 @@ public Action:Command_Start(client, args) {
         // get the time
         new timeStamp = GetTime();
         decl String:formattedTime[128];
-        FormatTime(formattedTime, sizeof(formattedTime), "%F_%R", timeStamp);
+        FormatTime(formattedTime, sizeof(formattedTime), "%Y-%m-%d_%H:%M", timeStamp);
 
         // get the map
         decl String:mapName[128];
@@ -364,6 +381,7 @@ public Action:Command_Start(client, args) {
         decl String:demoName[PLATFORM_MAX_PATH];
         Format(demoName, sizeof(demoName), "pug_%s_%dv%d_%s", mapName, g_PlayersPerTeam, g_PlayersPerTeam, formattedTime);
         ServerCommand("tv_record %s", demoName);
+        LogMessage("Recording to %s", demoName);
         g_Recording = true;
     }
 
@@ -371,12 +389,12 @@ public Action:Command_Start(client, args) {
     ExecCfg(g_hLiveCfg);
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {
-        PrintToChatAll("*** \x04Scrambling the teams \x01***");
+        PluginMessage("\x04Scrambling the teams!");
         ServerCommand("mp_scrambleteams");
     }
 
     for (new i = 0; i < 5; i++)
-        PrintToChatAll("*** The match will begin shortly - live on 3! ***");
+        PluginMessage("The match will begin shortly - live on 3!");
     CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -386,7 +404,7 @@ if (StrEqual(text[0], %1)) { \
     if (HasPermissions(client, %3)) { \
         %2 (client, 0); \
     } else { \
-        PrintToChat(client, "You don't have permisson to do that."); \
+        PluginMessageToClient(client, "You don't have permisson to do that."); \
     } \
 }
 
@@ -408,6 +426,7 @@ public Action:Command_Say(client, const String:command[], argc) {
     ChatAlias(".gaben", Command_Ready, Permission_All)
     ChatAlias(".ready", Command_Ready, Permission_All)
     ChatAlias(".gs4lyfe", Command_Ready, Permission_All)
+    ChatAlias(".splewis", Command_Ready, Permission_All)
     ChatAlias(".unready", Command_Unready, Permission_All)
     ChatAlias(".pause", Command_Pause, Permission_Captains)
     ChatAlias(".unpause", Command_Unpause, Permission_Captains)
@@ -468,7 +487,7 @@ public MatchEndHandler(Handle:menu, MenuAction:action, param1, param2) {
         new client = param1;
         new bool:choice = GetMenuBool(menu, param2);
         if (choice) {
-            PrintToChatAll("The match was force-ended by \x04%N", client);
+            PluginMessage("The match was force-ended by \x04%N", client);
             EndMatch(true);
         }
     } else if (action == MenuAction_End) {
@@ -482,7 +501,7 @@ public Action:Command_Pause(client, args) {
 
     if (IsValidClient(client)) {
         ServerCommand("mp_pause_match");
-        PrintToChatAll(" \x01\x0B\x04%N \x01has called for a pause", client);
+        PluginMessage("\x04%N \x01has called for a pause", client);
     }
     return Plugin_Handled;
 }
@@ -493,7 +512,7 @@ public Action:Command_Unpause(client, args) {
 
     if (IsValidClient(client)) {
         ServerCommand("mp_unpause_match");
-        PrintToChatAll(" \x01\x0B\x04%N \x01has unpaused", client);
+        PluginMessage("\x04%N \x01has unpaused", client);
     }
     return Plugin_Handled;
 }
@@ -554,36 +573,36 @@ public Action:Timer_EndMatch(Handle:timer) {
  ***********************/
 
 public PrintSetupInfo(client) {
-    PrintToChat(client, "The game has been setup by \x04%N", GetLeader());
+    PluginMessageToClient(client, "The game has been setup by \x04%N", GetLeader());
 
     decl String:buffer[128];
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
-    PrintToChat(client, "   Team (\x03%d vs %d\x01) setup choice: \x03%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
+    PluginMessageToClient(client, "Teams: (\x04%d vs %d\x01) \x04%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
     GetMapString(buffer, sizeof(buffer), g_MapType);
-    PrintToChat(client, "   Map setup choice: \x03%s", buffer);
+    PluginMessageToClient(client, "Map: \x04%s", buffer);
 
     GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
-    PrintToChat(client, "   Auto live-on-3: \x03%s", buffer);
+    PluginMessageToClient(client, "Auto live-on-3: \x04%s", buffer);
 }
 
 public SetCapt1(client) {
     if (IsValidClient(client)) {
         g_capt1 = client;
-        PrintToChatAll("Captain 1 will be \x06%N", g_capt1);
+        PluginMessage("Captain 1 will be \x03%N", g_capt1);
     }
 }
 
 public SetCapt2(client) {
     if (IsValidClient(client)) {
         g_capt2 = client;
-        PrintToChatAll("Captain 2 will be \x07%N", g_capt2);
+        PluginMessage("Captain 2 will be \x06%N", g_capt2);
     }
 }
 
 public SetLeader(client) {
     if (IsValidClient(client)) {
-        PrintToChatAll("The new leader is \x04%N", client);
+        PluginMessage("The new leader is \x04%N", client);
         g_Leader = GetSteamAccountID(client);
     }
 }
@@ -608,7 +627,7 @@ public ReadyToStart() {
     if (g_AutoLO3) {
         Command_Start(0, 0);
     } else {
-        PrintToChatAll("Everybody is ready! Waiting for \x04%N \x01to type \x03.start", GetLeader());
+        PluginMessage("Everybody is ready! Waiting for \x04%N \x01to type \x03.start", GetLeader());
     }
 }
 
@@ -622,6 +641,7 @@ public EndMatch(bool:execConfigs) {
     if (g_MatchLive && execConfigs)
         ExecCfg(g_hWarmupCfg);
 
+    g_LiveTimerRunning = false;
     g_Leader = -1;
     g_capt1 = -1;
     g_capt2 = -1;
@@ -672,7 +692,7 @@ public Action:FinishPicking(Handle:timer) {
 }
 
 public Action:StopDemoMsg(Handle:timer) {
-    PrintToChatAll("*** Stopping the demo ***");
+    PluginMessage("Stopping the GOTV demo...");
     return Plugin_Handled;
 }
 

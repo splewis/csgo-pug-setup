@@ -126,3 +126,19 @@ public any:GetArrayRandomIndex(Handle:array) {
 public any:GetArrayCellRandom(Handle:array) {
     return GetArrayCell(array, GetArrayRandomIndex(array));
 }
+
+public PluginMessageToClient(client, const String:msg[], any:...) {
+    new String:formattedMsg[1024] = MESSAGE_PREFIX;
+    decl String:tmp[1024];
+    VFormat(tmp, sizeof(tmp), msg, 3);
+    StrCat(formattedMsg, sizeof(formattedMsg), tmp);
+    PrintToChat(client, formattedMsg);
+}
+
+public PluginMessage(const String:msg[], any:...) {
+    new String:formattedMsg[1024] = MESSAGE_PREFIX;
+    decl String:tmp[1024];
+    VFormat(tmp, sizeof(tmp), msg, 2);
+    StrCat(formattedMsg, sizeof(formattedMsg), tmp);
+    PrintToChatAll(formattedMsg);
+}

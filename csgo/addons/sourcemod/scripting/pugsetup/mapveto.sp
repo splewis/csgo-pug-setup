@@ -43,9 +43,14 @@ public VetoHandler(Handle:menu, MenuAction:action, param1, param2) {
         new index = GetMenuInt(menu, param2);
         decl String:map[PLATFORM_MAX_PATH];
         GetArrayString(g_MapNames, index, map, PLATFORM_MAX_PATH);
-        PrintToChatAll(" \x04%N \x01vetoed \x07%s", client, map);
-        SetArrayCell(g_MapVetoed, index, true);
 
+
+        if (client == g_capt1)
+            PluginMessage(" \x03%N \x01vetoed \x07%s", client, map);
+        else
+            PluginMessage(" \x06%N \x01vetoed \x07%s", client, map);
+
+        SetArrayCell(g_MapVetoed, index, true);
         if (GetNumMapsLeft() == 1) {
             g_ChosenMap = GetFirstMapLeft();
             ChangeMap();
