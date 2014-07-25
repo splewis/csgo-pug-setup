@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION  "1.0.0"
+#define PLUGIN_VERSION  "1.1.0"
 #define MESSAGE_PREFIX "\x01[\x06PugSetup\x01]\x01 "
 #pragma semicolon 1
 
