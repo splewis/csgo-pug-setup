@@ -36,10 +36,6 @@ public FillPotentialNames(team, Handle:names, Handle:flags) {
             PushArrayString(flags, g_teamFlags[i]);
         }
     }
-    if (GetArraySize(names) == 0) {
-        PushArrayString(names, "");
-        PushArrayString(flags, "");
-    }
 }
 
 public SetTeamNames() {
