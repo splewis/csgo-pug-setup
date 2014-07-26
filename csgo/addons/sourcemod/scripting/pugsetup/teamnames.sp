@@ -6,8 +6,10 @@ public Action:Command_ListNames(client, args) {
             decl String:flag[TEAM_FLAG_LENGTH];
             GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
             GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
-            ReplyToCommand(client, "%N: %s (%s)", i, name, flag);
-            count++;
+            if (!StrEqual(name, "")) {
+                ReplyToCommand(client, "%N: %s (%s)", i, name, flag);
+                count++;
+            }
         }
     }
     if (count == 0)
