@@ -86,7 +86,8 @@ static VetoStatusDisplay(client) {
 
 public VetoStatusHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
-        // nothing
+        new client = param1;
+        PluginMessageToClient(client, "You aren't a captain, your menu is just for display/information purposes!");
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
