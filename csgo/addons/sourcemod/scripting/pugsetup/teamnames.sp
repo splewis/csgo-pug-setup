@@ -33,7 +33,7 @@ public Action:Command_Name(client, args) {
 
 public FillPotentialNames(team, Handle:names, Handle:flags) {
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsValidClient(i) && !IsFakeClient(i) && GetClientTeam(i) == team &&!AreClientCookiesCached(i)) {
+        if (IsValidClient(i) && !IsFakeClient(i) && GetClientTeam(i) == team && AreClientCookiesCached(i)) {
             decl String:name[TEAM_NAME_LENGTH];
             decl String:flag[TEAM_FLAG_LENGTH];
             GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
