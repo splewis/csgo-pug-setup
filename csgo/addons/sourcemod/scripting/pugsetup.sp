@@ -302,7 +302,7 @@ public StatusHint(numReady, numTotal) {
 
 public Action:Command_Setup(client, args) {
     if (g_MatchLive) {
-        PrintToChat(client, "The game is already live!");
+        PluginMessageToClient(client, "The game is already live!");
         return Plugin_Handled;
     }
 
@@ -347,7 +347,7 @@ public Action:Command_Capt(client, args) {
         return Plugin_Handled;
 
     if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
-        PrintToChat(client, "This game isn't using team captains");
+        PluginMessageToClient(client, "This game isn't using team captains");
         return Plugin_Handled;
     }
 
@@ -430,15 +430,15 @@ public Action:Command_Say(client, const String:command[], argc) {
 
     // there is no sm_help command since we don't want override the built-in sm_help command
     if (StrEqual(text[0], ".help")) {
-        PrintToChat(client, " \x04Useful commands:");
-        PrintToChat(client, "   \x06.setup \x01begins the setup phase");
-        PrintToChat(client, "   \x06.start \x01starts the match if needed");
-        PrintToChat(client, "   \x06.endgame \x01ends the match");
-        PrintToChat(client, "   \x06.leader \x01allows you to set the game leader");
-        PrintToChat(client, "   \x06.capt \x01allows you to set team captains");
-        PrintToChat(client, "   \x06.rand \x01selects random captains");
-        PrintToChat(client, "   \x06.ready/.unready \x01mark you as ready");
-        PrintToChat(client, "   \x06.pause/.unpause \x01pause the match");
+        PluginMessageToClient(client, " \x04Useful commands:");
+        PluginMessageToClient(client, "   \x06.setup \x01begins the setup phase");
+        PluginMessageToClient(client, "   \x06.start \x01starts the match if needed");
+        PluginMessageToClient(client, "   \x06.endgame \x01ends the match");
+        PluginMessageToClient(client, "   \x06.leader \x01allows you to set the game leader");
+        PluginMessageToClient(client, "   \x06.capt \x01allows you to set team captains");
+        PluginMessageToClient(client, "   \x06.rand \x01selects random captains");
+        PluginMessageToClient(client, "   \x06.ready/.unready \x01mark you as ready");
+        PluginMessageToClient(client, "   \x06.pause/.unpause \x01pause the match");
     }
 
     // continue normally
@@ -467,7 +467,7 @@ public bool:HasPermissions(client, Permissions:p) {
 
 public Action:Command_EndGame(client, args) {
     if (!g_Setup) {
-        PrintToChat(client, "The match has not begun yet!");
+        PluginMessageToClient(client, "The match has not begun yet!");
     } else {
         new Handle:menu = CreateMenu(MatchEndHandler);
         SetMenuTitle(menu, "Are you sure you want to end the match?");
