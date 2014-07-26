@@ -63,7 +63,7 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             case MapType_Current: g_mapSet = true;
             case MapType_Vote: g_mapSet = false;
             case MapType_Veto: g_mapSet = false;
-            default: ERROR_FUNC("unknown maptype=%d", g_MapType);
+            default: LogError("unknown maptype=%d", g_MapType);
         }
         AutoLO3Menu(client);
     } else if (action == MenuAction_End) {
@@ -116,7 +116,7 @@ public GetTeamString(String:buffer[], length, TeamType:type) {
         case TeamType_Manual: return strcopy(buffer, length, "manual teams");
         case TeamType_Random: return strcopy(buffer, length, "random teams");
         case TeamType_Captains: return strcopy(buffer, length, "captains pick players");
-        default: ERROR_FUNC("unknown teamtype=%d", type);
+        default: LogError("unknown teamtype=%d", type);
     }
     return 0;
 }
@@ -126,7 +126,7 @@ public GetMapString(String:buffer[], length, MapType:type) {
         case MapType_Current: return strcopy(buffer, length, "use the current map");
         case MapType_Vote: return strcopy(buffer, length, "vote for a map");
         case MapType_Veto: return strcopy(buffer, length, "captains veto maps");
-        default: ERROR_FUNC("unknown maptype=%d", type);
+        default: LogError("unknown maptype=%d", type);
     }
     return 0;
 }

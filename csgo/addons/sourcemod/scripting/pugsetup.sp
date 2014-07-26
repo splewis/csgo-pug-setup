@@ -11,16 +11,6 @@
 
 
 
-/************************
- *                      *
- * Assertion/Debug info *
- *                      *
- ************************/
-
-#define ERROR_FUNC LogError  // change to ThrowError during debugging
-
-
-
 /***********************
  *                     *
  *   Global variables  *
@@ -224,7 +214,7 @@ public Action:Timer_CheckReady(Handle:timer) {
     }
 
     // beware: scary spaghetti code ahead
-    if (rdy == count && rdy >= g_PlayersPerTeam) {
+    if (rdy == count && rdy >= 2*g_PlayersPerTeam) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
@@ -459,7 +449,7 @@ public bool:HasPermissions(client, Permissions:p) {
     else if (p == Permission_All)
         return true;
     else
-        ERROR_FUNC("Unknown permission: %d", p);
+        LogError("Unknown permission: %d", p);
 
     return false;
 
@@ -653,7 +643,7 @@ public Action:MapSetup(Handle:timer) {
     } else if (g_MapType == MapType_Veto) {
         CreateMapVeto();
     } else {
-        ERROR_FUNC("Unexpected map type in MapSetup=%d", g_MapType);
+        LogError("Unexpected map type in MapSetup=%d", g_MapType);
     }
     return Plugin_Handled;
 }

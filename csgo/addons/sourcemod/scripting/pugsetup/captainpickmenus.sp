@@ -20,7 +20,7 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;  // should also equal g_capt1
         if (client != g_capt1)
-            ERROR_FUNC("[InitialChoiceHandler] only the first captain should have gotten the intial menu!");
+            LogError("[InitialChoiceHandler] only the first captain should have gotten the intial menu!");
 
         new InitialPick:choice = InitialPick:GetMenuInt(menu, param2);
         if (choice == InitialPick_Player) {
@@ -30,7 +30,7 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
             PluginMessage("\x03%N \x01has elected to pick the \x04starting teams.", g_capt1);
             SideMenu(g_capt1);
         } else {
-            ERROR_FUNC("[InitialChoiceHandler] unknown intial choice=%d", choice);
+            LogError("[InitialChoiceHandler] unknown intial choice=%d", choice);
         }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -67,7 +67,7 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             PluginMessage("\x03%N \x01has picked \x04T \x01first.", client);
             teamPick = CS_TEAM_T;
         } else {
-            ERROR_FUNC("[SideMenuHandler] Unknown side pick: %d", choice);
+            LogError("[SideMenuHandler] Unknown side pick: %d", choice);
         }
 
         new otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;

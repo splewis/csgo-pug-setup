@@ -23,8 +23,6 @@ public Action:Command_Name(client, args) {
         if (IsValidClient(target)) {
             SetClientCookie(target, g_teamNameCookie, arg2);
             SetClientCookie(target, g_teamFlagCookie, arg3);
-            // strcopy(g_teamNames[target], TEAM_NAME_LENGTH, arg2);
-            // strcopy(g_teamFlags[target], TEAM_FLAG_LENGTH, arg3);
         }
     } else {
         ReplyToCommand(client, "Usage: sm_name <player> <team name> <team flag>");
