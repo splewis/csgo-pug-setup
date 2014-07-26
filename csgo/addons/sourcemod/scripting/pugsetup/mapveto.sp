@@ -46,9 +46,9 @@ public VetoHandler(Handle:menu, MenuAction:action, param1, param2) {
 
 
         if (client == g_capt1)
-            PluginMessage(" \x03%N \x01vetoed \x07%s", client, map);
+            PluginMessage("\x03%N \x01vetoed \x07%s", client, map);
         else
-            PluginMessage(" \x06%N \x01vetoed \x07%s", client, map);
+            PluginMessage("\x06%N \x01vetoed \x07%s", client, map);
 
         SetArrayCell(g_MapVetoed, index, true);
         if (GetNumMapsLeft() == 1) {

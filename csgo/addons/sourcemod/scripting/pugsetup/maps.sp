@@ -51,7 +51,7 @@ static AddMap(const String:mapName[]) {
         PushArrayString(g_MapNames, mapName);
         PushArrayCell(g_MapVetoed, false);
     } else {
-        LogError("Invalid map name in mapfile: %s", mapName);
+        LogMessage("Invalid map name in mapfile: %s", mapName);
     }
 }
 

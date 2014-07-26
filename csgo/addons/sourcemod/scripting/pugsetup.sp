@@ -1,5 +1,5 @@
 #define PLUGIN_VERSION  "1.1.0"
-#define MESSAGE_PREFIX "\x01[\x06PugSetup\x01]\x01 "
+#define MESSAGE_PREFIX "\x01[\x05PugSetup\x01]\x01 "
 #pragma semicolon 1
 
 #include <adminmenu>
@@ -38,12 +38,8 @@ new Handle:g_hMapVoteTime = INVALID_HANDLE;
 /** Client cookie handles **/
 new Handle:g_teamNameCookie = INVALID_HANDLE;
 new Handle:g_teamFlagCookie = INVALID_HANDLE;
-
-/** Team flag/names associated with each client **/
 #define TEAM_NAME_LENGTH 128
 #define TEAM_FLAG_LENGTH 4
-new String:g_teamNames[MAXPLAYERS+1][TEAM_NAME_LENGTH];
-new String:g_teamFlags[MAXPLAYERS+1][TEAM_FLAG_LENGTH];
 
 /** Setup info **/
 new g_Leader = -1;
@@ -158,8 +154,8 @@ public OnPluginStart() {
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
 
-    g_teamNameCookie = RegClientCookie("pugsetup_teamname", "Multi-1v1 allow AWP rounds", CookieAccess_Protected);
-    g_teamFlagCookie = RegClientCookie("pugsetup_teamflag", "Multi-1v1 allow AWP rounds", CookieAccess_Protected);
+    g_teamNameCookie = RegClientCookie("pugsetup_teamname", "Pugsetup team name", CookieAccess_Protected);
+    g_teamFlagCookie = RegClientCookie("pugsetup_teamflag", "Pugsetup team flag (2-letter)", CookieAccess_Protected);
     g_LiveTimerRunning = false;
 }
 
@@ -205,6 +201,7 @@ public OnMapStart() {
 
 public OnMapEnd() {
 }
+
 
 public Action:Timer_CheckReady(Handle:timer) {
     if (!g_Setup || g_MatchLive || !g_LiveTimerRunning) {

@@ -24,10 +24,10 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
 
         new InitialPick:choice = InitialPick:GetMenuInt(menu, param2);
         if (choice == InitialPick_Player) {
-            PluginMessage(" \x01\x0B\x05%N \x01has elected to get the \x05first player pick.", g_capt1);
+            PluginMessage(" \x01\x0B\x03%N \x01has elected to get the \x04first player pick.", g_capt1);
             SideMenu(g_capt2);
         } else if (choice == InitialPick_Side) {
-            PluginMessage(" \x01\x0B\x05%N \x01has elected to pick the \x05starting teams.", g_capt1);
+            PluginMessage(" \x01\x0B\x03%N \x01has elected to pick the \x04starting teams.", g_capt1);
             SideMenu(g_capt1);
         } else {
             ERROR_FUNC("[InitialChoiceHandler] unknown intial choice=%d", choice);

@@ -1,8 +1,12 @@
 public Action:Command_ListNames(client, args) {
     new count = 0;
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsValidClient(i) && !StrEqual("", g_teamNames[i])) {
-            ReplyToCommand(client, "%N: %s (%s)", i, g_teamNames[i], g_teamFlags[i]);
+        if (IsValidClient(i) && !IsFakeClient(i) && AreClientCookiesCached(i)) {
+            decl String:name[TEAM_NAME_LENGTH];
+            decl String:flag[TEAM_FLAG_LENGTH];
+            GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
+            GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
+            ReplyToCommand(client, "%N: %s (%s)", i, name, flag);
             count++;
         }
     }
@@ -19,8 +23,8 @@ public Action:Command_Name(client, args) {
         if (IsValidClient(target)) {
             SetClientCookie(target, g_teamNameCookie, arg2);
             SetClientCookie(target, g_teamFlagCookie, arg3);
-            strcopy(g_teamNames[target], TEAM_NAME_LENGTH, arg2);
-            strcopy(g_teamFlags[target], TEAM_FLAG_LENGTH, arg3);
+            // strcopy(g_teamNames[target], TEAM_NAME_LENGTH, arg2);
+            // strcopy(g_teamFlags[target], TEAM_FLAG_LENGTH, arg3);
         }
     } else {
         ReplyToCommand(client, "Usage: sm_name <player> <team name> <team flag>");
@@ -31,9 +35,13 @@ public Action:Command_Name(client, args) {
 
 public FillPotentialNames(team, Handle:names, Handle:flags) {
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsValidClient(i) && GetClientTeam(i) == team && !StrEqual(g_teamNames[i], "")) {
-            PushArrayString(names, g_teamNames[i]);
-            PushArrayString(flags, g_teamFlags[i]);
+        if (IsValidClient(i) && !IsFakeClient(i) && GetClientTeam(i) == team &&!AreClientCookiesCached(i)) {
+            decl String:name[TEAM_NAME_LENGTH];
+            decl String:flag[TEAM_FLAG_LENGTH];
+            GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
+            GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
+            PushArrayString(names, name);
+            PushArrayString(flags, flag);
         }
     }
 }
@@ -75,19 +83,4 @@ public SetTeamInfo(team, String:name[], String:flag[]) {
     new team_int = (team == CS_TEAM_CT) ? 1 : 2;
     ServerCommand("mp_teamname_%d %s", team_int, name);
     ServerCommand("mp_teamflag_%d %s", team_int, flag);
-}
-
-/**
- * Updates client weapon settings according to their cookies.
- */
-public OnClientCookiesCached(client) {
-    if (!IsValidClient(client) || IsFakeClient(client))
-        return;
-
-    decl String:sCookieValue[TEAM_NAME_LENGTH];
-    GetClientCookie(client, g_teamNameCookie, sCookieValue, sizeof(sCookieValue));
-    strcopy(g_teamNames[client], sizeof(sCookieValue), sCookieValue);
-
-    GetClientCookie(client, g_teamFlagCookie, sCookieValue, sizeof(sCookieValue));
-    strcopy(g_teamFlags[client], sizeof(sCookieValue), sCookieValue);
 }
