@@ -38,6 +38,10 @@ public FillPotentialNames(team, Handle:names, Handle:flags) {
             decl String:flag[TEAM_FLAG_LENGTH];
             GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
             GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
+
+            if (StrEqual(name, ""))
+                continue;
+
             PushArrayString(names, name);
             PushArrayString(flags, flag);
         }
