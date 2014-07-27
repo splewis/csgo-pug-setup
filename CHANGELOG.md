@@ -1,3 +1,6 @@
+1.2.0:
+ - bug fixes with team name handling and live-timer
+
 1.1.0:
 - add chat prefixes to plugin chat messages
 - change the demo formatting name to use a time formatting string that is supported by Windows

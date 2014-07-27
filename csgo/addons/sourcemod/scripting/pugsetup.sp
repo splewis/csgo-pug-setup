@@ -1,5 +1,5 @@
-#define PLUGIN_VERSION  "1.1.0"
-#define MESSAGE_PREFIX "\x01[\x05PugSetup\x01]\x01 "
+#define PLUGIN_VERSION  "1.2.0"
+#define MESSAGE_PREFIX "[\x05PugSetup\x01] "
 #pragma semicolon 1
 
 #include <adminmenu>
