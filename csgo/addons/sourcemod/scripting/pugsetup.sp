@@ -147,6 +147,7 @@ public OnPluginStart() {
     g_teamNameCookie = RegClientCookie("pugsetup_teamname", "Pugsetup team name", CookieAccess_Protected);
     g_teamFlagCookie = RegClientCookie("pugsetup_teamflag", "Pugsetup team flag (2-letter)", CookieAccess_Protected);
     g_LiveTimerRunning = false;
+
 }
 
 
@@ -361,12 +362,18 @@ public Action:Command_Start(client, args) {
         decl String:formattedTime[128];
         FormatTime(formattedTime, sizeof(formattedTime), "%Y-%m-%d_%H:%M", timeStamp);
 
-        // get the map
+        // get the map, with any workshop stuff before removed
         decl String:mapName[128];
         GetCurrentMap(mapName, sizeof(mapName));
+        new last_slash = 0;
+        new len = strlen(mapName);
+        for (new i = 0;  i < len; i++) {
+            if (mapName[i] == '/')
+                last_slash = i + 1;
+        }
 
         decl String:demoName[PLATFORM_MAX_PATH];
-        Format(demoName, sizeof(demoName), "pug_%s_%dv%d_%s", mapName, g_PlayersPerTeam, g_PlayersPerTeam, formattedTime);
+        Format(demoName, sizeof(demoName), "pug_%s_%dv%d_%s", mapName[last_slash], g_PlayersPerTeam, g_PlayersPerTeam, formattedTime);
         ServerCommand("tv_record %s", demoName);
         LogMessage("Recording to %s", demoName);
         g_Recording = true;
