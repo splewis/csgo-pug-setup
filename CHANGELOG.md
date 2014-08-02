@@ -1,3 +1,6 @@
+1.2.1:
+ - bug fix for demo recording on a map inside another directory (e.g. workshop maps)
+
 1.2.0:
  - bug fixes with team name handling and live-timer
 
