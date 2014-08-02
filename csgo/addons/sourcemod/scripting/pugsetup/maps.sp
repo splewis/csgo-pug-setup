@@ -1,7 +1,7 @@
 public ChangeMap() {
     decl String:map[PLATFORM_MAX_PATH];
     GetArrayString(g_MapNames, g_ChosenMap, map, sizeof(map));
-    PluginMessage("Changing map to \x04%s\x01...", map);
+    PugSetupMessageToAll("Changing map to \x04%s\x01...", map);
     CreateTimer(3.0, Timer_DelayedChangeMap);
 }
 

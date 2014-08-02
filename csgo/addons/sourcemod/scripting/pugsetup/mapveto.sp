@@ -46,9 +46,9 @@ public VetoHandler(Handle:menu, MenuAction:action, param1, param2) {
 
 
         if (client == g_capt1)
-            PluginMessage("\x03%N \x01vetoed \x07%s", client, map);
+            PugSetupMessageToAll("\x03%N \x01vetoed \x07%s", client, map);
         else
-            PluginMessage("\x06%N \x01vetoed \x07%s", client, map);
+            PugSetupMessageToAll("\x06%N \x01vetoed \x07%s", client, map);
 
         SetArrayCell(g_MapVetoed, index, true);
         if (GetNumMapsLeft() == 1) {
@@ -87,7 +87,7 @@ static VetoStatusDisplay(client) {
 public VetoStatusHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;
-        PluginMessageToClient(client, "You aren't a captain, your menu is just for display/information purposes!");
+        PugSetupMessage(client, "You aren't a captain, your menu is just for display/information purposes!");
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
