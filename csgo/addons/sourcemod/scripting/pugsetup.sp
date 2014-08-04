@@ -17,6 +17,7 @@
 
 /** ConVar handles **/
 new Handle:g_hCvarVersion = INVALID_HANDLE;
+new Handle:g_hMapListFile = INVALID_HANDLE;
 new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
@@ -107,8 +108,9 @@ public OnPluginStart() {
     LoadTranslations("common.phrases");
 
     /** ConVars **/
-    g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games");
-    g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live");
+    g_hMapListFile = CreateConVar("sm_pugsetup_maplist_file", "configs/pugsetup/maps.txt", "Maplist to read from. The file path is relative to the sourcemod directory.");
+    g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
+    g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live; should be in the csgo/cfg directory.");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
@@ -165,6 +167,8 @@ public OnClientDisconnect(client) {
 }
 
 public OnMapStart() {
+    g_MapNames = CreateArray(PLATFORM_MAX_PATH);
+    g_MapVetoed = CreateArray();
     g_Recording = false;
 
     for (new i = 1; i <= MaxClients; i++) {
@@ -187,6 +191,8 @@ public OnMapStart() {
 }
 
 public OnMapEnd() {
+    CloseHandle(g_MapNames);
+    CloseHandle(g_MapVetoed);
 }
 
 

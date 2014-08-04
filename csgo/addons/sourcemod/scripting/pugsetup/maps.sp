@@ -9,20 +9,20 @@ public Action:Timer_DelayedChangeMap(Handle:timer) {
     decl String:map[PLATFORM_MAX_PATH];
     GetArrayString(g_MapNames, g_ChosenMap, map, sizeof(map));
     g_mapSet = true;
-    CloseHandle(g_MapNames);
     ServerCommand("changelevel %s", map);
     return Plugin_Handled;
 }
 
 public GetMapList() {
-    g_MapNames = CreateArray(PLATFORM_MAX_PATH);
     ClearArray(g_MapNames);
-    g_MapVetoed = CreateArray();
     ClearArray(g_MapVetoed);
 
     // full file path
+    decl String:mapCvar[PLATFORM_MAX_PATH];
+    GetConVarString(g_hMapListFile, mapCvar, sizeof(mapCvar));
+
     decl String:mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt");
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), mapCvar);
 
     if (!FileExists(mapFile)) {
         CreateDefaultMapFile();
@@ -50,7 +50,7 @@ static AddMap(const String:mapName[]) {
     if (IsMapValid(mapName)) {
         PushArrayString(g_MapNames, mapName);
         PushArrayCell(g_MapVetoed, false);
-    } else {
+    } else if (strlen(mapName) >= 1) {  // don't print errors on empty
         LogMessage("Invalid map name in mapfile: %s", mapName);
     }
 }

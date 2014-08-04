@@ -19,17 +19,17 @@ static ShowMapVote() {
         GetArrayString(g_MapNames, i, mapName, sizeof(mapName));
         AddMenuInt(menu, i, mapName);
     }
-
     VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
 }
 
 public MapVoteHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_VoteEnd) {
         new any:winner = GetMenuInt(menu, param1);
-        if (winner == RANDOM_MAP_VOTE)
+        if (winner == RANDOM_MAP_VOTE) {
             g_ChosenMap = GetArrayRandomIndex(g_MapNames);
-        else
+        } else {
             g_ChosenMap = GetMenuInt(menu, param1);
+        }
 
         ChangeMap();
     } else if (action == MenuAction_End) {
