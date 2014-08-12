@@ -15,7 +15,13 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
-        GivePlayerCountMenu(client);
+
+        if (GetConVarInt(g_hAlways5v5) == 0) {
+            GivePlayerCountMenu(client);
+        } else {
+            g_PlayersPerTeam = 5;
+        }
+
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }

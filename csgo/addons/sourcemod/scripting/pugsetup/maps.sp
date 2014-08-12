@@ -44,6 +44,10 @@ public GetMapList() {
         AddMap("de_nuke");
         AddMap("de_train");
     }
+
+    if (GetConVarInt(g_hRandomizeMapOrder) != 0) {
+        RandomizeMaps();
+    }
 }
 
 static AddMap(const String:mapName[]) {
@@ -72,4 +76,12 @@ static CreateDefaultMapFile() {
     WriteFileLine(file, "de_nuke");
     WriteFileString(file, "de_train", false); // no newline at the end
     CloseHandle(file);
+}
+
+static RandomizeMaps() {
+    new n = GetArraySize(g_MapNames);
+    for (new i = 0; i < n; i++) {
+        new choice = GetRandomInt(0, n - 1);
+        SwapArrayItems(g_MapNames, i, choice);
+    }
 }

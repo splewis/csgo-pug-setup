@@ -27,7 +27,7 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
             PugSetupMessageToAll("\x03%N \x01has elected to get the \x04first player pick.", g_capt1);
             SideMenu(g_capt2);
         } else if (choice == InitialPick_Side) {
-            PugSetupMessageToAll("\x03%N \x01has elected to pick the \x04starting teams.", g_capt1);
+            PugSetupMessageToAll("\x03%N \x01has elected to pick the \x04starting side.", g_capt1);
             SideMenu(g_capt1);
         } else {
             LogError("[InitialChoiceHandler] unknown intial choice=%d", choice);
@@ -37,33 +37,25 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-/**
- * Side selection. A captain chooses between CT or T side first.
- */
-enum SideChoice {
-    SideChoice_CT,
-    SideChoice_T
-}
-
 public SideMenu(client) {
     new Handle:menu = CreateMenu(SideMenuHandler);
     SetMenuTitle(menu, "Which side do you want first");
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, SideChoice_CT, "CT");
-    AddMenuInt(menu, SideChoice_T, "T");
+    AddMenuInt(menu, CS_TEAM_CT, "CT");
+    AddMenuInt(menu, CS_TEAM_T, "T");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         new client = param1;
-        new SideChoice:choice = SideChoice:GetMenuInt(menu, param2);
+        new choice = GetMenuInt(menu, param2);
 
         new teamPick = -1;
-        if (choice == SideChoice_CT) {
+        if (choice == CS_TEAM_CT) {
             PugSetupMessageToAll("\x03%N \x01has picked \x04CT \x01first.", client);
             teamPick = CS_TEAM_CT;
-        } else if (choice == SideChoice_T) {
+        } else if (choice == CS_TEAM_T) {
             PugSetupMessageToAll("\x03%N \x01has picked \x04T \x01first.", client);
             teamPick = CS_TEAM_T;
         } else {
@@ -86,8 +78,6 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
         CloseHandle(menu);
     }
 }
-
-
 
 /**
  * Player selection menus.
@@ -145,9 +135,10 @@ public MoreMenuPicks(client) {
  */
 static bool:IsPickingFinished() {
     new numSelected = 0;
-    for (new i = 1; i <= MaxClients; i++)
+    for (new i = 1; i <= MaxClients; i++) {
         if (IsPlayerPicked(i))
             numSelected++;
+    }
 
     return numSelected >= 2*g_PlayersPerTeam;
 }
@@ -168,7 +159,7 @@ static any:AddPlayersToMenu(Handle:menu) {
     new String:name[MAX_NAME_LENGTH];
     new count = 0;
     for (new client = 1; client <= MaxClients; client++) {
-        if (IsValidClient(client) && !IsPlayerPicked(client) && !IsFakeClient(client)) {
+        if (IsValidClient(client) && !IsFakeClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR) {
             GetClientName(client, name, sizeof(name));
             AddMenuInt(menu, client, name);
             count++;

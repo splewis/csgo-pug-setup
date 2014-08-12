@@ -1,6 +1,7 @@
 // See include/pugsetup.inc for documentation.
 
 public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) {
+    CreateNative("IsReady", Native_IsReady);
     CreateNative("IsSetup", Native_IsSetup);
     CreateNative("IsMatchLive", Native_IsMatchLive);
     CreateNative("GetLeader", Native_GetLeader);
@@ -8,8 +9,14 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max) 
     CreateNative("GetCaptain2", Native_GetCaptain2);
     CreateNative("PugSetupMessage", Native_PugSetupMessage);
     CreateNative("PugSetupMessageToAll", Native_PugSetupMessageToAll);
+    CreateNative("GetPugMaxPlayers", Native_GetPugMaxPlayers);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
+}
+
+public Native_IsReady(Handle:plugin, numParams) {
+    new client = GetNativeCell(1);
+    return g_Ready[client];
 }
 
 public Native_IsSetup(Handle:plugin, numParams) {
@@ -66,4 +73,8 @@ public Native_PugSetupMessageToAll(Handle:plugin, numParams) {
     Format(finalMsg, sizeof(finalMsg), "%s%s", MESSAGE_PREFIX, buffer);
 
     PrintToChatAll(finalMsg);
+}
+
+public Native_GetPugMaxPlayers(Handle:plugin, numParams) {
+    return 2 * g_PlayersPerTeam;
 }

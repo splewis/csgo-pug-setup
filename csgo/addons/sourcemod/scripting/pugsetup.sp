@@ -23,6 +23,10 @@ new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
 new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
 new Handle:g_hMapVoteTime = INVALID_HANDLE;
+new Handle:g_hRandomizeMapOrder = INVALID_HANDLE;
+new Handle:g_hAutoKickerEnabled = INVALID_HANDLE;
+new Handle:g_hKickMessage = INVALID_HANDLE;
+new Handle:g_hAlways5v5 = INVALID_HANDLE;
 
 /** Setup info **/
 new g_Leader = -1;
@@ -114,6 +118,10 @@ public OnPluginStart() {
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
+    g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
+    g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "1", "Whether the autokicker is enabled or not");
+    g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
+    g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "1", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -148,10 +156,28 @@ public OnPluginStart() {
     g_LiveTimerRunning = false;
 }
 
-
 public OnClientConnected(client) {
-    g_Teams[client] = CS_TEAM_SPECTATOR;
+    g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
+
+    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0) {
+        // count number of active players
+        new count = 0;
+        for (new i = 1; i <= MaxClients; i++) {
+            if (IsValidClient(i) && !IsFakeClient(i)) {
+                new team = GetClientTeam(i);
+                if (team != CS_TEAM_NONE) {
+                    count++;
+                }
+            }
+        }
+
+        if (count >= GetPugMaxPlayers()) {
+            decl String:msg[1024];
+            GetConVarString(g_hKickMessage, msg, sizeof(msg));
+            KickClient(client, msg);
+        }
+    }
 }
 
 public OnClientDisconnect(client) {
@@ -194,7 +220,6 @@ public OnMapEnd() {
     CloseHandle(g_MapNames);
     CloseHandle(g_MapVetoed);
 }
-
 
 public Action:Timer_CheckReady(Handle:timer) {
     if (!g_Setup || g_MatchLive || !g_LiveTimerRunning) {
@@ -686,6 +711,19 @@ public Action:FinishPicking(Handle:timer) {
     for (new i = 1; i <= MaxClients; i++) {
         if (IsValidClient(i) && !IsFakeClient(i)) {
             SwitchPlayerTeam(i, g_Teams[i]);
+        }
+    }
+
+    if (GetConVarInt(g_hAutoKickerEnabled) != 0) {
+        for (new i = 1; i <= MaxClients; i++) {
+            if (IsValidClient(i) && !IsFakeClient(i)) {
+                new team = GetClientTeam(i);
+                if (team == CS_TEAM_NONE || team == CS_TEAM_SPECTATOR) {
+                    decl String:msg[1024];
+                    GetConVarString(g_hKickMessage, msg, sizeof(msg));
+                    KickClient(i, msg);
+                }
+            }
         }
     }
 

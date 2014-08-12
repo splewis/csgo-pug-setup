@@ -4,6 +4,10 @@ forward OnGoingLive();
 // Called when the match is over.
 forward OnMatchOver(bool:hasDemo, String:demoFileName[]);
 
+// Returns whether a client is ready.
+// This is only valid when the game is setup AND not live.
+native bool:IsReady(client);
+
 // Returns if the game settings have been setup.
 native bool:IsSetup();
 
@@ -24,3 +28,7 @@ native PugSetupMessage(client, const String:fmt[], any:...);
 
 // Prints a plugin-formatted message to all clients.
 native PugSetupMessageToAll(const String:fmt[], any:...);
+
+// Returns the maximum number of players in the pug.
+// Only valid if the game has already been setup.
+native GetPugMaxPlayers();
