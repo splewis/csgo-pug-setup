@@ -160,11 +160,11 @@ public OnClientConnected(client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
 
-    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0) {
+    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && !CheckCommandAccess(client, "sm_setup", ADMFLAG_CHANGEMAP)) {
         // count number of active players
         new count = 0;
         for (new i = 1; i <= MaxClients; i++) {
-            if (IsValidClient(i) && !IsFakeClient(i)) {
+            if (IsPlayer(i)) {
                 new team = GetClientTeam(i);
                 if (team != CS_TEAM_NONE) {
                     count++;
@@ -185,7 +185,7 @@ public OnClientDisconnect(client) {
     g_Ready[client] = false;
     new numPlayers = 0;
     for (new i = 1; i <= MaxClients; i++)
-        if (IsValidClient(i) && !IsFakeClient(i))
+        if (IsPlayer(i))
             numPlayers++;
 
     if (numPlayers == 0 && (g_MapType != MapType_Vote || g_MapType != MapType_Veto || !g_mapSet || g_MatchLive))
@@ -230,7 +230,7 @@ public Action:Timer_CheckReady(Handle:timer) {
     new rdy = 0;
     new count = 0;
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsValidClient(i) && IsClientInGame(i) && !IsFakeClient(i)) {
+        if (IsPlayer(i)) {
             count++;
             if (g_Ready[i]) {
                 CS_SetClientClanTag(i, "[Ready]");
@@ -291,12 +291,12 @@ public StatusHint(numReady, numTotal) {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
             decl String:cap1[64];
             decl String:cap2[64];
-            if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1) && IsClientInGame(g_capt1))
+            if (IsPlayer(g_capt1))
                 Format(cap1, sizeof(cap1), "%N", g_capt1);
             else
                 Format(cap1, sizeof(cap1), "not selected");
 
-            if (IsValidClient(g_capt2) && !IsFakeClient(g_capt2) && IsClientInGame(g_capt2))
+            if (IsPlayer(g_capt2))
                 Format(cap2, sizeof(cap2), "%N", g_capt2);
             else
                 Format(cap2, sizeof(cap2), "not selected");
@@ -471,7 +471,7 @@ public Action:Command_Say(client, const String:command[], argc) {
 }
 
 public bool:HasPermissions(client, Permissions:p) {
-    if (!IsValidClient(client) || IsFakeClient(client))
+    if (!IsPlayer(client))
         return false;
 
     new bool:isLeader = GetLeader() == client;
@@ -694,7 +694,7 @@ public Action:StartPicking(Handle:timer) {
     ServerCommand("mp_restartgame 1");
 
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsClientInGame(i) && !IsFakeClient(i)) {
+        if (IsPlayer(i)) {
             g_Teams[i] = CS_TEAM_SPECTATOR;
             SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
         }
@@ -709,14 +709,14 @@ public Action:StartPicking(Handle:timer) {
 
 public Action:FinishPicking(Handle:timer) {
     for (new i = 1; i <= MaxClients; i++) {
-        if (IsValidClient(i) && !IsFakeClient(i)) {
+        if (IsPlayer(i)) {
             SwitchPlayerTeam(i, g_Teams[i]);
         }
     }
 
     if (GetConVarInt(g_hAutoKickerEnabled) != 0) {
         for (new i = 1; i <= MaxClients; i++) {
-            if (IsValidClient(i) && !IsFakeClient(i)) {
+            if (IsPlayer(i) && !CheckCommandAccess(i, "sm_setup", ADMFLAG_CHANGEMAP)) {
                 new team = GetClientTeam(i);
                 if (team == CS_TEAM_NONE || team == CS_TEAM_SPECTATOR) {
                     decl String:msg[1024];

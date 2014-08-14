@@ -99,6 +99,10 @@ public bool:IsValidClient(client) {
     return false;
 }
 
+public bool:IsPlayer(client) {
+    return IsValidClient(client) && !IsFakeClient(client);
+}
+
 /**
  * Returns the number of clients that are actual players in the game.
  */
