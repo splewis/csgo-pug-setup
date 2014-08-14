@@ -12,6 +12,8 @@ the goal isn't fully automated - it assumes the players know each other or there
 
 Part of being lightweight is doing nothing that can interfere with the server's performance. **When the game is actually live, the plugin is doing extremely little work** - the only thing it does is read chat commands (e.g. pausing when a captain types .pause). Otherwise, there is 0 effect on gameplay and the rounds progress the same as without sourcemod on the server. This is in contrast to the WarMod plugin or what ESEA servers use, where they are tracking the overall score, overriding the in-game warmup period, etc.
 
+The goal is to make setup easier for people, not provide a comprehensive pug platform. Please keep this and the principle of **keep it simple, stupid** in mind when making any suggestions. 
+
 ### Download
 You should be able to get the most recent **pugsetup.zip** file from https://github.com/splewis/csgo-pug-setup/releases.
 
