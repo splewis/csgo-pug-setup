@@ -21,6 +21,8 @@ new Handle:g_hMapListFile = INVALID_HANDLE;
 new Handle:g_hWarmupCfg = INVALID_HANDLE;
 new Handle:g_hLiveCfg = INVALID_HANDLE;
 new Handle:g_hAutorecord = INVALID_HANDLE;
+new Handle:g_hDemoTimeFormat = INVALID_HANDLE;
+new Handle:g_hDemoNameFormat = INVALID_HANDLE;
 new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
 new Handle:g_hMapVoteTime = INVALID_HANDLE;
 new Handle:g_hRandomizeMapOrder = INVALID_HANDLE;
@@ -116,6 +118,8 @@ public OnPluginStart() {
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live; should be in the csgo/cfg directory.");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
+    g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing!");
+    g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
@@ -149,6 +153,7 @@ public OnPluginStart() {
 
     /** Event hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
+    HookEvent("player_connect_full", Event_PlayerConnectFull);
 
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
@@ -159,25 +164,6 @@ public OnPluginStart() {
 public OnClientConnected(client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
-
-    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && !CheckCommandAccess(client, "sm_setup", ADMFLAG_CHANGEMAP)) {
-        // count number of active players
-        new count = 0;
-        for (new i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i)) {
-                new team = GetClientTeam(i);
-                if (team != CS_TEAM_NONE) {
-                    count++;
-                }
-            }
-        }
-
-        if (count >= GetPugMaxPlayers()) {
-            decl String:msg[1024];
-            GetConVarString(g_hKickMessage, msg, sizeof(msg));
-            KickClient(client, msg);
-        }
-    }
 }
 
 public OnClientDisconnect(client) {
@@ -384,12 +370,7 @@ public Action:Command_Start(client, args) {
         return;
 
     if (GetConVarInt(g_hAutorecord) != 0) {
-        // get the time
-        new timeStamp = GetTime();
-        decl String:formattedTime[128];
-        FormatTime(formattedTime, sizeof(formattedTime), "%Y-%m-%d_%H:%M", timeStamp);
-
-        // get the map, with any workshop stuff before removed
+        // get the map, with any workshop stuff before removed {MAP}
         decl String:mapName[128];
         GetCurrentMap(mapName, sizeof(mapName));
         new last_slash = 0;
@@ -399,8 +380,25 @@ public Action:Command_Start(client, args) {
                 last_slash = i + 1;
         }
 
-        decl String:demoName[PLATFORM_MAX_PATH];
-        Format(demoName, sizeof(demoName), "pug_%s_%dv%d_%s", mapName[last_slash], g_PlayersPerTeam, g_PlayersPerTeam, formattedTime);
+        // get the time {TIME}
+        decl String:timeFormat[64];
+        GetConVarString(g_hDemoTimeFormat, timeFormat, sizeof(timeFormat));
+        new timeStamp = GetTime();
+        decl String:formattedTime[64];
+        FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
+
+        // get the player count
+        decl String:playerCount[8];
+        IntToString(g_PlayersPerTeam, playerCount, sizeof(playerCount));
+
+        // create the actual demo name to use
+        decl String:demoName[256];
+        GetConVarString(g_hDemoNameFormat, demoName, sizeof(demoName));
+
+        ReplaceString(demoName, sizeof(demoName), "{MAP}", mapName[last_slash], false);
+        ReplaceString(demoName, sizeof(demoName), "{TEAMSIZE}", playerCount, false);
+        ReplaceString(demoName, sizeof(demoName), "{TIME}", formattedTime, false);
+
         ServerCommand("tv_record %s", demoName);
         LogMessage("Recording to %s", demoName);
         Format(g_DemoFileName, sizeof(g_DemoFileName), "%s.dem", demoName);
@@ -579,6 +577,31 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
         ExecCfg(g_hWarmupCfg);
     }
     return Plugin_Continue;
+}
+
+public Event_PlayerConnectFull(Handle:event, const String:name[], bool:dontBroadcast) {
+    new client = GetClientOfUserId(GetEventInt(event, "userid"));
+
+    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 &&
+        !CheckCommandAccess(client, "sm_setup", ADMFLAG_CHANGEMAP)) {
+
+        // count number of active players
+        new count = 0;
+        for (new i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i)) {
+                new team = GetClientTeam(i);
+                if (team != CS_TEAM_NONE) {
+                    count++;
+                }
+            }
+        }
+
+        if (count >= GetPugMaxPlayers()) {
+            decl String:msg[1024];
+            GetConVarString(g_hKickMessage, msg, sizeof(msg));
+            KickClient(client, msg);
+        }
+    }
 }
 
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
