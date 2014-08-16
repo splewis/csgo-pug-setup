@@ -61,6 +61,7 @@ public Native_PugSetupMessage(Handle:plugin, numParams) {
     decl String:finalMsg[1024];
     Format(finalMsg, sizeof(finalMsg), "%s%s", MESSAGE_PREFIX, buffer);
 
+    Colorize(finalMsg, sizeof(finalMsg));
     PrintToChat(client, finalMsg);
 }
 
@@ -72,6 +73,7 @@ public Native_PugSetupMessageToAll(Handle:plugin, numParams) {
     decl String:finalMsg[1024];
     Format(finalMsg, sizeof(finalMsg), "%s%s", MESSAGE_PREFIX, buffer);
 
+    Colorize(finalMsg, sizeof(finalMsg));
     PrintToChatAll(finalMsg);
 }
 

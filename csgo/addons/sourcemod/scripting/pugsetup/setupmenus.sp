@@ -105,8 +105,8 @@ public SetupFinished() {
     g_capt1 = -1;
     g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
-    for (new i = 1; i < MaxClients; i++)
-        if (IsValidClient(i) && !IsFakeClient(i))
+    for (new i = 1; i <= MaxClients; i++)
+        if (IsPlayer(i))
             PrintSetupInfo(i);
     g_Setup = true;
     if (!g_LiveTimerRunning)

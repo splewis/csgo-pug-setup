@@ -1,4 +1,6 @@
 #define PLUGIN_VERSION "1.2.1"
+new String:g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
+new String:g_ColorCodes[][] =    {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
 
 /**
  * Executes a config file named by a convar.
@@ -131,4 +133,10 @@ public any:GetArrayRandomIndex(Handle:array) {
  */
 public any:GetArrayCellRandom(Handle:array) {
     return GetArrayCell(array, GetArrayRandomIndex(array));
+}
+
+public Colorize(String:msg[], size) {
+    for (new i = 0; i < sizeof(g_ColorNames); i ++) {
+        ReplaceString(msg, size, g_ColorNames[i], g_ColorCodes[i]);
+    }
 }

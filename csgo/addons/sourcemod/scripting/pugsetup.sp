@@ -141,7 +141,8 @@ public OnPluginStart() {
     RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
 
-    RegAdminCmd("sm_setup", Command_Setup, ADMFLAG_CHANGEMAP, "Starts 10man setup (.ready, .capt commands become avaliable)");
+    RegAdminCmd("sm_setup", Command_Setup, ADMFLAG_CHANGEMAP, "Starts pug setup (.ready, .capt commands become avaliable)");
+    RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CHANGEMAP, "Starts 10man setup (alias for .setup with 10 man/gather settings)");
     RegAdminCmd("sm_lo3", Command_LO3, ADMFLAG_CHANGEMAP, "Restarts the game with a lo3 (generally this command is not neeeded!)");
     RegAdminCmd("sm_start", Command_Start, ADMFLAG_CHANGEMAP, "Starts the game if auto-lo3 is disabled");
     RegAdminCmd("sm_rand", Command_Rand, ADMFLAG_CHANGEMAP, "Sets random captains");
@@ -231,7 +232,7 @@ public Action:Timer_CheckReady(Handle:timer) {
     if (rdy == count && rdy >= 2*g_PlayersPerTeam) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
-                if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
+                if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
@@ -246,7 +247,7 @@ public Action:Timer_CheckReady(Handle:timer) {
 
         } else {
             if (g_MapType == MapType_Veto) {
-                if (IsValidClient(g_capt1) && IsValidClient(g_capt2) && g_capt1 != g_capt2) {
+                if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     PugSetupMessageToAll("The map veto process will begin in a few seconds!");
                     CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
@@ -333,6 +334,34 @@ public Action:Command_Setup(client, args) {
     return Plugin_Handled;
 }
 
+public Action:Command_10man (client, args) {
+    if (g_MatchLive) {
+        PugSetupMessage(client, "The game is already live!");
+        return Plugin_Handled;
+    }
+
+    if (g_Setup && client != GetLeader()) {
+        PrintSetupInfo(client);
+        return Plugin_Handled;
+    }
+
+    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP)) {
+        PugSetupMessage(client, "You don't have permission to do that.");
+        return Plugin_Handled;
+    }
+
+    g_PickingPlayers = false;
+    g_Leader = GetSteamAccountID(client);
+    for (new i = 1; i <= MaxClients; i++)
+        g_Ready[i] = false;
+
+    g_MapType = MapType_Vote;
+    g_TeamType = TeamType_Captains;
+    g_PlayersPerTeam = 5;
+    SetupFinished();
+    return Plugin_Handled;
+}
+
 public Action:Command_Rand(client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
@@ -355,7 +384,24 @@ public Action:Command_Capt(client, args) {
         return Plugin_Handled;
     }
 
-    Captain1Menu(client);
+    decl String:buffer[64];
+    if (GetCmdArgs() >= 1) {
+
+        GetCmdArg(1, buffer, sizeof(buffer));
+        new target = FindTarget(client, buffer, true, false);
+        SetCapt1(target);
+
+        if (GetCmdArgs() >= 2) {
+            GetCmdArg(2, buffer, sizeof(buffer));
+            target = FindTarget(client, buffer, true, false);
+            SetCapt2(target);
+        } else {
+            Captain2Menu(client);
+        }
+
+    } else {
+        Captain1Menu(client);
+    }
     return Plugin_Handled;
 }
 
@@ -370,7 +416,8 @@ public Action:Command_Start(client, args) {
         return;
 
     if (GetConVarInt(g_hAutorecord) != 0) {
-        // get the map, with any workshop stuff before removed {MAP}
+        // get the map, with any workshop stuff before removed
+        // this is {MAP} in the format string
         decl String:mapName[128];
         GetCurrentMap(mapName, sizeof(mapName));
         new last_slash = 0;
@@ -380,14 +427,14 @@ public Action:Command_Start(client, args) {
                 last_slash = i + 1;
         }
 
-        // get the time {TIME}
+        // get the time, this is {TIME} in the format string
         decl String:timeFormat[64];
         GetConVarString(g_hDemoTimeFormat, timeFormat, sizeof(timeFormat));
         new timeStamp = GetTime();
         decl String:formattedTime[64];
         FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
 
-        // get the player count
+        // get the player count, this is {TEAMSIZE} in the format string
         decl String:playerCount[8];
         IntToString(g_PlayersPerTeam, playerCount, sizeof(playerCount));
 
@@ -409,7 +456,7 @@ public Action:Command_Start(client, args) {
     ExecCfg(g_hLiveCfg);
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {
-        PugSetupMessageToAll("\x04Scrambling the teams!");
+        PugSetupMessageToAll("{GREEN}Scrambling the teams!");
         ServerCommand("mp_scrambleteams");
     }
 
@@ -437,6 +484,7 @@ public Action:Command_Say(client, const String:command[], argc) {
     StripQuotes(text);
 
     ChatAlias(".setup", Command_Setup, Permission_All)
+    ChatAlias(".10man", Command_10man, Permission_All)
     ChatAlias(".start", Command_Start, Permission_Leader)
     ChatAlias(".endgame", Command_EndGame, Permission_Leader)
     ChatAlias(".cancel", Command_EndGame, Permission_Leader)
@@ -453,15 +501,15 @@ public Action:Command_Say(client, const String:command[], argc) {
 
     // there is no sm_help command since we don't want override the built-in sm_help command
     if (StrEqual(text[0], ".help")) {
-        PugSetupMessage(client, " \x04Useful commands:");
-        PugSetupMessage(client, "   \x06.setup \x01begins the setup phase");
-        PugSetupMessage(client, "   \x06.start \x01starts the match if needed");
-        PugSetupMessage(client, "   \x06.endgame \x01ends the match");
-        PugSetupMessage(client, "   \x06.leader \x01allows you to set the game leader");
-        PugSetupMessage(client, "   \x06.capt \x01allows you to set team captains");
-        PugSetupMessage(client, "   \x06.rand \x01selects random captains");
-        PugSetupMessage(client, "   \x06.ready/.unready \x01mark you as ready");
-        PugSetupMessage(client, "   \x06.pause/.unpause \x01pause the match");
+        PugSetupMessage(client, "{GREEN}Useful commands:");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.setup {NORMAL}begins the setup phase");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.start {NORMAL}starts the match if needed");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.endgame {NORMAL}ends the match");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.leader {NORMAL}allows you to set the game leader");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.capt {NORMAL}allows you to set team captains");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.rand {NORMAL}selects random captains");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.ready/.unready {NORMAL}mark you as ready");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.pause/.unpause {NORMAL}pause the match");
     }
 
     // continue normally
@@ -507,7 +555,7 @@ public MatchEndHandler(Handle:menu, MenuAction:action, param1, param2) {
         new client = param1;
         new bool:choice = GetMenuBool(menu, param2);
         if (choice) {
-            PugSetupMessageToAll("The match was force-ended by \x04%N", client);
+            PugSetupMessageToAll("The match was force-ended by {GREEN}%N", client);
             EndMatch(true);
         }
     } else if (action == MenuAction_End) {
@@ -519,9 +567,9 @@ public Action:Command_Pause(client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
-    if (IsValidClient(client)) {
+    if (IsPlayer(client)) {
         ServerCommand("mp_pause_match");
-        PugSetupMessageToAll("\x04%N \x01has called for a pause", client);
+        PugSetupMessageToAll("{GREEN}%N {NORMAL}has called for a pause", client);
     }
     return Plugin_Handled;
 }
@@ -530,9 +578,9 @@ public Action:Command_Unpause(client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
-    if (IsValidClient(client)) {
+    if (IsPlayer(client)) {
         ServerCommand("mp_unpause_match");
-        PugSetupMessageToAll("\x04%N \x01has unpaused", client);
+        PugSetupMessageToAll("{GREEN}%N {NORMAL}has unpaused", client);
     }
     return Plugin_Handled;
 }
@@ -618,36 +666,36 @@ public Action:Timer_EndMatch(Handle:timer) {
  ***********************/
 
 public PrintSetupInfo(client) {
-    PugSetupMessage(client, "The game has been setup by \x04%N", GetLeader());
+    PugSetupMessage(client, "The game has been setup by {GREEN}%N", GetLeader());
 
     decl String:buffer[128];
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
-    PugSetupMessage(client, "Teams: (\x04%d vs %d\x01) \x04%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
+    PugSetupMessage(client, "Teams: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
     GetMapString(buffer, sizeof(buffer), g_MapType);
-    PugSetupMessage(client, "Map: \x04%s", buffer);
+    PugSetupMessage(client, "Map: {GREEN}%s", buffer);
 
     GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
-    PugSetupMessage(client, "Auto live-on-3: \x04%s", buffer);
+    PugSetupMessage(client, "Auto live-on-3: {GREEN}%s", buffer);
 }
 
 public SetCapt1(client) {
-    if (IsValidClient(client)) {
+    if (IsPlayer(client)) {
         g_capt1 = client;
-        PugSetupMessageToAll("Captain 1 will be \x03%N", g_capt1);
+        PugSetupMessageToAll("Captain 1 will be {PINK}%N", g_capt1);
     }
 }
 
 public SetCapt2(client) {
-    if (IsValidClient(client)) {
+    if (IsPlayer(client)) {
         g_capt2 = client;
-        PugSetupMessageToAll("Captain 2 will be \x06%N", g_capt2);
+        PugSetupMessageToAll("Captain 2 will be {LIGHT_GREEN}%N", g_capt2);
     }
 }
 
 public SetLeader(client) {
-    if (IsValidClient(client)) {
-        PugSetupMessageToAll("The new leader is \x04%N", client);
+    if (IsPlayer(client)) {
+        PugSetupMessageToAll("The new leader is {GREEN}%N", client);
         g_Leader = GetSteamAccountID(client);
     }
 }
@@ -657,7 +705,7 @@ public SetRandomCaptains() {
     new c2 = -1;
 
     c1 = RandomPlayer();
-    while (!IsValidClient(c2) || c1 == c2) {
+    while (!IsPlayer(c2) || c1 == c2) {
         if (GetRealClientCount() < 2)
             break;
 
@@ -672,7 +720,7 @@ public ReadyToStart() {
     if (g_AutoLO3) {
         Command_Start(0, 0);
     } else {
-        PugSetupMessageToAll("Everybody is ready! Waiting for \x04%N \x01to type \x03.start", GetLeader());
+        PugSetupMessageToAll("Everybody is ready! Waiting for {GREEN}%N {NORMAL}to type \x03.start", GetLeader());
     }
 }
 

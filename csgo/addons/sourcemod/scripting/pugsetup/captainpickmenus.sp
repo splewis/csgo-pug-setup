@@ -24,10 +24,10 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
 
         new InitialPick:choice = InitialPick:GetMenuInt(menu, param2);
         if (choice == InitialPick_Player) {
-            PugSetupMessageToAll("\x03%N \x01has elected to get the \x04first player pick.", g_capt1);
+            PugSetupMessageToAll("{PINK}%N {NORMAL}has elected to get the {GREEN}first player pick.", g_capt1);
             SideMenu(g_capt2);
         } else if (choice == InitialPick_Side) {
-            PugSetupMessageToAll("\x03%N \x01has elected to pick the \x04starting side.", g_capt1);
+            PugSetupMessageToAll("{PINK}%N {NORMAL}has elected to pick the {GREEN}starting side.", g_capt1);
             SideMenu(g_capt1);
         } else {
             LogError("[InitialChoiceHandler] unknown intial choice=%d", choice);
@@ -53,10 +53,10 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 
         new teamPick = -1;
         if (choice == CS_TEAM_CT) {
-            PugSetupMessageToAll("\x03%N \x01has picked \x04CT \x01first.", client);
+            PugSetupMessageToAll("{PINK}%N {NORMAL}has picked {GREEN}CT {NORMAL}first.", client);
             teamPick = CS_TEAM_CT;
         } else if (choice == CS_TEAM_T) {
-            PugSetupMessageToAll("\x03%N \x01has picked \x04T \x01first.", client);
+            PugSetupMessageToAll("{PINK}%N {NORMAL}has picked {GREEN}T {NORMAL}first.", client);
             teamPick = CS_TEAM_T;
         } else {
             LogError("[SideMenuHandler] Unknown side pick: %d", choice);
@@ -103,9 +103,9 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             g_Teams[selected] = g_Teams[client];
             SwitchPlayerTeam(selected, g_Teams[client]);
             if (client == g_capt1)
-                PugSetupMessageToAll("\x03%N \x01has picked \x03%N", client, selected);
+                PugSetupMessageToAll("{PINK}%N {NORMAL}has picked {PINK}%N", client, selected);
             else
-                PugSetupMessageToAll("\x06%N \x01has picked \x06%N", client, selected);
+                PugSetupMessageToAll("{LIGHT_GREEN}%N {NORMAL}has picked {LIGHT_GREEN}%N", client, selected);
 
             if (!IsPickingFinished()) {
                 new nextCapt = OtherCaptain(client);
