@@ -373,7 +373,7 @@ public Action:Command_Capt(client, args) {
     }
 
     decl String:buffer[64];
-    if (GetCmdArgs() >= 1) {
+    if (GetCmdArgs() >= 1 && args != 0) {
 
         GetCmdArg(1, buffer, sizeof(buffer));
         new target = FindTarget(client, buffer, true, false);
