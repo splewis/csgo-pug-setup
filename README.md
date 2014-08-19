@@ -88,9 +88,9 @@ you need to take leardership of the pug.
 
 
 ### For developers
-There is some limited extension support in the form of some simple natives and forwards. See [pugsetup.inc](csgo/addons/sourcemod/scripting/include/pugsetup.inc).
+There is some limited extension support in the form of some simple natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
 
-An example of these in use is in [pugsetup_teamnames.sp](csgo/addons/sourcemod/scripting/pugsetup_teamnames.sp).
+An example of these in use is in [pugsetup_teamnames.sp](scripting/pugsetup_teamnames.sp).
 
 
 ### ConVars
