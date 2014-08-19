@@ -1,0 +1,6 @@
+Plugin(source='scripting/pugsetup.sp')
+Plugin(source='scripting/pugsetup_teamnames.sp')
+
+Package(name='pugsetup',
+        plugins=['pugsetup', 'pugsetup_teamnames'],
+)
