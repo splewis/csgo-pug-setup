@@ -631,7 +631,8 @@ public Event_PlayerConnectFull(Handle:event, const String:name[], bool:dontBroad
     new client = GetClientOfUserId(GetEventInt(event, "userid"));
 
     if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 &&
-        !CheckCommandAccess(client, "sm_setup", ADMFLAG_CHANGEMAP)) {
+        !CheckCommandAccess(client, "sm_setup", ADMFLAG_CHANGEMAP) &&
+        IsPlayer(client)) {
 
         // count number of active players
         new count = 0;
