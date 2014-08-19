@@ -52,20 +52,6 @@ enum Permissions {
     Permission_Leader
 }
 
-/** Different ways teams can be selected **/
-enum TeamType {
-    TeamType_Manual,
-    TeamType_Random,
-    TeamType_Captains
-};
-
-/** Different ways the map can be selected **/
-enum MapType {
-    MapType_Current,
-    MapType_Vote,
-    MapType_Veto
-};
-
 /** Map-voting variables **/
 new Handle:g_MapNames = INVALID_HANDLE;
 new Handle:g_MapVetoed = INVALID_HANDLE;
@@ -80,6 +66,7 @@ new bool:g_PickingPlayers = false;
 new bool:g_MatchLive = false;
 
 /** Forwards **/
+new Handle:g_hOnSetup = INVALID_HANDLE;
 new Handle:g_hOnGoingLive = INVALID_HANDLE;
 new Handle:g_hOnMatchOver = INVALID_HANDLE;
 
@@ -156,6 +143,7 @@ public OnPluginStart() {
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("player_connect_full", Event_PlayerConnectFull);
 
+    g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
 

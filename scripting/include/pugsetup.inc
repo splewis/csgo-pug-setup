@@ -1,3 +1,20 @@
+// Different ways teams can be selected.
+enum TeamType {
+    TeamType_Manual,
+    TeamType_Random,
+    TeamType_Captains
+};
+
+// Different ways the map can be selected.
+enum MapType {
+    MapType_Current,
+    MapType_Vote,
+    MapType_Veto
+};
+
+// Called when a setup menu is finished.
+forward OnSetup(client, TeamType:teamType, MapType:mapType, playersPerTeam);
+
 // Called when the going-live process begins.
 forward OnGoingLive();
 

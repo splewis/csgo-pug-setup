@@ -113,6 +113,13 @@ public SetupFinished() {
     if (!g_LiveTimerRunning)
         CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
     g_LiveTimerRunning = true;
+
+    Call_StartForward(g_hOnSetup);
+    Call_PushCell(GetLeader());
+    Call_PushCell(g_TeamType);
+    Call_PushCell(g_MapType);
+    Call_PushCell(g_PlayersPerTeam);
+    Call_Finish();
 }
 
 /**
