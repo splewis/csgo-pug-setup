@@ -19,6 +19,7 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
         if (GetConVarInt(g_hAlways5v5) == 0) {
             GivePlayerCountMenu(client);
         } else {
+            MapMenu(client);
             g_PlayersPerTeam = 5;
         }
 
