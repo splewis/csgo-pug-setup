@@ -339,7 +339,8 @@ public Action:Command_10man (client, args) {
     }
 
     g_PickingPlayers = false;
-    g_Leader = GetSteamAccountID(client);
+    if (IsPlayer(client))
+        g_Leader = GetSteamAccountID(client);
     for (new i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
@@ -655,7 +656,8 @@ public Action:Timer_EndMatch(Handle:timer) {
  ***********************/
 
 public PrintSetupInfo(client) {
-    PugSetupMessage(client, "The game has been setup by {GREEN}%N", GetLeader());
+    if (IsPlayer(GetLeader()))
+        PugSetupMessage(client, "The game has been setup by {GREEN}%N", GetLeader());
 
     decl String:buffer[128];
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
