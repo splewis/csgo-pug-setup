@@ -34,7 +34,8 @@ public Native_GetLeader(Handle:plugin, numParams) {
     }
 
     new r = RandomPlayer();
-    g_Leader = GetSteamAccountID(r);
+    if (IsPlayer(r))
+        g_Leader = GetSteamAccountID(r);
     return r;
 }
 
