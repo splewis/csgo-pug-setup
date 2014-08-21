@@ -7,6 +7,8 @@
 #include <sdktools>
 #include <sourcemod>
 
+#include "include/pugsetup.inc"
+
 
 
 /***********************
@@ -14,6 +16,19 @@
  *   Global variables  *
  *                     *
  ***********************/
+
+/** Permissions for the chat commands **/
+enum Permissions {
+    Permission_All,
+    Permission_Captains,
+    Permission_Leader
+}
+
+/** Initial menu data (where captain 1 picks between side pick or 1st player pick) **/
+enum InitialPick {
+    InitialPick_Side,
+    InitialPick_Player
+};
 
 /** ConVar handles **/
 new Handle:g_hCvarVersion = INVALID_HANDLE;
@@ -45,13 +60,6 @@ new bool:g_AutoLO3 = false;
 new TeamType:g_TeamType;
 new MapType:g_MapType;
 
-/** Permissions for the chat commands **/
-enum Permissions {
-    Permission_All,
-    Permission_Captains,
-    Permission_Leader
-}
-
 /** Map-voting variables **/
 new Handle:g_MapNames = INVALID_HANDLE;
 new Handle:g_MapVetoed = INVALID_HANDLE;
@@ -70,7 +78,6 @@ new Handle:g_hOnSetup = INVALID_HANDLE;
 new Handle:g_hOnGoingLive = INVALID_HANDLE;
 new Handle:g_hOnMatchOver = INVALID_HANDLE;
 
-#include "include/pugsetup.inc"
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/generic.sp"
 #include "pugsetup/leadermenus.sp"

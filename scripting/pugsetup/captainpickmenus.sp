@@ -1,11 +1,3 @@
-/**
- * Initial menu data (where captain 1 picks between side pick or 1st player pick.)
- */
-enum InitialPick {
-    InitialPick_Side,
-    InitialPick_Player
-};
-
 public InitialChoiceMenu(client) {
     g_PickingPlayers = true;
     new Handle:menu = CreateMenu(InitialChoiceHandler);
