@@ -31,52 +31,52 @@ enum InitialPick {
 };
 
 /** ConVar handles **/
-new Handle:g_hCvarVersion = INVALID_HANDLE;
-new Handle:g_hMapListFile = INVALID_HANDLE;
-new Handle:g_hWarmupCfg = INVALID_HANDLE;
-new Handle:g_hLiveCfg = INVALID_HANDLE;
-new Handle:g_hAutorecord = INVALID_HANDLE;
-new Handle:g_hDemoTimeFormat = INVALID_HANDLE;
-new Handle:g_hDemoNameFormat = INVALID_HANDLE;
-new Handle:g_hRequireAdminToSetup = INVALID_HANDLE;
-new Handle:g_hMapVoteTime = INVALID_HANDLE;
-new Handle:g_hRandomizeMapOrder = INVALID_HANDLE;
-new Handle:g_hAutoKickerEnabled = INVALID_HANDLE;
-new Handle:g_hKickMessage = INVALID_HANDLE;
-new Handle:g_hAlways5v5 = INVALID_HANDLE;
+Handle g_hCvarVersion = INVALID_HANDLE;
+Handle g_hMapListFile = INVALID_HANDLE;
+Handle g_hWarmupCfg = INVALID_HANDLE;
+Handle g_hLiveCfg = INVALID_HANDLE;
+Handle g_hAutorecord = INVALID_HANDLE;
+Handle g_hDemoTimeFormat = INVALID_HANDLE;
+Handle g_hDemoNameFormat = INVALID_HANDLE;
+Handle g_hRequireAdminToSetup = INVALID_HANDLE;
+Handle g_hMapVoteTime = INVALID_HANDLE;
+Handle g_hRandomizeMapOrder = INVALID_HANDLE;
+Handle g_hAutoKickerEnabled = INVALID_HANDLE;
+Handle g_hKickMessage = INVALID_HANDLE;
+Handle g_hAlways5v5 = INVALID_HANDLE;
 
 /** Setup info **/
-new g_Leader = -1;
+int g_Leader = -1;
 
-new bool:g_Setup = false;
-new bool:g_mapSet = false;
-new bool:g_Recording = true;
-new String:g_DemoFileName[256];
-new bool:g_LiveTimerRunning = false;
+bool g_Setup = false;
+bool g_mapSet = false;
+bool g_Recording = true;
+char g_DemoFileName[256];
+bool g_LiveTimerRunning = false;
 
 // Specific choices made when setting up
-new g_PlayersPerTeam = 5;
-new bool:g_AutoLO3 = false;
-new TeamType:g_TeamType;
-new MapType:g_MapType;
+int g_PlayersPerTeam = 5;
+bool g_AutoLO3 = false;
+TeamType g_TeamType;
+MapType g_MapType;
 
 /** Map-voting variables **/
-new Handle:g_MapNames = INVALID_HANDLE;
-new Handle:g_MapVetoed = INVALID_HANDLE;
-new g_ChosenMap = -1;
+Handle g_MapNames = INVALID_HANDLE;
+Handle g_MapVetoed = INVALID_HANDLE;
+int g_ChosenMap = -1;
 
 /** Data about team selections **/
-new g_capt1 = -1;
-new g_capt2 = -1;
-new g_Teams[MAXPLAYERS+1];
-new bool:g_Ready[MAXPLAYERS+1];
-new bool:g_PickingPlayers = false;
-new bool:g_MatchLive = false;
+int g_capt1 = -1;
+int g_capt2 = -1;
+int g_Teams[MAXPLAYERS+1];
+bool g_Ready[MAXPLAYERS+1];
+bool g_PickingPlayers = false;
+bool g_MatchLive = false;
 
 /** Forwards **/
-new Handle:g_hOnSetup = INVALID_HANDLE;
-new Handle:g_hOnGoingLive = INVALID_HANDLE;
-new Handle:g_hOnMatchOver = INVALID_HANDLE;
+Handle g_hOnSetup = INVALID_HANDLE;
+Handle g_hOnGoingLive = INVALID_HANDLE;
+Handle g_hOnMatchOver = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/generic.sp"
@@ -117,9 +117,9 @@ public OnPluginStart() {
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
-    g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "1", "Whether the autokicker is enabled or not");
+    g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "0", "Whether the autokicker is enabled or not");
     g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
-    g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "1", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
+    g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "0", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -165,8 +165,8 @@ public OnClientConnected(client) {
 public OnClientDisconnect(client) {
     g_Teams[client] = CS_TEAM_SPECTATOR;
     g_Ready[client] = false;
-    new numPlayers = 0;
-    for (new i = 1; i <= MaxClients; i++)
+    int numPlayers = 0;
+    for (int i = 1; i <= MaxClients; i++)
         if (IsPlayer(i))
             numPlayers++;
 
@@ -179,7 +179,7 @@ public OnMapStart() {
     g_MapVetoed = CreateArray();
     g_Recording = false;
 
-    for (new i = 1; i <= MaxClients; i++) {
+    for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
         g_Teams[i] = -1;
     }
@@ -203,15 +203,15 @@ public OnMapEnd() {
     CloseHandle(g_MapVetoed);
 }
 
-public Action:Timer_CheckReady(Handle:timer) {
+public Action:Timer_CheckReady(Handle timer) {
     if (!g_Setup || g_MatchLive || !g_LiveTimerRunning) {
         g_LiveTimerRunning = false;
         return Plugin_Stop;
     }
 
-    new rdy = 0;
-    new count = 0;
-    for (new i = 1; i <= MaxClients; i++) {
+    int rdy = 0;
+    int count = 0;
+    for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
             count++;
             if (g_Ready[i]) {
@@ -271,8 +271,8 @@ public StatusHint(numReady, numTotal) {
         PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", numReady, numTotal);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
-            decl String:cap1[64];
-            decl String:cap2[64];
+            char cap1[64];
+            char cap2[64];
             if (IsPlayer(g_capt1))
                 Format(cap1, sizeof(cap1), "%N", g_capt1);
             else
@@ -300,7 +300,7 @@ public StatusHint(numReady, numTotal) {
  *                     *
  ***********************/
 
-public Action:Command_Setup(client, args) {
+public Action Command_Setup(client, args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "The game is already live!");
         return Plugin_Handled;
@@ -321,7 +321,7 @@ public Action:Command_Setup(client, args) {
     g_capt2 = -1;
     g_Setup = true;
     g_Leader = GetSteamAccountID(client);
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
 
@@ -329,7 +329,7 @@ public Action:Command_Setup(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_10man (client, args) {
+public Action Command_10man (client, args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "The game is already live!");
         return Plugin_Handled;
@@ -348,7 +348,7 @@ public Action:Command_10man (client, args) {
     g_PickingPlayers = false;
     if (IsPlayer(client))
         g_Leader = GetSteamAccountID(client);
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
     g_MapType = MapType_Vote;
@@ -358,7 +358,7 @@ public Action:Command_10man (client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_Rand(client, args) {
+public Action Command_Rand(client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
@@ -371,7 +371,7 @@ public Action:Command_Rand(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_Capt(client, args) {
+public Action Command_Capt(client, args) {
     if (!g_Setup || g_MatchLive || g_PickingPlayers)
         return Plugin_Handled;
 
@@ -380,11 +380,11 @@ public Action:Command_Capt(client, args) {
         return Plugin_Handled;
     }
 
-    decl String:buffer[64];
+    char buffer[64];
     if (GetCmdArgs() >= 1 && args != 0) {
 
         GetCmdArg(1, buffer, sizeof(buffer));
-        new target = FindTarget(client, buffer, true, false);
+        int target = FindTarget(client, buffer, true, false);
         SetCapt1(target);
 
         if (GetCmdArgs() >= 2) {
@@ -401,41 +401,41 @@ public Action:Command_Capt(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_LO3(client, args) {
-    for (new i = 0; i < 5; i++)
+public Action Command_LO3(client, args) {
+    for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("*** The match will begin shortly - live on 3! ***");
     CreateTimer(2.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-public Action:Command_Start(client, args) {
+public Action Command_Start(client, args) {
     if (!g_Setup || g_MatchLive || !g_mapSet || g_LiveTimerRunning)
         return;
 
     if (GetConVarInt(g_hAutorecord) != 0) {
         // get the map, with any workshop stuff before removed
         // this is {MAP} in the format string
-        decl String:mapName[128];
+        char mapName[128];
         GetCurrentMap(mapName, sizeof(mapName));
-        new last_slash = 0;
-        new len = strlen(mapName);
-        for (new i = 0;  i < len; i++) {
+        int last_slash = 0;
+        int len = strlen(mapName);
+        for (int i = 0;  i < len; i++) {
             if (mapName[i] == '/')
                 last_slash = i + 1;
         }
 
         // get the time, this is {TIME} in the format string
-        decl String:timeFormat[64];
+        char timeFormat[64];
         GetConVarString(g_hDemoTimeFormat, timeFormat, sizeof(timeFormat));
-        new timeStamp = GetTime();
-        decl String:formattedTime[64];
+        int timeStamp = GetTime();
+        char formattedTime[64];
         FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
 
         // get the player count, this is {TEAMSIZE} in the format string
-        decl String:playerCount[8];
+        char playerCount[8];
         IntToString(g_PlayersPerTeam, playerCount, sizeof(playerCount));
 
         // create the actual demo name to use
-        decl String:demoName[256];
+        char demoName[256];
         GetConVarString(g_hDemoNameFormat, demoName, sizeof(demoName));
 
         ReplaceString(demoName, sizeof(demoName), "{MAP}", mapName[last_slash], false);
@@ -456,7 +456,7 @@ public Action:Command_Start(client, args) {
         ServerCommand("mp_scrambleteams");
     }
 
-    for (new i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("The match will begin shortly - live on 3!");
     CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -471,8 +471,8 @@ if (StrEqual(text[0], %1)) { \
     } \
 }
 
-public Action:Command_Say(client, const String:command[], argc) {
-    decl String:text[256];
+public Action Command_Say(client, const String:command[], argc) {
+    char text[256];
     if (GetCmdArgString(text, sizeof(text)) < 1) {
         return Plugin_Continue;
     }
@@ -512,12 +512,12 @@ public Action:Command_Say(client, const String:command[], argc) {
     return Plugin_Continue;
 }
 
-public bool:HasPermissions(client, Permissions:p) {
+public bool HasPermissions(int client, Permissions p) {
     if (!IsPlayer(client))
         return false;
 
-    new bool:isLeader = GetLeader() == client;
-    new bool:isCapt = isLeader || client == g_capt1 || client == g_capt2 || CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
+    bool isLeader = GetLeader() == client;
+    bool isCapt = isLeader || client == g_capt1 || client == g_capt2 || CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
 
     if (p == Permission_Leader)
         return isLeader;
@@ -532,11 +532,11 @@ public bool:HasPermissions(client, Permissions:p) {
 
 }
 
-public Action:Command_EndGame(client, args) {
+public Action Command_EndGame(client, args) {
     if (!g_Setup) {
         PugSetupMessage(client, "The match has not begun yet!");
     } else {
-        new Handle:menu = CreateMenu(MatchEndHandler);
+        Handle menu = CreateMenu(MatchEndHandler);
         SetMenuTitle(menu, "Are you sure you want to end the match?");
         SetMenuExitButton(menu, true);
         AddMenuBool(menu, false, "No, continue the match");
@@ -546,10 +546,10 @@ public Action:Command_EndGame(client, args) {
     return Plugin_Handled;
 }
 
-public MatchEndHandler(Handle:menu, MenuAction:action, param1, param2) {
+public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
-        new bool:choice = GetMenuBool(menu, param2);
+        int client = param1;
+        bool choice = GetMenuBool(menu, param2);
         if (choice) {
             PugSetupMessageToAll("The match was force-ended by {GREEN}%N", client);
             EndMatch(true);
@@ -559,7 +559,7 @@ public MatchEndHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-public Action:Command_Pause(client, args) {
+public Action Command_Pause(client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
@@ -570,7 +570,7 @@ public Action:Command_Pause(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_Unpause(client, args) {
+public Action Command_Unpause(client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
@@ -581,7 +581,7 @@ public Action:Command_Unpause(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_Ready(client, args) {
+public Action Command_Ready(client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
@@ -590,7 +590,7 @@ public Action:Command_Ready(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_Unready(client, args) {
+public Action Command_Unready(client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
@@ -599,7 +599,7 @@ public Action:Command_Unready(client, args) {
     return Plugin_Handled;
 }
 
-public Action:Command_Leader(client, args) {
+public Action Command_Leader(client, args) {
     if (!g_Setup)
         return Plugin_Handled;
 
@@ -615,7 +615,7 @@ public Action:Command_Leader(client, args) {
  *                     *
  ***********************/
 
-public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadcast) {
+public Action Event_MatchOver(Handle event, const char name[], bool dontBroadcast) {
     if (g_MatchLive) {
         CreateTimer(15.0, Timer_EndMatch);
         ExecCfg(g_hWarmupCfg);
@@ -623,18 +623,18 @@ public Action:Event_MatchOver(Handle:event, const String:name[], bool:dontBroadc
     return Plugin_Continue;
 }
 
-public Event_PlayerConnectFull(Handle:event, const String:name[], bool:dontBroadcast) {
-    new client = GetClientOfUserId(GetEventInt(event, "userid"));
+public Event_PlayerConnectFull(Handle event, const char name[], bool dontBroadcast) {
+    int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
     if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 &&
         !CheckCommandAccess(client, "sm_setup", ADMFLAG_CHANGEMAP) &&
         IsPlayer(client)) {
 
         // count number of active players
-        new count = 0;
-        for (new i = 1; i <= MaxClients; i++) {
+        int count = 0;
+        for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
-                new team = GetClientTeam(i);
+                int team = GetClientTeam(i);
                 if (team != CS_TEAM_NONE) {
                     count++;
                 }
@@ -642,7 +642,7 @@ public Event_PlayerConnectFull(Handle:event, const String:name[], bool:dontBroad
         }
 
         if (count >= GetPugMaxPlayers()) {
-            decl String:msg[1024];
+            char msg[1024];
             GetConVarString(g_hKickMessage, msg, sizeof(msg));
             KickClient(client, msg);
         }
@@ -650,7 +650,7 @@ public Event_PlayerConnectFull(Handle:event, const String:name[], bool:dontBroad
 }
 
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
-public Action:Timer_EndMatch(Handle:timer) {
+public Action Timer_EndMatch(Handle timer) {
     EndMatch(false);
 }
 
@@ -662,11 +662,11 @@ public Action:Timer_EndMatch(Handle:timer) {
  *                     *
  ***********************/
 
-public PrintSetupInfo(client) {
+public void PrintSetupInfo(int client) {
     if (IsPlayer(GetLeader()))
         PugSetupMessage(client, "The game has been setup by {GREEN}%N", GetLeader());
 
-    decl String:buffer[128];
+    char buffer[128];
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
     PugSetupMessage(client, "Teams: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
@@ -677,30 +677,30 @@ public PrintSetupInfo(client) {
     PugSetupMessage(client, "Auto live-on-3: {GREEN}%s", buffer);
 }
 
-public SetCapt1(client) {
+public void SetCapt1(int client) {
     if (IsPlayer(client)) {
         g_capt1 = client;
         PugSetupMessageToAll("Captain 1 will be {PINK}%N", g_capt1);
     }
 }
 
-public SetCapt2(client) {
+public void SetCapt2(int client) {
     if (IsPlayer(client)) {
         g_capt2 = client;
         PugSetupMessageToAll("Captain 2 will be {LIGHT_GREEN}%N", g_capt2);
     }
 }
 
-public SetLeader(client) {
+public void SetLeader(int client) {
     if (IsPlayer(client)) {
         PugSetupMessageToAll("The new leader is {GREEN}%N", client);
         g_Leader = GetSteamAccountID(client);
     }
 }
 
-public SetRandomCaptains() {
-    new c1 = -1;
-    new c2 = -1;
+public void SetRandomCaptains() {
+    int c1 = -1;
+    int c2 = -1;
 
     c1 = RandomPlayer();
     while (!IsPlayer(c2) || c1 == c2) {
@@ -714,7 +714,7 @@ public SetRandomCaptains() {
     SetCapt2(c2);
 }
 
-public ReadyToStart() {
+public void ReadyToStart() {
     if (g_AutoLO3) {
         Command_Start(0, 0);
     } else {
@@ -722,7 +722,7 @@ public ReadyToStart() {
     }
 }
 
-public EndMatch(bool:execConfigs) {
+public void EndMatch(bool execConfigs) {
     if (g_Recording) {
         CreateTimer(3.0, StopDemoMsg, _, TIMER_FLAG_NO_MAPCHANGE);
         CreateTimer(4.0, StopDemo, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -747,7 +747,7 @@ public EndMatch(bool:execConfigs) {
     Call_Finish();
 }
 
-public Action:MapSetup(Handle:timer) {
+public Action MapSetup(Handle timer) {
     if (g_MapType == MapType_Vote) {
         CreateMapVote();
     } else if (g_MapType == MapType_Veto) {
@@ -758,11 +758,11 @@ public Action:MapSetup(Handle:timer) {
     return Plugin_Handled;
 }
 
-public Action:StartPicking(Handle:timer) {
+public Action StartPicking(Handle timer) {
     ServerCommand("mp_pause_match");
     ServerCommand("mp_restartgame 1");
 
-    for (new i = 1; i <= MaxClients; i++) {
+    for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
             g_Teams[i] = CS_TEAM_SPECTATOR;
             SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
@@ -776,19 +776,19 @@ public Action:StartPicking(Handle:timer) {
     return Plugin_Handled;
 }
 
-public Action:FinishPicking(Handle:timer) {
-    for (new i = 1; i <= MaxClients; i++) {
+public Action FinishPicking(Handle timer) {
+    for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
             SwitchPlayerTeam(i, g_Teams[i]);
         }
     }
 
     if (GetConVarInt(g_hAutoKickerEnabled) != 0) {
-        for (new i = 1; i <= MaxClients; i++) {
+        for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && !CheckCommandAccess(i, "sm_setup", ADMFLAG_CHANGEMAP)) {
-                new team = GetClientTeam(i);
+                int team = GetClientTeam(i);
                 if (team == CS_TEAM_NONE || team == CS_TEAM_SPECTATOR) {
-                    decl String:msg[1024];
+                    char msg[1024];
                     GetConVarString(g_hKickMessage, msg, sizeof(msg));
                     KickClient(i, msg);
                 }
@@ -801,12 +801,12 @@ public Action:FinishPicking(Handle:timer) {
     return Plugin_Handled;
 }
 
-public Action:StopDemoMsg(Handle:timer) {
+public Action StopDemoMsg(Handle timer) {
     PugSetupMessageToAll("Stopping the GOTV demo...");
     return Plugin_Handled;
 }
 
-public Action:StopDemo(Handle:timer) {
+public Action StopDemo(Handle timer) {
     ServerCommand("tv_stoprecord");
     g_Recording = false;
     return Plugin_Handled;

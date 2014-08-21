@@ -1,16 +1,16 @@
 /**
  * Map vetoing functions
  */
-public CreateMapVeto() {
+public void CreateMapVeto() {
     GetMapList();
     GiveVetoMenu(g_capt1);
 }
 
-public GiveVetoMenu(client) {
-    new Handle:menu = CreateMenu(VetoHandler);
+public void GiveVetoMenu(int client) {
+    Handle menu = CreateMenu(VetoHandler);
     SetMenuExitButton(menu, false);
     SetMenuTitle(menu, "Select a map to veto");
-    for (new i = 0; i < GetArraySize(g_MapNames); i++) {
+    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         if (!GetArrayCell(g_MapVetoed, i)) {
             decl String:map[PLATFORM_MAX_PATH];
             GetArrayString(g_MapNames, i, map, sizeof(map));
@@ -20,26 +20,26 @@ public GiveVetoMenu(client) {
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-static GetNumMapsLeft() {
-    new count = 0;
-    for (new i = 0; i < GetArraySize(g_MapNames); i++) {
+static int GetNumMapsLeft() {
+    int count = 0;
+    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         if (!GetArrayCell(g_MapVetoed, i))
             count++;
     }
     return count;
 }
 
-static GetFirstMapLeft() {
-    for (new i = 0; i < GetArraySize(g_MapNames); i++) {
+static int GetFirstMapLeft() {
+    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         if (!GetArrayCell(g_MapVetoed, i))
             return i;
     }
     return -1;
 }
 
-public VetoHandler(Handle:menu, MenuAction:action, param1, param2) {
+public VetoHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new any:client = param1;
+        int client = param1;
         new index = GetMenuInt(menu, param2);
         decl String:map[PLATFORM_MAX_PATH];
         GetArrayString(g_MapNames, index, map, PLATFORM_MAX_PATH);
@@ -55,9 +55,9 @@ public VetoHandler(Handle:menu, MenuAction:action, param1, param2) {
             g_ChosenMap = GetFirstMapLeft();
             ChangeMap();
         } else {
-            new other = OtherCaptain(client);
+            int other = OtherCaptain(client);
             GiveVetoMenu(other);
-            for (new i = 1; i <= MaxClients; i++) {
+            for (int i = 1; i <= MaxClients; i++) {
                 if (IsValidClient(i) && !IsFakeClient(i) && i != other) {
                     VetoStatusDisplay(i);
                 }
@@ -69,11 +69,11 @@ public VetoHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-static VetoStatusDisplay(client) {
-    new Handle:menu = CreateMenu(VetoStatusHandler);
+static VetoStatusDisplay(int client) {
+    Handle menu = CreateMenu(VetoStatusHandler);
     SetMenuExitButton(menu, true);
     SetMenuTitle(menu, "Maps left");
-    for (new i = 0; i < GetArraySize(g_MapNames); i++) {
+    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         if (!GetArrayCell(g_MapVetoed, i)) {
             decl String:map[PLATFORM_MAX_PATH];
             GetArrayString(g_MapNames, i, map, sizeof(map));
@@ -84,9 +84,9 @@ static VetoStatusDisplay(client) {
 
 }
 
-public VetoStatusHandler(Handle:menu, MenuAction:action, param1, param2) {
+public VetoStatusHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
+        int client = param1;
         PugSetupMessage(client, "You aren't a captain, your menu is just for display/information purposes!");
     } else if (action == MenuAction_End) {
         CloseHandle(menu);

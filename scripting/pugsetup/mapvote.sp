@@ -3,28 +3,28 @@
 /**
  * Map voting functions
  */
-public CreateMapVote() {
+public void CreateMapVote() {
     GetMapList();
     ShowMapVote();
 }
 
-static ShowMapVote() {
-    new Handle:menu = CreateMenu(MapVoteHandler);
+static void ShowMapVote() {
+    Handle menu = CreateMenu(MapVoteHandler);
     SetMenuTitle(menu, "Vote for a map");
     SetMenuExitButton(menu, false);
 
     AddMenuInt(menu, RANDOM_MAP_VOTE, "Random");
-    for (new i = 0; i < GetArraySize(g_MapNames); i++) {
-        new String:mapName[PLATFORM_MAX_PATH];
+    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
+        char mapName[PLATFORM_MAX_PATH];
         GetArrayString(g_MapNames, i, mapName, sizeof(mapName));
         AddMenuInt(menu, i, mapName);
     }
     VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
 }
 
-public MapVoteHandler(Handle:menu, MenuAction:action, param1, param2) {
+public MapVoteHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_VoteEnd) {
-        new any:winner = GetMenuInt(menu, param1);
+        int winner = GetMenuInt(menu, param1);
         if (winner == RANDOM_MAP_VOTE) {
             g_ChosenMap = GetArrayRandomIndex(g_MapNames);
         } else {

@@ -13,39 +13,39 @@ enum MapType {
 };
 
 // Called when a setup menu is finished.
-forward OnSetup(client, TeamType:teamType, MapType:mapType, playersPerTeam);
+forward OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
 
 // Called when the going-live process begins.
 forward OnGoingLive();
 
 // Called when the match is over.
-forward OnMatchOver(bool:hasDemo, String:demoFileName[]);
+forward OnMatchOver(bool hasDemo, char demoFileName[]);
 
 // Returns whether a client is ready.
 // This is only valid when the game is setup AND not live.
-native bool:IsReady(client);
+native bool IsReady(int client);
 
 // Returns if the game settings have been setup.
-native bool:IsSetup();
+native bool IsSetup();
 
 // Returns if there is currently a match setup.
-native bool:IsMatchLive();
+native bool IsMatchLive();
 
 // Returns the pug leader, or -1 if not set.
-native any:GetLeader();
+native int GetLeader();
 
 // Returns captain 1, or -1 if not set.
-native any:GetCaptain1();
+native int GetCaptain1();
 
 // Returns captain 2, or -1 if not set.
-native any:GetCaptain2();
+native int GetCaptain2();
 
 // Prints a plugin-formatted message to a client.
-native PugSetupMessage(client, const String:fmt[], any:...);
+native void PugSetupMessage(int client, const char format[], any:...);
 
 // Prints a plugin-formatted message to all clients.
-native PugSetupMessageToAll(const String:fmt[], any:...);
+native void PugSetupMessageToAll(const char format[], any:...);
 
 // Returns the maximum number of players in the pug.
 // Only valid if the game has already been setup.
-native GetPugMaxPlayers();
+native int GetPugMaxPlayers();

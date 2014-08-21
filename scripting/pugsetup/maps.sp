@@ -1,35 +1,35 @@
-public ChangeMap() {
-    decl String:map[PLATFORM_MAX_PATH];
+public void ChangeMap() {
+    char map[PLATFORM_MAX_PATH];
     GetArrayString(g_MapNames, g_ChosenMap, map, sizeof(map));
     PugSetupMessageToAll("Changing map to {GREEN}%s{NORMAL}...", map);
     CreateTimer(3.0, Timer_DelayedChangeMap);
 }
 
-public Action:Timer_DelayedChangeMap(Handle:timer) {
-    decl String:map[PLATFORM_MAX_PATH];
+public Action Timer_DelayedChangeMap(Handle timer) {
+    char map[PLATFORM_MAX_PATH];
     GetArrayString(g_MapNames, g_ChosenMap, map, sizeof(map));
     g_mapSet = true;
     ServerCommand("changelevel %s", map);
     return Plugin_Handled;
 }
 
-public GetMapList() {
+public void GetMapList() {
     ClearArray(g_MapNames);
     ClearArray(g_MapVetoed);
 
     // full file path
-    decl String:mapCvar[PLATFORM_MAX_PATH];
+    char mapCvar[PLATFORM_MAX_PATH];
     GetConVarString(g_hMapListFile, mapCvar, sizeof(mapCvar));
 
-    decl String:mapFile[PLATFORM_MAX_PATH];
+    char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), mapCvar);
 
     if (!FileExists(mapFile)) {
         CreateDefaultMapFile();
     }
 
-    new Handle:file = OpenFile(mapFile, "r");
-    decl String:mapName[PLATFORM_MAX_PATH];
+    Handle file = OpenFile(mapFile, "r");
+    char mapName[PLATFORM_MAX_PATH];
     while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
         TrimString(mapName);
         AddMap(mapName);
@@ -50,7 +50,7 @@ public GetMapList() {
     }
 }
 
-static AddMap(const String:mapName[]) {
+static void AddMap(const char mapName[]) {
     if (IsMapValid(mapName)) {
         PushArrayString(g_MapNames, mapName);
         PushArrayCell(g_MapVetoed, false);
@@ -59,17 +59,17 @@ static AddMap(const String:mapName[]) {
     }
 }
 
-static CreateDefaultMapFile() {
+static void CreateDefaultMapFile() {
     LogError("No map list was found, autogenerating one.");
 
-    decl String:dirName[PLATFORM_MAX_PATH];
+    char dirName[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, dirName, sizeof(dirName), "configs/pugsetup", dirName);
     if (!DirExists(dirName))
         CreateDirectory(dirName, 751);
 
-    decl String:mapFile[PLATFORM_MAX_PATH];
+    char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
-    new Handle:file = OpenFile(mapFile, "w");
+    Handle file = OpenFile(mapFile, "w");
     WriteFileLine(file, "de_dust2");
     WriteFileLine(file, "de_inferno");
     WriteFileLine(file, "de_mirage");
@@ -78,10 +78,10 @@ static CreateDefaultMapFile() {
     CloseHandle(file);
 }
 
-static RandomizeMaps() {
-    new n = GetArraySize(g_MapNames);
-    for (new i = 0; i < n; i++) {
-        new choice = GetRandomInt(0, n - 1);
+static void RandomizeMaps() {
+    int n = GetArraySize(g_MapNames);
+    for (int i = 0; i < n; i++) {
+        int choice = GetRandomInt(0, n - 1);
         SwapArrayItems(g_MapNames, i, choice);
     }
 }

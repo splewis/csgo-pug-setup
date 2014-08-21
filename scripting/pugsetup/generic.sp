@@ -1,12 +1,12 @@
 #define PLUGIN_VERSION "1.2.1"
-new String:g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
-new String:g_ColorCodes[][] =    {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
+char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
+char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
 
 /**
  * Executes a config file named by a convar.
  */
-public ExecCfg(Handle:ConVarName) {
-    new String:cfg[PLATFORM_MAX_PATH];
+stock void ExecCfg(Handle ConVarName) {
+    char cfg[PLATFORM_MAX_PATH];
     GetConVarString(ConVarName, cfg, sizeof(cfg));
     ServerCommand("exec %s", cfg);
 }
@@ -14,8 +14,8 @@ public ExecCfg(Handle:ConVarName) {
 /**
  * Adds an integer to a menu as a string choice.
  */
-public AddMenuInt(Handle:menu, any:value, String:display[]) {
-    decl String:buffer[8];
+stock void AddMenuInt(Handle menu, int value, char display[]) {
+    char buffer[8];
     IntToString(value, buffer, sizeof(buffer));
     AddMenuItem(menu, buffer, display);
 }
@@ -23,8 +23,8 @@ public AddMenuInt(Handle:menu, any:value, String:display[]) {
 /**
  * Adds an integer to a menu, named by the integer itself.
  */
-public AddMenuInt2(Handle:menu, any:value) {
-    decl String:buffer[8];
+stock void AddMenuInt2(Handle menu, int value) {
+    char buffer[8];
     IntToString(value, buffer, sizeof(buffer));
     AddMenuItem(menu, buffer, buffer);
 }
@@ -32,33 +32,33 @@ public AddMenuInt2(Handle:menu, any:value) {
 /**
  * Gets an integer to a menu from a string choice.
  */
-public GetMenuInt(Handle:menu, any:param2) {
-    decl String:choice[8];
-    GetMenuItem(menu, param2, choice, sizeof(choice));
-    return StringToInt(choice);
+stock int GetMenuInt(Handle menu, any:param2) {
+    char buffer[8];
+    GetMenuItem(menu, param2, buffer, sizeof(buffer));
+    return StringToInt(buffer);
 }
 
 /**
  * Adds a boolean to a menu as a string choice.
  */
-public AddMenuBool(Handle:menu, bool:value, String:display[]) {
-    new convertedInt = value ? 1 : 0;
+stock void AddMenuBool(Handle menu, bool value, char display[]) {
+    int convertedInt = value ? 1 : 0;
     AddMenuInt(menu, convertedInt, display);
 }
 
 /**
  * Gets a boolean to a menu from a string choice.
  */
-public bool:GetMenuBool(Handle:menu, any:param2) {
+stock bool GetMenuBool(Handle menu, any:param2) {
     return GetMenuInt(menu, param2) != 0;
 }
 
 /**
  * Returns the number of human clients on a team.
  */
-public GetNumHumansOnTeam(team) {
-    new count = 0;
-    for (new i = 1; i <= MaxClients; i++) {
+stock int GetNumHumansOnTeam(team) {
+    int count = 0;
+    for (int i = 1; i <= MaxClients; i++) {
         if (IsValidClient(i) && !IsFakeClient(i))
             count++;
     }
@@ -68,8 +68,8 @@ public GetNumHumansOnTeam(team) {
 /**
  * Returns a random player client on the server.
  */
-public RandomPlayer() {
-    new client = -1;
+stock int RandomPlayer() {
+    int client = -1;
     while (!IsValidClient(client) || IsFakeClient(client)) {
         if (GetRealClientCount() < 1)
             return -1;
@@ -82,7 +82,7 @@ public RandomPlayer() {
 /**
  * Switches and respawns a player onto a new team.
  */
-public SwitchPlayerTeam(client, team) {
+stock void SwitchPlayerTeam(int client, int team) {
     if (team > CS_TEAM_SPECTATOR) {
         CS_SwitchTeam(client, team);
         CS_UpdateClientModel(client);
@@ -95,22 +95,22 @@ public SwitchPlayerTeam(client, team) {
 /**
  * Returns if a client is valid.
  */
-public bool:IsValidClient(client) {
+stock bool IsValidClient(int client) {
     if (client > 0 && client <= MaxClients && IsClientConnected(client) && IsClientInGame(client))
         return true;
     return false;
 }
 
-public bool:IsPlayer(client) {
+stock bool IsPlayer(int client) {
     return IsValidClient(client) && !IsFakeClient(client);
 }
 
 /**
  * Returns the number of clients that are actual players in the game.
  */
-public GetRealClientCount() {
-    new clients = 0;
-    for (new i = 1; i <= MaxClients; i++) {
+stock int GetRealClientCount() {
+    int clients = 0;
+    for (int i = 1; i <= MaxClients; i++) {
         if (IsClientInGame(i) && !IsFakeClient(i)) {
             clients++;
         }
@@ -121,8 +121,8 @@ public GetRealClientCount() {
 /**
  * Returns a random index from an array.
  */
-public any:GetArrayRandomIndex(Handle:array) {
-    new len = GetArraySize(array);
+stock int GetArrayRandomIndex(Handle array) {
+    int len = GetArraySize(array);
     if (len == 0)
         ThrowError("Can't get random index from empty array");
     return GetRandomInt(0, len - 1);
@@ -131,12 +131,12 @@ public any:GetArrayRandomIndex(Handle:array) {
 /**
  * Returns a random element from an array.
  */
-public any:GetArrayCellRandom(Handle:array) {
+stock any:GetArrayCellRandom(Handle array) {
     return GetArrayCell(array, GetArrayRandomIndex(array));
 }
 
-public Colorize(String:msg[], size) {
-    for (new i = 0; i < sizeof(g_ColorNames); i ++) {
+stock void Colorize(char msg[], int size) {
+    for (int i = 0; i < sizeof(g_ColorNames); i ++) {
         ReplaceString(msg, size, g_ColorNames[i], g_ColorCodes[i]);
     }
 }

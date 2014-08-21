@@ -1,10 +1,10 @@
 /** Begins the LO3 process. **/
-public Action:BeginLO3(Handle:timer) {
+public Action BeginLO3(Handle timer) {
     if (!g_MatchLive)
         return;
 
     // reset player tags
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         if (IsValidClient(i) && !IsFakeClient(i))
             CS_SetClientClanTag(i, "");
 
@@ -13,7 +13,7 @@ public Action:BeginLO3(Handle:timer) {
     CreateTimer(3.0, Restart2);
 }
 
-public Action:Restart2(Handle:timer) {
+public Action Restart2(Handle timer) {
     if (!g_MatchLive)
         return;
 
@@ -22,7 +22,7 @@ public Action:Restart2(Handle:timer) {
     CreateTimer(4.0, Restart3);
 }
 
-public Action:Restart3(Handle:timer) {
+public Action Restart3(Handle timer) {
     if (!g_MatchLive)
         return;
 
@@ -31,13 +31,13 @@ public Action:Restart3(Handle:timer) {
     CreateTimer(5.1, MatchLive);
 }
 
-public Action:MatchLive(Handle:timer) {
+public Action MatchLive(Handle timer) {
     if (!g_MatchLive)
         return;
 
     Call_StartForward(g_hOnGoingLive);
     Call_Finish();
 
-    for (new i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("Match is \x04LIVE\x01");
 }

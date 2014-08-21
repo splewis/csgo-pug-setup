@@ -2,7 +2,7 @@
  * Main .setup menu
  */
 public SetupMenu(client) {
-    new Handle:menu = CreateMenu(SetupMenuHandler);
+    Handle menu = CreateMenu(SetupMenuHandler);
     SetMenuTitle(menu, "How will teams be setup?");
     SetMenuExitButton(menu, false);
     AddMenuInt(menu, _:TeamType_Captains, "Assigned captains pick their teams");
@@ -11,9 +11,9 @@ public SetupMenu(client) {
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
+public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
+        int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
 
         if (GetConVarInt(g_hAlways5v5) == 0) {
@@ -28,20 +28,20 @@ public SetupMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-public GivePlayerCountMenu(client) {
-    new Handle:menu = CreateMenu(PlayerCountHandler);
+public GivePlayerCountMenu(int client) {
+    Handle menu = CreateMenu(PlayerCountHandler);
     SetMenuTitle(menu, "How many players per team?");
     SetMenuExitButton(menu, false);
-    new any:choices[] = {1, 2, 3, 4, 5, 6};
-    for (new i = 0; i < sizeof(choices); i++)
+    int choices[] = {1, 2, 3, 4, 5, 6};
+    for (int i = 0; i < sizeof(choices); i++)
         AddMenuInt(menu, choices[i], "");
 
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public PlayerCountHandler(Handle:menu, MenuAction:action, param1, param2) {
+public PlayerCountHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
+        int client = param1;
         g_PlayersPerTeam = GetMenuInt(menu, param2);
         MapMenu(client);
     } else if (action == MenuAction_End) {
@@ -53,18 +53,18 @@ public PlayerCountHandler(Handle:menu, MenuAction:action, param1, param2) {
  * Generic map choice-type menu.
  */
 public MapMenu(client) {
-    new Handle:menu = CreateMenu(MapMenuHandler);
+    Handle menu = CreateMenu(MapMenuHandler);
     SetMenuTitle(menu, "How will the map be chosen?");
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, MapType_Current, "Use the current map");
-    AddMenuInt(menu, MapType_Vote, "Vote for a map");
-    AddMenuInt(menu, MapType_Veto, "Captains veto maps until 1 left");
+    AddMenuInt(menu, _:MapType_Current, "Use the current map");
+    AddMenuInt(menu, _:MapType_Vote, "Vote for a map");
+    AddMenuInt(menu, _:MapType_Veto, "Captains veto maps until 1 left");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
+public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
+        int client = param1;
         g_MapType = MapType:GetMenuInt(menu, param2);
         switch (g_MapType) {
             case MapType_Current: g_mapSet = true;
@@ -81,8 +81,8 @@ public MapMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
 /**
  * Generic map choice-type menu.
  */
-public AutoLO3Menu(client) {
-    new Handle:menu = CreateMenu(AutoLO3MenuHandler);
+public AutoLO3Menu(int client) {
+    Handle menu = CreateMenu(AutoLO3MenuHandler);
     SetMenuTitle(menu, "Automatically start the game when ready?");
     SetMenuExitButton(menu, false);
     AddMenuBool(menu, true, "Yes");
@@ -90,7 +90,7 @@ public AutoLO3Menu(client) {
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public AutoLO3MenuHandler(Handle:menu, MenuAction:action, param1, param2) {
+public AutoLO3MenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         g_AutoLO3 = GetMenuBool(menu, param2);
         SetupFinished();
@@ -106,7 +106,7 @@ public SetupFinished() {
     g_capt1 = -1;
     g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
-    for (new i = 1; i <= MaxClients; i++)
+    for (int i = 1; i <= MaxClients; i++)
         if (IsPlayer(i))
             PrintSetupInfo(i);
     g_Setup = true;
@@ -125,7 +125,7 @@ public SetupFinished() {
 /**
  * Converts enum choice types to strings to show to players.
  */
-public GetTeamString(String:buffer[], length, TeamType:type) {
+public GetTeamString(char buffer[], int length, TeamType type) {
     switch (type) {
         case TeamType_Manual: return strcopy(buffer, length, "manual teams");
         case TeamType_Random: return strcopy(buffer, length, "random teams");
@@ -135,7 +135,7 @@ public GetTeamString(String:buffer[], length, TeamType:type) {
     return 0;
 }
 
-public GetMapString(String:buffer[], length, MapType:type) {
+public GetMapString(char buffer[], int length, MapType type) {
     switch (type) {
         case MapType_Current: return strcopy(buffer, length, "use the current map");
         case MapType_Vote: return strcopy(buffer, length, "vote for a map");
@@ -145,7 +145,7 @@ public GetMapString(String:buffer[], length, MapType:type) {
     return 0;
 }
 
-public GetEnabledString(String:buffer[], length, bool:var) {
+public GetEnabledString(char buffer[], int length, bool var) {
     if (var)
         return strcopy(buffer, length, "enabled");
     else

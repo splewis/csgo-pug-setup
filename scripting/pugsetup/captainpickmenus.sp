@@ -1,20 +1,20 @@
-public InitialChoiceMenu(client) {
+public void InitialChoiceMenu(int client) {
     g_PickingPlayers = true;
-    new Handle:menu = CreateMenu(InitialChoiceHandler);
+    Handle menu = CreateMenu(InitialChoiceHandler);
     SetMenuTitle(menu, "Which would you prefer:");
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, InitialPick_Side, "Pick the starting team");
-    AddMenuInt(menu, InitialPick_Player, "Pick the first player");
+    AddMenuInt(menu, _:InitialPick_Side, "Pick the starting team");
+    AddMenuInt(menu, _:InitialPick_Player, "Pick the first player");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
+public InitialChoiceHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;  // should also equal g_capt1
+        int client = param1;  // should also equal g_capt1
         if (client != g_capt1)
             LogError("[InitialChoiceHandler] only the first captain should have gotten the intial menu!");
 
-        new InitialPick:choice = InitialPick:GetMenuInt(menu, param2);
+        InitialPick choice = InitialPick:GetMenuInt(menu, param2);
         if (choice == InitialPick_Player) {
             PugSetupMessageToAll("{PINK}%N {NORMAL}has elected to get the {GREEN}first player pick.", g_capt1);
             SideMenu(g_capt2);
@@ -29,8 +29,8 @@ public InitialChoiceHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-public SideMenu(client) {
-    new Handle:menu = CreateMenu(SideMenuHandler);
+public void SideMenu(int client) {
+    Handle menu = CreateMenu(SideMenuHandler);
     SetMenuTitle(menu, "Which side do you want first");
     SetMenuExitButton(menu, false);
     AddMenuInt(menu, CS_TEAM_CT, "CT");
@@ -38,12 +38,12 @@ public SideMenu(client) {
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
+public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
-        new choice = GetMenuInt(menu, param2);
+        int client = param1;
+        int choice = GetMenuInt(menu, param2);
 
-        new teamPick = -1;
+        int teamPick = -1;
         if (choice == CS_TEAM_CT) {
             PugSetupMessageToAll("{PINK}%N {NORMAL}has picked {GREEN}CT {NORMAL}first.", client);
             teamPick = CS_TEAM_CT;
@@ -54,12 +54,12 @@ public SideMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
             LogError("[SideMenuHandler] Unknown side pick: %d", choice);
         }
 
-        new otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
+        int otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
 
         g_Teams[client] = teamPick;
         SwitchPlayerTeam(client, teamPick);
 
-        new otherCaptain = OtherCaptain(client);
+        int otherCaptain = OtherCaptain(client);
         g_Teams[otherCaptain] = otherTeam;
         SwitchPlayerTeam(otherCaptain, otherTeam);
 
@@ -78,7 +78,7 @@ public GivePlayerSelectionMenu(client) {
     if (IsPickingFinished()) {
         CreateTimer(1.0, FinishPicking);
     } else {
-        new Handle:menu = CreateMenu(PlayerMenuHandler);
+        Handle menu = CreateMenu(PlayerMenuHandler);
         SetMenuTitle(menu, "Pick your players");
         SetMenuExitButton(menu, false);
         AddPlayersToMenu(menu);
@@ -86,10 +86,10 @@ public GivePlayerSelectionMenu(client) {
     }
 }
 
-public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
+public PlayerMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        new client = param1;
-        new selected = GetMenuInt(menu, param2);
+        int client = param1;
+        int selected = GetMenuInt(menu, param2);
 
         if (selected > 0) {
             g_Teams[selected] = g_Teams[client];
@@ -100,7 +100,7 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
                 PugSetupMessageToAll("{LIGHT_GREEN}%N {NORMAL}has picked {LIGHT_GREEN}%N", client, selected);
 
             if (!IsPickingFinished()) {
-                new nextCapt = OtherCaptain(client);
+                int nextCapt = OtherCaptain(client);
                 MoreMenuPicks(nextCapt);
             } else {
                 CreateTimer(1.0, FinishPicking);
@@ -114,7 +114,7 @@ public PlayerMenuHandler(Handle:menu, MenuAction:action, param1, param2) {
     }
 }
 
-public MoreMenuPicks(client) {
+public void MoreMenuPicks(client) {
     if (IsPickingFinished() || !IsValidClient(client) || !IsClientInGame(client)) {
         CreateTimer(5.0, FinishPicking);
         return;
@@ -125,9 +125,9 @@ public MoreMenuPicks(client) {
 /**
  * Helper functions for the player menus.
  */
-static bool:IsPickingFinished() {
-    new numSelected = 0;
-    for (new i = 1; i <= MaxClients; i++) {
+static bool IsPickingFinished() {
+    int numSelected = 0;
+    for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayerPicked(i))
             numSelected++;
     }
@@ -135,22 +135,22 @@ static bool:IsPickingFinished() {
     return numSelected >= 2*g_PlayersPerTeam;
 }
 
-static IsPlayerPicked(client) {
-    new team = g_Teams[client];
+static bool IsPlayerPicked(client) {
+    int team = g_Teams[client];
     return team == CS_TEAM_T || team == CS_TEAM_CT;
 }
 
-public OtherCaptain(captain) {
+public int OtherCaptain(captain) {
     if (captain == g_capt1)
         return g_capt2;
     else
         return g_capt1;
 }
 
-static any:AddPlayersToMenu(Handle:menu) {
-    new String:name[MAX_NAME_LENGTH];
-    new count = 0;
-    for (new client = 1; client <= MaxClients; client++) {
+static int AddPlayersToMenu(Handle menu) {
+    char name[MAX_NAME_LENGTH];
+    int count = 0;
+    for (int client = 1; client <= MaxClients; client++) {
         if (IsValidClient(client) && !IsFakeClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR) {
             GetClientName(client, name, sizeof(name));
             AddMenuInt(menu, client, name);
