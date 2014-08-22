@@ -3,9 +3,4 @@ Plugin(source='scripting/pugsetup_teamnames.sp')
 
 Package(name='pugsetup',
         plugins=['pugsetup', 'pugsetup_teamnames'],
-        filegroups={
-            'addons/sourcemod/configs': ['configs/pugsetup/maps.txt'],
-            'cfg/sourcemod/pugsetup': ['cfg/sourcemod/pugsetup/standard.cfg',
-                                       'cfg/sourcemod/pugsetup/warmup.cfg'],
-        }
 )
