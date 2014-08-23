@@ -1,8 +1,10 @@
 // See include/pugsetup.inc for documentation.
 
-public APLRes:AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
+public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("IsReady", Native_IsReady);
     CreateNative("IsSetup", Native_IsSetup);
+    CreateNative("GetTeamType", Native_GetTeamType);
+    CreateNative("GetMapType", Native_GetMapType);
     CreateNative("IsMatchLive", Native_IsMatchLive);
     CreateNative("GetLeader", Native_GetLeader);
     CreateNative("GetCaptain1", Native_GetCaptain1);
@@ -21,6 +23,14 @@ public Native_IsReady(Handle plugin, numParams) {
 
 public Native_IsSetup(Handle plugin, numParams) {
     return g_Setup;
+}
+
+public Native_GetMapType(Handle plugin, numParams) {
+    return _:g_MapType;
+}
+
+public Native_GetTeamType(Handle plugin, numParams) {
+    return _:g_TeamType;
 }
 
 public Native_IsMatchLive(Handle plugin, numParams) {

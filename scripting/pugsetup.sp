@@ -143,6 +143,7 @@ public OnPluginStart() {
     RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_GENERIC, "Pauses the game");
     RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_GENERIC, "Unpauses the game");
     RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
+    RegAdminCmd("sm_endmatch", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
     RegAdminCmd("sm_leader", Command_Leader, ADMFLAG_CHANGEMAP, "Sets the pug leader");
     RegAdminCmd("sm_capt", Command_Capt, ADMFLAG_CHANGEMAP, "Gives the client a menu to pick captains");
 
@@ -483,6 +484,7 @@ public Action Command_Say(client, const String:command[], argc) {
     ChatAlias(".10man", Command_10man, Permission_All)
     ChatAlias(".start", Command_Start, Permission_Leader)
     ChatAlias(".endgame", Command_EndGame, Permission_Leader)
+    ChatAlias(".endmatch", Command_EndGame, Permission_Leader)
     ChatAlias(".cancel", Command_EndGame, Permission_Leader)
     ChatAlias(".capt", Command_Capt, Permission_Leader)
     ChatAlias(".leader", Command_Leader, Permission_Leader)

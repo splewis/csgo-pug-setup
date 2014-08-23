@@ -28,6 +28,14 @@ native bool IsReady(int client);
 // Returns if the game settings have been setup.
 native bool IsSetup();
 
+// Returns the team type being used.
+// Only valid if IsSetup is true.
+native TeamType GetTeamType();
+
+// Returns the map type being used.
+// Only valid if IsSetup is true.
+native MapType GetMapType();
+
 // Returns if there is currently a match setup.
 native bool IsMatchLive();
 
