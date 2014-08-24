@@ -31,19 +31,20 @@ enum InitialPick {
 };
 
 /** ConVar handles **/
-Handle g_hCvarVersion = INVALID_HANDLE;
-Handle g_hMapListFile = INVALID_HANDLE;
-Handle g_hWarmupCfg = INVALID_HANDLE;
-Handle g_hLiveCfg = INVALID_HANDLE;
+Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
+Handle g_hAlways5v5 = INVALID_HANDLE;
+Handle g_hAutoKickerEnabled = INVALID_HANDLE;
 Handle g_hAutorecord = INVALID_HANDLE;
-Handle g_hDemoTimeFormat = INVALID_HANDLE;
+Handle g_hCvarVersion = INVALID_HANDLE;
 Handle g_hDemoNameFormat = INVALID_HANDLE;
-Handle g_hRequireAdminToSetup = INVALID_HANDLE;
+Handle g_hDemoTimeFormat = INVALID_HANDLE;
+Handle g_hKickMessage = INVALID_HANDLE;
+Handle g_hLiveCfg = INVALID_HANDLE;
+Handle g_hMapListFile = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
-Handle g_hAutoKickerEnabled = INVALID_HANDLE;
-Handle g_hKickMessage = INVALID_HANDLE;
-Handle g_hAlways5v5 = INVALID_HANDLE;
+Handle g_hRequireAdminToSetup = INVALID_HANDLE;
+Handle g_hWarmupCfg = INVALID_HANDLE;
 
 /** Setup info **/
 int g_Leader = -1;
@@ -108,18 +109,19 @@ public OnPluginStart() {
     LoadTranslations("common.phrases");
 
     /** ConVars **/
-    g_hMapListFile = CreateConVar("sm_pugsetup_maplist_file", "configs/pugsetup/maps.txt", "Maplist to read from. The file path is relative to the sourcemod directory.");
-    g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
-    g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live; should be in the csgo/cfg directory.");
+    g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomzied once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
+    g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "0", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
+    g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "0", "Whether the autokicker is enabled or not");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
-    g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing!");
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}");
-    g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
+    g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing!");
+    g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
+    g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live; should be in the csgo/cfg directory.");
+    g_hMapListFile = CreateConVar("sm_pugsetup_maplist_file", "configs/pugsetup/maps.txt", "Maplist to read from. The file path is relative to the sourcemod directory.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
-    g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "0", "Whether the autokicker is enabled or not");
-    g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
-    g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "0", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
+    g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
+    g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");

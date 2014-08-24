@@ -114,6 +114,10 @@ public SetupFinished() {
         CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
     g_LiveTimerRunning = true;
 
+    if (GetConVarInt(g_hAutoRandomizeCaptains) != 0) {
+        SetRandomCaptains();
+    }
+
     Call_StartForward(g_hOnSetup);
     Call_PushCell(GetLeader());
     Call_PushCell(g_TeamType);
@@ -150,5 +154,4 @@ public GetEnabledString(char buffer[], int length, bool var) {
         return strcopy(buffer, length, "enabled");
     else
         return strcopy(buffer, length, "disabled");
-
 }
