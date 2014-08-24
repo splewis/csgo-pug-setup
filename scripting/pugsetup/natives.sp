@@ -7,7 +7,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("GetMapType", Native_GetMapType);
     CreateNative("IsMatchLive", Native_IsMatchLive);
     CreateNative("GetLeader", Native_GetLeader);
+    CreateNative("SetCaptain1", Native_SetCaptain1);
     CreateNative("GetCaptain1", Native_GetCaptain1);
+    CreateNative("SetCaptain2", Native_SetCaptain2);
     CreateNative("GetCaptain2", Native_GetCaptain2);
     CreateNative("PugSetupMessage", Native_PugSetupMessage);
     CreateNative("PugSetupMessageToAll", Native_PugSetupMessageToAll);
@@ -49,11 +51,28 @@ public Native_GetLeader(Handle plugin, numParams) {
     return r;
 }
 
+public Native_SetCaptain1(Handle plugin, numParams) {
+    int client = GetNativeCell(1);
+    if (IsPlayer(client)) {
+        g_capt1 = client;
+        PugSetupMessageToAll("Captain 1 will be {PINK}%N", g_capt1);
+    }
+
+}
+
 public Native_GetCaptain1(Handle plugin, numParams) {
     if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1))
         return g_capt1;
     else
         return -1;
+}
+
+public Native_SetCaptain2(Handle plugin, numParams) {
+    int client = GetNativeCell(1);
+    if (IsPlayer(client)) {
+        g_capt2 = client;
+        PugSetupMessageToAll("Captain 2 will be {LIGHT_GREEN}%N", g_capt2);
+    }
 }
 
 public Native_GetCaptain2(Handle plugin, numParams) {

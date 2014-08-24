@@ -42,8 +42,14 @@ native bool IsMatchLive();
 // Returns the pug leader, or -1 if not set.
 native int GetLeader();
 
+// Sets who is captain 1.
+native void SetCaptain1(int client);
+
 // Returns captain 1, or -1 if not set.
 native int GetCaptain1();
+
+// Sets who is captain 2.
+native void SetCaptain2(int client);
 
 // Returns captain 2, or -1 if not set.
 native int GetCaptain2();

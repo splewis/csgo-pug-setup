@@ -332,7 +332,7 @@ public Action Command_Setup(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_10man (client, args) {
+public Action Command_10man(client, args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "The game is already live!");
         return Plugin_Handled;
