@@ -31,15 +31,16 @@ enum InitialPick {
 };
 
 /** ConVar handles **/
-Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
 Handle g_hAlways5v5 = INVALID_HANDLE;
 Handle g_hAutoKickerEnabled = INVALID_HANDLE;
+Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
 Handle g_hAutorecord = INVALID_HANDLE;
 Handle g_hCvarVersion = INVALID_HANDLE;
 Handle g_hDemoNameFormat = INVALID_HANDLE;
 Handle g_hDemoTimeFormat = INVALID_HANDLE;
 Handle g_hKickMessage = INVALID_HANDLE;
 Handle g_hLiveCfg = INVALID_HANDLE;
+Handle g_hLockTeams = INVALID_HANDLE;
 Handle g_hMapListFile = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
@@ -116,6 +117,7 @@ public OnPluginStart() {
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing!");
     g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
+    g_hLockTeams = CreateConVar("sm_pugsetup_lock_teams", "1", "Whether the plugin should lock teams once the game stats. Note if a player leaves someone can still join to replace them, however.");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live; should be in the csgo/cfg directory.");
     g_hMapListFile = CreateConVar("sm_pugsetup_maplist_file", "configs/pugsetup/maps.txt", "Maplist to read from. The file path is relative to the sourcemod directory.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
@@ -149,9 +151,11 @@ public OnPluginStart() {
     RegAdminCmd("sm_leader", Command_Leader, ADMFLAG_CHANGEMAP, "Sets the pug leader");
     RegAdminCmd("sm_capt", Command_Capt, ADMFLAG_CHANGEMAP, "Gives the client a menu to pick captains");
 
-    /** Event hooks **/
+    /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("player_connect_full", Event_PlayerConnectFull);
+    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
+    AddCommandListener(Command_TeamJoin, "jointeam");
 
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
@@ -656,6 +660,41 @@ public Event_PlayerConnectFull(Handle event, const char name[], bool dontBroadca
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
 public Action Timer_EndMatch(Handle timer) {
     EndMatch(false);
+}
+
+/**
+ * Called when a player joins a team, silences team join events during player selection.
+ */
+public Action Event_PlayerTeam(Handle event, const char name[], bool dontBroadcast)  {
+    if (g_Setup && !g_MatchLive) {
+        dontBroadcast = true;
+        return Plugin_Changed;
+    } else {
+        return Plugin_Continue;
+    }
+}
+
+public Action:Command_TeamJoin(client, const String:command[], argc) {
+    if (!IsValidClient(client) || argc < 1)
+        return Plugin_Handled;
+
+    char arg[4];
+    GetCmdArg(1, arg, sizeof(arg));
+    int team_to = StringToInt(arg);
+    int team_from = GetClientTeam(client);
+
+    bool from_active_team = (team_from == CS_TEAM_CT || team_from == CS_TEAM_T);
+
+    // if same team, teamswitch controlled by the plugin
+    // note if a player hits autoselect their team_from=team_to=CS_TEAM_NONE
+    if (!g_MatchLive || (team_from == team_to && team_from != CS_TEAM_NONE) || IsFakeClient(client) || GetConVarInt(g_hLockTeams) == 0) {
+        return Plugin_Continue;
+    } else if (from_active_team) {
+        // disables swapping teams
+        return Plugin_Handled;
+    } else {
+        return Plugin_Continue;
+    }
 }
 
 
