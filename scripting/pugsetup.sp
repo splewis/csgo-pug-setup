@@ -79,6 +79,8 @@ bool g_MatchLive = false;
 Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
+Handle g_hOnReady = INVALID_HANDLE;
+Handle g_hOnUnready = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/generic.sp"
@@ -160,6 +162,8 @@ public OnPluginStart() {
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
+    g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
+    g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
 
     g_LiveTimerRunning = false;
 }
@@ -231,7 +235,7 @@ public Action:Timer_CheckReady(Handle timer) {
     }
 
     // beware: scary spaghetti code ahead
-    if (readyPlayers == totalPlayers && readyPlayers >= 2*g_PlayersPerTeam) {
+    if (readyPlayers == totalPlayers && readyPlayers >= 2 * g_PlayersPerTeam) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
@@ -583,6 +587,10 @@ public Action Command_Ready(client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
+    Call_StartForward(g_hOnReady);
+    Call_PushCell(client);
+    Call_Finish();
+
     g_Ready[client] = true;
     CS_SetClientClanTag(client, "[Ready]");
     return Plugin_Handled;
@@ -591,6 +599,10 @@ public Action Command_Ready(client, args) {
 public Action Command_Unready(client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
+
+    Call_StartForward(g_hOnUnready);
+    Call_PushCell(client);
+    Call_Finish();
 
     g_Ready[client] = false;
     CS_SetClientClanTag(client, "[Not ready]");

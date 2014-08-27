@@ -15,6 +15,12 @@ enum MapType {
 // Called when a setup menu is finished.
 forward OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
 
+// Called when a player marks themselves as ready.
+forward OnReady(int client);
+
+// Called when a player marks themselves as unready.
+forward OnUnready(int client);
+
 // Called when the going-live process begins.
 forward OnGoingLive();
 
