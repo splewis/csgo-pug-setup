@@ -41,17 +41,21 @@ public void SideMenu(int client) {
 public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        int choice = GetMenuInt(menu, param2);
+        int teamPick = GetMenuInt(menu, param2);
 
-        int teamPick = -1;
-        if (choice == CS_TEAM_CT) {
-            PugSetupMessageToAll("{PINK}%N {NORMAL}has picked {GREEN}CT {NORMAL}first.", client);
-            teamPick = CS_TEAM_CT;
-        } else if (choice == CS_TEAM_T) {
-            PugSetupMessageToAll("{PINK}%N {NORMAL}has picked {GREEN}T {NORMAL}first.", client);
-            teamPick = CS_TEAM_T;
+        char captString[64];
+        if (client == g_capt1) {
+            Format(captString, sizeof(captString), "{PINK}%N{NORMAL}", g_capt1);
         } else {
-            LogError("[SideMenuHandler] Unknown side pick: %d", choice);
+            Format(captString, sizeof(captString), "{LIGHT_GREEN}%N{NORMAL}", g_capt2);
+        }
+
+        if (teamPick == CS_TEAM_CT) {
+            PugSetupMessageToAll("%s has picked {GREEN}CT {NORMAL}first.", captString);
+        } else if (teamPick == CS_TEAM_T) {
+            PugSetupMessageToAll("%s has picked {GREEN}T {NORMAL}first.", captString);
+        } else {
+            LogError("[SideMenuHandler] Unknown side pick: %d", teamPick);
         }
 
         int otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
@@ -64,8 +68,7 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         SwitchPlayerTeam(otherCaptain, otherTeam);
 
         ServerCommand("mp_restartgame 1");
-        GivePlayerSelectionMenu(otherCaptain);
-
+        CreateTimer(1.0, GivePlayerSelectionMenu, _, otherCaptain);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -74,15 +77,20 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
 /**
  * Player selection menus.
  */
-public GivePlayerSelectionMenu(client) {
+public Action GivePlayerSelectionMenu(Handle timer, int client) {
     if (IsPickingFinished()) {
         CreateTimer(1.0, FinishPicking);
     } else {
-        Handle menu = CreateMenu(PlayerMenuHandler);
-        SetMenuTitle(menu, "Pick your players");
-        SetMenuExitButton(menu, false);
-        AddPlayersToMenu(menu);
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+        if (IsValidClient(client)) {
+            Handle menu = CreateMenu(PlayerMenuHandler);
+            SetMenuTitle(menu, "Pick your players");
+            SetMenuExitButton(menu, false);
+            AddPlayersToMenu(menu);
+            DisplayMenu(menu, client, MENU_TIME_FOREVER);
+        } else {
+            PugSetupMessageToAll("A captain is missing, aborting the game.");
+            EndMatch(false);
+        }
     }
 }
 
@@ -119,7 +127,7 @@ public void MoreMenuPicks(client) {
         CreateTimer(5.0, FinishPicking);
         return;
     }
-    GivePlayerSelectionMenu(client);
+    CreateTimer(1.0, GivePlayerSelectionMenu, client);
 }
 
 /**
@@ -132,7 +140,7 @@ static bool IsPickingFinished() {
             numSelected++;
     }
 
-    return numSelected >= 2*g_PlayersPerTeam;
+    return numSelected >= 2 * g_PlayersPerTeam;
 }
 
 static bool IsPlayerPicked(client) {

@@ -216,14 +216,14 @@ public Action:Timer_CheckReady(Handle timer) {
         return Plugin_Stop;
     }
 
-    int rdy = 0;
-    int count = 0;
+    int readyPlayers = 0;
+    int totalPlayers = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
-            count++;
+            totalPlayers++;
             if (g_Ready[i]) {
                 CS_SetClientClanTag(i, "[Ready]");
-                rdy++;
+                readyPlayers++;
             } else {
                 CS_SetClientClanTag(i, "[Not ready]");
             }
@@ -231,7 +231,7 @@ public Action:Timer_CheckReady(Handle timer) {
     }
 
     // beware: scary spaghetti code ahead
-    if (rdy == count && rdy >= 2*g_PlayersPerTeam) {
+    if (readyPlayers == totalPlayers && readyPlayers >= 2*g_PlayersPerTeam) {
         if (g_mapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
@@ -239,7 +239,7 @@ public Action:Timer_CheckReady(Handle timer) {
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
-                    StatusHint(rdy, count);
+                    StatusHint(readyPlayers, totalPlayers);
                 }
             } else {
                 g_LiveTimerRunning = false;
@@ -250,16 +250,16 @@ public Action:Timer_CheckReady(Handle timer) {
         } else {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
-                    PugSetupMessageToAll("The map veto process will begin in a few seconds!");
+                    PugSetupMessageToAll("The map veto process will begin in a few seconds.");
                     CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
-                    StatusHint(rdy, count);
+                    StatusHint(readyPlayers, totalPlayers);
                 }
 
             } else {
-                PugSetupMessageToAll("The map voting will begin in a few seconds!");
+                PugSetupMessageToAll("The map voting will begin in a few seconds.");
                 CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                 g_LiveTimerRunning = false;
                 return Plugin_Stop;
@@ -267,15 +267,15 @@ public Action:Timer_CheckReady(Handle timer) {
         }
 
     } else {
-        StatusHint(rdy, count);
+        StatusHint(readyPlayers, totalPlayers);
     }
 
     return Plugin_Continue;
 }
 
-public StatusHint(numReady, numTotal) {
+public StatusHint(readyPlayers, totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
-        PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", numReady, numTotal);
+        PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", readyPlayers, totalPlayers);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
             char cap1[64];
@@ -290,10 +290,10 @@ public StatusHint(numReady, numTotal) {
             else
                 Format(cap2, sizeof(cap2), "not selected");
 
-            PrintHintTextToAll("%i out of %i players are ready\nCaptain 1: %s\nCaptain 2: %s", numReady, numTotal, cap1, cap2);
+            PrintHintTextToAll("%i out of %i players are ready\nCaptain 1: %s\nCaptain 2: %s", readyPlayers, totalPlayers, cap1, cap2);
 
         } else {
-            PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", numReady, numTotal);
+            PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", readyPlayers, totalPlayers);
         }
 
     }
@@ -330,7 +330,6 @@ public Action Command_Setup(client, args) {
     g_Leader = GetSteamAccountID(client);
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
-
 
     SetupMenu(client);
     return Plugin_Handled;
@@ -769,6 +768,11 @@ public void EndMatch(bool execConfigs) {
     if (g_Recording) {
         CreateTimer(3.0, StopDemoMsg, _, TIMER_FLAG_NO_MAPCHANGE);
         CreateTimer(4.0, StopDemo, _, TIMER_FLAG_NO_MAPCHANGE);
+    } else {
+        Call_StartForward(g_hOnMatchOver);
+        Call_PushCell(false);
+        Call_PushString("");
+        Call_Finish();
     }
 
     ServerCommand("mp_unpause_match");
@@ -784,10 +788,6 @@ public void EndMatch(bool execConfigs) {
     g_MatchLive = false;
 
 
-    Call_StartForward(g_hOnMatchOver);
-    Call_PushCell(g_Recording);
-    Call_PushString(g_DemoFileName);
-    Call_Finish();
 }
 
 public Action MapSetup(Handle timer) {
@@ -852,5 +852,9 @@ public Action StopDemoMsg(Handle timer) {
 public Action StopDemo(Handle timer) {
     ServerCommand("tv_stoprecord");
     g_Recording = false;
+    Call_StartForward(g_hOnMatchOver);
+    Call_PushCell(true);
+    Call_PushString(g_DemoFileName);
+    Call_Finish();
     return Plugin_Handled;
 }
