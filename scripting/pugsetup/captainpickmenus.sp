@@ -68,7 +68,7 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         SwitchPlayerTeam(otherCaptain, otherTeam);
 
         ServerCommand("mp_restartgame 1");
-        CreateTimer(1.0, GivePlayerSelectionMenu, _, otherCaptain);
+        CreateTimer(1.0, GivePlayerSelectionMenu, otherCaptain);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
