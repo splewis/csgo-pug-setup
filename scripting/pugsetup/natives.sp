@@ -1,3 +1,4 @@
+
 // See include/pugsetup.inc for documentation.
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
@@ -6,6 +7,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("GetTeamType", Native_GetTeamType);
     CreateNative("GetMapType", Native_GetMapType);
     CreateNative("IsMatchLive", Native_IsMatchLive);
+    CreateNative("SetLeader", Native_SetLeader);
     CreateNative("GetLeader", Native_GetLeader);
     CreateNative("SetCaptain1", Native_SetCaptain1);
     CreateNative("GetCaptain1", Native_GetCaptain1);
@@ -14,6 +16,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("PugSetupMessage", Native_PugSetupMessage);
     CreateNative("PugSetupMessageToAll", Native_PugSetupMessageToAll);
     CreateNative("GetPugMaxPlayers", Native_GetPugMaxPlayers);
+    CreateNative("SetupGame", Native_SetupGame);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -37,6 +40,14 @@ public Native_GetTeamType(Handle plugin, numParams) {
 
 public Native_IsMatchLive(Handle plugin, numParams) {
     return g_MatchLive;
+}
+
+public Native_SetLeader(Handle plugin, numParams) {
+    int client = GetNativeCell(1);
+    if (IsPlayer(client)) {
+        PugSetupMessageToAll("The new leader is {GREEN}%N", client);
+        g_Leader = GetSteamAccountID(client);
+    }
 }
 
 public Native_GetLeader(Handle plugin, numParams) {
@@ -109,4 +120,25 @@ public Native_PugSetupMessageToAll(Handle plugin, numParams) {
 
 public Native_GetPugMaxPlayers(Handle plugin, numParams) {
     return 2 * g_PlayersPerTeam;
+}
+
+public Native_SetupGame(Handle plugin, numParams) {
+    if (g_MatchLive) {
+        return false;
+    }
+
+    g_TeamType = TeamType:GetNativeCell(1);
+    g_MapType = MapType:GetNativeCell(2);
+    g_PlayersPerTeam = GetNativeCell(3);
+    g_AutoLO3 = bool:GetNativeCell(4);
+    g_PickingPlayers = false;
+    g_capt1 = -1;
+    g_capt2 = -1;
+    g_Setup = true;
+    g_PickingPlayers = false;
+    for (int i = 1; i <= MaxClients; i++)
+        g_Ready[i] = false;
+
+    SetupFinished();
+    return true;
 }

@@ -351,16 +351,7 @@ public Action Command_10man(client, args) {
         return Plugin_Handled;
     }
 
-    g_PickingPlayers = false;
-    if (IsPlayer(client))
-        g_Leader = GetSteamAccountID(client);
-    for (int i = 1; i <= MaxClients; i++)
-        g_Ready[i] = false;
-
-    g_MapType = MapType_Vote;
-    g_TeamType = TeamType_Captains;
-    g_PlayersPerTeam = 5;
-    SetupFinished();
+    SetupGame(TeamType_Captains, MapType_Vote, 5, false);
     return Plugin_Handled;
 }
 
@@ -391,12 +382,12 @@ public Action Command_Capt(client, args) {
 
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
-        SetCapt1(target);
+        SetCaptain1(target);
 
         if (GetCmdArgs() >= 2) {
             GetCmdArg(2, buffer, sizeof(buffer));
             target = FindTarget(client, buffer, true, false);
-            SetCapt2(target);
+            SetCaptain2(target);
         } else {
             Captain2Menu(client);
         }
@@ -682,14 +673,24 @@ public Action:Command_TeamJoin(client, const String:command[], argc) {
     int team_to = StringToInt(arg);
     int team_from = GetClientTeam(client);
 
-    bool from_active_team = (team_from == CS_TEAM_CT || team_from == CS_TEAM_T);
+    int numT = 0;
+    int numCT = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i)) {
+            int team = GetClientTeam(i);
+            if (team == CS_TEAM_CT)
+                numCT++;
+            if (team == CS_TEAM_T)
+                numT++;
+        }
+    }
 
     // if same team, teamswitch controlled by the plugin
     // note if a player hits autoselect their team_from=team_to=CS_TEAM_NONE
     if (!g_MatchLive || (team_from == team_to && team_from != CS_TEAM_NONE) || IsFakeClient(client) || GetConVarInt(g_hLockTeams) == 0) {
         return Plugin_Continue;
-    } else if (from_active_team) {
-        // disables swapping teams
+    } else if ((team_to == CS_TEAM_T && numT >= g_PlayersPerTeam) || (team_from == CS_TEAM_CT && numCT >= g_PlayersPerTeam)) {
+        // disables joining a full team
         return Plugin_Handled;
     } else {
         return Plugin_Continue;
@@ -719,27 +720,6 @@ public void PrintSetupInfo(int client) {
     PugSetupMessage(client, "Auto live-on-3: {GREEN}%s", buffer);
 }
 
-public void SetCapt1(int client) {
-    if (IsPlayer(client)) {
-        g_capt1 = client;
-        PugSetupMessageToAll("Captain 1 will be {PINK}%N", g_capt1);
-    }
-}
-
-public void SetCapt2(int client) {
-    if (IsPlayer(client)) {
-        g_capt2 = client;
-        PugSetupMessageToAll("Captain 2 will be {LIGHT_GREEN}%N", g_capt2);
-    }
-}
-
-public void SetLeader(int client) {
-    if (IsPlayer(client)) {
-        PugSetupMessageToAll("The new leader is {GREEN}%N", client);
-        g_Leader = GetSteamAccountID(client);
-    }
-}
-
 public void SetRandomCaptains() {
     int c1 = -1;
     int c2 = -1;
@@ -752,8 +732,8 @@ public void SetRandomCaptains() {
         c2 = RandomPlayer();
     }
 
-    SetCapt1(c1);
-    SetCapt2(c2);
+    SetCaptain1(c1);
+    SetCaptain2(c2);
 }
 
 public void ReadyToStart() {

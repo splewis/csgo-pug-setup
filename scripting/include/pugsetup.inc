@@ -39,6 +39,9 @@ native MapType GetMapType();
 // Returns if there is currently a match setup.
 native bool IsMatchLive();
 
+// Sets the pug leader.
+native void SetLeader(int client);
+
 // Returns the pug leader, or -1 if not set.
 native int GetLeader();
 
@@ -63,3 +66,7 @@ native void PugSetupMessageToAll(const char format[], any:...);
 // Returns the maximum number of players in the pug.
 // Only valid if the game has already been setup.
 native int GetPugMaxPlayers();
+
+// Sets a game up.
+// Returns true if it was setup, or false if the game couldn't be setup. (i.e. if already live)
+native bool SetupGame(TeamType teamType, MapType mapType, int playersPerTeam, bool autoLo3);
