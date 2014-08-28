@@ -14,7 +14,7 @@ stock void ExecCfg(Handle ConVarName) {
 /**
  * Adds an integer to a menu as a string choice.
  */
-stock void AddMenuInt(Handle menu, int value, char display[]) {
+stock void AddMenuInt(Handle menu, int value, const char display[]) {
     char buffer[8];
     IntToString(value, buffer, sizeof(buffer));
     AddMenuItem(menu, buffer, display);
@@ -32,7 +32,7 @@ stock void AddMenuInt2(Handle menu, int value) {
 /**
  * Gets an integer to a menu from a string choice.
  */
-stock int GetMenuInt(Handle menu, any:param2) {
+stock int GetMenuInt(Handle menu, param2) {
     char buffer[8];
     GetMenuItem(menu, param2, buffer, sizeof(buffer));
     return StringToInt(buffer);
@@ -41,7 +41,7 @@ stock int GetMenuInt(Handle menu, any:param2) {
 /**
  * Adds a boolean to a menu as a string choice.
  */
-stock void AddMenuBool(Handle menu, bool value, char display[]) {
+stock void AddMenuBool(Handle menu, bool value, const char display[]) {
     int convertedInt = value ? 1 : 0;
     AddMenuInt(menu, convertedInt, display);
 }
@@ -49,7 +49,7 @@ stock void AddMenuBool(Handle menu, bool value, char display[]) {
 /**
  * Gets a boolean to a menu from a string choice.
  */
-stock bool GetMenuBool(Handle menu, any:param2) {
+stock bool GetMenuBool(Handle menu, param2) {
     return GetMenuInt(menu, param2) != 0;
 }
 

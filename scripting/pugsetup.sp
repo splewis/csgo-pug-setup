@@ -173,12 +173,12 @@ public OnPluginStart() {
     g_LiveTimerRunning = false;
 }
 
-public OnClientConnected(client) {
+public OnClientConnected(int client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
 }
 
-public OnClientDisconnect(client) {
+public OnClientDisconnect(int client) {
     g_Teams[client] = CS_TEAM_SPECTATOR;
     g_Ready[client] = false;
     int numPlayers = 0;
@@ -284,7 +284,7 @@ public Action:Timer_CheckReady(Handle timer) {
     return Plugin_Continue;
 }
 
-public StatusHint(readyPlayers, totalPlayers) {
+public StatusHint(int readyPlayers, int totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", readyPlayers, totalPlayers);
     } else {
@@ -342,7 +342,7 @@ if (!HasPermissions(client, %1)) { \
     return Plugin_Handled; \
 }
 
-public Action Command_Setup(client, args) {
+public Action Command_Setup(int client, args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "The game is already live!");
         return Plugin_Handled;
@@ -370,7 +370,7 @@ public Action Command_Setup(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_10man(client, args) {
+public Action Command_10man(int client, args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "The game is already live!");
         return Plugin_Handled;
@@ -404,7 +404,7 @@ public Action Command_10man(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Rand(client, args) {
+public Action Command_Rand(int client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
@@ -419,7 +419,7 @@ public Action Command_Rand(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Capt(client, args) {
+public Action Command_Capt(int client, args) {
     if (!g_Setup || g_MatchLive || g_PickingPlayers)
         return Plugin_Handled;
 
@@ -451,7 +451,7 @@ public Action Command_Capt(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_LO3(client, args) {
+public Action Command_LO3(int client, args) {
     PermissionCheck(Permission_Leader)
 
     for (int i = 0; i < 5; i++)
@@ -460,7 +460,7 @@ public Action Command_LO3(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Start(client, args) {
+public Action Command_Start(int client, args) {
     if (!g_Setup || g_MatchLive || !g_mapSet || g_LiveTimerRunning)
             return Plugin_Handled;
 
@@ -527,7 +527,7 @@ if (StrEqual(text[0], %1)) { \
     %2 (client, 0); \
 }
 
-public Action Command_Say(client, const String:command[], argc) {
+public Action Command_Say(int client, const char command[], int argc) {
     char text[256];
     if (GetCmdArgString(text, sizeof(text)) < 1) {
         return Plugin_Continue;
@@ -570,7 +570,7 @@ public Action Command_Say(client, const String:command[], argc) {
     return Plugin_Continue;
 }
 
-public Action Command_EndGame(client, args) {
+public Action Command_EndGame(int client, args) {
     if (!g_Setup) {
         PugSetupMessage(client, "The match has not begun yet!");
     } else {
@@ -599,14 +599,14 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
     }
 }
 
-public Action Command_ForceEnd(client, args) {
+public Action Command_ForceEnd(int client, args) {
     PermissionCheck(Permission_Leader)
     PugSetupMessageToAll("The match was force-ended by {GREEN}%N", client);
     EndMatch(true);
     return Plugin_Handled;
 }
 
-public Action Command_Pause(client, args) {
+public Action Command_Pause(int client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
@@ -619,7 +619,7 @@ public Action Command_Pause(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Unpause(client, args) {
+public Action Command_Unpause(int client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
@@ -632,7 +632,7 @@ public Action Command_Unpause(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Ready(client, args) {
+public Action Command_Ready(int client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
@@ -645,7 +645,7 @@ public Action Command_Ready(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Unready(client, args) {
+public Action Command_Unready(int client, args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
@@ -658,7 +658,7 @@ public Action Command_Unready(client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Leader(client, args) {
+public Action Command_Leader(int client, args) {
     if (!g_Setup)
         return Plugin_Handled;
 
@@ -736,7 +736,7 @@ public Action Event_PlayerTeam(Handle event, const char name[], bool dontBroadca
     }
 }
 
-public Action:Command_TeamJoin(client, const String:command[], argc) {
+public Action:Command_TeamJoin(int client, const char command[], int argc) {
     if (!IsValidClient(client) || argc < 1)
         return Plugin_Handled;
 
