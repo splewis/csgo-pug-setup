@@ -39,9 +39,7 @@ Handle g_hCvarVersion = INVALID_HANDLE;
 Handle g_hDemoNameFormat = INVALID_HANDLE;
 Handle g_hDemoTimeFormat = INVALID_HANDLE;
 Handle g_hKickMessage = INVALID_HANDLE;
-Handle g_hLiveCfg = INVALID_HANDLE;
 Handle g_hLockTeams = INVALID_HANDLE;
-Handle g_hMapListFile = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
 Handle g_hRequireAdminToSetup = INVALID_HANDLE;
@@ -57,10 +55,15 @@ char g_DemoFileName[256];
 bool g_LiveTimerRunning = false;
 
 // Specific choices made when setting up
+int g_GameTypeIndex = 0;
 int g_PlayersPerTeam = 5;
 bool g_AutoLO3 = false;
 TeamType g_TeamType;
 MapType g_MapType;
+
+Handle g_GameTypes = INVALID_HANDLE;
+Handle g_GameMapFiles = INVALID_HANDLE;
+Handle g_GameConfigFiles = INVALID_HANDLE;
 
 /** Map-voting variables **/
 Handle g_MapNames = INVALID_HANDLE;
@@ -83,6 +86,7 @@ Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
+#include "pugsetup/configreader.sp"
 #include "pugsetup/generic.sp"
 #include "pugsetup/leadermenus.sp"
 #include "pugsetup/liveon3.sp"
@@ -116,12 +120,10 @@ public OnPluginStart() {
     g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "0", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
     g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "0", "Whether the autokicker is enabled or not");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
-    g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}");
+    g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing!");
     g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
-    g_hLockTeams = CreateConVar("sm_pugsetup_lock_teams", "1", "Whether the plugin should lock teams once the game stats. Note if a player leaves someone can still join to replace them, however.");
-    g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config file to run when a game goes live; should be in the csgo/cfg directory.");
-    g_hMapListFile = CreateConVar("sm_pugsetup_maplist_file", "configs/pugsetup/maps.txt", "Maplist to read from. The file path is relative to the sourcemod directory.");
+    g_hLockTeams = CreateConVar("sm_pugsetup_lock_teams", "0", "Whether the plugin should lock teams once the game stats. Note if a player leaves someone can still join to replace them, however.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
@@ -150,6 +152,7 @@ public OnPluginStart() {
     RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_GENERIC, "Unpauses the game");
     RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
     RegAdminCmd("sm_endmatch", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
+    RegAdminCmd("sm_forceend", Command_ForceEnd, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match, without any confirmation menu");
     RegAdminCmd("sm_leader", Command_Leader, ADMFLAG_CHANGEMAP, "Sets the pug leader");
     RegAdminCmd("sm_capt", Command_Capt, ADMFLAG_CHANGEMAP, "Gives the client a menu to pick captains");
 
@@ -186,6 +189,7 @@ public OnClientDisconnect(client) {
 }
 
 public OnMapStart() {
+    Config_MapStart();
     g_MapNames = CreateArray(PLATFORM_MAX_PATH);
     g_MapVetoed = CreateArray();
     g_Recording = false;
@@ -210,6 +214,7 @@ public OnMapStart() {
 }
 
 public OnMapEnd() {
+    Config_MapEnd();
     CloseHandle(g_MapNames);
     CloseHandle(g_MapVetoed);
 }
@@ -355,7 +360,21 @@ public Action Command_10man(client, args) {
         return Plugin_Handled;
     }
 
-    SetupGame(TeamType_Captains, MapType_Vote, 5, false);
+    g_PickingPlayers = false;
+    g_capt1 = -1;
+    g_capt2 = -1;
+    g_Setup = true;
+    g_Leader = GetSteamAccountID(client);
+    for (int i = 1; i <= MaxClients; i++)
+        g_Ready[i] = false;
+
+    g_GameTypeIndex = 0;
+    g_TeamType = TeamType_Captains;
+    g_MapType = MapType_Vote;
+    g_PlayersPerTeam = 5;
+    g_AutoLO3 = false;
+    SetupFinished();
+
     return Plugin_Handled;
 }
 
@@ -450,7 +469,10 @@ public Action Command_Start(client, args) {
     }
 
     ServerCommand("exec gamemode_competitive.cfg");
-    ExecCfg(g_hLiveCfg);
+    char liveCfg[256];
+    GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
+    ServerCommand("exec sourcemod/pugsetup/%s", liveCfg);
+
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {
         PugSetupMessageToAll("{GREEN}Scrambling the teams!");
@@ -559,6 +581,11 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
+}
+
+public Action Command_ForceEnd(client, args) {
+    PugSetupMessageToAll("The match was force-ended by {GREEN}%N", client);
+    EndMatch(true);
 }
 
 public Action Command_Pause(client, args) {
@@ -722,6 +749,9 @@ public void PrintSetupInfo(int client) {
         PugSetupMessage(client, "The game has been setup by {GREEN}%N", GetLeader());
 
     char buffer[128];
+    GetArrayString(g_GameTypes, g_GameTypeIndex, buffer, sizeof(buffer));
+    PugSetupMessage(client, "Game type: {GREEN}%s", buffer);
+
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
     PugSetupMessage(client, "Teams: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
@@ -730,6 +760,8 @@ public void PrintSetupInfo(int client) {
 
     GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
     PugSetupMessage(client, "Auto live-on-3: {GREEN}%s", buffer);
+
+    GetMapList();
 }
 
 public void SetRandomCaptains() {
@@ -765,6 +797,11 @@ public void EndMatch(bool execConfigs) {
         Call_PushCell(false);
         Call_PushString("");
         Call_Finish();
+    }
+
+    for (new i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i))
+            CS_SetClientClanTag(i, "");
     }
 
     ServerCommand("mp_unpause_match");

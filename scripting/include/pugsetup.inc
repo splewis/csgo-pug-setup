@@ -25,6 +25,9 @@ forward OnUnready(int client);
 forward OnGoingLive();
 
 // Called when the match is over.
+// If you plan on using the result of the demo file,
+// I'd suggest adding a slight delay from when this is called
+// to accomodate the time spent flushing the demo to disk.
 forward OnMatchOver(bool hasDemo, char demoFileName[]);
 
 // Returns whether a client is ready.
@@ -72,7 +75,3 @@ native void PugSetupMessageToAll(const char format[], any:...);
 // Returns the maximum number of players in the pug.
 // Only valid if the game has already been setup.
 native int GetPugMaxPlayers();
-
-// Sets a game up.
-// Returns true if it was setup, or false if the game couldn't be setup. (i.e. if already live)
-native bool SetupGame(TeamType teamType, MapType mapType, int playersPerTeam, bool autoLo3);

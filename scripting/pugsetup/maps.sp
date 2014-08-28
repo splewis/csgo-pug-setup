@@ -14,30 +14,30 @@ public Action Timer_DelayedChangeMap(Handle timer) {
 }
 
 public void GetMapList() {
+    char fileName[256];
+    GetArrayString(g_GameMapFiles, g_GameTypeIndex, fileName, sizeof(fileName));
+
     ClearArray(g_MapNames);
     ClearArray(g_MapVetoed);
 
-    // full file path
-    char mapCvar[PLATFORM_MAX_PATH];
-    GetConVarString(g_hMapListFile, mapCvar, sizeof(mapCvar));
-
     char mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), mapCvar);
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", fileName);
 
     if (!FileExists(mapFile)) {
-        CreateDefaultMapFile();
+        LogError("Missing map file: %s", mapFile);
+    } else {
+        Handle file = OpenFile(mapFile, "r");
+        char mapName[PLATFORM_MAX_PATH];
+        while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
+            TrimString(mapName);
+            AddMap(mapName);
+        }
+        CloseHandle(file);
     }
-
-    Handle file = OpenFile(mapFile, "r");
-    char mapName[PLATFORM_MAX_PATH];
-    while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
-        TrimString(mapName);
-        AddMap(mapName);
-    }
-    CloseHandle(file);
 
     if (GetArraySize(g_MapNames) < 1) {
         LogError("The map file was empty: %s", mapFile);
+        AddMap("de_cache");
         AddMap("de_dust2");
         AddMap("de_inferno");
         AddMap("de_mirage");
@@ -46,7 +46,7 @@ public void GetMapList() {
     }
 
     if (GetConVarInt(g_hRandomizeMapOrder) != 0) {
-        RandomizeMaps();
+        RandomizeArray(g_MapNames);
     }
 }
 
@@ -55,33 +55,6 @@ static void AddMap(const char mapName[]) {
         PushArrayString(g_MapNames, mapName);
         PushArrayCell(g_MapVetoed, false);
     } else if (strlen(mapName) >= 1) {  // don't print errors on empty
-        LogMessage("Invalid map name in mapfile: %s", mapName);
-    }
-}
-
-static void CreateDefaultMapFile() {
-    LogError("No map list was found, autogenerating one.");
-
-    char dirName[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, dirName, sizeof(dirName), "configs/pugsetup", dirName);
-    if (!DirExists(dirName))
-        CreateDirectory(dirName, 751);
-
-    char mapFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/maps.txt", mapFile);
-    Handle file = OpenFile(mapFile, "w");
-    WriteFileLine(file, "de_dust2");
-    WriteFileLine(file, "de_inferno");
-    WriteFileLine(file, "de_mirage");
-    WriteFileLine(file, "de_nuke");
-    WriteFileString(file, "de_train", false); // no newline at the end
-    CloseHandle(file);
-}
-
-static void RandomizeMaps() {
-    int n = GetArraySize(g_MapNames);
-    for (int i = 0; i < n; i++) {
-        int choice = GetRandomInt(0, n - 1);
-        SwapArrayItems(g_MapNames, i, choice);
+        LogError("Invalid map name in mapfile: %s", mapName);
     }
 }

@@ -50,13 +50,9 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
             Format(captString, sizeof(captString), "{LIGHT_GREEN}%N{NORMAL}", g_capt2);
         }
 
-        if (teamPick == CS_TEAM_CT) {
-            PugSetupMessageToAll("%s has picked {GREEN}CT {NORMAL}first.", captString);
-        } else if (teamPick == CS_TEAM_T) {
-            PugSetupMessageToAll("%s has picked {GREEN}T {NORMAL}first.", captString);
-        } else {
-            LogError("[SideMenuHandler] Unknown side pick: %d", teamPick);
-        }
+        char teamString[8];
+        GetTeamString(teamString, sizeof(teamString), g_TeamType);
+        PugSetupMessageToAll("%s has picked {GREEN}%s {NORMAL}first.", captString, teamString);
 
         int otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
 
@@ -68,7 +64,7 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         SwitchPlayerTeam(otherCaptain, otherTeam);
 
         ServerCommand("mp_restartgame 1");
-        CreateTimer(1.0, GivePlayerSelectionMenu, otherCaptain);
+        CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(otherCaptain));
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -77,7 +73,8 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
 /**
  * Player selection menus.
  */
-public Action GivePlayerSelectionMenu(Handle timer, int client) {
+public Action GivePlayerSelectionMenu(Handle timer, int serial) {
+    int client = GetClientFromSerial(serial);
     if (IsPickingFinished()) {
         CreateTimer(1.0, FinishPicking);
     } else {
@@ -127,7 +124,7 @@ public void MoreMenuPicks(client) {
         CreateTimer(5.0, FinishPicking);
         return;
     }
-    CreateTimer(1.0, GivePlayerSelectionMenu, client);
+    CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(client));
 }
 
 /**

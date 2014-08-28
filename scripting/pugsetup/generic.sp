@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "1.3.0-dev"
+#define PLUGIN_VERSION "2.0.0-dev"
 char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
 char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
 
@@ -138,5 +138,13 @@ stock any:GetArrayCellRandom(Handle array) {
 stock void Colorize(char msg[], int size) {
     for (int i = 0; i < sizeof(g_ColorNames); i ++) {
         ReplaceString(msg, size, g_ColorNames[i], g_ColorCodes[i]);
+    }
+}
+
+stock void RandomizeArray(Handle array) {
+    int n = GetArraySize(array);
+    for (int i = 0; i < n; i++) {
+        int choice = GetRandomInt(0, n - 1);
+        SwapArrayItems(array, i, choice);
     }
 }

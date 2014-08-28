@@ -2,7 +2,36 @@
  * Main .setup menu
  */
 public SetupMenu(client) {
-    Handle menu = CreateMenu(SetupMenuHandler);
+    if (GetArraySize(g_GameTypes) == 0) {
+        PugSetupMessageToAll("There are no game types specified. Check the error logs.");
+    } else if (GetArraySize(g_GameTypes) == 1) {
+        g_GameTypeIndex = 0;
+        TeamTypeMenu(client);
+    } else {
+        Handle menu = CreateMenu(SetupMenuHandler);
+        SetMenuTitle(menu, "What game type should be used?");
+        SetMenuExitButton(menu, false);
+        char buffer[256];
+        for (new i = 0; i < GetArraySize(g_GameTypes); i++) {
+            GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
+            AddMenuInt(menu, i, buffer);
+        }
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    }
+}
+
+public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
+    if (action == MenuAction_Select) {
+        int client = param1;
+        g_GameTypeIndex = GetMenuInt(menu, param2);
+        TeamTypeMenu(client);
+    } else if (action == MenuAction_End) {
+        CloseHandle(menu);
+    }
+}
+
+public TeamTypeMenu(client) {
+    Handle menu = CreateMenu(TeamTypeMenuHandler);
     SetMenuTitle(menu, "How will teams be setup?");
     SetMenuExitButton(menu, false);
     AddMenuInt(menu, _:TeamType_Captains, "Assigned captains pick their teams");
@@ -11,7 +40,7 @@ public SetupMenu(client) {
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
+public TeamTypeMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
@@ -27,6 +56,7 @@ public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
         CloseHandle(menu);
     }
 }
+
 
 public GivePlayerCountMenu(int client) {
     Handle menu = CreateMenu(PlayerCountHandler);
