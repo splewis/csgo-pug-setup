@@ -19,7 +19,6 @@
 
 /** Permissions for the chat commands **/
 enum Permissions {
-    Permission_All,
     Permission_Captains,
     Permission_Leader
 }
@@ -48,12 +47,6 @@ Handle g_hWarmupCfg = INVALID_HANDLE;
 /** Setup info **/
 int g_Leader = -1;
 
-bool g_Setup = false;
-bool g_mapSet = false;
-bool g_Recording = true;
-char g_DemoFileName[256];
-bool g_LiveTimerRunning = false;
-
 // Specific choices made when setting up
 int g_GameTypeIndex = 0;
 int g_PlayersPerTeam = 5;
@@ -61,6 +54,14 @@ bool g_AutoLO3 = false;
 TeamType g_TeamType;
 MapType g_MapType;
 
+// Other important variables about the state of the game
+bool g_Setup = false;
+bool g_mapSet = false;
+bool g_Recording = true;
+char g_DemoFileName[256];
+bool g_LiveTimerRunning = false;
+
+#define CONFIG_STRING_LENGTH 256
 Handle g_GameTypes = INVALID_HANDLE;
 Handle g_GameMapFiles = INVALID_HANDLE;
 Handle g_GameConfigFiles = INVALID_HANDLE;
@@ -143,18 +144,19 @@ public OnPluginStart() {
     RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
 
-    RegAdminCmd("sm_setup", Command_Setup, ADMFLAG_CHANGEMAP, "Starts pug setup (.ready, .capt commands become avaliable)");
-    RegAdminCmd("sm_10man", Command_10man, ADMFLAG_CHANGEMAP, "Starts 10man setup (alias for .setup with 10 man/gather settings)");
-    RegAdminCmd("sm_lo3", Command_LO3, ADMFLAG_CHANGEMAP, "Restarts the game with a lo3 (generally this command is not neeeded!)");
-    RegAdminCmd("sm_start", Command_Start, ADMFLAG_CHANGEMAP, "Starts the game if auto-lo3 is disabled");
-    RegAdminCmd("sm_rand", Command_Rand, ADMFLAG_CHANGEMAP, "Sets random captains");
-    RegAdminCmd("sm_pause", Command_Pause, ADMFLAG_GENERIC, "Pauses the game");
-    RegAdminCmd("sm_unpause", Command_Unpause, ADMFLAG_GENERIC, "Unpauses the game");
-    RegAdminCmd("sm_endgame", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
-    RegAdminCmd("sm_endmatch", Command_EndGame, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match");
-    RegAdminCmd("sm_forceend", Command_ForceEnd, ADMFLAG_CHANGEMAP, "Pre-emptively ends the match, without any confirmation menu");
-    RegAdminCmd("sm_leader", Command_Leader, ADMFLAG_CHANGEMAP, "Sets the pug leader");
-    RegAdminCmd("sm_capt", Command_Capt, ADMFLAG_CHANGEMAP, "Gives the client a menu to pick captains");
+    RegConsoleCmd("sm_setup", Command_Setup, "Starts pug setup (.ready, .capt commands become avaliable)");
+    RegConsoleCmd("sm_10man", Command_10man, "Starts 10man setup (alias for .setup with 10 man/gather settings)");
+    RegConsoleCmd("sm_lo3", Command_LO3, "Restarts the game with a lo3 (generally this command is not neeeded!)");
+    RegConsoleCmd("sm_start", Command_Start, "Starts the game if auto-lo3 is disabled");
+    RegConsoleCmd("sm_rand", Command_Rand, "Sets random captains");
+    RegConsoleCmd("sm_pause", Command_Pause, "Pauses the game");
+    RegConsoleCmd("sm_unpause", Command_Unpause, "Unpauses the game");
+    RegConsoleCmd("sm_endgame", Command_EndGame, "Pre-emptively ends the match");
+    RegConsoleCmd("sm_endmatch", Command_EndGame, "Pre-emptively ends the match");
+    RegConsoleCmd("sm_forceend", Command_ForceEnd, "Pre-emptively ends the match, without any confirmation menu");
+    RegConsoleCmd("sm_leader", Command_Leader, "Sets the pug leader");
+    RegConsoleCmd("sm_capt", Command_Capt, "Gives the client a menu to pick captains");
+    RegConsoleCmd("sm_captain", Command_Capt, "Gives the client a menu to pick captains");
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -316,6 +318,30 @@ public StatusHint(readyPlayers, totalPlayers) {
  *                     *
  ***********************/
 
+public bool HasPermissions(int client, Permissions p) {
+    if (!IsPlayer(client))
+        return false;
+
+    bool isLeader = GetLeader() == client || client == 0;
+    bool isCapt = isLeader || client == g_capt1 || client == g_capt2 || CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
+
+    if (p == Permission_Leader)
+        return isLeader;
+    else if (p == Permission_Captains)
+        return isCapt;
+    else
+        LogError("Unknown permission: %d", p);
+
+    return false;
+}
+
+// PermissionCheck(Permissions:permissions)
+#define PermissionCheck(%1) \
+if (!HasPermissions(client, %1)) { \
+    PugSetupMessage(client, "You don't have permisson to do that."); \
+    return Plugin_Handled; \
+}
+
 public Action Command_Setup(client, args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "The game is already live!");
@@ -387,6 +413,8 @@ public Action Command_Rand(client, args) {
         return Plugin_Handled;
     }
 
+    PermissionCheck(Permission_Captains)
+
     SetRandomCaptains();
     return Plugin_Handled;
 }
@@ -399,6 +427,8 @@ public Action Command_Capt(client, args) {
         PugSetupMessage(client, "This game isn't using team captains");
         return Plugin_Handled;
     }
+
+    PermissionCheck(Permission_Leader)
 
     char buffer[64];
     if (GetCmdArgs() >= 1 && args != 0) {
@@ -422,14 +452,19 @@ public Action Command_Capt(client, args) {
 }
 
 public Action Command_LO3(client, args) {
+    PermissionCheck(Permission_Leader)
+
     for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("*** The match will begin shortly - live on 3! ***");
     CreateTimer(2.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
+    return Plugin_Handled;
 }
 
 public Action Command_Start(client, args) {
     if (!g_Setup || g_MatchLive || !g_mapSet || g_LiveTimerRunning)
-        return;
+            return Plugin_Handled;
+
+    PermissionCheck(Permission_Leader)
 
     if (GetConVarInt(g_hAutorecord) != 0) {
         // get the map, with any workshop stuff before removed
@@ -469,7 +504,7 @@ public Action Command_Start(client, args) {
     }
 
     ServerCommand("exec gamemode_competitive.cfg");
-    char liveCfg[256];
+    char liveCfg[CONFIG_STRING_LENGTH];
     GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
     ServerCommand("exec sourcemod/pugsetup/%s", liveCfg);
 
@@ -482,16 +517,14 @@ public Action Command_Start(client, args) {
     for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("The match will begin shortly - live on 3!");
     CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
+
+    return Plugin_Handled;
 }
 
 // ChatAlias(String:chatAlias, commandfunction, Permissions:permissions)
-#define ChatAlias(%1,%2,%3) \
+#define ChatAlias(%1,%2) \
 if (StrEqual(text[0], %1)) { \
-    if (HasPermissions(client, %3)) { \
-        %2 (client, 0); \
-    } else { \
-        PugSetupMessage(client, "You don't have permisson to do that."); \
-    } \
+    %2 (client, 0); \
 }
 
 public Action Command_Say(client, const String:command[], argc) {
@@ -502,22 +535,23 @@ public Action Command_Say(client, const String:command[], argc) {
 
     StripQuotes(text);
 
-    ChatAlias(".setup", Command_Setup, Permission_All)
-    ChatAlias(".10man", Command_10man, Permission_All)
-    ChatAlias(".start", Command_Start, Permission_Leader)
-    ChatAlias(".endgame", Command_EndGame, Permission_Leader)
-    ChatAlias(".endmatch", Command_EndGame, Permission_Leader)
-    ChatAlias(".cancel", Command_EndGame, Permission_Leader)
-    ChatAlias(".capt", Command_Capt, Permission_Leader)
-    ChatAlias(".leader", Command_Leader, Permission_Leader)
-    ChatAlias(".rand", Command_Rand, Permission_Leader)
-    ChatAlias(".gaben", Command_Ready, Permission_All)
-    ChatAlias(".ready", Command_Ready, Permission_All)
-    ChatAlias(".gs4lyfe", Command_Ready, Permission_All)
-    ChatAlias(".splewis", Command_Ready, Permission_All)
-    ChatAlias(".unready", Command_Unready, Permission_All)
-    ChatAlias(".pause", Command_Pause, Permission_Captains)
-    ChatAlias(".unpause", Command_Unpause, Permission_Captains)
+    ChatAlias(".setup", Command_Setup)
+    ChatAlias(".10man", Command_10man)
+    ChatAlias(".start", Command_Start)
+    ChatAlias(".endgame", Command_EndGame)
+    ChatAlias(".endmatch", Command_EndGame)
+    ChatAlias(".cancel", Command_EndGame)
+    ChatAlias(".capt", Command_Capt)
+    ChatAlias(".captain", Command_Capt)
+    ChatAlias(".leader", Command_Leader)
+    ChatAlias(".rand", Command_Rand)
+    ChatAlias(".gaben", Command_Ready)
+    ChatAlias(".ready", Command_Ready)
+    ChatAlias(".gs4lyfe", Command_Ready)
+    ChatAlias(".splewis", Command_Ready)
+    ChatAlias(".unready", Command_Unready)
+    ChatAlias(".pause", Command_Pause)
+    ChatAlias(".unpause", Command_Unpause)
 
     // there is no sm_help command since we don't want override the built-in sm_help command
     if (StrEqual(text[0], ".help")) {
@@ -536,30 +570,12 @@ public Action Command_Say(client, const String:command[], argc) {
     return Plugin_Continue;
 }
 
-public bool HasPermissions(int client, Permissions p) {
-    if (!IsPlayer(client))
-        return false;
-
-    bool isLeader = GetLeader() == client;
-    bool isCapt = isLeader || client == g_capt1 || client == g_capt2 || CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
-
-    if (p == Permission_Leader)
-        return isLeader;
-    else if (p == Permission_Captains)
-        return isCapt;
-    else if (p == Permission_All)
-        return true;
-    else
-        LogError("Unknown permission: %d", p);
-
-    return false;
-
-}
-
 public Action Command_EndGame(client, args) {
     if (!g_Setup) {
         PugSetupMessage(client, "The match has not begun yet!");
     } else {
+        PermissionCheck(Permission_Leader)
+
         Handle menu = CreateMenu(MatchEndHandler);
         SetMenuTitle(menu, "Are you sure you want to end the match?");
         SetMenuExitButton(menu, true);
@@ -584,13 +600,17 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
 }
 
 public Action Command_ForceEnd(client, args) {
+    PermissionCheck(Permission_Leader)
     PugSetupMessageToAll("The match was force-ended by {GREEN}%N", client);
     EndMatch(true);
+    return Plugin_Handled;
 }
 
 public Action Command_Pause(client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
+
+    PermissionCheck(Permission_Captains)
 
     if (IsPlayer(client)) {
         ServerCommand("mp_pause_match");
@@ -602,6 +622,8 @@ public Action Command_Pause(client, args) {
 public Action Command_Unpause(client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
+
+    PermissionCheck(Permission_Captains)
 
     if (IsPlayer(client)) {
         ServerCommand("mp_unpause_match");
@@ -640,7 +662,18 @@ public Action Command_Leader(client, args) {
     if (!g_Setup)
         return Plugin_Handled;
 
-    LeaderMenu(client);
+    PermissionCheck(Permission_Leader)
+
+    char buffer[64];
+    if (GetCmdArgs() >= 1 && args != 0) {
+        GetCmdArg(1, buffer, sizeof(buffer));
+        int target = FindTarget(client, buffer, true, false);
+        if (IsPlayer(target))
+            SetLeader(target);
+    } else {
+        LeaderMenu(client);
+    }
+
     return Plugin_Handled;
 }
 
