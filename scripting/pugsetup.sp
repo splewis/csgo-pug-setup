@@ -38,7 +38,6 @@ Handle g_hCvarVersion = INVALID_HANDLE;
 Handle g_hDemoNameFormat = INVALID_HANDLE;
 Handle g_hDemoTimeFormat = INVALID_HANDLE;
 Handle g_hKickMessage = INVALID_HANDLE;
-Handle g_hLockTeams = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
 Handle g_hRequireAdminToSetup = INVALID_HANDLE;
@@ -124,7 +123,6 @@ public OnPluginStart() {
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing!");
     g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
-    g_hLockTeams = CreateConVar("sm_pugsetup_lock_teams", "0", "Whether the plugin should lock teams once the game stats. Note if a player leaves someone can still join to replace them, however.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
@@ -162,7 +160,6 @@ public OnPluginStart() {
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("player_connect_full", Event_PlayerConnectFull);
     HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
-    AddCommandListener(Command_TeamJoin, "jointeam");
 
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
@@ -319,10 +316,13 @@ public StatusHint(int readyPlayers, int totalPlayers) {
  ***********************/
 
 public bool HasPermissions(int client, Permissions p) {
+    if (client == 0)
+        return true;
+
     if (!IsPlayer(client))
         return false;
 
-    bool isLeader = GetLeader() == client || client == 0;
+    bool isLeader = GetLeader() == client;
     bool isCapt = isLeader || client == g_capt1 || client == g_capt2 || CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
 
     if (p == Permission_Leader)
@@ -732,39 +732,6 @@ public Action Event_PlayerTeam(Handle event, const char name[], bool dontBroadca
     if (g_Setup && !g_MatchLive) {
         dontBroadcast = true;
         return Plugin_Changed;
-    } else {
-        return Plugin_Continue;
-    }
-}
-
-public Action:Command_TeamJoin(int client, const char command[], int argc) {
-    if (!IsValidClient(client) || argc < 1)
-        return Plugin_Handled;
-
-    char arg[4];
-    GetCmdArg(1, arg, sizeof(arg));
-    int team_to = StringToInt(arg);
-    int team_from = GetClientTeam(client);
-
-    int numT = 0;
-    int numCT = 0;
-    for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i)) {
-            int team = GetClientTeam(i);
-            if (team == CS_TEAM_CT)
-                numCT++;
-            if (team == CS_TEAM_T)
-                numT++;
-        }
-    }
-
-    // if same team, teamswitch controlled by the plugin
-    // note if a player hits autoselect their team_from=team_to=CS_TEAM_NONE
-    if (!g_MatchLive || (team_from == team_to && team_from != CS_TEAM_NONE) || IsFakeClient(client) || GetConVarInt(g_hLockTeams) == 0) {
-        return Plugin_Continue;
-    } else if ((team_to == CS_TEAM_T && numT >= g_PlayersPerTeam) || (team_from == CS_TEAM_CT && numCT >= g_PlayersPerTeam)) {
-        // disables joining a full team
-        return Plugin_Handled;
     } else {
         return Plugin_Continue;
     }
