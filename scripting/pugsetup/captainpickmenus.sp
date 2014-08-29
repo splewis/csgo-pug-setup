@@ -51,7 +51,11 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         }
 
         char teamString[8];
-        GetTeamString(teamString, sizeof(teamString), g_TeamType);
+        if (teamPick == CS_TEAM_CT)
+            Format(teamString, sizeof(teamString), "CT");
+        else
+            Format(teamString, sizeof(teamString), "T");
+
         PugSetupMessageToAll("%s has picked {GREEN}%s {NORMAL}first.", captString, teamString);
 
         int otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;

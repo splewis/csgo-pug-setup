@@ -338,7 +338,8 @@ public bool HasPermissions(int client, Permissions p) {
 // PermissionCheck(Permissions:permissions)
 #define PermissionCheck(%1) \
 if (!HasPermissions(client, %1)) { \
-    PugSetupMessage(client, "You don't have permisson to do that."); \
+    if (IsValidClient(client)) \
+        PugSetupMessage(client, "You don't have permisson to do that."); \
     return Plugin_Handled; \
 }
 
