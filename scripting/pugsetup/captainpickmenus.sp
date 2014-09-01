@@ -123,7 +123,7 @@ public PlayerMenuHandler(Handle menu, MenuAction action, param1, param2) {
     }
 }
 
-public void MoreMenuPicks(client) {
+static void MoreMenuPicks(client) {
     if (IsPickingFinished() || !IsValidClient(client) || !IsClientInGame(client)) {
         CreateTimer(5.0, FinishPicking);
         return;

@@ -522,7 +522,7 @@ public Action Command_Start(int client, args) {
     return Plugin_Handled;
 }
 
-// ChatAlias(String:chatAlias, commandfunction, Permissions:permissions)
+// ChatAlias(char chatAlias[], commandfunction, Permissions permissions)
 #define ChatAlias(%1,%2) \
 if (StrEqual(text[0], %1)) { \
     %2 (client, 0); \
@@ -557,14 +557,14 @@ public Action Command_Say(int client, const char command[], int argc) {
     // there is no sm_help command since we don't want override the built-in sm_help command
     if (StrEqual(text[0], ".help")) {
         PugSetupMessage(client, "{GREEN}Useful commands:");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.setup {NORMAL}begins the setup phase");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.start {NORMAL}starts the match if needed");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.endgame {NORMAL}ends the match");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.leader {NORMAL}allows you to set the game leader");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.capt {NORMAL}allows you to set team captains");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.rand {NORMAL}selects random captains");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.ready/.unready {NORMAL}mark you as ready");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.pause/.unpause {NORMAL}pause the match");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!setup {NORMAL}begins the setup phase");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!start {NORMAL}starts the match if needed");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!endgame {NORMAL}ends the match");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!leader {NORMAL}allows you to set the game leader");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!capt {NORMAL}allows you to set team captains");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!rand {NORMAL}selects random captains");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!ready/!unready {NORMAL}mark you as ready");
+        PugSetupMessage(client, "  {LIGHT_GREEN}!pause/!unpause {NORMAL}pause the match");
     }
 
     // continue normally
@@ -816,8 +816,6 @@ public void EndMatch(bool execConfigs) {
     g_mapSet = false;
     g_Setup = false;
     g_MatchLive = false;
-
-
 }
 
 public Action MapSetup(Handle timer) {

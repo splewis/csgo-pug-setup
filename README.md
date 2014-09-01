@@ -127,30 +127,20 @@ Of course, you can tweak the values.
 ### Commands
 
 Some commands that are important are:
-- **.setup**, begins the setup phase and sets the pug leader
-- **.start**, begins the game (note that the cvar sm_teamselect_autolo3 controls if this is needed
-- **.ready**
-- **.unready**
-- **.pause**
-- **.unpause**
-- **.capt** gives the pug leader a menu to select captains
-- **.rand** selects random captains
-- **.leader** gives a menu to change the game leader
-- **.endgame**, force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
+- **!setup**, begins the setup phase and sets the pug leader
+- **!start**, begins the game (note that the cvar sm_teamselect_autolo3 controls if this is needed
+- **!ready**
+- **!unready**
+- **!pause**
+- **!unpause**
+- **!capt** gives the pug leader a menu to select captains
+- **!rand** selects random captains
+- **!leader** gives a menu to change the game leader
+- **!endgame**, force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
 
-The chat commands are mostly aliases for sourcemod admin commands, so an admin can override things if needed. The bold commands are only available through these admin commands and have no chat aliases (other than the default sourcemod ones, e.g. !leader or /leader go with sm_leader)
+You can also type .start instead of !start, or .ready instead of !ready.
 
-These use admin flag "g" for map change abilities:
-- sm_setup
-- sm_leader
-- sm_start
-- sm_rand
-- sm_capt
-- sm_endgame (note this resets the leader to none)
-
-These use the generic admin flag "b":
-- sm_pause
-- sm_unpause
+The ! style commands will let you use arguments; for example: !capt player1 player2 works, while using .capt will just open a menu for you to pick players.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
 - sm_10man (this just uses the first game type from ``gametypes.cfg``)
