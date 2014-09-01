@@ -39,8 +39,8 @@ public OnGoingLive() {
     FillPotentialNames(CS_TEAM_T, tNames, tFlags);
 
     int choice = -1;
-    decl String:name[TEAM_NAME_LENGTH];
-    decl String:flag[TEAM_FLAG_LENGTH];
+    char name[TEAM_NAME_LENGTH];
+    char flag[TEAM_FLAG_LENGTH];
 
     if (GetArraySize(ctNames) > 0) {
         choice = GetArrayRandomIndex(ctNames);
@@ -66,8 +66,8 @@ public Action:Command_ListNames(client, args) {
     int count = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && AreClientCookiesCached(i)) {
-            decl String:name[TEAM_NAME_LENGTH];
-            decl String:flag[TEAM_FLAG_LENGTH];
+            char name[TEAM_NAME_LENGTH];
+            char flag[TEAM_FLAG_LENGTH];
             GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
             GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
             if (!StrEqual(name, "")) {
@@ -97,11 +97,11 @@ public Action:Command_Name(client, args) {
     return Plugin_Handled;
 }
 
-public FillPotentialNames(int team, Handle names, Handle flags) {
+public void FillPotentialNames(int team, Handle names, Handle flags) {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && GetClientTeam(i) == team && AreClientCookiesCached(i)) {
-            decl String:name[TEAM_NAME_LENGTH];
-            decl String:flag[TEAM_FLAG_LENGTH];
+            char name[TEAM_NAME_LENGTH];
+            char flag[TEAM_FLAG_LENGTH];
             GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
             GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
 
@@ -114,7 +114,7 @@ public FillPotentialNames(int team, Handle names, Handle flags) {
     }
 }
 
-public SetTeamInfo(int team, String:name[], String:flag[]) {
+public void SetTeamInfo(int team, char name[], char flag[]) {
     int team_int = (team == CS_TEAM_CT) ? 1 : 2;
     ServerCommand("mp_teamname_%d %s", team_int, name);
     ServerCommand("mp_teamflag_%d %s", team_int, flag);

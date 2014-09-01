@@ -698,7 +698,7 @@ public Event_PlayerConnectFull(Handle event, const char name[], bool dontBroadca
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
 
     if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 &&
-        !CheckCommandAccess(client, "sm_setup", ADMFLAG_CHANGEMAP) &&
+        !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP) &&
         IsPlayer(client)) {
 
         // count number of active players
@@ -858,8 +858,8 @@ public Action FinishPicking(Handle timer) {
 
     if (GetConVarInt(g_hAutoKickerEnabled) != 0) {
         for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i) && !CheckCommandAccess(i, "sm_setup", ADMFLAG_CHANGEMAP)) {
-                int team = GetClientTeam(i);
+            if (IsPlayer(i) && !CheckCommandAccess(i, "sm_map", ADMFLAG_CHANGEMAP)) {
+                int team = g_Teams[i];
                 if (team == CS_TEAM_NONE || team == CS_TEAM_SPECTATOR) {
                     char msg[1024];
                     GetConVarString(g_hKickMessage, msg, sizeof(msg));
