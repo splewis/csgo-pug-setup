@@ -75,3 +75,15 @@ native void PugSetupMessageToAll(const char format[], any:...);
 // Returns the maximum number of players in the pug.
 // Only valid if the game has already been setup.
 native int GetPugMaxPlayers();
+
+
+public SharedPlugin:__pl_myfile =
+{
+    name = "pugsetup",
+    file = "pugsetup.smx",
+#if defined REQUIRE_PLUGIN
+    required = 1,
+#else
+    required = 0,
+#endif
+};
