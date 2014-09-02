@@ -504,7 +504,7 @@ public Action Command_Start(int client, args) {
         g_Recording = true;
     }
 
-    ServerCommand("exec gamemode_competitive.cfg");
+    ServerCommand("exec gamemode_competitive");
     char liveCfg[CONFIG_STRING_LENGTH];
     GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
     ServerCommand("exec sourcemod/pugsetup/%s", liveCfg);
@@ -785,7 +785,7 @@ public void ReadyToStart() {
     if (g_AutoLO3) {
         Command_Start(0, 0);
     } else {
-        PugSetupMessageToAll("Everybody is ready! Waiting for {GREEN}%N {NORMAL}to type \x03.start", GetLeader());
+        PugSetupMessageToAll("Everybody is ready! Waiting for {GREEN}%N {NORMAL}to type {PINK}!start", GetLeader());
     }
 }
 

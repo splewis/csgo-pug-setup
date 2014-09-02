@@ -46,9 +46,9 @@ public VetoHandler(Handle menu, MenuAction action, param1, param2) {
 
 
         if (client == g_capt1)
-            PugSetupMessageToAll("\x03%N \x01vetoed \x07%s", client, map);
+            PugSetupMessageToAll("{PINK}%N {NORMAL}vetoed {LIGHT_RED}%s", client, map);
         else
-            PugSetupMessageToAll("\x06%N \x01vetoed \x07%s", client, map);
+            PugSetupMessageToAll("{LIGHT_GREEN}%N {NORMAL}vetoed {LIGHT_RED}%s", client, map);
 
         SetArrayCell(g_MapVetoed, index, true);
         if (GetNumMapsLeft() == 1) {
