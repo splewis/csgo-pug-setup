@@ -114,6 +114,7 @@ public Plugin:myinfo = {
 
 public OnPluginStart() {
     LoadTranslations("common.phrases");
+    LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomzied once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
@@ -258,7 +259,7 @@ public Action:Timer_CheckReady(Handle timer) {
         } else {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
-                    PugSetupMessageToAll("The map veto process will begin in a few seconds.");
+                    PugSetupMessageToAll("%t", "VetoMessage");
                     CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
@@ -267,7 +268,7 @@ public Action:Timer_CheckReady(Handle timer) {
                 }
 
             } else {
-                PugSetupMessageToAll("The map voting will begin in a few seconds.");
+                PugSetupMessageToAll("%t", "VoteMessage");
                 CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                 g_LiveTimerRunning = false;
                 return Plugin_Stop;
@@ -283,7 +284,7 @@ public Action:Timer_CheckReady(Handle timer) {
 
 public StatusHint(int readyPlayers, int totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
-        PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", readyPlayers, totalPlayers);
+        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
             char cap1[64];
@@ -291,17 +292,17 @@ public StatusHint(int readyPlayers, int totalPlayers) {
             if (IsPlayer(g_capt1))
                 Format(cap1, sizeof(cap1), "%N", g_capt1);
             else
-                Format(cap1, sizeof(cap1), "not selected");
+                Format(cap1, sizeof(cap1), "%t", "CaptainNotSelected");
 
             if (IsPlayer(g_capt2))
                 Format(cap2, sizeof(cap2), "%N", g_capt2);
             else
-                Format(cap2, sizeof(cap2), "not selected");
+                Format(cap2, sizeof(cap2), "%t", "CaptainNotSelected");
 
             PrintHintTextToAll("%i out of %i players are ready\nCaptain 1: %s\nCaptain 2: %s", readyPlayers, totalPlayers, cap1, cap2);
 
         } else {
-            PrintHintTextToAll("%i out of %i players are ready\nType .ready to ready up", readyPlayers, totalPlayers);
+            PrintHintTextToAll("%t", "ReadyStats", readyPlayers, totalPlayers);
         }
 
     }
@@ -339,7 +340,7 @@ public bool HasPermissions(int client, Permissions p) {
 #define PermissionCheck(%1) \
 if (!HasPermissions(client, %1)) { \
     if (IsValidClient(client)) \
-        PugSetupMessage(client, "You don't have permisson to do that."); \
+        PugSetupMessage(client, "%t", "NoPermission"); \
     return Plugin_Handled; \
 }
 
@@ -355,7 +356,7 @@ public Action Command_Setup(int client, args) {
     }
 
     if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP)) {
-        PugSetupMessage(client, "You don't have permission to do that.");
+        PugSetupMessage(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
 
@@ -383,7 +384,7 @@ public Action Command_10man(int client, args) {
     }
 
     if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP)) {
-        PugSetupMessage(client, "You don't have permission to do that.");
+        PugSetupMessage(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
 
