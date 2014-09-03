@@ -12,8 +12,9 @@ Part of being lightweight is doing nothing that can interfere with the server's 
 
 The goal is to make setup easier for people, not provide a comprehensive pug platform. Please keep this and the principle of **keep it simple, stupid** in mind when making any suggestions.
 
+
 ### Download
-You should be able to get the most recent ``pugsetup.zip`` file from https://github.com/splewis/csgo-pug-setup/releases.
+You should be able to get the most recent download from https://github.com/splewis/csgo-pug-setup/releases.
 
 
 ### Usage
@@ -28,12 +29,11 @@ Generally, here is what happens:
 
 
 ### Installation
-Download pugsetup.zip and extract the files to the game server. You should have installed at least:
-- ``csgo/addons/sourcemod/plugins/pugsetup.smx``
-- ``csgo/addons/sourcemod/configs/pugsetup/gametypes.cfg``
-- ``csgo/addons/sourcemod/configs/pugsetup/standard.txt``
-- ``csgo/cfg/sourcemod/pugsetup/warmup.cfg``
-- ``csgo/cfg/sourcemod/pugsetup/standard.cfg``
+Download pugsetup.zip and extract the files to the game server. From the download, you should have installed the following (to the ``csgo`` directory):
+- ``addons/sourcemod/plugins/pugsetup.smx``
+- ``addons/sourcemod/configs/pugsetup/`` (the entire directory)
+- ``addons/sourcemod/translations`` (the entire directory)
+- ``cfg/sourcemod/pugsetup`` (the entire directory)
 
 ``csgo/addons/sourcemod/plugins/pugsetup_teamnames.smx`` is an **optional** plugin that lets you set team names associated with players. It's just for fun. See its description at the end of the readme.
 
@@ -42,7 +42,7 @@ Download pugsetup.zip and extract the files to the game server. You should have 
 **Once all of these are on the server, it should just work.** If you want to tweak the configs or maplists read on.
 
 ### Configuration
-One of the files you downloaded was `csgo/addons/sourcemod/configs/pugsetup/gametypes.cfg`:
+One of the files you should have downloaded was `csgo/addons/sourcemod/configs/pugsetup/gametypes.cfg`:
 ```
 "GameTypes"
 {
@@ -122,6 +122,10 @@ You need to enable gotv to use the demo-recording feature. Adding the following 
     tv_transmitall 1
 
 Of course, you can tweak the values.
+
+**Note**: before the plugin executes the game-type config (by default ``cfg/sourcemod/pugsetup/standard.cfg``), it execute the game's
+default competitive config (``cfg/gamemode_competitive.cfg``). This is meant to provide a consistent base for cvars, but you should be aware of it.
+For example: tv_delay will get set to 105, so if you want it lower you must also set it in your gammeode config.
 
 
 ### Commands
