@@ -76,7 +76,7 @@ native void PugSetupMessageToAll(const char format[], any:...);
 // Only valid if the game has already been setup.
 native int GetPugMaxPlayers();
 
-public SharedPlugin:__pl_myfile = {
+public SharedPlugin:__pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
 #if defined REQUIRE_PLUGIN
