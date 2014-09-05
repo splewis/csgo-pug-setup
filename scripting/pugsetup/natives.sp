@@ -1,4 +1,3 @@
-
 // See include/pugsetup.inc for documentation.
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
@@ -20,28 +19,28 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     return APLRes_Success;
 }
 
-public Native_IsReady(Handle plugin, numParams) {
+public Native_IsReady(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     return g_Ready[client];
 }
 
-public Native_IsSetup(Handle plugin, numParams) {
+public Native_IsSetup(Handle plugin, int numParams) {
     return g_Setup;
 }
 
-public Native_GetMapType(Handle plugin, numParams) {
+public Native_GetMapType(Handle plugin, int numParams) {
     return _:g_MapType;
 }
 
-public Native_GetTeamType(Handle plugin, numParams) {
+public Native_GetTeamType(Handle plugin, int numParams) {
     return _:g_TeamType;
 }
 
-public Native_IsMatchLive(Handle plugin, numParams) {
+public Native_IsMatchLive(Handle plugin, int numParams) {
     return g_MatchLive;
 }
 
-public Native_SetLeader(Handle plugin, numParams) {
+public Native_SetLeader(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
         PugSetupMessageToAll("The new leader is {GREEN}%N", client);
@@ -49,7 +48,7 @@ public Native_SetLeader(Handle plugin, numParams) {
     }
 }
 
-public Native_GetLeader(Handle plugin, numParams) {
+public Native_GetLeader(Handle plugin, int numParams) {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == g_Leader)
             return i;
@@ -61,7 +60,7 @@ public Native_GetLeader(Handle plugin, numParams) {
     return r;
 }
 
-public Native_SetCaptain1(Handle plugin, numParams) {
+public Native_SetCaptain1(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
         g_capt1 = client;
@@ -70,14 +69,14 @@ public Native_SetCaptain1(Handle plugin, numParams) {
 
 }
 
-public Native_GetCaptain1(Handle plugin, numParams) {
+public Native_GetCaptain1(Handle plugin, int numParams) {
     if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1))
         return g_capt1;
     else
         return -1;
 }
 
-public Native_SetCaptain2(Handle plugin, numParams) {
+public Native_SetCaptain2(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
         g_capt2 = client;
@@ -85,14 +84,14 @@ public Native_SetCaptain2(Handle plugin, numParams) {
     }
 }
 
-public Native_GetCaptain2(Handle plugin, numParams) {
+public Native_GetCaptain2(Handle plugin, int numParams) {
     if (IsValidClient(g_capt2) && !IsFakeClient(g_capt2))
         return g_capt2;
     else
         return -1;
 }
 
-public Native_PugSetupMessage(Handle plugin, numParams) {
+public Native_PugSetupMessage(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     char buffer[1024];
     int bytesWritten = 0;
@@ -105,7 +104,7 @@ public Native_PugSetupMessage(Handle plugin, numParams) {
     PrintToChat(client, finalMsg);
 }
 
-public Native_PugSetupMessageToAll(Handle plugin, numParams) {
+public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     char buffer[1024];
     int bytesWritten = 0;
     FormatNativeString(0, 1, 2, sizeof(buffer), bytesWritten, buffer);
@@ -117,6 +116,6 @@ public Native_PugSetupMessageToAll(Handle plugin, numParams) {
     PrintToChatAll(finalMsg);
 }
 
-public Native_GetPugMaxPlayers(Handle plugin, numParams) {
+public Native_GetPugMaxPlayers(Handle plugin, int numParams) {
     return 2 * g_PlayersPerTeam;
 }

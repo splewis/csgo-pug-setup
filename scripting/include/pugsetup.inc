@@ -1,3 +1,8 @@
+#if defined _pugsetup_included
+  #endinput
+#endif
+#define _pugsetup_included
+
 // Different ways teams can be selected.
 enum TeamType {
     TeamType_Manual,
