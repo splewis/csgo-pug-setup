@@ -219,7 +219,7 @@ public OnMapEnd() {
     CloseHandle(g_MapVetoed);
 }
 
-public Action:Timer_CheckReady(Handle timer) {
+public Action Timer_CheckReady(Handle timer) {
     if (!g_Setup || g_MatchLive || !g_LiveTimerRunning) {
         g_LiveTimerRunning = false;
         return Plugin_Stop;
@@ -282,7 +282,7 @@ public Action:Timer_CheckReady(Handle timer) {
     return Plugin_Continue;
 }
 
-public StatusHint(int readyPlayers, int totalPlayers) {
+public void StatusHint(int readyPlayers, int totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers);
     } else {
@@ -299,10 +299,9 @@ public StatusHint(int readyPlayers, int totalPlayers) {
             else
                 Format(cap2, sizeof(cap2), "%t", "CaptainNotSelected");
 
-            PrintHintTextToAll("%i out of %i players are ready\nCaptain 1: %s\nCaptain 2: %s", readyPlayers, totalPlayers, cap1, cap2);
-
+            PrintHintTextToAll("%t", "ReadyStatusCaptains", readyPlayers, totalPlayers, cap1, cap2);
         } else {
-            PrintHintTextToAll("%t", "ReadyStats", readyPlayers, totalPlayers);
+            PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers);
         }
 
     }
@@ -697,10 +696,11 @@ public Action Event_MatchOver(Handle event, const char name[], bool dontBroadcas
 
 public Event_PlayerConnectFull(Handle event, const char name[], bool dontBroadcast) {
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    LogMessage("[Event_PlayerConnectFull] client=%d, %L", client, client);
 
-    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 &&
-        !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP) &&
-        IsPlayer(client)) {
+    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && IsPlayer(client)) {
+
+        LogMessage("[Event_PlayerConnectFull] checking for %L", client);
 
         // count number of active players
         int count = 0;
@@ -713,7 +713,11 @@ public Event_PlayerConnectFull(Handle event, const char name[], bool dontBroadca
             }
         }
 
+        LogMessage("[Event_PlayerConnectFull] count=%d ", count);
+        LogMessage("[Event_PlayerConnectFull] GetPugMaxPlayers()=%d ", GetPugMaxPlayers());
+
         if (count >= GetPugMaxPlayers()) {
+            LogMessage("[Event_PlayerConnectFull] Kicking %L ", client);
             char msg[1024];
             GetConVarString(g_hKickMessage, msg, sizeof(msg));
             KickClient(client, msg);
@@ -857,7 +861,7 @@ public Action FinishPicking(Handle timer) {
 
     if (GetConVarInt(g_hAutoKickerEnabled) != 0) {
         for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i) && !CheckCommandAccess(i, "sm_map", ADMFLAG_CHANGEMAP)) {
+            if (IsPlayer(i)) {
                 int team = g_Teams[i];
                 if (team == CS_TEAM_NONE || team == CS_TEAM_SPECTATOR) {
                     char msg[1024];
