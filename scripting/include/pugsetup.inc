@@ -90,3 +90,22 @@ public SharedPlugin:__pl_pugsetup = {
     required = 0,
 #endif
 };
+
+#if !defined REQUIRE_PLUGIN
+public __pl_pugsetup_SetNTVOptional() {
+    MarkNativeAsOptional("IsReady");
+    MarkNativeAsOptional("IsSetup");
+    MarkNativeAsOptional("GetTeamType");
+    MarkNativeAsOptional("GetMapType");
+    MarkNativeAsOptional("IsMatchLive");
+    MarkNativeAsOptional("SetLeader");
+    MarkNativeAsOptional("GetLeader");
+    MarkNativeAsOptional("SetCaptain1");
+    MarkNativeAsOptional("GetCaptain1");
+    MarkNativeAsOptional("SetCaptain2");
+    MarkNativeAsOptional("GetCaptain2");
+    MarkNativeAsOptional("PugSetupMessage");
+    MarkNativeAsOptional("PugSetupMessageToAll");
+    MarkNativeAsOptional("GetPugMaxPlayers");
+}
+#endif
