@@ -81,7 +81,6 @@ static VetoStatusDisplay(int client) {
         }
     }
     DisplayMenu(menu, client, 30);
-
 }
 
 public VetoStatusHandler(Handle menu, MenuAction action, param1, param2) {

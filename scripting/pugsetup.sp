@@ -6,7 +6,6 @@
 #include <sdkhooks>
 #include <sdktools>
 #include <sourcemod>
-
 #include "include/pugsetup.inc"
 
 
@@ -136,13 +135,8 @@ public OnPluginStart() {
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
     /** Commands **/
-    AddCommandListener(Command_Say, "say");
-    AddCommandListener(Command_Say, "say2");
-    AddCommandListener(Command_Say, "say_team");
-
     RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
-
     RegConsoleCmd("sm_setup", Command_Setup, "Starts pug setup (.ready, .capt commands become avaliable)");
     RegConsoleCmd("sm_10man", Command_10man, "Starts 10man setup (alias for .setup with 10 man/gather settings)");
     RegConsoleCmd("sm_lo3", Command_LO3, "Restarts the game with a lo3 (generally this command is not neeeded!)");
@@ -159,7 +153,6 @@ public OnPluginStart() {
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
-    HookEvent("player_connect_full", Event_PlayerConnectFull);
     HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
@@ -174,6 +167,7 @@ public OnPluginStart() {
 public OnClientConnected(int client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
+    CheckFull(client);
 }
 
 public OnClientDisconnect(int client) {
@@ -184,8 +178,9 @@ public OnClientDisconnect(int client) {
         if (IsPlayer(i))
             numPlayers++;
 
-    if (numPlayers == 0 && (g_MapType != MapType_Vote || g_MapType != MapType_Veto || !g_mapSet || g_MatchLive))
+    if (numPlayers == 0 && (g_MapType != MapType_Vote || g_MapType != MapType_Veto || !g_mapSet || g_MatchLive)) {
         EndMatch(true);
+    }
 }
 
 public OnMapStart() {
@@ -524,18 +519,12 @@ public Action Command_Start(int client, args) {
 
 // ChatAlias(char chatAlias[], commandfunction, Permissions permissions)
 #define ChatAlias(%1,%2) \
-if (StrEqual(text[0], %1)) { \
+if (StrEqual(sArgs[0], %1)) { \
     %2 (client, 0); \
 }
 
-public Action Command_Say(int client, const char command[], int argc) {
-    char text[256];
-    if (GetCmdArgString(text, sizeof(text)) < 1) {
-        return Plugin_Continue;
-    }
 
-    StripQuotes(text);
-
+public Action OnClientSayCommand(client, const char command[], const char sArgs[]) {
     ChatAlias(".setup", Command_Setup)
     ChatAlias(".10man", Command_10man)
     ChatAlias(".start", Command_Start)
@@ -555,7 +544,7 @@ public Action Command_Say(int client, const char command[], int argc) {
     ChatAlias(".unpause", Command_Unpause)
 
     // there is no sm_help command since we don't want override the built-in sm_help command
-    if (StrEqual(text[0], ".help")) {
+    if (StrEqual(sArgs[0], ".help")) {
         PugSetupMessage(client, "{GREEN}Useful commands:");
         PugSetupMessage(client, "  {LIGHT_GREEN}!setup {NORMAL}begins the setup phase");
         PugSetupMessage(client, "  {LIGHT_GREEN}!start {NORMAL}starts the match if needed");
@@ -694,13 +683,12 @@ public Action Event_MatchOver(Handle event, const char name[], bool dontBroadcas
     return Plugin_Continue;
 }
 
-public Event_PlayerConnectFull(Handle event, const char name[], bool dontBroadcast) {
-    int client = GetClientOfUserId(GetEventInt(event, "userid"));
-    LogMessage("[Event_PlayerConnectFull] client=%d, %L", client, client);
+public CheckFull(int client) {
+    LogMessage("[CheckFull] client=%d, %L", client, client);
 
     if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && IsPlayer(client)) {
 
-        LogMessage("[Event_PlayerConnectFull] checking for %L", client);
+        LogMessage("[CheckFull] checking for %L", client);
 
         // count number of active players
         int count = 0;
@@ -713,11 +701,11 @@ public Event_PlayerConnectFull(Handle event, const char name[], bool dontBroadca
             }
         }
 
-        LogMessage("[Event_PlayerConnectFull] count=%d ", count);
-        LogMessage("[Event_PlayerConnectFull] GetPugMaxPlayers()=%d ", GetPugMaxPlayers());
+        LogMessage("[CheckFull] count=%d ", count);
+        LogMessage("[CheckFull] GetPugMaxPlayers()=%d ", GetPugMaxPlayers());
 
         if (count >= GetPugMaxPlayers()) {
-            LogMessage("[Event_PlayerConnectFull] Kicking %L ", client);
+            LogMessage("[CheckFull] Kicking %L ", client);
             char msg[1024];
             GetConVarString(g_hKickMessage, msg, sizeof(msg));
             KickClient(client, msg);
