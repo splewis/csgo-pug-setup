@@ -684,11 +684,7 @@ public Action Event_MatchOver(Handle event, const char name[], bool dontBroadcas
 }
 
 public CheckFull(int client) {
-    LogMessage("[CheckFull] client=%d, %L", client, client);
-
     if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && IsPlayer(client)) {
-
-        LogMessage("[CheckFull] checking for %L", client);
 
         // count number of active players
         int count = 0;
@@ -701,11 +697,7 @@ public CheckFull(int client) {
             }
         }
 
-        LogMessage("[CheckFull] count=%d ", count);
-        LogMessage("[CheckFull] GetPugMaxPlayers()=%d ", GetPugMaxPlayers());
-
         if (count >= GetPugMaxPlayers()) {
-            LogMessage("[CheckFull] Kicking %L ", client);
             char msg[1024];
             GetConVarString(g_hKickMessage, msg, sizeof(msg));
             KickClient(client, msg);
