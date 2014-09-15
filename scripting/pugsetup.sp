@@ -428,7 +428,7 @@ public Action Command_Capt(int client, args) {
     PermissionCheck(Permission_Leader)
 
     char buffer[64];
-    if (GetCmdArgs() >= 1 && args != 0) {
+    if (args != 0 && GetCmdArgs() >= 1) {
 
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
@@ -659,7 +659,7 @@ public Action Command_Leader(int client, args) {
     PermissionCheck(Permission_Leader)
 
     char buffer[64];
-    if (GetCmdArgs() >= 1 && args != 0) {
+    if (args != 0 && GetCmdArgs() >= 1) {
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
