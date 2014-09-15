@@ -36,6 +36,7 @@ Handle g_hAutorecord = INVALID_HANDLE;
 Handle g_hCvarVersion = INVALID_HANDLE;
 Handle g_hDemoNameFormat = INVALID_HANDLE;
 Handle g_hDemoTimeFormat = INVALID_HANDLE;
+Handle g_hExecDefaultConfig = INVALID_HANDLE;
 Handle g_hKickMessage = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
@@ -127,6 +128,7 @@ public OnPluginStart() {
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
+    g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -165,7 +167,7 @@ public OnPluginStart() {
 }
 
 
-bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
+public bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
 
@@ -175,7 +177,7 @@ bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
                 int team = GetClientTeam(i);
-                if (team != CS_TEAM_NONE) {
+                if (team != CS_TEAM_NONE && team != CS_TEAM_SPECTATOR) {
                     count++;
                 }
             }
@@ -523,7 +525,9 @@ public Action Command_Start(int client, args) {
         g_Recording = true;
     }
 
-    ServerCommand("exec gamemode_competitive");
+    if (GetConVarInt(g_hExecDefaultConfig) != 0)
+        ServerCommand("exec gamemode_competitive");
+
     char liveCfg[CONFIG_STRING_LENGTH];
     GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
     ServerCommand("exec sourcemod/pugsetup/%s", liveCfg);
