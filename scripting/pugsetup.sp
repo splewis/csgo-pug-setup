@@ -428,7 +428,7 @@ public Action Command_Rand(int client, args) {
         return Plugin_Handled;
 
     if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
-        PugSetupMessage(client, "This game isn't using team captains");
+        PugSetupMessage(client, "%t", "NotUsingCaptains");
         return Plugin_Handled;
     }
 
@@ -443,7 +443,7 @@ public Action Command_Capt(int client, args) {
         return Plugin_Handled;
 
     if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
-        PugSetupMessage(client, "This game isn't using team captains");
+        PugSetupMessage(client, "%t", "NotUsingCaptains");
         return Plugin_Handled;
     }
 
@@ -477,7 +477,7 @@ public Action Command_LO3(int client, args) {
     PermissionCheck(Permission_Leader)
 
     for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("*** The match will begin shortly - live on 3! ***");
+        PugSetupMessageToAll("%t", "LO3Message");
     CreateTimer(2.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
     return Plugin_Handled;
 }
@@ -534,12 +534,12 @@ public Action Command_Start(int client, args) {
 
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {
-        PugSetupMessageToAll("{GREEN}Scrambling the teams!");
+        PugSetupMessageToAll("%t", "Scrambling");
         ServerCommand("mp_scrambleteams");
     }
 
     for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("The match will begin shortly - live on 3!");
+        PugSetupMessageToAll("%t", "LO3Message");
     CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 
     return Plugin_Handled;
@@ -609,7 +609,7 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
         int client = param1;
         bool choice = GetMenuBool(menu, param2);
         if (choice) {
-            PugSetupMessageToAll("The match was force-ended by {GREEN}%N", client);
+            PugSetupMessageToAll("%t", "ForceEnd", client);
             EndMatch(true);
         }
     } else if (action == MenuAction_End) {
@@ -619,7 +619,7 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
 
 public Action Command_ForceEnd(int client, args) {
     PermissionCheck(Permission_Leader)
-    PugSetupMessageToAll("The match was force-ended by {GREEN}%N", client);
+    PugSetupMessageToAll("%t", "ForceEnd", client);
     EndMatch(true);
     return Plugin_Handled;
 }
@@ -632,7 +632,7 @@ public Action Command_Pause(int client, args) {
 
     if (IsPlayer(client)) {
         ServerCommand("mp_pause_match");
-        PugSetupMessageToAll("{GREEN}%N {NORMAL}has called for a pause", client);
+        PugSetupMessageToAll("%t", "Pause",client);
     }
     return Plugin_Handled;
 }
