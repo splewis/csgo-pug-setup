@@ -448,6 +448,9 @@ public Action Command_Capt(int client, args) {
 }
 
 public Action Command_LO3(int client, args) {
+    if (!g_Setup || g_MatchLive || !g_mapSet || g_LiveTimerRunning)
+            return Plugin_Handled;
+
     PermissionCheck(Permission_Leader)
 
     for (int i = 0; i < 5; i++)
