@@ -317,8 +317,9 @@ public bool HasPermissions(int client, Permissions p) {
     if (!IsPlayer(client))
         return false;
 
-    bool isLeader = GetLeader() == client;
-    bool isCapt = isLeader || client == g_capt1 || client == g_capt2 || CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
+    bool isAdmin = CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
+    bool isLeader = GetLeader() == client || isAdmin;
+    bool isCapt = isLeader || client == g_capt1 || client == g_capt2 || isAdmin;
 
     if (p == Permission_Leader)
         return isLeader;
