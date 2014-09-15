@@ -3,7 +3,7 @@
  */
 public SetupMenu(client) {
     if (GetArraySize(g_GameTypes) == 0) {
-        PugSetupMessageToAll("There are no game types specified. Check the error logs.");
+        LogError("There are no game types specified.");
     } else if (GetArraySize(g_GameTypes) == 1) {
         g_GameTypeIndex = 0;
         TeamTypeMenu(client);

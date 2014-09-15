@@ -363,7 +363,7 @@ if (!HasPermissions(client, %1)) { \
 
 public Action Command_Setup(int client, args) {
     if (g_MatchLive) {
-        PugSetupMessage(client, "The game is already live!");
+        PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
     }
 
@@ -391,7 +391,7 @@ public Action Command_Setup(int client, args) {
 
 public Action Command_10man(int client, args) {
     if (g_MatchLive) {
-        PugSetupMessage(client, "The game is already live!");
+        PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
     }
 
@@ -738,20 +738,20 @@ public Action Event_PlayerTeam(Handle event, const char name[], bool dontBroadca
 
 public void PrintSetupInfo(int client) {
     if (IsPlayer(GetLeader()))
-        PugSetupMessage(client, "The game has been setup by {GREEN}%N", GetLeader());
+        PugSetupMessage(client, "%t", "SetupBy", GetLeader());
 
     char buffer[128];
     GetArrayString(g_GameTypes, g_GameTypeIndex, buffer, sizeof(buffer));
-    PugSetupMessage(client, "Game type: {GREEN}%s", buffer);
+    PugSetupMessage(client, "%t", "GameType", buffer);
 
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
-    PugSetupMessage(client, "Teams: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
+    PugSetupMessage(client, "%t", "TeamType", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
     GetMapString(buffer, sizeof(buffer), g_MapType);
-    PugSetupMessage(client, "Map: {GREEN}%s", buffer);
+    PugSetupMessage(client, "%t", "MapType", buffer);
 
     GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
-    PugSetupMessage(client, "Auto live-on-3: {GREEN}%s", buffer);
+    PugSetupMessage(client, "%t", "LO3Setting", buffer);
 
     GetMapList();
 }
@@ -776,13 +776,12 @@ public void ReadyToStart() {
     if (g_AutoLO3) {
         Command_Start(0, 0);
     } else {
-        PugSetupMessageToAll("Everybody is ready! Waiting for {GREEN}%N {NORMAL}to type {PINK}!start", GetLeader());
+        PugSetupMessageToAll("%t", "ReadyToStart", GetLeader());
     }
 }
 
 public void EndMatch(bool execConfigs) {
     if (g_Recording) {
-        CreateTimer(3.0, StopDemoMsg, _, TIMER_FLAG_NO_MAPCHANGE);
         CreateTimer(4.0, StopDemo, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
         Call_StartForward(g_hOnMatchOver);
@@ -860,11 +859,6 @@ public Action FinishPicking(Handle timer) {
 
     ServerCommand("mp_unpause_match");
     ReadyToStart();
-    return Plugin_Handled;
-}
-
-public Action StopDemoMsg(Handle timer) {
-    PugSetupMessageToAll("Stopping the GOTV demo...");
     return Plugin_Handled;
 }
 
