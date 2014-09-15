@@ -164,10 +164,30 @@ public OnPluginStart() {
     g_LiveTimerRunning = false;
 }
 
-public OnClientConnected(int client) {
+
+bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
-    CheckFull(client);
+
+    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && IsPlayer(client)) {
+        // count number of active players
+        int count = 0;
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i)) {
+                int team = GetClientTeam(i);
+                if (team != CS_TEAM_NONE) {
+                    count++;
+                }
+            }
+        }
+
+        if (count >= GetPugMaxPlayers()) {
+            GetConVarString(g_hKickMessage, rejectmsg, sizeof(maxlen));
+            return false;
+        }
+    }
+
+    return true;
 }
 
 public OnClientDisconnect(int client) {
@@ -685,28 +705,6 @@ public Action Event_MatchOver(Handle event, const char name[], bool dontBroadcas
         ExecCfg(g_hWarmupCfg);
     }
     return Plugin_Continue;
-}
-
-public CheckFull(int client) {
-    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && IsPlayer(client)) {
-
-        // count number of active players
-        int count = 0;
-        for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i)) {
-                int team = GetClientTeam(i);
-                if (team != CS_TEAM_NONE) {
-                    count++;
-                }
-            }
-        }
-
-        if (count >= GetPugMaxPlayers()) {
-            char msg[1024];
-            GetConVarString(g_hKickMessage, msg, sizeof(msg));
-            KickClient(client, msg);
-        }
-    }
 }
 
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
