@@ -381,7 +381,9 @@ public Action Command_Setup(int client, args) {
     g_capt1 = -1;
     g_capt2 = -1;
     g_Setup = true;
-    g_Leader = GetSteamAccountID(client);
+    if (IsPlayer(client))
+        g_Leader = GetSteamAccountID(client);
+
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
@@ -409,7 +411,9 @@ public Action Command_10man(int client, args) {
     g_capt1 = -1;
     g_capt2 = -1;
     g_Setup = true;
-    g_Leader = GetSteamAccountID(client);
+    if (IsPlayer(client))
+        g_Leader = GetSteamAccountID(client);
+
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
@@ -632,7 +636,7 @@ public Action Command_Pause(int client, args) {
 
     if (IsPlayer(client)) {
         ServerCommand("mp_pause_match");
-        PugSetupMessageToAll("%t", "Pause",client);
+        PugSetupMessageToAll("%t", "Pause", client);
     }
     return Plugin_Handled;
 }
@@ -645,7 +649,7 @@ public Action Command_Unpause(int client, args) {
 
     if (IsPlayer(client)) {
         ServerCommand("mp_unpause_match");
-        PugSetupMessageToAll("{GREEN}%N {NORMAL}has unpaused", client);
+        PugSetupMessageToAll("%t", "Unpause", client);
     }
     return Plugin_Handled;
 }
