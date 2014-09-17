@@ -756,8 +756,6 @@ public void PrintSetupInfo(int client) {
 
     GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
     PugSetupMessage(client, "%t", "LO3Setting", buffer);
-
-    GetMapList();
 }
 
 public void SetRandomCaptains() {

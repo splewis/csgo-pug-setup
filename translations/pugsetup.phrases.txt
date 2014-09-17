@@ -72,16 +72,6 @@
 		"#format"		"{1:N}"
 		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
 	}
-	"ReadyToStart"
-	{
-		"#format"		"{1:N}"
-		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
-	}
-	"ReadyToStart"
-	{
-		"#format"		"{1:N}"
-		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
-	}
 	"GameType"
 	{
 		"#format"		"{1:s}"
@@ -90,7 +80,7 @@
 	"TeamType"
 	{
 		"#format"		"{1:d},{2:d},{3:s}"
-		"en"		"Teams: ({GREEN}{1} vs %d{2}) {GREEN}{3}"
+		"en"		"Teams: ({GREEN}{1} vs {2}) {GREEN}{3}"
 	}
 	"MapType"
 	{
