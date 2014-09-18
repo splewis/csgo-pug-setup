@@ -43,7 +43,7 @@ public Native_IsMatchLive(Handle plugin, int numParams) {
 public Native_SetLeader(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
-        PugSetupMessageToAll("The new leader is {GREEN}%N", client);
+        PugSetupMessageToAll("%t", "NewLeader", client);
         g_Leader = GetSteamAccountID(client);
     }
 }
