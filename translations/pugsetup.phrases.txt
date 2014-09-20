@@ -97,4 +97,18 @@
 		"#format"		"{1:N}"
 		"en"		"The new leader is {GREEN}{1}"
 	}
+	"Capt1Message"
+	{
+		"#format"		"{1:N}"
+		"en"		"Captain 1 will be {PINK}{1}"
+	}
+	"Capt2Message"
+	{
+		"#format"		"{1:N}"
+		"en"		"Captain 2 will be {LIGHT_GREEN}{1}"
+	}
+	"GameTypeTitle"
+	{
+		"en"		"What game type should be used?"
+	}
 }

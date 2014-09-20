@@ -9,7 +9,7 @@ public SetupMenu(client) {
         TeamTypeMenu(client);
     } else {
         Handle menu = CreateMenu(SetupMenuHandler);
-        SetMenuTitle(menu, "What game type should be used?");
+        SetMenuTitle(menu, "%t", "GameTypeTitle");
         SetMenuExitButton(menu, false);
         char buffer[256];
         for (new i = 0; i < GetArraySize(g_GameTypes); i++) {

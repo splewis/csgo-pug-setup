@@ -64,7 +64,7 @@ public Native_SetCaptain1(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
         g_capt1 = client;
-        PugSetupMessageToAll("Captain 1 will be {PINK}%N", g_capt1);
+        PugSetupMessageToAll("%t", "Capt1Message", g_capt1);
     }
 
 }
@@ -80,7 +80,7 @@ public Native_SetCaptain2(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
         g_capt2 = client;
-        PugSetupMessageToAll("Captain 2 will be {LIGHT_GREEN}%N", g_capt2);
+        PugSetupMessageToAll("%t", "Capt2Message", g_capt2);
     }
 }
 
