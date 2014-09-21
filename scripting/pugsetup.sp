@@ -171,7 +171,7 @@ public bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
 
-    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && IsPlayer(client)) {
+    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0) {
         // count number of active players
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
