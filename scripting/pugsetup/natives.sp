@@ -93,6 +93,10 @@ public Native_GetCaptain2(Handle plugin, int numParams) {
 
 public Native_PugSetupMessage(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+
+    if (!IsPlayer(client))
+        return;
+
     char buffer[1024];
     int bytesWritten = 0;
     FormatNativeString(0, 2, 3, sizeof(buffer), bytesWritten, buffer);

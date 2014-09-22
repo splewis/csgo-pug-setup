@@ -79,10 +79,10 @@ bool g_PickingPlayers = false;
 bool g_MatchLive = false;
 
 /** Forwards **/
-Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
+Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
@@ -157,10 +157,10 @@ public OnPluginStart() {
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
-    g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
+    g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
 
     g_LiveTimerRunning = false;
@@ -534,7 +534,7 @@ public Action Command_Start(int client, args) {
 
     char liveCfg[CONFIG_STRING_LENGTH];
     GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
-    ServerCommand("exec sourcemod/pugsetup/%s", liveCfg);
+    ServerCommand("exec %s", liveCfg);
 
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {

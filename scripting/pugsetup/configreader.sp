@@ -31,7 +31,7 @@ public Config_MapStart() {
         KvGetSectionName(kv, buffer, sizeof(buffer));
         PushArrayString(g_GameTypes, buffer);
 
-        KvGetString(kv, "config", buffer, sizeof(buffer));
+        KvGetString(kv, "config", buffer, sizeof(buffer), "gamemode_competitive.cfg");
         PushArrayString(g_GameConfigFiles, buffer);
 
         KvGetString(kv, "maplist", buffer, sizeof(buffer), "standard.txt");
@@ -45,7 +45,7 @@ public Config_MapStart() {
 static LoadBackupConfig() {
     PushArrayString(g_GameTypes, "Normal");
     PushArrayString(g_GameMapFiles, "standard.txt");
-    PushArrayString(g_GameConfigFiles, "standard.cfg");
+    PushArrayString(g_GameConfigFiles, "gamemode_competitive.cfg");
 }
 
 public Config_MapEnd() {

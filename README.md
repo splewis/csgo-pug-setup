@@ -3,7 +3,7 @@ csgo-pug-setup
 
 This is a useful plugin for managing pug games, especially **10 mans**/gathers. It allows a player to type .setup into chat and select (from a menu):
 - how to choose the teams (players do it manually, random teams, captains select teams)
-- how to choose the map (use the current map, do a map vote using maps from addons/sourcemod/configs/pugsetup/maps.txt)
+- how to choose the map (use the current map, do a map vote, veto maps)
 
 The goal is to allow a **lightweight, easy-to-use setup system** that automates as much as possible with as few dependencies as possible. However,
 the goal isn't fully automated - it assumes the players know each other or there is an admin. There is no mechanism for kicking players or anything similar.
@@ -52,11 +52,11 @@ One of the files you should have downloaded was `csgo/addons/sourcemod/configs/p
 ```
 "GameTypes"
 {
-    // Configs are relative to the csgo/cfg/sourcemod/pugsetup directory
+    // Configs are relative to the csgo/cfg directory
     // Maplists are relative to the csgo/addons/sourcemod/configs/pugsetup directory
     "Normal"
     {
-        "config"        "standard.cfg"
+        "config"        "sourcemod/pugsetup/standard.cfg"
         "maplist"       "standard.txt"
     }
 }
@@ -76,12 +76,12 @@ One use of this is to have different rule sets. For example, I like playing 2v2'
 {
     "Normal"
     {
-        "config"        "standard.cfg"
+        "config"        "sourcemod/pugsetup/standard.cfg"
         "maplist"       "standard.txt"
     }
     "2v2"
     {
-        "config"        "standard.cfg"
+        "config"        "sourcemod/pugsetup/standard.cfg"
         "maplist"       "2v2maps.txt"
     }
 }
@@ -167,9 +167,10 @@ An example of these in use is in [pugsetup_teamnames.sp](scripting/pugsetup_team
 
 If you want something custom made, feel free to contact me. Depending on the complexity of the task, it may or may not be free.
 
-Some examples of custom things I have are:
+Some examples of custom things I have done/can do:
 - plugin to freeze players in place when not ready and enough players are on the server
 - plugin to upload demo files when games are finished
+- plugin to kick players if they don't ready after k seconds
 
 
 ### ConVars
