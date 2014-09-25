@@ -32,11 +32,11 @@ public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
 
 public TeamTypeMenu(client) {
     Handle menu = CreateMenu(TeamTypeMenuHandler);
-    SetMenuTitle(menu, "How will teams be setup?");
+    SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:TeamType_Captains, "Assigned captains pick their teams");
-    AddMenuInt(menu, _:TeamType_Random, "Random teams");
-    AddMenuInt(menu, _:TeamType_Manual, "Players manually switch teams");
+    AddMenuInt(menu, _:TeamType_Captains, "%t", "TeamSetupMenuCaptains");
+    AddMenuInt(menu, _:TeamType_Random, "%t", "TeamSetupMenuRandom");
+    AddMenuInt(menu, _:TeamType_Manual, "%t", "TeamSetupMenuManual");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -60,7 +60,7 @@ public TeamTypeMenuHandler(Handle menu, MenuAction action, param1, param2) {
 
 public GivePlayerCountMenu(int client) {
     Handle menu = CreateMenu(PlayerCountHandler);
-    SetMenuTitle(menu, "How many players per team?");
+    SetMenuTitle(menu, "%t", "HowManyPlayers");
     SetMenuExitButton(menu, false);
     int choices[] = {1, 2, 3, 4, 5, 6};
     for (int i = 0; i < sizeof(choices); i++)
@@ -84,11 +84,11 @@ public PlayerCountHandler(Handle menu, MenuAction action, param1, param2) {
  */
 public MapMenu(client) {
     Handle menu = CreateMenu(MapMenuHandler);
-    SetMenuTitle(menu, "How will the map be chosen?");
+    SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:MapType_Current, "Use the current map");
-    AddMenuInt(menu, _:MapType_Vote, "Vote for a map");
-    AddMenuInt(menu, _:MapType_Veto, "Captains veto maps until 1 left");
+    AddMenuInt(menu, _:MapType_Current, "%t", "MapChoiceCurrent");
+    AddMenuInt(menu, _:MapType_Vote, "%t", "MapChoiceVote");
+    AddMenuInt(menu, _:MapType_Veto, "%t", "MapChoiceVeto");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -113,10 +113,10 @@ public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
  */
 public AutoLO3Menu(int client) {
     Handle menu = CreateMenu(AutoLO3MenuHandler);
-    SetMenuTitle(menu, "Automatically start the game when ready?");
+    SetMenuTitle(menu, "%t", "AutoLO3MenuTitle");
     SetMenuExitButton(menu, false);
-    AddMenuBool(menu, true, "Yes");
-    AddMenuBool(menu, false, "No");
+    AddMenuBool(menu, true, "%t", "Yes");
+    AddMenuBool(menu, false, "%t", "No");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -161,29 +161,27 @@ public SetupFinished() {
 /**
  * Converts enum choice types to strings to show to players.
  */
-public GetTeamString(char buffer[], int length, TeamType type) {
+public void GetTeamString(char buffer[], int length, TeamType type) {
     switch (type) {
-        case TeamType_Manual: return strcopy(buffer, length, "manual teams");
-        case TeamType_Random: return strcopy(buffer, length, "random teams");
-        case TeamType_Captains: return strcopy(buffer, length, "captains pick players");
+        case TeamType_Manual: Format(buffer, length, "%t", "TeamSetupManualShort");
+        case TeamType_Random: Format(buffer, length, "%t", "TeamSetupRandomShort");
+        case TeamType_Captains: Format(buffer, length, "%t", "TeamSetupCaptainsShort");
         default: LogError("unknown teamtype=%d", type);
     }
-    return 0;
 }
 
-public GetMapString(char buffer[], int length, MapType type) {
+public void GetMapString(char buffer[], int length, MapType type) {
     switch (type) {
-        case MapType_Current: return strcopy(buffer, length, "use the current map");
-        case MapType_Vote: return strcopy(buffer, length, "vote for a map");
-        case MapType_Veto: return strcopy(buffer, length, "captains veto maps");
+        case MapType_Current: Format(buffer, length, "%t", "MapChoiceCurrentShort");
+        case MapType_Vote: Format(buffer, length, "%t", "MapChoiceVoteShort");
+        case MapType_Veto: Format(buffer, length, "%t", "MapChoiceVetoShort");
         default: LogError("unknown maptype=%d", type);
     }
-    return 0;
 }
 
-public GetEnabledString(char buffer[], int length, bool var) {
+public void GetEnabledString(char buffer[], int length, bool var) {
     if (var)
-        return strcopy(buffer, length, "enabled");
+        Format(buffer, length, "%t", "Enabled");
     else
-        return strcopy(buffer, length, "disabled");
+        Format(buffer, length, "%t", "Disabled");
 }

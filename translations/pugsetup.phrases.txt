@@ -111,4 +111,84 @@
 	{
 		"en"		"What game type should be used?"
 	}
+	"TeamSetupMenuTitle"
+	{
+		"en"		"How will teams be setup?"
+	}
+	"TeamSetupMenuCaptains"
+	{
+		"en"		"Assigned captains pick their teams"
+	}
+	"TeamSetupMenuRandom"
+	{
+		"en"		"Random teams"
+	}
+	"TeamSetupMenuManual"
+	{
+		"en"		"Players manually switch teams"
+	}
+	"TeamSetupCaptainsShort"
+	{
+		"en"		"captains pick players"
+	}
+	"TeamSetupRandomShort"
+	{
+		"en"		"random teams"
+	}
+	"TeamSetupManualsShort"
+	{
+		"en"		"manually switch"
+	}
+	"HowManyPlayers"
+	{
+		"en"		"How many players per team?"
+	}
+	"MapChoiceMenuTitle"
+	{
+		"en"		"How should the map be chosen?"
+	}
+	"MapChoiceCurrent"
+	{
+		"en"		"Use the current map"
+	}
+	"MapChoiceVote"
+	{
+		"en"		"Vote for a map"
+	}
+	"MapChoiceVeto"
+	{
+		"en"		"Captains veto maps until 1 left"
+	}
+	"MapChoiceCurrentShort"
+	{
+		"en"		"use the current map"
+	}
+	"MapChoiceVoteShort"
+	{
+		"en"		"vote for a map"
+	}
+	"MapChoiceVetoShort"
+	{
+		"en"		"captains veto maps"
+	}
+	"AutoLO3MenuTitle"
+	{
+		"en"		"Automatically start the game when ready?"
+	}
+	"Yes"
+	{
+		"en"		"Yes"
+	}
+	"No"
+	{
+		"en"		"No"
+	}
+	"Enabled"
+	{
+		"en"		"enabled"
+	}
+	"Disabled"
+	{
+		"en"		"disabled"
+	}
 }

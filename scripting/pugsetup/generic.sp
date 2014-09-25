@@ -14,10 +14,12 @@ stock void ExecCfg(Handle ConVarName) {
 /**
  * Adds an integer to a menu as a string choice.
  */
-stock void AddMenuInt(Handle menu, int value, const char display[]) {
+stock void AddMenuInt(Handle menu, int value, const char display[], any:...) {
+    char formattedDisplay[128];
+    VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
     char buffer[8];
     IntToString(value, buffer, sizeof(buffer));
-    AddMenuItem(menu, buffer, display);
+    AddMenuItem(menu, buffer, formattedDisplay);
 }
 
 /**
@@ -41,9 +43,11 @@ stock int GetMenuInt(Handle menu, param2) {
 /**
  * Adds a boolean to a menu as a string choice.
  */
-stock void AddMenuBool(Handle menu, bool value, const char display[]) {
+stock void AddMenuBool(Handle menu, bool value, const char display[], any:...) {
+    char formattedDisplay[128];
+    VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
     int convertedInt = value ? 1 : 0;
-    AddMenuInt(menu, convertedInt, display);
+    AddMenuInt(menu, convertedInt, formattedDisplay);
 }
 
 /**
