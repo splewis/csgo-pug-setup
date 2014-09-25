@@ -1,7 +1,7 @@
 /**
  * Main .setup menu
  */
-public SetupMenu(client) {
+public void SetupMenu(int client) {
     if (GetArraySize(g_GameTypes) == 0) {
         LogError("There are no game types specified.");
     } else if (GetArraySize(g_GameTypes) == 1) {
@@ -30,7 +30,7 @@ public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
     }
 }
 
-public TeamTypeMenu(client) {
+public void TeamTypeMenu(int client) {
     Handle menu = CreateMenu(TeamTypeMenuHandler);
     SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
     SetMenuExitButton(menu, false);
@@ -57,8 +57,7 @@ public TeamTypeMenuHandler(Handle menu, MenuAction action, param1, param2) {
     }
 }
 
-
-public GivePlayerCountMenu(int client) {
+public void GivePlayerCountMenu(int client) {
     Handle menu = CreateMenu(PlayerCountHandler);
     SetMenuTitle(menu, "%t", "HowManyPlayers");
     SetMenuExitButton(menu, false);
@@ -82,7 +81,7 @@ public PlayerCountHandler(Handle menu, MenuAction action, param1, param2) {
 /**
  * Generic map choice-type menu.
  */
-public MapMenu(client) {
+public MapMenu(int client) {
     Handle menu = CreateMenu(MapMenuHandler);
     SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
     SetMenuExitButton(menu, false);
