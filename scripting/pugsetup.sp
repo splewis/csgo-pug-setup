@@ -186,7 +186,7 @@ public bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
         }
 
         if (count >= GetPugMaxPlayers()) {
-            GetConVarString(g_hKickMessage, rejectmsg, sizeof(maxlen));
+            GetConVarString(g_hKickMessage, rejectmsg, maxlen);
             return false;
         }
     }
