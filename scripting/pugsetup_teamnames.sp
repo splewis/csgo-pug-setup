@@ -14,7 +14,7 @@ Handle g_teamFlagCookie = INVALID_HANDLE;
 
 
 public Plugin:myinfo = {
-    name = "CS:GO PugSetup: team names module",
+    name = "CS:GO PugSetup: team names setter",
     author = "splewis",
     description = "Sets team names/flags on game going live",
     version = PLUGIN_VERSION,

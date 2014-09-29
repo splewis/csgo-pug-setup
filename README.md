@@ -41,7 +41,10 @@ Download pugsetup.zip and extract the files to the game server. From the downloa
 - ``addons/sourcemod/translations`` (the entire directory)
 - ``cfg/sourcemod/pugsetup`` (the entire directory)
 
-``csgo/addons/sourcemod/plugins/pugsetup_teamnames.smx`` is an **optional** plugin that lets you set team names associated with players. It's just for fun. See its description at the end of the readme.
+Sometimes it's easier to add features in a separate plugin than the core plugin. So, there are a few addon (**optional**) plugins included in the download:
+- ``pugsetup_autokicker``: kicks players that join when the game is already live, and players not selected by captains when using captain-player selection
+- ``pugsetup_teamnames``: sets team names/flag according to the players on the team, see more detail at the end of the readme
+
 
 **As of 1.3.0, sourcemod 1.7 is required. If you must use sourcemod 1.6, I'd suggest trying an older version.**
 
@@ -110,6 +113,10 @@ workshop/267340686/de_facade
 When creating configs, realize that CS:GO's standard competitive config (``csgo/cfg/gamemode_competitive.cfg``) will be executed first. Two example deathmatch-style configs (good for aim maps) are included as examples, ``csgo/cfg/sourcemod/pugsetup`` contains ``awp.cfg`` and ``ak.cfg``.
 
 
+
+### For Plugin Developers
+
+Check [pugsetup.inc](scripting/include/pugsetup.inc) for the public API the plugin exposes.
 
 ### Enabling GOTV
 You need to enable gotv to use the demo-recording feature. Adding the following to your ``server.cfg`` will work:
