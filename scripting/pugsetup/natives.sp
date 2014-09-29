@@ -105,14 +105,16 @@ public Native_PugSetupMessage(Handle plugin, int numParams) {
     int bytesWritten = 0;
     FormatNativeString(0, 2, 3, sizeof(buffer), bytesWritten, buffer);
 
+    char prefix[64];
+    GetConVarString(g_hMessagePrefix, prefix, sizeof(prefix));
+
     char finalMsg[1024];
-    if (GetConVarInt(g_hUseMessagePrefix) == 0)
+    if (StrEqual(prefix, ""))
         Format(finalMsg, sizeof(finalMsg), " %s", buffer);
     else
-        Format(finalMsg, sizeof(finalMsg), "%s%s", MESSAGE_PREFIX, buffer);
+        Format(finalMsg, sizeof(finalMsg), "%s %s", prefix, buffer);
 
     Colorize(finalMsg, sizeof(finalMsg));
-
     PrintToChat(client, finalMsg);
 }
 
@@ -121,14 +123,16 @@ public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     int bytesWritten = 0;
     FormatNativeString(0, 1, 2, sizeof(buffer), bytesWritten, buffer);
 
+    char prefix[64];
+    GetConVarString(g_hMessagePrefix, prefix, sizeof(prefix));
+
     char finalMsg[1024];
-    if (GetConVarInt(g_hUseMessagePrefix) == 0)
+    if (StrEqual(prefix, ""))
         Format(finalMsg, sizeof(finalMsg), " %s", buffer);
     else
-        Format(finalMsg, sizeof(finalMsg), "%s%s", MESSAGE_PREFIX, buffer);
+        Format(finalMsg, sizeof(finalMsg), "%s %s", prefix, buffer);
 
     Colorize(finalMsg, sizeof(finalMsg));
-
     PrintToChatAll(finalMsg);
 }
 

@@ -1,6 +1,4 @@
-#define MESSAGE_PREFIX "[\x05PugSetup\x01] "
 #pragma semicolon 1
-
 #include <cstrike>
 #include <sourcemod>
 #include "include/pugsetup.inc"
@@ -37,7 +35,7 @@ Handle g_hExecDefaultConfig = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
 Handle g_hRequireAdminToSetup = INVALID_HANDLE;
-Handle g_hUseMessagePrefix = INVALID_HANDLE;
+Handle g_hMessagePrefix = INVALID_HANDLE;
 Handle g_hWarmupCfg = INVALID_HANDLE;
 
 /** Setup info **/
@@ -124,7 +122,7 @@ public OnPluginStart() {
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
-    g_hUseMessagePrefix = CreateConVar("sm_pugsetup_use_message_prefix", "1", "Whether the [PugSetup] tag is applied before plugin message");
+    g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
 
     /** Create and exec plugin's configuration file **/
