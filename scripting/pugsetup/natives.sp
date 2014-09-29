@@ -64,7 +64,9 @@ public Native_SetCaptain1(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
         g_capt1 = client;
-        PugSetupMessageToAll("%t", "Capt1Message", g_capt1);
+        char buffer[64];
+        FormatPlayerName(client, client, buffer);
+        PugSetupMessageToAll("%t", "CaptMessage", 1, buffer);
     }
 
 }
@@ -80,7 +82,9 @@ public Native_SetCaptain2(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (IsPlayer(client)) {
         g_capt2 = client;
-        PugSetupMessageToAll("%t", "Capt2Message", g_capt2);
+        char buffer[64];
+        FormatPlayerName(client, client, buffer);
+        PugSetupMessageToAll("%t", "CaptMessage", 2, buffer);
     }
 }
 

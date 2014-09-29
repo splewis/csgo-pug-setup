@@ -2,7 +2,7 @@
 {
 	"VetoMessage"
 	{
-		"en"			"The map veto process will begin in a few seconds."
+		"en"		"The map veto process will begin in a few seconds."
 	}
 	"VoteMessage"
 	{
@@ -59,32 +59,32 @@
 	}
 	"ReadyToStart"
 	{
-		"#format"		"{1:N}"
+		"#format"	"{1:N}"
 		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
 	}
 	"SetupBy"
 	{
-		"#format"		"{1:N}"
+		"#format"	"{1:N}"
 		"en"		"The game has been setup by {GREEN}{1}"
 	}
 	"ReadyToStart"
 	{
-		"#format"		"{1:N}"
+		"#format"	"{1:N}"
 		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
 	}
 	"GameType"
 	{
-		"#format"		"{1:s}"
+		"#format"	"{1:s}"
 		"en"		"Game type: {GREEN}{1}"
 	}
 	"TeamType"
 	{
-		"#format"		"{1:d},{2:d},{3:s}"
+		"#format"	"{1:d},{2:d},{3:s}"
 		"en"		"Teams: ({GREEN}{1} vs {2}) {GREEN}{3}"
 	}
 	"MapType"
 	{
-		"#format"		"{1:s}"
+		"#format"	"{1:s}"
 		"en"		"Map: {GREEN}{1}"
 	}
 	"LO3Setting"
@@ -97,15 +97,10 @@
 		"#format"		"{1:N}"
 		"en"		"The new leader is {GREEN}{1}"
 	}
-	"Capt1Message"
+	"CaptMessage"
 	{
-		"#format"		"{1:N}"
-		"en"		"Captain 1 will be {PINK}{1}"
-	}
-	"Capt2Message"
-	{
-		"#format"		"{1:N}"
-		"en"		"Captain 2 will be {LIGHT_GREEN}{1}"
+		"#format"		"{1:d},{2:s}"
+		"en"		"Captain {1} will be {2}"
 	}
 	"GameTypeTitle"
 	{
@@ -190,5 +185,45 @@
 	"Disabled"
 	{
 		"en"		"disabled"
+	}
+	"InitialPickTitle"
+	{
+		"en"		"Which would you prefer:"
+	}
+	"InitialPickSides"
+	{
+		"en"		"Pick the starting sides"
+	}
+	"InitialPickPlayer"
+	{
+		"en"		"Pick the first player"
+	}
+	"InitialPickPlayerChoice"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} has elected to get the {GREEN}first player pick."
+	}
+	"InitialPickSideChoice"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} has elected to pick the {GREEN}starting sides."
+	}
+	"SideChoiceTitle"
+	{
+		"en"		"Which side do you want first:"
+	}
+	"SideChoiceSelected"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} has picked {GREEN}{2} {NORMAL}first."
+	}
+	"PlayerPickTitle"
+	{
+		"en"		"Pick your players:"
+	}
+	"PlayerPickChoice"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} has picked {2}."
 	}
 }

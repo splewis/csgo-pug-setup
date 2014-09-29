@@ -37,8 +37,8 @@ Generally, here is what happens:
 ### Installation
 Download pugsetup.zip and extract the files to the game server. From the download, you should have installed the following (to the ``csgo`` directory):
 - ``addons/sourcemod/plugins/pugsetup.smx``
+- ``addons/sourcemod/translations/pugsetup.phrases.txt``
 - ``addons/sourcemod/configs/pugsetup/`` (the entire directory)
-- ``addons/sourcemod/translations`` (the entire directory)
 - ``cfg/sourcemod/pugsetup`` (the entire directory)
 
 Sometimes it's easier to add features in a separate plugin than the core plugin. So, there are a few addon (**optional**) plugins included in the download:

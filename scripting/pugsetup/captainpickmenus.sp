@@ -1,25 +1,28 @@
 public void InitialChoiceMenu(int client) {
     g_PickingPlayers = true;
     Handle menu = CreateMenu(InitialChoiceHandler);
-    SetMenuTitle(menu, "Which would you prefer:");
+    SetMenuTitle(menu, "%t", "InitialPickTitle");
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:InitialPick_Side, "Pick the starting team");
-    AddMenuInt(menu, _:InitialPick_Player, "Pick the first player");
+    AddMenuInt(menu, _:InitialPick_Side, "%t", "InitialPickSides");
+    AddMenuInt(menu, _:InitialPick_Player, "%t", "InitialPickPlayer");
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public InitialChoiceHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        int client = param1;  // should also equal g_capt1
+        int client = param1;
         if (client != g_capt1)
             LogError("[InitialChoiceHandler] only the first captain should have gotten the intial menu!");
 
         InitialPick choice = InitialPick:GetMenuInt(menu, param2);
+        char captString[64];
+        FormatPlayerName(g_capt1, g_capt1, captString);
+
         if (choice == InitialPick_Player) {
-            PugSetupMessageToAll("{PINK}%N {NORMAL}has elected to get the {GREEN}first player pick.", g_capt1);
+            PugSetupMessageToAll("%t", "InitialPickPlayerChoice", captString);
             SideMenu(g_capt2);
         } else if (choice == InitialPick_Side) {
-            PugSetupMessageToAll("{PINK}%N {NORMAL}has elected to pick the {GREEN}starting side.", g_capt1);
+            PugSetupMessageToAll("%t", "InitialPickSideChoice", captString);
             SideMenu(g_capt1);
         } else {
             LogError("[InitialChoiceHandler] unknown intial choice=%d", choice);
@@ -31,7 +34,7 @@ public InitialChoiceHandler(Handle menu, MenuAction action, param1, param2) {
 
 public void SideMenu(int client) {
     Handle menu = CreateMenu(SideMenuHandler);
-    SetMenuTitle(menu, "Which side do you want first");
+    SetMenuTitle(menu, "%t", "SideChoiceTitle");
     SetMenuExitButton(menu, false);
     AddMenuInt(menu, CS_TEAM_CT, "CT");
     AddMenuInt(menu, CS_TEAM_T, "T");
@@ -44,11 +47,7 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         int teamPick = GetMenuInt(menu, param2);
 
         char captString[64];
-        if (client == g_capt1) {
-            Format(captString, sizeof(captString), "{PINK}%N{NORMAL}", g_capt1);
-        } else {
-            Format(captString, sizeof(captString), "{LIGHT_GREEN}%N{NORMAL}", g_capt2);
-        }
+        FormatPlayerName(client, client, captString);
 
         char teamString[8];
         if (teamPick == CS_TEAM_CT)
@@ -56,7 +55,7 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         else
             Format(teamString, sizeof(teamString), "T");
 
-        PugSetupMessageToAll("%s has picked {GREEN}%s {NORMAL}first.", captString, teamString);
+        PugSetupMessageToAll("%t", "SideChoiceSelected", captString, teamString);
 
         int otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
 
@@ -84,7 +83,7 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
     } else {
         if (IsValidClient(client)) {
             Handle menu = CreateMenu(PlayerMenuHandler);
-            SetMenuTitle(menu, "Pick your players");
+            SetMenuTitle(menu, "%t", "PlayerPickTitle");
             SetMenuExitButton(menu, false);
             AddPlayersToMenu(menu);
             DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -103,10 +102,12 @@ public PlayerMenuHandler(Handle menu, MenuAction action, param1, param2) {
         if (selected > 0) {
             g_Teams[selected] = g_Teams[client];
             SwitchPlayerTeam(selected, g_Teams[client]);
-            if (client == g_capt1)
-                PugSetupMessageToAll("{PINK}%N {NORMAL}has picked {PINK}%N", client, selected);
-            else
-                PugSetupMessageToAll("{LIGHT_GREEN}%N {NORMAL}has picked {LIGHT_GREEN}%N", client, selected);
+
+            char captName[64];
+            char selectedName[64];
+            FormatPlayerName(client, client, captName);
+            FormatPlayerName(client, selected, selectedName);
+            PugSetupMessageToAll("%t", "PlayerPickChoice", captName, selectedName);
 
             if (!IsPickingFinished()) {
                 int nextCapt = OtherCaptain(client);
@@ -167,4 +168,12 @@ static int AddPlayersToMenu(Handle menu) {
         }
     }
     return count;
+}
+
+public FormatPlayerName(int capt, int client, char buffer[64]) {
+    if (capt == g_capt1) {
+        Format(buffer, sizeof(buffer), "{PINK}%N{NORMAL}", client);
+    } else {
+        Format(buffer, sizeof(buffer), "{LIGHT_GREEN}%N{NORMAL}", client);
+    }
 }
