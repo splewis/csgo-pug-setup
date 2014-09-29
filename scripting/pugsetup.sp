@@ -32,6 +32,7 @@ Handle g_hAutorecord = INVALID_HANDLE;
 Handle g_hCvarVersion = INVALID_HANDLE;
 Handle g_hDemoNameFormat = INVALID_HANDLE;
 Handle g_hDemoTimeFormat = INVALID_HANDLE;
+Handle g_hExcludeSpectators = INVALID_HANDLE;
 Handle g_hExecDefaultConfig = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
@@ -118,6 +119,7 @@ public OnPluginStart() {
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
+    g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts.");
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
@@ -222,12 +224,15 @@ public Action Timer_CheckReady(Handle timer) {
     int totalPlayers = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
-            totalPlayers++;
-            if (g_Ready[i]) {
-                CS_SetClientClanTag(i, "[Ready]");
-                readyPlayers++;
-            } else {
-                CS_SetClientClanTag(i, "[Not ready]");
+            int team = GetClientTeam(i);
+            if (GetConVarInt(g_hExcludeSpectators) != 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+                totalPlayers++;
+                if (g_Ready[i]) {
+                    CS_SetClientClanTag(i, "[Ready]");
+                    readyPlayers++;
+                } else {
+                    CS_SetClientClanTag(i, "[Not ready]");
+                }
             }
         }
     }
@@ -631,8 +636,13 @@ public Action Command_Unpause(int client, args) {
 }
 
 public Action Command_Ready(int client, args) {
-    if (!g_Setup || g_MatchLive)
+    if (!g_Setup || g_MatchLive || !IsPlayer(client))
         return Plugin_Handled;
+
+    if (GetConVarInt(g_hExcludeSpectators) != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
+        PugSetupMessage(client, "%t", "SpecCantReady");
+        return Plugin_Handled;
+    }
 
     Call_StartForward(g_hOnReady);
     Call_PushCell(client);
@@ -644,7 +654,7 @@ public Action Command_Ready(int client, args) {
 }
 
 public Action Command_Unready(int client, args) {
-    if (!g_Setup || g_MatchLive)
+    if (!g_Setup || g_MatchLive || !IsPlayer(client))
         return Plugin_Handled;
 
     Call_StartForward(g_hOnUnready);

@@ -161,7 +161,7 @@ static int AddPlayersToMenu(Handle menu) {
     char name[MAX_NAME_LENGTH];
     int count = 0;
     for (int client = 1; client <= MaxClients; client++) {
-        if (IsValidClient(client) && !IsFakeClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR) {
+        if (IsValidClient(client) && !IsFakeClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && g_Ready[client]) {
             GetClientName(client, name, sizeof(name));
             AddMenuInt(menu, client, name);
             count++;
