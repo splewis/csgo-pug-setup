@@ -225,7 +225,7 @@ public Action Timer_CheckReady(Handle timer) {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
             int team = GetClientTeam(i);
-            if (GetConVarInt(g_hExcludeSpectators) != 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+            if (GetConVarInt(g_hExcludeSpectators) == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
                 totalPlayers++;
                 if (g_Ready[i]) {
                     CS_SetClientClanTag(i, "[Ready]");
