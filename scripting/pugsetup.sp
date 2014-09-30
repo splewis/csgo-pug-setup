@@ -629,33 +629,12 @@ public Action Command_Unpause(int client, args) {
 }
 
 public Action Command_Ready(int client, args) {
-    if (!g_Setup || g_MatchLive || !IsPlayer(client))
-        return Plugin_Handled;
-
-    if (GetConVarInt(g_hExcludeSpectators) != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
-        PugSetupMessage(client, "%t", "SpecCantReady");
-        return Plugin_Handled;
-    }
-
-    Call_StartForward(g_hOnReady);
-    Call_PushCell(client);
-    Call_Finish();
-
-    g_Ready[client] = true;
-    CS_SetClientClanTag(client, "[Ready]");
+    ReadyPlayer(client);
     return Plugin_Handled;
 }
 
 public Action Command_Unready(int client, args) {
-    if (!g_Setup || g_MatchLive || !IsPlayer(client))
-        return Plugin_Handled;
-
-    Call_StartForward(g_hOnUnready);
-    Call_PushCell(client);
-    Call_Finish();
-
-    g_Ready[client] = false;
-    CS_SetClientClanTag(client, "[Not ready]");
+    UnreadyPlayer(client);
     return Plugin_Handled;
 }
 

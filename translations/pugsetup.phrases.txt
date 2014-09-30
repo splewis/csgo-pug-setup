@@ -230,4 +230,13 @@
 	{
 		"en"		"You cannot ready up whe you are on spectator."
 	}
+	"RestartCounter"
+	{
+		"#format"	{1:d}
+		"en"		"Restart {1}/3"
+	}
+	"Live"
+	{
+		"en"		"Match is {GREEN}LIVE"
+	}
 }

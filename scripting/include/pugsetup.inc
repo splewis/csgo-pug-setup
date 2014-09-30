@@ -41,6 +41,12 @@ forward OnMatchOver(bool hasDemo, char demoFileName[]);
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam, bool autolo3);
 
+// Readies up a player.
+native void ReadyPlayer(int client);
+
+// Unreadies a player.
+native void UnreadyPlayer(int client);
+
 // Returns whether a client is ready.
 // This is only valid when the game is setup AND not live.
 native bool IsReady(int client);

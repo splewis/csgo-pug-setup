@@ -16,7 +16,7 @@ public Plugin:myinfo = {
 };
 
 public OnPluginStart() {
-    g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "0", "Whether the autokicker is enabled or not");
+    g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "1", "Whether the autokicker is enabled or not");
     g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
     AutoExecConfig(true, "pugsetup_autokicker.cfg", "sourcemod/pugsetup");
 }

@@ -2,6 +2,8 @@
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("SetupGame", Native_SetupGame);
+    CreateNative("ReadyPlayer", Native_ReadyPlayer);
+    CreateNative("UnreadyPlayer", Native_UnreadyPlayer);
     CreateNative("IsReady", Native_IsReady);
     CreateNative("IsSetup", Native_IsSetup);
     CreateNative("GetTeamType", Native_GetTeamType);
@@ -27,6 +29,34 @@ public Native_SetupGame(Handle plugin, int numParams) {
     g_PlayersPerTeam = GetNativeCell(4);
     g_AutoLO3 = GetNativeCell(5);
     SetupFinished();
+}
+
+public Native_ReadyPlayer(Handle plugin, int numParams) {
+    int client = GetNativeCell(1);
+    if (GetConVarInt(g_hExcludeSpectators) != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
+        PugSetupMessage(client, "%t", "SpecCantReady");
+        return;
+    }
+
+    Call_StartForward(g_hOnReady);
+    Call_PushCell(client);
+    Call_Finish();
+
+    g_Ready[client] = true;
+    CS_SetClientClanTag(client, "[Ready]");
+}
+
+public Native_UnreadyPlayer(Handle plugin, int numParams) {
+    int client = GetNativeCell(1);
+    if (!g_Setup || g_MatchLive || !IsPlayer(client))
+        return;
+
+    Call_StartForward(g_hOnUnready);
+    Call_PushCell(client);
+    Call_Finish();
+
+    g_Ready[client] = false;
+    CS_SetClientClanTag(client, "[Not ready]");
 }
 
 public Native_IsReady(Handle plugin, int numParams) {
