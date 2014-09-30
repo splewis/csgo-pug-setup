@@ -17,7 +17,7 @@ public Config_MapStart() {
         return;
     }
 
-    new Handle:kv = CreateKeyValues("GameTypes");
+    Handle kv = CreateKeyValues("GameTypes");
     FileToKeyValues(kv, configFile);
     if (!KvGotoFirstSubKey(kv)) {
         LogError("The pugsetup config file was empty");

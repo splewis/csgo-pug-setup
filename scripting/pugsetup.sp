@@ -75,6 +75,7 @@ bool g_MatchLive = false;
 
 /** Forwards **/
 Handle g_hOnGoingLive = INVALID_HANDLE;
+Handle g_hOnLive = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
@@ -153,6 +154,7 @@ public OnPluginStart() {
     HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
+    g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
@@ -396,13 +398,7 @@ public Action Command_10man(int client, args) {
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
-    g_GameTypeIndex = 0;
-    g_TeamType = TeamType_Captains;
-    g_MapType = MapType_Vote;
-    g_PlayersPerTeam = 5;
-    g_AutoLO3 = false;
-    SetupFinished();
-
+    SetupGame(0, TeamType_Captains, MapType_Vote, 5, false);
     return Plugin_Handled;
 }
 
@@ -533,7 +529,6 @@ public Action Command_Start(int client, args) {
 if (StrEqual(sArgs[0], %1)) { \
     %2 (client, 0); \
 }
-
 
 public Action OnClientSayCommand(client, const char command[], const char sArgs[]) {
     ChatAlias(".setup", Command_Setup)

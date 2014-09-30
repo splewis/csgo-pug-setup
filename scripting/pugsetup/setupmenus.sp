@@ -138,6 +138,7 @@ public SetupFinished() {
     for (int i = 1; i <= MaxClients; i++)
         if (IsPlayer(i))
             PrintSetupInfo(i);
+
     g_Setup = true;
     if (!g_LiveTimerRunning)
         CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);

@@ -3,6 +3,9 @@ public Action BeginLO3(Handle timer) {
     if (!g_MatchLive)
         return;
 
+    Call_StartForward(g_hOnGoingLive);
+    Call_Finish();
+
     // reset player tags
     for (int i = 1; i <= MaxClients; i++)
         if (IsValidClient(i) && !IsFakeClient(i))
@@ -35,7 +38,7 @@ public Action MatchLive(Handle timer) {
     if (!g_MatchLive)
         return;
 
-    Call_StartForward(g_hOnGoingLive);
+    Call_StartForward(g_hOnLive);
     Call_Finish();
 
     for (int i = 0; i < 5; i++)

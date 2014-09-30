@@ -26,14 +26,20 @@ forward OnReady(int client);
 // Called when a player marks themselves as unready.
 forward OnUnready(int client);
 
-// Called when the going-live process begins.
+// Called when the going-live process begins, before the lo3.
 forward OnGoingLive();
+
+// Called after the last restart when the game is completely live.
+forward OnLive();
 
 // Called when the match is over.
 // If you plan on using the result of the demo file,
 // I'd suggest adding a slight delay from when this is called
 // to accomodate the time spent flushing the demo to disk.
 forward OnMatchOver(bool hasDemo, char demoFileName[]);
+
+// Sets a game up with the given settings.
+native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam, bool autolo3);
 
 // Returns whether a client is ready.
 // This is only valid when the game is setup AND not live.
@@ -107,5 +113,6 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("PugSetupMessage");
     MarkNativeAsOptional("PugSetupMessageToAll");
     MarkNativeAsOptional("GetPugMaxPlayers");
+    MarkNativeAsOptional("SetupGame");
 }
 #endif

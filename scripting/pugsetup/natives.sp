@@ -1,6 +1,7 @@
 // See include/pugsetup.inc for documentation.
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
+    CreateNative("SetupGame", Native_SetupGame);
     CreateNative("IsReady", Native_IsReady);
     CreateNative("IsSetup", Native_IsSetup);
     CreateNative("GetTeamType", Native_GetTeamType);
@@ -17,6 +18,15 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("GetPugMaxPlayers", Native_GetPugMaxPlayers);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
+}
+
+public Native_SetupGame(Handle plugin, int numParams) {
+    g_GameTypeIndex = GetNativeCell(1);
+    g_TeamType = TeamType:GetNativeCell(2);
+    g_MapType = MapType:GetNativeCell(3);
+    g_PlayersPerTeam = GetNativeCell(4);
+    g_AutoLO3 = GetNativeCell(5);
+    SetupFinished();
 }
 
 public Native_IsReady(Handle plugin, int numParams) {
