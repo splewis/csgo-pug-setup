@@ -105,6 +105,9 @@ public SharedPlugin:__pl_pugsetup = {
 
 #if !defined REQUIRE_PLUGIN
 public __pl_pugsetup_SetNTVOptional() {
+    MarkNativeAsOptional("SetupGame");
+    MarkNativeAsOptional("ReadyPlayer");
+    MarkNativeAsOptional("UnreadyPlayer");
     MarkNativeAsOptional("IsReady");
     MarkNativeAsOptional("IsSetup");
     MarkNativeAsOptional("GetTeamType");
