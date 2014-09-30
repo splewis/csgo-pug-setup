@@ -114,9 +114,16 @@ When creating configs, realize that CS:GO's standard competitive config (``csgo/
 
 
 
-### For Plugin Developers
+### For developers
+There is some limited extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
 
-Check [pugsetup.inc](scripting/include/pugsetup.inc) for the public API the plugin exposes.
+An example of these in use is in [pugsetup_teamnames.sp](scripting/pugsetup_teamnames.sp).
+
+Some examples of custom things I have done/can do:
+- plugin to freeze players in place when not ready and enough players are on the server
+- plugin to compress/upload demo files when games are finished
+- plugin to kick players if they don't ready after x seconds
+
 
 ### Enabling GOTV
 You need to enable gotv to use the demo-recording feature. Adding the following to your ``server.cfg`` will work:
@@ -135,10 +142,6 @@ You need to enable gotv to use the demo-recording feature. Adding the following 
     tv_transmitall 1
 
 Of course, you can tweak the values.
-
-**Note**: before the plugin executes the game-type config (by default ``cfg/sourcemod/pugsetup/standard.cfg``), it execute the game's
-default competitive config (``cfg/gamemode_competitive.cfg``). This is meant to provide a consistent base for cvars, but you should be aware of it.
-For example: tv_delay will get set to 105, so if you want it lower you must also set it in your gammeode config.
 
 
 ### Commands
@@ -160,24 +163,8 @@ You can also type .start instead of !start, or .ready instead of !ready.
 The ! style commands will let you use arguments; for example: !capt player1 player2 works, while using .capt will just open a menu for you to pick players.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
-- sm_10man (this just uses the first game type from ``gametypes.cfg``)
+- sm_10man (this just uses the first game type from ``gametypes.cfg``, with 5v5, captains, map vote, and auto-lo3 disabled)
 - sm_forceend
-
-**Generally you don't need the admin (sm_) commands**, but they may come in helpful if a captain/leader doesn't know about the .pause feature or
-you need to take leardership of the pug.
-
-
-### For developers
-There is some limited extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
-
-An example of these in use is in [pugsetup_teamnames.sp](scripting/pugsetup_teamnames.sp).
-
-If you want something custom made, feel free to contact me. Depending on the complexity of the task, it may or may not be free.
-
-Some examples of custom things I have done/can do:
-- plugin to freeze players in place when not ready and enough players are on the server
-- plugin to upload demo files when games are finished
-- plugin to kick players if they don't ready after k seconds
 
 
 ### ConVars
