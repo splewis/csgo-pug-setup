@@ -8,7 +8,7 @@ public Config_MapStart() {
     g_GameMapFiles = CreateArray(CONFIG_STRING_LENGTH);
     g_GameConfigFiles = CreateArray(CONFIG_STRING_LENGTH);
 
-    decl String:configFile[PLATFORM_MAX_PATH];
+    char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/gametypes.cfg");
 
     if (!FileExists(configFile)) {
@@ -27,16 +27,13 @@ public Config_MapStart() {
     }
 
     do {
-        char buffer[CONFIG_STRING_LENGTH];
-        KvGetSectionName(kv, buffer, sizeof(buffer));
-        PushArrayString(g_GameTypes, buffer);
-
-        KvGetString(kv, "config", buffer, sizeof(buffer), "gamemode_competitive.cfg");
-        PushArrayString(g_GameConfigFiles, buffer);
-
-        KvGetString(kv, "maplist", buffer, sizeof(buffer), "standard.txt");
-        PushArrayString(g_GameMapFiles, buffer);
-
+        char name[CONFIG_STRING_LENGTH];
+        char config[CONFIG_STRING_LENGTH];
+        char maplist[CONFIG_STRING_LENGTH];
+        KvGetSectionName(kv, name, sizeof(name));
+        KvGetString(kv, "config", config, sizeof(config), "gamemode_competitive.cfg");
+        KvGetString(kv, "maplist", maplist, sizeof(maplist), "standard.txt");
+        AddGameType(name, config, maplist);
     } while (KvGotoNextKey(kv));
 
     CloseHandle(kv);
