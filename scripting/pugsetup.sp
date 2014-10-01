@@ -622,7 +622,8 @@ public Action Command_Unpause(int client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
-    PermissionCheck(Permission_Captains)
+    if (GetConVarInt(g_hAnyCanPause) != 0)
+        PermissionCheck(Permission_Captains)
 
     if (IsPlayer(client)) {
         ServerCommand("mp_unpause_match");
