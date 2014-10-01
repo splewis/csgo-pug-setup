@@ -25,6 +25,7 @@ enum InitialPick {
 
 /** ConVar handles **/
 Handle g_hAlways5v5 = INVALID_HANDLE;
+Handle g_hAnyCanPause = INVALID_HANDLE;
 Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
 Handle g_hAutorecord = INVALID_HANDLE;
 Handle g_hCvarVersion = INVALID_HANDLE;
@@ -33,9 +34,9 @@ Handle g_hDemoTimeFormat = INVALID_HANDLE;
 Handle g_hExcludeSpectators = INVALID_HANDLE;
 Handle g_hExecDefaultConfig = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
+Handle g_hMessagePrefix = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
 Handle g_hRequireAdminToSetup = INVALID_HANDLE;
-Handle g_hMessagePrefix = INVALID_HANDLE;
 Handle g_hWarmupCfg = INVALID_HANDLE;
 
 /** Setup info **/
@@ -114,6 +115,7 @@ public OnPluginStart() {
 
     /** ConVars **/
     g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "0", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
+    g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "0", "Whether everyone can pause, or just captains/leader");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomzied once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
@@ -121,9 +123,9 @@ public OnPluginStart() {
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts.");
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
+    g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the map-change admin flag to use the .setup command");
-    g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
 
     /** Create and exec plugin's configuration file **/
@@ -606,7 +608,8 @@ public Action Command_Pause(int client, args) {
     if (!g_Setup || !g_MatchLive)
         return Plugin_Handled;
 
-    PermissionCheck(Permission_Captains)
+    if (GetConVarInt(g_hAnyCanPause) != 0)
+        PermissionCheck(Permission_Captains)
 
     if (IsPlayer(client)) {
         ServerCommand("mp_pause_match");
