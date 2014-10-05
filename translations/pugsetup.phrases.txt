@@ -232,7 +232,7 @@
 	}
 	"RestartCounter"
 	{
-		"#format"	{1:d}
+		"#format"	"{1:d}"
 		"en"		"Restart {1}/3"
 	}
 	"Live"
