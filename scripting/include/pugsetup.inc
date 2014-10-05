@@ -97,6 +97,13 @@ native void PugSetupMessageToAll(const char format[], any:...);
 // Only valid if the game has already been setup.
 native int GetPugMaxPlayers();
 
+// Returns if a client was present when the game started.
+// This doesn't include if the player disconnected and reconnected.
+native bool PlayerAtStart(int client);
+
+// Returns if the plugin has identified a player as having elevated permissions.
+native bool IsPugAdmin(int client);
+
 public SharedPlugin:__pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
@@ -128,5 +135,6 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("PugSetupMessageToAll");
     MarkNativeAsOptional("GetPugMaxPlayers");
     MarkNativeAsOptional("SetupGame");
+    MarkNativeAsOptional("PlayerAtStart");
 }
 #endif

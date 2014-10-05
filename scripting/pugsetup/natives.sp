@@ -19,6 +19,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("PugSetupMessage", Native_PugSetupMessage);
     CreateNative("PugSetupMessageToAll", Native_PugSetupMessageToAll);
     CreateNative("GetPugMaxPlayers", Native_GetPugMaxPlayers);
+    CreateNative("PlayerAtStart", Native_PlayerAtStart);
+    CreateNative("IsPugAdmin", Native_IsPugAdmin);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -194,4 +196,27 @@ public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
 
 public Native_GetPugMaxPlayers(Handle plugin, int numParams) {
     return 2 * g_PlayersPerTeam;
+}
+
+public Native_PlayerAtStart(Handle plugin, int numParams) {
+    int client = GetNativeCell(1);
+    return IsPlayer(client) && g_PlayerAtStart[client];
+}
+
+public Native_IsPugAdmin(Handle plugin, int numParams) {
+    int client = GetNativeCell(1);
+    AdminId admin = GetUserAdmin(client);
+    if (admin != INVALID_ADMIN_ID) {
+        char flags[8];
+        AdminFlag flag;
+        GetConVarString(g_hAdminFlag, flags, sizeof(flags));
+        if (!FindFlagByChar(flags[0], flag)) {
+            LogError("Invalid immunity flag: %s", flags[0]);
+            return false;
+        } else {
+            return GetAdminFlag(admin, flag);
+        }
+    }
+
+    return false;
 }

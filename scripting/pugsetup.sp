@@ -24,6 +24,7 @@ enum InitialPick {
 };
 
 /** ConVar handles **/
+Handle g_hAdminFlag = INVALID_HANDLE;
 Handle g_hAlways5v5 = INVALID_HANDLE;
 Handle g_hAnyCanPause = INVALID_HANDLE;
 Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
@@ -71,6 +72,7 @@ int g_capt1 = -1;
 int g_capt2 = -1;
 int g_Teams[MAXPLAYERS+1];
 bool g_Ready[MAXPLAYERS+1];
+bool g_PlayerAtStart[MAXPLAYERS+1];
 bool g_PickingPlayers = false;
 bool g_MatchLive = false;
 
@@ -114,6 +116,7 @@ public OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
+    g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
     g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "0", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
     g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "0", "Whether everyone can pause, or just captains/leader");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomzied once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
@@ -169,12 +172,14 @@ public OnPluginStart() {
 public bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
+    g_PlayerAtStart[client] = false;
     return true;
 }
 
 public OnClientDisconnect(int client) {
-    g_Teams[client] = CS_TEAM_SPECTATOR;
+    g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
+    g_PlayerAtStart[client] = false;
     int numPlayers = 0;
     for (int i = 1; i <= MaxClients; i++)
         if (IsPlayer(i))
@@ -512,6 +517,11 @@ public Action Command_Start(int client, args) {
     char liveCfg[CONFIG_STRING_LENGTH];
     GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
     ServerCommand("exec %s", liveCfg);
+
+    for (int i = 1; i <= MaxClients; i++) {
+        g_PlayerAtStart[i] = IsPlayer(i);
+    }
+
 
     g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {

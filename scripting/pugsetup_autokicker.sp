@@ -21,8 +21,8 @@ public OnPluginStart() {
     AutoExecConfig(true, "pugsetup_autokicker.cfg", "sourcemod/pugsetup");
 }
 
-public bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
-    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0) {
+public OnClientPostAdminCheck(int client) {
+    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && !PlayerAtStart(client) && !IsPugAdmin(client)) {
         // count number of active players
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
@@ -35,10 +35,9 @@ public bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
         }
 
         if (count >= GetPugMaxPlayers()) {
-            GetConVarString(g_hKickMessage, rejectmsg, maxlen);
-            return false;
+            char msg[1024];
+            GetConVarString(g_hKickMessage, msg, sizeof(msg));
+            KickClient(client, msg);
         }
     }
-
-    return true;
 }
