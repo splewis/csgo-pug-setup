@@ -3,6 +3,7 @@
  */
 public void SetupMenu(int client) {
     if (GetArraySize(g_GameTypes) == 0) {
+        PugSetupMessage(client, "The server are no game types specified.");
         LogError("There are no game types specified.");
     } else if (GetArraySize(g_GameTypes) == 1) {
         g_GameTypeIndex = 0;

@@ -115,7 +115,7 @@ When creating configs, realize that CS:GO's standard competitive config (``csgo/
 
 
 ### For developers
-There is some limited extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
+There is some extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
 
 An example of these in use is in [pugsetup_teamnames.sp](scripting/pugsetup_teamnames.sp).
 

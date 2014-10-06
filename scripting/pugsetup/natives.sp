@@ -2,6 +2,7 @@
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("SetupGame", Native_SetupGame);
+    CreateNative("ClearGameTypes", Native_ClearGameTypes);
     CreateNative("AddGameType", Native_AddGameType);
     CreateNative("ReadyPlayer", Native_ReadyPlayer);
     CreateNative("UnreadyPlayer", Native_UnreadyPlayer);
@@ -34,6 +35,12 @@ public Native_SetupGame(Handle plugin, int numParams) {
     SetupFinished();
 }
 
+public Native_ClearGameTypes(Handle plugin, int numParams) {
+    ClearArray(g_GameTypes);
+    ClearArray(g_GameConfigFiles);
+    ClearArray(g_GameMapFiles);
+}
+
 public Native_AddGameType(Handle plugin, int numParams) {
     char name[CONFIG_STRING_LENGTH];
     char liveCfg[CONFIG_STRING_LENGTH];
@@ -45,7 +52,7 @@ public Native_AddGameType(Handle plugin, int numParams) {
 
     PushArrayString(g_GameTypes, name);
     PushArrayString(g_GameConfigFiles, liveCfg);
-    PushArrayString(g_GameMapFiles, mapList );
+    PushArrayString(g_GameMapFiles, mapList);
     return GetArraySize(g_GameTypes) - 1;
 }
 

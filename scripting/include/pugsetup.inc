@@ -41,6 +41,9 @@ forward OnMatchOver(bool hasDemo, char demoFileName[]);
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam, bool autolo3);
 
+// Clears all game types.
+native void ClearGameTypes();
+
 // Adds a game type to the game type list. These are fully reset every map.
 // Returns the index of the game type.
 native int AddGameType(char name[], char liveCfg[], char mapList[]);
@@ -117,6 +120,7 @@ public SharedPlugin:__pl_pugsetup = {
 #if !defined REQUIRE_PLUGIN
 public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetupGame");
+    MarkNativeAsOptional("ClearGameTypes");
     MarkNativeAsOptional("AddGameType");
     MarkNativeAsOptional("ReadyPlayer");
     MarkNativeAsOptional("UnreadyPlayer");
@@ -136,5 +140,6 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("GetPugMaxPlayers");
     MarkNativeAsOptional("SetupGame");
     MarkNativeAsOptional("PlayerAtStart");
+    MarkNativeAsOptional("IsPugAdmin");
 }
 #endif
