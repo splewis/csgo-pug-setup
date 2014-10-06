@@ -10,7 +10,7 @@ Handle g_hKickMessage = INVALID_HANDLE;
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: autokicker",
     author = "splewis",
-    description = "Tools for setting up pugs/10mans",
+    description = "Automatically kicks joining players when the game is full",
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
@@ -23,7 +23,6 @@ public OnPluginStart() {
 
 public OnClientPostAdminCheck(int client) {
     if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && !PlayerAtStart(client) && !IsPugAdmin(client)) {
-        // count number of active players
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
