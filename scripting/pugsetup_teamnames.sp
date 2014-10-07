@@ -1,6 +1,7 @@
 #pragma semicolon 1
 #include <clientprefs>
 #include <cstrike>
+#include <geoip>
 #include <sourcemod>
 
 /** Client cookie handles **/
@@ -62,7 +63,7 @@ public OnGoingLive() {
     CloseHandle(tFlags);
 }
 
-public Action:Command_ListNames(client, args) {
+public Action Command_ListNames(int client, args) {
     int count = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && AreClientCookiesCached(i)) {
@@ -80,21 +81,39 @@ public Action:Command_ListNames(client, args) {
         ReplyToCommand(client, "Nobody has a team name/flag set.");
 }
 
-public Action:Command_Name(client, args) {
+public Action Command_Name(int client, args) {
     char arg1[128];
     char arg2[128];
-    char arg3[128];
-    if (args >= 3 && GetCmdArg(1, arg1, sizeof(arg1)) && GetCmdArg(2, arg2, sizeof(arg2)) && GetCmdArg(3, arg3, sizeof(arg3))) {
+
+    if (args >= 2 && GetCmdArg(1, arg1, sizeof(arg1)) && GetCmdArg(2, arg2, sizeof(arg2))) {
         int target = FindTarget(client, arg1, true, false);
+        char flag[3];
+
         if (IsPlayer(target)) {
             SetClientCookie(target, g_teamNameCookie, arg2);
-            SetClientCookie(target, g_teamFlagCookie, arg3);
+
+            // by default, use arg3 from the command, otherwise try to use the ip address
+            if (args <= 2 || !GetCmdArg(3, flag, sizeof(flag))) {
+                GetPlayerFlagFromIP(target, flag);
+                SetClientCookie(target, g_teamFlagCookie, flag);
+            }
+            SetClientCookie(target, g_teamFlagCookie, flag);
         }
+
+        ReplyToCommand(client, "Set team data for %L: name = %s, flag = %s", target, arg2, flag);
+
     } else {
-        ReplyToCommand(client, "Usage: sm_name <player> <team name> <team flag code>");
+        ReplyToCommand(client, "Usage: sm_name <player> <team name> [team flag code]");
     }
 
     return Plugin_Handled;
+}
+
+static void GetPlayerFlagFromIP(int client, char flag[3]) {
+    char ip[32];
+    if (!GetClientIP(client, ip, sizeof(ip)) || !GeoipCode2(ip, flag)) {
+        Format(flag, sizeof(flag), "");
+    }
 }
 
 public void FillPotentialNames(int team, Handle names, Handle flags) {
