@@ -1,3 +1,7 @@
+// Counter for tracking whose turn it is to pick based on the # of players picked.
+// Tracking the "number of picks left" for the current captain.
+int g_PickCounter = 0;
+
 public void InitialChoiceMenu(int client) {
     g_PickingPlayers = true;
     Handle menu = CreateMenu(InitialChoiceHandler);
@@ -65,6 +69,7 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         int otherCaptain = OtherCaptain(client);
         g_Teams[otherCaptain] = otherTeam;
         SwitchPlayerTeam(otherCaptain, otherTeam);
+        g_PickCounter = 0;
 
         ServerCommand("mp_restartgame 1");
         CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(otherCaptain));
@@ -110,8 +115,7 @@ public PlayerMenuHandler(Handle menu, MenuAction action, param1, param2) {
             PugSetupMessageToAll("%t", "PlayerPickChoice", captName, selectedName);
 
             if (!IsPickingFinished()) {
-                int nextCapt = OtherCaptain(client);
-                MoreMenuPicks(nextCapt);
+                MoreMenuPicks(GetNextCaptain(client));
             } else {
                 CreateTimer(1.0, FinishPicking);
             }
@@ -145,12 +149,26 @@ static bool IsPickingFinished() {
     return numSelected >= 2 * g_PlayersPerTeam;
 }
 
-static bool IsPlayerPicked(client) {
+static bool IsPlayerPicked(int client) {
     int team = g_Teams[client];
     return team == CS_TEAM_T || team == CS_TEAM_CT;
 }
 
-public int OtherCaptain(captain) {
+static int GetNextCaptain(int captain) {
+    if (GetConVarInt(g_hSnakeCaptains) == 0) {
+        return OtherCaptain(captain);
+    } else {
+        if (g_PickCounter == 0) {
+            g_PickCounter = 2;
+            return OtherCaptain(captain);
+        } else {
+            g_PickCounter--;
+            return captain;
+        }
+    }
+}
+
+public int OtherCaptain(int captain) {
     if (captain == g_capt1)
         return g_capt2;
     else
