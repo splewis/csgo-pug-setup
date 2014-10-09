@@ -484,7 +484,7 @@ public Action Command_Start(int client, args) {
         int last_slash = 0;
         int len = strlen(mapName);
         for (int i = 0;  i < len; i++) {
-            if (mapName[i] == '/')
+            if (mapName[i] == '/' || mapName[i] == '\\')
                 last_slash = i + 1;
         }
 

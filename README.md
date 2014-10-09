@@ -44,6 +44,7 @@ Download pugsetup.zip and extract the files to the game server. From the downloa
 Sometimes it's easier to add features in a separate plugin than the core plugin. So, there are a few addon (**optional**) plugins included in the download:
 - ``pugsetup_autokicker``: kicks players that join when the game is already live, and players not selected by captains when using captain-player selection
 - ``pugsetup_teamnames``: sets team names/flag according to the players on the team, see more detail at the end of the readme
+- ``pugsetup_teamlocker``: blocks players from joining full teams when a game is live
 
 
 **As of 1.3.0, sourcemod 1.7 is required. If you must use sourcemod 1.6, I'd suggest trying an older version.**
