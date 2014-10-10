@@ -51,6 +51,11 @@ public void GetMapList() {
 }
 
 static void AddMap(const char mapName[]) {
+    bool isComment = strlen(mapName) >= 2 && mapName[0] == '/' && mapName[1] == '/';
+    if (strlen(mapName) <= 2 || isComment) {
+        return;
+    }
+
     if (IsMapValid(mapName)) {
         PushArrayString(g_MapNames, mapName);
         PushArrayCell(g_MapVetoed, false);

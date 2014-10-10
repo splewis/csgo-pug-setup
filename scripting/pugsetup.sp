@@ -15,7 +15,7 @@
 enum Permissions {
     Permission_Captains,
     Permission_Leader
-}
+};
 
 /** Initial menu data (where captain 1 picks between side pick or 1st player pick) **/
 enum InitialPick {
@@ -421,7 +421,6 @@ public Action Command_Rand(int client, args) {
     }
 
     PermissionCheck(Permission_Captains)
-
     SetRandomCaptains();
     return Plugin_Handled;
 }
