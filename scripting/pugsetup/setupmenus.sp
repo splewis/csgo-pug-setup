@@ -102,7 +102,12 @@ public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
             case MapType_Veto: g_mapSet = false;
             default: LogError("unknown maptype=%d", g_MapType);
         }
-        AutoLO3Menu(client);
+        if (GetConVarInt(g_hNeverAutoLO3) == 0) {
+            AutoLO3Menu(client);
+        } else {
+            g_AutoLO3 = false;
+            SetupFinished();
+        }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
