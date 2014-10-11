@@ -58,6 +58,10 @@ public Native_AddGameType(Handle plugin, int numParams) {
 
 public Native_ReadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+
+    if (!g_Setup || g_MatchLive || !IsPlayer(client))
+        return;
+
     if (GetConVarInt(g_hExcludeSpectators) != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
         PugSetupMessage(client, "%t", "SpecCantReady");
         return;
@@ -73,6 +77,7 @@ public Native_ReadyPlayer(Handle plugin, int numParams) {
 
 public Native_UnreadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+
     if (!g_Setup || g_MatchLive || !IsPlayer(client))
         return;
 
