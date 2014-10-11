@@ -59,7 +59,25 @@ static void AddMap(const char mapName[]) {
     if (IsMapValid(mapName)) {
         PushArrayString(g_MapNames, mapName);
         PushArrayCell(g_MapVetoed, false);
-    } else if (strlen(mapName) >= 1) {  // don't print errors on empty
+    } else if (strlen(mapName) >= 2) {  // don't print errors on empty
         LogError("Invalid map name in mapfile: %s", mapName);
+    }
+}
+
+public Action Command_ListPugMaps(int client, args) {
+    if (!IsSetup()) {
+        ReplyToCommand(client, "The game is not setup yet, so there is no map list specified.");
+    } else {
+        GetMapList();
+        int n = GetArraySize(g_MapNames);
+        if (n == 0) {
+            ReplyToCommand(client, "This map list is empty");
+        }
+
+        for (int i = 0; i < n; i++) {
+            char mapName[PLATFORM_MAX_PATH];
+            GetArrayString(g_MapNames, i, mapName, sizeof(mapName));
+            ReplyToCommand(client, mapName);
+        }
     }
 }

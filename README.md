@@ -28,10 +28,10 @@ There is a notion of the the pug/game "leader". This is the player that writes .
 
 Generally, here is what happens:
 - A player joins and types .setup and goes through the menu to select how the teams and map will be chosen
-- Other players join and all type .ready
-- If the leader setup for a map vote, the map vote will occur and the map will change, then all players will type .ready on the new map
+- Other players join and all type ``!ready``
+- If the leader setup for a map vote, the map vote will occur and the map will change, then all players will type ``!ready`` on the new map
 - If the leader setup for a captain-style team selection, the game will wait for when 2 captains are selected, then the captains will be given menus to chose players
-- Then, either by the leader typing .start or the game auto-living (which is also configurable), the game will initiate a live-on-3 restart and go
+- Then, either by the leader typing ``!start`` or the game auto-living (which is configurable), the game will initiate a live-on-3 restart and go
 
 
 ### Installation
@@ -165,7 +165,8 @@ The ! style commands will let you use arguments; for example: !capt player1 play
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
 - sm_10man (this just uses the first game type from ``gametypes.cfg``, with 5v5, captains, map vote, and auto-lo3 disabled)
-- sm_forceend
+- sm_forceend (force ends the game with no confirmation menu)
+- sm_pugmaps (lists the maps in the current maplist, requires a game to be !setup already)
 
 
 ### ConVars

@@ -157,6 +157,7 @@ public OnPluginStart() {
     RegConsoleCmd("sm_leader", Command_Leader, "Sets the pug leader");
     RegConsoleCmd("sm_capt", Command_Capt, "Gives the client a menu to pick captains");
     RegConsoleCmd("sm_captain", Command_Capt, "Gives the client a menu to pick captains");
+    RegConsoleCmd("sm_pugmaps", Command_ListPugMaps, "Lists maps for the current gametype");
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
