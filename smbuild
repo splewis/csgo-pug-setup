@@ -1,8 +1,9 @@
 Plugin(source='scripting/pugsetup.sp')
+Plugin(source='scripting/pugsetup_auto10man.sp')
 Plugin(source='scripting/pugsetup_autokicker.sp')
 Plugin(source='scripting/pugsetup_teamlocker.sp')
 Plugin(source='scripting/pugsetup_teamnames.sp')
 
 Package(name='pugsetup',
-        plugins=['pugsetup',  'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames'],
+        plugins=['pugsetup', 'pugsetup_auto10man', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames'],
 )
