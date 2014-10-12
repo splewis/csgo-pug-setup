@@ -14,8 +14,10 @@ public void SetupMenu(int client) {
         SetMenuExitButton(menu, false);
         char buffer[256];
         for (new i = 0; i < GetArraySize(g_GameTypes); i++) {
-            GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
-            AddMenuInt(menu, i, buffer);
+            if (!GetArrayCell(g_HiddenGameType, i)) {
+                GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
+                AddMenuInt(menu, i, buffer);
+            }
         }
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
     }

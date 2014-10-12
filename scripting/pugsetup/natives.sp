@@ -3,6 +3,7 @@
 public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("SetupGame", Native_SetupGame);
     CreateNative("ClearGameTypes", Native_ClearGameTypes);
+    CreateNative("FindGameType", Native_FindGameType);
     CreateNative("AddGameType", Native_AddGameType);
     CreateNative("ReadyPlayer", Native_ReadyPlayer);
     CreateNative("UnreadyPlayer", Native_UnreadyPlayer);
@@ -41,6 +42,19 @@ public Native_ClearGameTypes(Handle plugin, int numParams) {
     ClearArray(g_GameMapFiles);
 }
 
+public Native_FindGameType(Handle plugin, int numParams) {
+    char name[CONFIG_STRING_LENGTH];
+    GetNativeString(1, name, sizeof(name));
+    for (int i = 0; i < GetArraySize(g_GameTypes); i++) {
+        char buffer[CONFIG_STRING_LENGTH];
+        GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
+        if (StrEqual(name, buffer, false)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 public Native_AddGameType(Handle plugin, int numParams) {
     char name[CONFIG_STRING_LENGTH];
     char liveCfg[CONFIG_STRING_LENGTH];
@@ -49,10 +63,12 @@ public Native_AddGameType(Handle plugin, int numParams) {
     GetNativeString(1, name, sizeof(name));
     GetNativeString(2, liveCfg, sizeof(liveCfg));
     GetNativeString(3, mapList, sizeof(mapList));
+    bool showInMenu = GetNativeCell(4);
 
     PushArrayString(g_GameTypes, name);
     PushArrayString(g_GameConfigFiles, liveCfg);
     PushArrayString(g_GameMapFiles, mapList);
+    PushArrayCell(g_HiddenGameType, !showInMenu);
     return GetArraySize(g_GameTypes) - 1;
 }
 

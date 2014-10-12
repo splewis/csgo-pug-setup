@@ -44,9 +44,12 @@ native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int
 // Clears all game types.
 native void ClearGameTypes();
 
+// Returns the index of a game type, or -1 if it hasn't been registered.
+native int FindGameType(const char name[]);
+
 // Adds a game type to the game type list. These are fully reset every map.
 // Returns the index of the game type.
-native int AddGameType(char name[], char liveCfg[], char mapList[]);
+native int AddGameType(const char name[], const char liveCfg[], const char mapList[], bool showInMenu=true);
 
 // Readies up a player.
 native void ReadyPlayer(int client);
@@ -122,6 +125,7 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetupGame");
     MarkNativeAsOptional("ClearGameTypes");
     MarkNativeAsOptional("AddGameType");
+    MarkNativeAsOptional("FindGameType");
     MarkNativeAsOptional("ReadyPlayer");
     MarkNativeAsOptional("UnreadyPlayer");
     MarkNativeAsOptional("IsReady");

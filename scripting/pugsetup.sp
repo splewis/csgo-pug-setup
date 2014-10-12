@@ -60,9 +60,10 @@ char g_DemoFileName[256];
 bool g_LiveTimerRunning = false;
 
 #define CONFIG_STRING_LENGTH 256
-Handle g_GameTypes = INVALID_HANDLE;
-Handle g_GameMapFiles = INVALID_HANDLE;
 Handle g_GameConfigFiles = INVALID_HANDLE;
+Handle g_GameMapFiles = INVALID_HANDLE;
+Handle g_GameTypes = INVALID_HANDLE;
+Handle g_HiddenGameType = INVALID_HANDLE;
 
 /** Map-voting variables **/
 Handle g_MapNames = INVALID_HANDLE;

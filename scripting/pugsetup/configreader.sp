@@ -4,9 +4,10 @@
  * arrays that specify options for each game type.
  */
 public Config_MapStart() {
-    g_GameTypes = CreateArray(CONFIG_STRING_LENGTH);
-    g_GameMapFiles = CreateArray(CONFIG_STRING_LENGTH);
     g_GameConfigFiles = CreateArray(CONFIG_STRING_LENGTH);
+    g_GameMapFiles = CreateArray(CONFIG_STRING_LENGTH);
+    g_GameTypes = CreateArray(CONFIG_STRING_LENGTH);
+    g_HiddenGameType = CreateArray();
 
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/gametypes.cfg");

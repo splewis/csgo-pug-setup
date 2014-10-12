@@ -55,12 +55,9 @@ static void AddMap(const char mapName[]) {
     if (strlen(mapName) <= 2 || isComment) {
         return;
     }
-
     if (IsMapValid(mapName)) {
         PushArrayString(g_MapNames, mapName);
         PushArrayCell(g_MapVetoed, false);
-    } else if (strlen(mapName) >= 2) {  // don't print errors on empty
-        LogError("Invalid map name in mapfile: %s", mapName);
     }
 }
 
