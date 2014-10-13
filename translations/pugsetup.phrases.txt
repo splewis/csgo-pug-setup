@@ -239,4 +239,21 @@
 	{
 		"en"		"Match is {GREEN}LIVE"
 	}
+	"VetoMenuTitle"
+	{
+		"en"		"Select a map to veto"
+	}
+	"PlayerVetoed"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"{1} {NORMAL}vetoed {LIGHT_RED}{2}."
+	}
+	"VoteMenuTitle"
+	{
+		"en"		"Vote for a map"
+	}
+	"Random"
+	{
+		"en"		"Random"
+	}
 }

@@ -9,7 +9,7 @@ public void CreateMapVeto() {
 public void GiveVetoMenu(int client) {
     Handle menu = CreateMenu(VetoHandler);
     SetMenuExitButton(menu, false);
-    SetMenuTitle(menu, "Select a map to veto");
+    SetMenuTitle(menu, "%t", "VetoMenuTitle");
     for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         if (!GetArrayCell(g_MapVetoed, i)) {
             decl String:map[PLATFORM_MAX_PATH];
@@ -44,11 +44,9 @@ public VetoHandler(Handle menu, MenuAction action, param1, param2) {
         decl String:map[PLATFORM_MAX_PATH];
         GetArrayString(g_MapNames, index, map, PLATFORM_MAX_PATH);
 
-
-        if (client == g_capt1)
-            PugSetupMessageToAll("{PINK}%N {NORMAL}vetoed {LIGHT_RED}%s", client, map);
-        else
-            PugSetupMessageToAll("{LIGHT_GREEN}%N {NORMAL}vetoed {LIGHT_RED}%s", client, map);
+        char captString[64];
+        FormatPlayerName(g_capt1, g_capt1, captString);
+        PugSetupMessageToAll("%s {NORMAL}vetoed {LIGHT_RED}%s", captString, map);
 
         SetArrayCell(g_MapVetoed, index, true);
         if (GetNumMapsLeft() == 1) {

@@ -10,10 +10,10 @@ public void CreateMapVote() {
 
 static void ShowMapVote() {
     Handle menu = CreateMenu(MapVoteHandler);
-    SetMenuTitle(menu, "Vote for a map");
+    SetMenuTitle(menu, "%t", "VoteMenuTitle");
     SetMenuExitButton(menu, false);
 
-    AddMenuInt(menu, RANDOM_MAP_VOTE, "Random");
+    AddMenuInt(menu, RANDOM_MAP_VOTE, "%t", "Random");
     for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         char mapName[PLATFORM_MAX_PATH];
         GetArrayString(g_MapNames, i, mapName, sizeof(mapName));
