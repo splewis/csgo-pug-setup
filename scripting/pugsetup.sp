@@ -138,6 +138,7 @@ public OnPluginStart() {
 
     /** Commands **/
     RegConsoleCmd("sm_ready", Command_Ready, "Marks the client as ready");
+    RegConsoleCmd("sm_notready", Command_Unready, "Marks the client as not ready");
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
     RegConsoleCmd("sm_setup", Command_Setup, "Starts pug setup (.ready, .capt commands become avaliable)");
     RegConsoleCmd("sm_10man", Command_10man, "Starts 10man setup (alias for .setup with 10 man/gather settings)");
@@ -536,6 +537,7 @@ public Action OnClientSayCommand(client, const char command[], const char sArgs[
     ChatAlias(".gs4lyfe", Command_Ready)
     ChatAlias(".splewis", Command_Ready)
     ChatAlias(".unready", Command_Unready)
+    ChatAlias(".notready", Command_Unready)
     ChatAlias(".pause", Command_Pause)
     ChatAlias(".unpause", Command_Unpause)
 
