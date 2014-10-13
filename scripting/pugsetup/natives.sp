@@ -23,6 +23,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("GetPugMaxPlayers", Native_GetPugMaxPlayers);
     CreateNative("PlayerAtStart", Native_PlayerAtStart);
     CreateNative("IsPugAdmin", Native_IsPugAdmin);
+    CreateNative("HasPermissions", Native_HasPermissions);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -245,6 +246,30 @@ public Native_IsPugAdmin(Handle plugin, int numParams) {
             return GetAdminFlag(admin, flag);
         }
     }
+
+    return false;
+}
+
+public Native_HasPermissions(Handle plugin, int numParams) {
+    int client = GetNativeCell(1);
+    Permissions p = Permissions:GetNativeCell(2);
+
+    if (client == 0)
+        return true;
+
+    if (!IsPlayer(client))
+        return false;
+
+    bool isAdmin = IsPugAdmin(client);
+    bool isLeader = (GetLeader() == client) || isAdmin;
+    bool isCapt = (isLeader) || (client == g_capt1) || (client == g_capt2);
+
+    if (p == Permission_Leader)
+        return isLeader;
+    else if (p == Permission_Captains)
+        return isCapt;
+    else
+        ThrowNativeError(SP_ERROR_PARAM, "Unknown permission value: %d", p);
 
     return false;
 }

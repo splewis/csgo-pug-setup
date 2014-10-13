@@ -17,6 +17,12 @@ enum MapType {
     MapType_Veto
 };
 
+// Permissions checking values.
+enum Permissions {
+    Permission_Captains,
+    Permission_Leader
+};
+
 // Called when a setup menu is finished.
 forward OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
 
@@ -110,6 +116,9 @@ native bool PlayerAtStart(int client);
 // Returns if the plugin has identified a player as having elevated permissions.
 native bool IsPugAdmin(int client);
 
+// Returns if a client satisfies a permission check.
+native bool HasPermissions(int client, Permissions p);
+
 public SharedPlugin:__pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
@@ -145,5 +154,6 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetupGame");
     MarkNativeAsOptional("PlayerAtStart");
     MarkNativeAsOptional("IsPugAdmin");
+    MarkNativeAsOptional("HasPermissions");
 }
 #endif

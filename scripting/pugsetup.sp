@@ -11,12 +11,6 @@
  *                     *
  ***********************/
 
-/** Permissions for the chat commands **/
-enum Permissions {
-    Permission_Captains,
-    Permission_Leader
-};
-
 /** Initial menu data (where captain 1 picks between side pick or 1st player pick) **/
 enum InitialPick {
     InitialPick_Side,
@@ -325,27 +319,6 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
  *     Commands        *
  *                     *
  ***********************/
-
-public bool HasPermissions(int client, Permissions p) {
-    if (client == 0)
-        return true;
-
-    if (!IsPlayer(client))
-        return false;
-
-    bool isAdmin = CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP);
-    bool isLeader = GetLeader() == client || isAdmin;
-    bool isCapt = isLeader || client == g_capt1 || client == g_capt2 || isAdmin;
-
-    if (p == Permission_Leader)
-        return isLeader;
-    else if (p == Permission_Captains)
-        return isCapt;
-    else
-        LogError("Unknown permission: %d", p);
-
-    return false;
-}
 
 // PermissionCheck(Permissions:permissions)
 #define PermissionCheck(%1) \
