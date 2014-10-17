@@ -331,8 +331,6 @@ if (!HasPermissions(client, %1)) { \
 }
 
 public Action Command_Setup(int client, args) {
-    PrintToChatAll("setup");
-
     if (g_MatchLive) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
