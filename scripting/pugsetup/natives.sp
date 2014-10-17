@@ -14,6 +14,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("IsMatchLive", Native_IsMatchLive);
     CreateNative("SetLeader", Native_SetLeader);
     CreateNative("GetLeader", Native_GetLeader);
+    CreateNative("GetCaptain", Native_GetCaptain);
     CreateNative("SetCaptain", Native_SetCaptain);
     CreateNative("PugSetupMessage", Native_PugSetupMessage);
     CreateNative("PugSetupMessageToAll", Native_PugSetupMessageToAll);
