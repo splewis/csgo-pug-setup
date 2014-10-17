@@ -14,10 +14,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("IsMatchLive", Native_IsMatchLive);
     CreateNative("SetLeader", Native_SetLeader);
     CreateNative("GetLeader", Native_GetLeader);
-    CreateNative("SetCaptain1", Native_SetCaptain1);
-    CreateNative("GetCaptain1", Native_GetCaptain1);
-    CreateNative("SetCaptain2", Native_SetCaptain2);
-    CreateNative("GetCaptain2", Native_GetCaptain2);
+    CreateNative("SetCaptain", Native_SetCaptain);
     CreateNative("PugSetupMessage", Native_PugSetupMessage);
     CreateNative("PugSetupMessageToAll", Native_PugSetupMessageToAll);
     CreateNative("GetPugMaxPlayers", Native_GetPugMaxPlayers);
@@ -108,6 +105,8 @@ public Native_UnreadyPlayer(Handle plugin, int numParams) {
 
 public Native_IsReady(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+    if (!IsPlayer(client))
+        ThrowNativeError(SP_ERROR_PARAM, "Client %d is not a player", client);
     return g_Ready[client];
 }
 
@@ -147,37 +146,28 @@ public Native_GetLeader(Handle plugin, int numParams) {
     return r;
 }
 
-public Native_SetCaptain1(Handle plugin, int numParams) {
-    int client = GetNativeCell(1);
+public Native_SetCaptain(Handle plugin, int numParams) {
+    int captainNumber = GetNativeCell(1);
+    int client = GetNativeCell(2);
     if (IsPlayer(client)) {
-        g_capt1 = client;
+        if (captainNumber == 1)
+            g_capt1 = client;
+        else
+            g_capt2 = client;
+
         char buffer[64];
         FormatPlayerName(client, client, buffer);
-        PugSetupMessageToAll("%t", "CaptMessage", 1, buffer);
+        PugSetupMessageToAll("%t", "CaptMessage", captainNumber, buffer);
     }
 
 }
 
-public Native_GetCaptain1(Handle plugin, int numParams) {
-    if (IsValidClient(g_capt1) && !IsFakeClient(g_capt1))
-        return g_capt1;
-    else
-        return -1;
-}
+public Native_GetCaptain(Handle plugin, int numParams) {
+    int captainNumber = GetNativeCell(1);
+    int capt = (captainNumber == 1) ? g_capt1 : g_capt2;
 
-public Native_SetCaptain2(Handle plugin, int numParams) {
-    int client = GetNativeCell(1);
-    if (IsPlayer(client)) {
-        g_capt2 = client;
-        char buffer[64];
-        FormatPlayerName(client, client, buffer);
-        PugSetupMessageToAll("%t", "CaptMessage", 2, buffer);
-    }
-}
-
-public Native_GetCaptain2(Handle plugin, int numParams) {
-    if (IsValidClient(g_capt2) && !IsFakeClient(g_capt2))
-        return g_capt2;
+    if (IsValidClient(capt) && !IsFakeClient(capt))
+        return capt;
     else
         return -1;
 }

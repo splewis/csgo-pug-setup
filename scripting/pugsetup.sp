@@ -419,12 +419,12 @@ public Action Command_Capt(int client, args) {
 
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
-        SetCaptain1(target);
+        SetCaptain(1, target);
 
         if (GetCmdArgs() >= 2) {
             GetCmdArg(2, buffer, sizeof(buffer));
             target = FindTarget(client, buffer, true, false);
-            SetCaptain2(target);
+            SetCaptain(2, target);
         } else {
             Captain2Menu(client);
         }
@@ -722,8 +722,8 @@ public void SetRandomCaptains() {
         c2 = RandomPlayer();
     }
 
-    SetCaptain1(c1);
-    SetCaptain2(c2);
+    SetCaptain(1, c1);
+    SetCaptain(2, c2);
 }
 
 public void ReadyToStart() {

@@ -87,17 +87,11 @@ native void SetLeader(int client);
 // Returns the pug leader, or -1 if not set.
 native int GetLeader();
 
-// Sets who is captain 1.
-native void SetCaptain1(int client);
+// Sets who is a captain.
+native void SetCaptain(int captainNumber, int client);
 
 // Returns captain 1, or -1 if not set.
-native int GetCaptain1();
-
-// Sets who is captain 2.
-native void SetCaptain2(int client);
-
-// Returns captain 2, or -1 if not set.
-native int GetCaptain2();
+native int GetCaptain(int captainNumber);
 
 // Prints a plugin-formatted message to a client.
 native void PugSetupMessage(int client, const char format[], any:...);

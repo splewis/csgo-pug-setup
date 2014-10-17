@@ -14,7 +14,7 @@ public Captain1MenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         int choice = GetMenuInt(menu, param2);
-        SetCaptain1(choice);
+        SetCaptain(1, choice);
         Captain2Menu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -33,7 +33,7 @@ public Captain2Menu(client) {
 public Captain2MenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int choice = GetMenuInt(menu, param2);
-        SetCaptain2(choice);
+        SetCaptain(2, choice);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }

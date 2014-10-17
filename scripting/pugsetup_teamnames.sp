@@ -24,6 +24,7 @@ public Plugin:myinfo = {
 
 public OnPluginStart() {
     LoadTranslations("common.phrases");
+    LoadTranslations("pugsetup.phrases");
     RegAdminCmd("sm_name", Command_Name, ADMFLAG_CHANGEMAP, "Sets a team name/flag to go with a player: sm_name <player> <teamname> <teamflag>, use quotes for the team name if it includes a space!");
     RegAdminCmd("sm_listnames", Command_ListNames, ADMFLAG_CHANGEMAP, "Lists all players' and their team names/flag, if they have one set.");
     g_teamNameCookie = RegClientCookie("pugsetup_teamname", "Pugsetup team name", CookieAccess_Protected);
