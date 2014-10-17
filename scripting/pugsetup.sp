@@ -57,7 +57,8 @@ bool g_LiveTimerRunning = false;
 Handle g_GameConfigFiles = INVALID_HANDLE;
 Handle g_GameMapFiles = INVALID_HANDLE;
 Handle g_GameTypes = INVALID_HANDLE;
-Handle g_HiddenGameType = INVALID_HANDLE;
+Handle g_GameTypeHidden = INVALID_HANDLE;
+Handle g_GameTypeTeamSize = INVALID_HANDLE;
 
 /** Map-voting variables **/
 Handle g_MapNames = INVALID_HANDLE;
@@ -330,6 +331,8 @@ if (!HasPermissions(client, %1)) { \
 }
 
 public Action Command_Setup(int client, args) {
+    PrintToChatAll("setup");
+
     if (g_MatchLive) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
@@ -708,22 +711,6 @@ public void PrintSetupInfo(int client) {
 
     GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
     PugSetupMessage(client, "%t", "LO3Setting", buffer);
-}
-
-public void SetRandomCaptains() {
-    int c1 = -1;
-    int c2 = -1;
-
-    c1 = RandomPlayer();
-    while (!IsPlayer(c2) || c1 == c2) {
-        if (GetRealClientCount() < 2)
-            break;
-
-        c2 = RandomPlayer();
-    }
-
-    SetCaptain(1, c1);
-    SetCaptain(2, c2);
 }
 
 public void ReadyToStart() {

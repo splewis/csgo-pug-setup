@@ -55,7 +55,7 @@ native int FindGameType(const char name[]);
 
 // Adds a game type to the game type list. These are fully reset every map.
 // Returns the index of the game type.
-native int AddGameType(const char name[], const char liveCfg[], const char mapList[], bool showInMenu=true);
+native int AddGameType(const char name[], const char liveCfg[], const char mapList[], bool showInMenu=true, int teamSize=-1);
 
 // Readies up a player.
 native void ReadyPlayer(int client);
@@ -115,6 +115,9 @@ native bool IsPugAdmin(int client);
 // Returns if a client satisfies a permission check.
 native bool HasPermissions(int client, Permissions p);
 
+// Sets random captains.
+native void SetRandomCaptains();
+
 public SharedPlugin:__pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
@@ -140,10 +143,8 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("IsMatchLive");
     MarkNativeAsOptional("SetLeader");
     MarkNativeAsOptional("GetLeader");
-    MarkNativeAsOptional("SetCaptain1");
-    MarkNativeAsOptional("GetCaptain1");
-    MarkNativeAsOptional("SetCaptain2");
-    MarkNativeAsOptional("GetCaptain2");
+    MarkNativeAsOptional("SetCaptain");
+    MarkNativeAsOptional("GetCaptain");
     MarkNativeAsOptional("PugSetupMessage");
     MarkNativeAsOptional("PugSetupMessageToAll");
     MarkNativeAsOptional("GetPugMaxPlayers");
@@ -151,5 +152,6 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("PlayerAtStart");
     MarkNativeAsOptional("IsPugAdmin");
     MarkNativeAsOptional("HasPermissions");
+    MarkNativeAsOptional("SetRandomCaptains");
 }
 #endif

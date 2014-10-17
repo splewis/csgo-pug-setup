@@ -7,7 +7,8 @@ public Config_MapStart() {
     g_GameConfigFiles = CreateArray(CONFIG_STRING_LENGTH);
     g_GameMapFiles = CreateArray(CONFIG_STRING_LENGTH);
     g_GameTypes = CreateArray(CONFIG_STRING_LENGTH);
-    g_HiddenGameType = CreateArray();
+    g_GameTypeHidden = CreateArray();
+    g_GameTypeTeamSize = CreateArray();
 
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/gametypes.cfg");
@@ -34,13 +35,18 @@ public Config_MapStart() {
         KvGetSectionName(kv, name, sizeof(name));
         KvGetString(kv, "config", config, sizeof(config), "gamemode_competitive.cfg");
         KvGetString(kv, "maplist", maplist, sizeof(maplist), "standard.txt");
-        AddGameType(name, config, maplist);
+        bool visible = !KvGetNum(kv, "hidden", 0);
+        int teamsize = KvGetNum(kv, "teamsize", -1);
+        LogMessage("name=%s, hidden=%d, visible=%d", name,  KvGetNum(kv, "hidden", 0), visible);
+
+        AddGameType(name, config, maplist, visible, teamsize);
     } while (KvGotoNextKey(kv));
 
     CloseHandle(kv);
 }
 
 static LoadBackupConfig() {
+    LogError("Falling back to builtin backup config");
     PushArrayString(g_GameTypes, "Normal");
     PushArrayString(g_GameMapFiles, "standard.txt");
     PushArrayString(g_GameConfigFiles, "gamemode_competitive.cfg");

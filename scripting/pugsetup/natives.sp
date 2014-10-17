@@ -22,6 +22,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
     CreateNative("PlayerAtStart", Native_PlayerAtStart);
     CreateNative("IsPugAdmin", Native_IsPugAdmin);
     CreateNative("HasPermissions", Native_HasPermissions);
+    CreateNative("SetRandomCaptains", Native_SetRandomCaptains);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -63,11 +64,13 @@ public Native_AddGameType(Handle plugin, int numParams) {
     GetNativeString(2, liveCfg, sizeof(liveCfg));
     GetNativeString(3, mapList, sizeof(mapList));
     bool showInMenu = GetNativeCell(4);
+    int teamSize = GetNativeCell(5);
 
     PushArrayString(g_GameTypes, name);
     PushArrayString(g_GameConfigFiles, liveCfg);
     PushArrayString(g_GameMapFiles, mapList);
-    PushArrayCell(g_HiddenGameType, !showInMenu);
+    PushArrayCell(g_GameTypeHidden, !showInMenu);
+    PushArrayCell(g_GameTypeTeamSize, teamSize);
     return GetArraySize(g_GameTypes) - 1;
 }
 
@@ -263,4 +266,20 @@ public Native_HasPermissions(Handle plugin, int numParams) {
         ThrowNativeError(SP_ERROR_PARAM, "Unknown permission value: %d", p);
 
     return false;
+}
+
+public Native_SetRandomCaptains(Handle plugin, int numParams) {
+    int c1 = -1;
+    int c2 = -1;
+
+    c1 = RandomPlayer();
+    while (!IsPlayer(c2) || c1 == c2) {
+        if (GetRealClientCount() < 2)
+            break;
+
+        c2 = RandomPlayer();
+    }
+
+    SetCaptain(1, c1);
+    SetCaptain(2, c2);
 }

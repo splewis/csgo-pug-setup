@@ -116,6 +116,20 @@ workshop/267340686/de_facade
 When creating configs, realize that CS:GO's standard competitive config (``csgo/cfg/gamemode_competitive.cfg``) will be executed first. Two example deathmatch-style configs (good for aim maps) are included as examples, ``csgo/cfg/sourcemod/pugsetup`` contains ``awp.cfg`` and ``ak.cfg``.
 
 
+There are other key/values you can use inside a gametype. For example:
+```
+    "2v2"
+    {
+        "config"        "sourcemod/pugsetup/standard.cfg"
+        "maplist"       "2v2maps.txt"
+        "teamsize"      "2"
+    }
+```
+
+This will always make the game type use teams of 2, and not display the player-count menu in the setup menu.
+
+There is also another field ``hidden``, which you can set to 1 to make the game type not appear in the setup menu. This may be useful for other plugin developers using the ``SetupGame`` native.
+
 
 ### For developers
 There is some extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).

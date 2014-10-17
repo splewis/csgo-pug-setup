@@ -13,13 +13,19 @@ public void SetupMenu(int client) {
         SetMenuTitle(menu, "%t", "GameTypeTitle");
         SetMenuExitButton(menu, false);
         char buffer[256];
+        int count = 0;
         for (new i = 0; i < GetArraySize(g_GameTypes); i++) {
-            if (!GetArrayCell(g_HiddenGameType, i)) {
+            if (!GetArrayCell(g_GameTypeHidden, i)) {
+                count++;
                 GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
                 AddMenuInt(menu, i, buffer);
             }
         }
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+        if (count <= 0) {
+            LogError("All game types were marked as hidden.");
+        } else {
+            DisplayMenu(menu, client, MENU_TIME_FOREVER);
+        }
     }
 }
 
@@ -48,11 +54,19 @@ public TeamTypeMenuHandler(Handle menu, MenuAction action, param1, param2) {
         int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
 
-        if (GetConVarInt(g_hAlways5v5) == 0) {
-            GivePlayerCountMenu(client);
+        int teamsize = GetArrayCell(g_GameTypeTeamSize, g_GameTypeIndex);
+
+        // team size not specified by the gametype:
+        if (teamsize <= 0) {
+            if (GetConVarInt(g_hAlways5v5) == 0) {
+                GivePlayerCountMenu(client);
+            } else {
+                MapMenu(client);
+                g_PlayersPerTeam = 5;
+            }
         } else {
             MapMenu(client);
-            g_PlayersPerTeam = 5;
+            g_PlayersPerTeam = teamsize;
         }
 
     } else if (action == MenuAction_End) {
