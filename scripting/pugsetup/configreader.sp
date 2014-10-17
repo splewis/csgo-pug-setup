@@ -37,7 +37,6 @@ public Config_MapStart() {
         KvGetString(kv, "maplist", maplist, sizeof(maplist), "standard.txt");
         bool visible = !KvGetNum(kv, "hidden", 0);
         int teamsize = KvGetNum(kv, "teamsize", -1);
-        LogMessage("name=%s, hidden=%d, visible=%d", name,  KvGetNum(kv, "hidden", 0), visible);
 
         AddGameType(name, config, maplist, visible, teamsize);
     } while (KvGotoNextKey(kv));
