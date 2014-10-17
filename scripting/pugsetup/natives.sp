@@ -184,6 +184,7 @@ public Native_PugSetupMessage(Handle plugin, int numParams) {
 
     char buffer[1024];
     int bytesWritten = 0;
+    SetGlobalTransTarget(client);
     FormatNativeString(0, 2, 3, sizeof(buffer), bytesWritten, buffer);
 
     char prefix[64];
@@ -197,24 +198,33 @@ public Native_PugSetupMessage(Handle plugin, int numParams) {
 
     Colorize(finalMsg, sizeof(finalMsg));
     PrintToChat(client, finalMsg);
+    SetGlobalTransTarget(LANG_SERVER);
 }
 
 public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
-    char buffer[1024];
-    int bytesWritten = 0;
-    FormatNativeString(0, 1, 2, sizeof(buffer), bytesWritten, buffer);
-
     char prefix[64];
     GetConVarString(g_hMessagePrefix, prefix, sizeof(prefix));
+    char buffer[1024];
+    int bytesWritten = 0;
 
-    char finalMsg[1024];
-    if (StrEqual(prefix, ""))
-        Format(finalMsg, sizeof(finalMsg), " %s", buffer);
-    else
-        Format(finalMsg, sizeof(finalMsg), "%s %s", prefix, buffer);
+    for (int i = 1; i <= MaxClients; i++) {
+        if (!IsPlayer(i))
+            continue;
 
-    Colorize(finalMsg, sizeof(finalMsg));
-    PrintToChatAll(finalMsg);
+        SetGlobalTransTarget(i);
+        FormatNativeString(0, 1, 2, sizeof(buffer), bytesWritten, buffer);
+
+        char finalMsg[1024];
+        if (StrEqual(prefix, ""))
+            Format(finalMsg, sizeof(finalMsg), " %s", buffer);
+        else
+            Format(finalMsg, sizeof(finalMsg), "%s %s", prefix, buffer);
+
+        Colorize(finalMsg, sizeof(finalMsg));
+        PrintToChat(i, finalMsg);
+    }
+
+    SetGlobalTransTarget(LANG_SERVER);
 }
 
 public Native_GetPugMaxPlayers(Handle plugin, int numParams) {
