@@ -42,7 +42,7 @@ forward OnLive();
 // If you plan on using the result of the demo file,
 // I'd suggest adding a slight delay from when this is called
 // to accomodate the time spent flushing the demo to disk.
-forward OnMatchOver(bool hasDemo, char demoFileName[]);
+forward OnMatchOver(bool hasDemo, const char demoFileName[]);
 
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam, bool autolo3);
@@ -148,7 +148,6 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("PugSetupMessage");
     MarkNativeAsOptional("PugSetupMessageToAll");
     MarkNativeAsOptional("GetPugMaxPlayers");
-    MarkNativeAsOptional("SetupGame");
     MarkNativeAsOptional("PlayerAtStart");
     MarkNativeAsOptional("IsPugAdmin");
     MarkNativeAsOptional("HasPermissions");
