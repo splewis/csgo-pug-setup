@@ -9,6 +9,11 @@ Handle g_hAutolo3 = INVALID_HANDLE;
 Handle g_hEnabled = INVALID_HANDLE;
 Handle g_hGameType = INVALID_HANDLE;
 
+// To prevent multiple setups if the game is aborted (!endmatch, !forceend),
+// this tracks if this plugin has done a setup - so at most 1
+// call to SetupGame happens per map.
+bool g_Setup = false;
+
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: auto 10 man setup",
     author = "splewis",
@@ -25,8 +30,12 @@ public OnPluginStart() {
     AutoExecConfig(true, "pugsetup_auto10man", "sourcemod/pugsetup");
 }
 
+public OnMapStart() {
+    g_Setup = false;
+}
+
 public OnClientConnected() {
-    if (GetConVarInt(g_hEnabled) != 0 && !IsSetup()) {
+    if (GetConVarInt(g_hEnabled) != 0 && !IsSetup() && !g_Setup) {
         bool autolo3 = GetConVarInt(g_hAutolo3) != 0;
         char gameType[256];
         GetConVarString(g_hGameType, gameType, sizeof(gameType));
@@ -35,6 +44,7 @@ public OnClientConnected() {
             LogError("There is no gametype matching \"%s\" in addons/sourcemod/configs/pugsetup/gametypes.cfg", gameType);
         } else {
             SetupGame(gameTypeIndex, TeamType_Captains, MapType_Vote, 5, autolo3);
+            g_Setup = true;
         }
     }
 }
