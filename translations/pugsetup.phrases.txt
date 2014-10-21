@@ -248,6 +248,10 @@
 		"#format"	"{1:s},{2:s}"
 		"en"		"{1} {NORMAL}vetoed {LIGHT_RED}{2}."
 	}
+	"MapsLeft"
+	{
+		"en"		"Maps left:"
+	}
 	"VoteMenuTitle"
 	{
 		"en"		"Vote for a map"

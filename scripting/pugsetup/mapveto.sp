@@ -12,7 +12,7 @@ public void GiveVetoMenu(int client) {
     SetMenuTitle(menu, "%t", "VetoMenuTitle");
     for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         if (!GetArrayCell(g_MapVetoed, i)) {
-            decl String:map[PLATFORM_MAX_PATH];
+            char map[PLATFORM_MAX_PATH];
             GetArrayString(g_MapNames, i, map, sizeof(map));
             AddMenuInt(menu, i, map);
         }
@@ -41,12 +41,12 @@ public VetoHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         new index = GetMenuInt(menu, param2);
-        decl String:map[PLATFORM_MAX_PATH];
+        char map[PLATFORM_MAX_PATH];
         GetArrayString(g_MapNames, index, map, PLATFORM_MAX_PATH);
 
         char captString[64];
         FormatPlayerName(g_capt1, g_capt1, captString);
-        PugSetupMessageToAll("%s {NORMAL}vetoed {LIGHT_RED}%s", captString, map);
+        PugSetupMessageToAll("%t", "PlayerVetoed", captString, map);
 
         SetArrayCell(g_MapVetoed, index, true);
         if (GetNumMapsLeft() == 1) {
@@ -70,22 +70,19 @@ public VetoHandler(Handle menu, MenuAction action, param1, param2) {
 static VetoStatusDisplay(int client) {
     Handle menu = CreateMenu(VetoStatusHandler);
     SetMenuExitButton(menu, true);
-    SetMenuTitle(menu, "Maps left");
+    SetMenuTitle(menu, "%t", "MapsLeft");
     for (int i = 0; i < GetArraySize(g_MapNames); i++) {
         if (!GetArrayCell(g_MapVetoed, i)) {
-            decl String:map[PLATFORM_MAX_PATH];
+            char map[PLATFORM_MAX_PATH];
             GetArrayString(g_MapNames, i, map, sizeof(map));
-            AddMenuInt(menu, i, map);
+            AddMenuItem(menu, "", map, ITEMDRAW_DISABLED);
         }
     }
     DisplayMenu(menu, client, 30);
 }
 
 public VetoStatusHandler(Handle menu, MenuAction action, param1, param2) {
-    if (action == MenuAction_Select) {
-        int client = param1;
-        PugSetupMessage(client, "You aren't a captain, your menu is just for display/information purposes!");
-    } else if (action == MenuAction_End) {
+    if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
