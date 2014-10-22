@@ -341,7 +341,7 @@ public Action Command_Setup(int client, args) {
         return Plugin_Handled;
     }
 
-    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP)) {
+    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !IsPugAdmin(client)) {
         PugSetupMessage(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
@@ -371,7 +371,7 @@ public Action Command_10man(int client, args) {
         return Plugin_Handled;
     }
 
-    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !CheckCommandAccess(client, "sm_map", ADMFLAG_CHANGEMAP)) {
+    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !IsPugAdmin(client)) {
         PugSetupMessage(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
@@ -516,31 +516,43 @@ public Action Command_Start(int client, args) {
     return Plugin_Handled;
 }
 
-// ChatAlias(char chatAlias[], commandfunction, Permissions permissions)
-#define ChatAlias(%1,%2) \
-if (StrEqual(sArgs[0], %1)) { \
-    %2 (client, 0); \
+static bool CheckChatAlias(const char[] alias, const char[] command, const char[] sArgs, int client) {
+    if (IsPrefix(sArgs, alias)) {
+        char text[255];
+        SplitStringRight(sArgs, alias, text, sizeof(text));
+        FakeClientCommand(client, "%s %s", command, text);
+        return true;
+    }
+    return false;
 }
 
 public Action OnClientSayCommand(client, const char command[], const char sArgs[]) {
-    ChatAlias(".setup", Command_Setup)
-    ChatAlias(".10man", Command_10man)
-    ChatAlias(".start", Command_Start)
-    ChatAlias(".endgame", Command_EndGame)
-    ChatAlias(".endmatch", Command_EndGame)
-    ChatAlias(".cancel", Command_EndGame)
-    ChatAlias(".capt", Command_Capt)
-    ChatAlias(".captain", Command_Capt)
-    ChatAlias(".leader", Command_Leader)
-    ChatAlias(".rand", Command_Rand)
-    ChatAlias(".gaben", Command_Ready)
-    ChatAlias(".ready", Command_Ready)
-    ChatAlias(".gs4lyfe", Command_Ready)
-    ChatAlias(".splewis", Command_Ready)
-    ChatAlias(".unready", Command_Unready)
-    ChatAlias(".notready", Command_Unready)
-    ChatAlias(".pause", Command_Pause)
-    ChatAlias(".unpause", Command_Unpause)
+    char aliases[][][] = {
+        {".setup", "sm_setup"},
+        {".10man", "sm_10man"},
+        {".start", "sm_start"},
+        {".endgame", "sm_endmatch"},
+        {".endmatch", "sm_endmatch"},
+        {".forceend", "sm_forceend"},
+        {".cancel", "sm_endmatch"},
+        {".capt", "sm_capt"},
+        {".captain", "sm_capt"},
+        {".leader", "sm_leader"},
+        {".rand", "sm_rand"},
+        {".gaben", "sm_ready"},
+        {".ready", "sm_ready"},
+        {".gs4lyfe", "sm_ready"},
+        {".splewis", "sm_ready"},
+        {".unready", "sm_unready"},
+        {".notready", "sm_unready"},
+        {".pause", "sm_pause"},
+        {".unpause", "sm_unpause"}
+    };
+
+    for (int i = 0; i < sizeof(aliases); i++) {
+        if (CheckChatAlias(aliases[i][0], aliases[i][1], sArgs, client))
+            break;
+    }
 
     // there is no sm_help command since we don't want override the built-in sm_help command
     if (StrEqual(sArgs[0], ".help")) {

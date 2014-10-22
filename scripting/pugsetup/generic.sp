@@ -152,3 +152,18 @@ stock void RandomizeArray(Handle array) {
         SwapArrayItems(array, i, choice);
     }
 }
+
+// Thanks to KissLick https://forums.alliedmods.net/member.php?u=210752
+stock bool SplitStringRight(const char source[], const char split[], char part[], int partLen) {
+    int index = StrContains(source, split);
+    if (index == -1)
+        return false;
+
+    index += strlen(split);
+    strcopy(part, partLen, source[index]);
+    return true;
+}
+
+stock bool IsPrefix(const char str[], const char prefix[]) {
+    return StrContains(str, prefix, false) == 0;
+}

@@ -37,7 +37,7 @@ Generally, here is what happens:
 ### Installation
 Download pugsetup.zip and extract the files to the game server. From the download, you should have installed the following (to the ``csgo`` directory):
 - ``addons/sourcemod/plugins/pugsetup.smx``
-- ``addons/sourcemod/translations/pugsetup.phrases.txt``
+- ``addons/sourcemod/translations/`` (the entire directory)
 - ``addons/sourcemod/configs/pugsetup/`` (the entire directory)
 - ``cfg/sourcemod/pugsetup`` (the entire directory)
 
@@ -176,8 +176,6 @@ Some commands that are important are:
 - **!endgame**, force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
 
 You can also type .start instead of !start, or .ready instead of !ready.
-
-The ! style commands will let you use arguments; for example: !capt player1 player2 works, while using .capt will just open a menu for you to pick players.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
 - sm_10man (this just uses the first game type from ``gametypes.cfg``, with 5v5, captains, map vote, and auto-lo3 disabled)
