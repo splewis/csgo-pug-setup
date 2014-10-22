@@ -33,14 +33,23 @@ public OnPluginStart() {
     g_hMapType = CreateConVar("sm_pugsetup_autosetup_maptype", "vote", "Vote type to use. Allowed values: \"vote\", \"veto\", \"current\".");
     g_hTeamSize = CreateConVar("sm_pugsetup_autosetup_enabled", "1", "Whether the plugin is enabled or not.");
     g_hTeamType = CreateConVar("sm_pugsetup_autosetup_teamtype", "captains", "What team type to use. Allowed values: \"captains\", \"manual\", and \"random\".");
-    AutoExecConfig(true, "pugsetup_auto10man", "sourcemod/pugsetup");
+    AutoExecConfig(true, "pugsetup_autosetup", "sourcemod/pugsetup");
 }
 
 public OnMapStart() {
     g_Setup = false;
 }
 
+public OnMatchOver() {
+    g_Setup = false;
+    Setup();
+}
+
 public OnClientConnected() {
+    Setup();
+}
+
+public Setup() {
     if (GetConVarInt(g_hEnabled) != 0 && !IsSetup() && !g_Setup) {
         bool autolo3 = GetConVarInt(g_hAutolo3) != 0;
         int teamsize = GetConVarInt(g_hTeamSize);
