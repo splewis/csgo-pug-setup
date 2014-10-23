@@ -573,15 +573,15 @@ public Action OnClientSayCommand(client, const char command[], const char sArgs[
 
 public Action Command_EndGame(int client, args) {
     if (!g_Setup) {
-        PugSetupMessage(client, "The match has not begun yet!");
+        PugSetupMessage(client, "%t", "NotLiveYet");
     } else {
         PermissionCheck(Permission_Leader)
 
         Handle menu = CreateMenu(MatchEndHandler);
-        SetMenuTitle(menu, "Are you sure you want to end the match?");
+        SetMenuTitle(menu, "%t", "EndMatchMenuTitle");
         SetMenuExitButton(menu, true);
-        AddMenuBool(menu, false, "No, continue the match");
-        AddMenuBool(menu, true, "Yes, end the match");
+        AddMenuBool(menu, false, "%t", "ContinueMatch");
+        AddMenuBool(menu, true, "%t", "EndMatch");
         DisplayMenu(menu, client, 20);
     }
     return Plugin_Handled;

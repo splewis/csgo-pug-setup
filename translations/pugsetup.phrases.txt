@@ -260,4 +260,21 @@
 	{
 		"en"		"Random"
 	}
+	"NotLiveYet"
+	{
+		"en"		"The match has not begun yet."
+	}
+	"EndMatchMenuTitle"
+	{
+		"en"		"Are you sure you want to end the match?"
+	}
+	"EndMatch"
+	{
+		"en"		"Yes, end the match"
+	}
+	"ContinueMatch"
+	{
+		"en"		"No, continue the match"
+	}
+
 }
