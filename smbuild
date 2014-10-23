@@ -6,4 +6,5 @@ Plugin(source='scripting/pugsetup_teamnames.sp')
 
 Package(name='pugsetup',
         plugins=['pugsetup', 'pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames'],
+        disabled_plugins=['pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames'],
 )
