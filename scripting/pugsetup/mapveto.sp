@@ -45,7 +45,7 @@ public VetoHandler(Handle menu, MenuAction action, param1, param2) {
         GetArrayString(g_MapNames, index, map, PLATFORM_MAX_PATH);
 
         char captString[64];
-        FormatPlayerName(g_capt1, g_capt1, captString);
+        FormatPlayerName(client, client, captString);
         PugSetupMessageToAll("%t", "PlayerVetoed", captString, map);
 
         SetArrayCell(g_MapVetoed, index, true);
