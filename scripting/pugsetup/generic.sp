@@ -8,7 +8,7 @@ char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x0
 stock void ExecCfg(Handle ConVarName) {
     char cfg[PLATFORM_MAX_PATH];
     GetConVarString(ConVarName, cfg, sizeof(cfg));
-    ServerCommand("exec %s", cfg);
+    ServerCommand("exec \"%s\"", cfg);
 }
 
 /**

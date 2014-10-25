@@ -489,7 +489,7 @@ public Action Command_Start(int client, args) {
         ReplaceString(demoName, sizeof(demoName), "{TEAMSIZE}", playerCount, false);
         ReplaceString(demoName, sizeof(demoName), "{TIME}", formattedTime, false);
 
-        ServerCommand("tv_record %s", demoName);
+        ServerCommand("tv_record \"%s\"", demoName);
         LogMessage("Recording to %s", demoName);
         Format(g_DemoFileName, sizeof(g_DemoFileName), "%s.dem", demoName);
         g_Recording = true;
