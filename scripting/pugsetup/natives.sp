@@ -66,6 +66,19 @@ public Native_AddGameType(Handle plugin, int numParams) {
     bool showInMenu = GetNativeCell(4);
     int teamSize = GetNativeCell(5);
 
+    // Check for existence of live cfg
+    char path[PLATFORM_MAX_PATH];
+    Format("cfg/%s", sizeof(path), liveCfg);
+    if (!FileExists(path)) {
+        LogError("Gametype \"%s\" uses non-existent live cfg: \"%s\"", name, liveCfg);
+    }
+
+    // Check for existence of map file
+    BuildPath(Path_SM, path, sizeof(path), "configs/pugsetup/%s", mapList);
+    if (!FileExists(path)) {
+        LogError("Gametype \"%s\" uses non-existent map list: \"%s\"", name, mapList);
+    }
+
     PushArrayString(g_GameTypes, name);
     PushArrayString(g_GameConfigFiles, liveCfg);
     PushArrayString(g_GameMapFiles, mapList);
