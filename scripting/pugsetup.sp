@@ -31,6 +31,7 @@ Handle g_hExecDefaultConfig = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hMessagePrefix = INVALID_HANDLE;
 Handle g_hNeverAutoLO3 = INVALID_HANDLE;
+Handle g_hQuickRestarts = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
 Handle g_hRequireAdminToSetup = INVALID_HANDLE;
 Handle g_hSnakeCaptains = INVALID_HANDLE;
@@ -126,6 +127,7 @@ public OnPluginStart() {
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hNeverAutoLO3 = CreateConVar("sm_pugsetup_never_autolo3", "0", "Set to 1 to always use auto-lo3=disabled, otherwise it is an option in the setup menu.");
+    g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 0, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the sm_pugsetup_admin_flag flag to use the .setup command.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");

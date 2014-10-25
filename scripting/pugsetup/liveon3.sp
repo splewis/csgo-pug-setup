@@ -11,9 +11,16 @@ public Action BeginLO3(Handle timer) {
         if (IsValidClient(i) && !IsFakeClient(i))
             CS_SetClientClanTag(i, "");
 
-    PugSetupMessageToAll("%t", "RestartCounter", 1);
-    ServerCommand("mp_restartgame 1");
-    CreateTimer(3.0, Restart2);
+    if (GetConVarInt(g_hQuickRestarts) == 0) {
+        // start lo3
+        PugSetupMessageToAll("%t", "RestartCounter", 1);
+        ServerCommand("mp_restartgame 1");
+        CreateTimer(3.0, Restart2);
+    } else {
+        // single restart
+        ServerCommand("mp_restartgame 5");
+        CreateTimer(5.1, MatchLive);
+    }
 }
 
 public Action Restart2(Handle timer) {

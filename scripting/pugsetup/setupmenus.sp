@@ -157,6 +157,7 @@ public SetupFinished() {
     g_capt1 = -1;
     g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
+
     for (int i = 1; i <= MaxClients; i++)
         if (IsPlayer(i))
             PrintSetupInfo(i);
