@@ -44,6 +44,9 @@ forward OnLive();
 // to accomodate the time spent flushing the demo to disk.
 forward OnMatchOver(bool hasDemo, const char demoFileName[]);
 
+// Called when a client is not picked in a captain-selection game.
+forward OnNotPicked(int client);
+
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam, bool autolo3);
 

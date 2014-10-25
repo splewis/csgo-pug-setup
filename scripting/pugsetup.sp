@@ -79,6 +79,7 @@ bool g_MatchLive = false;
 Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnLive = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
+Handle g_hOnNotPicked = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
@@ -165,6 +166,7 @@ public OnPluginStart() {
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
+    g_hOnNotPicked = CreateGlobalForward("OnNotPicked", ET_Ignore, Param_Cell);
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
@@ -793,7 +795,14 @@ public Action StartPicking(Handle timer) {
 public Action FinishPicking(Handle timer) {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
-            SwitchPlayerTeam(i, g_Teams[i]);
+            if (g_Teams[i] == CS_TEAM_NONE) {
+                SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
+                Call_StartForward(g_hOnNotPicked);
+                Call_PushCell(i);
+                Call_Finish();
+            } else {
+                SwitchPlayerTeam(i, g_Teams[i]);
+            }
         }
     }
 
