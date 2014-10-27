@@ -68,7 +68,7 @@ public Native_AddGameType(Handle plugin, int numParams) {
 
     // Check for existence of live cfg
     char path[PLATFORM_MAX_PATH];
-    Format("cfg/%s", sizeof(path), liveCfg);
+    Format(path, sizeof(path), "cfg/%s", liveCfg);
     if (!FileExists(path)) {
         LogError("Gametype \"%s\" uses non-existent live cfg: \"%s\"", name, liveCfg);
     }
