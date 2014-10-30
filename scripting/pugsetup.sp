@@ -1,6 +1,7 @@
 #pragma semicolon 1
 #include <cstrike>
 #include <sourcemod>
+#include <sdktools>
 #include "include/pugsetup.inc"
 
 
@@ -30,6 +31,7 @@ Handle g_hExcludeSpectators = INVALID_HANDLE;
 Handle g_hExecDefaultConfig = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hMessagePrefix = INVALID_HANDLE;
+Handle g_hMutualUnpause = INVALID_HANDLE;
 Handle g_hNeverAutoLO3 = INVALID_HANDLE;
 Handle g_hQuickRestarts = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
@@ -53,6 +55,10 @@ bool g_mapSet = false;
 bool g_Recording = true;
 char g_DemoFileName[256];
 bool g_LiveTimerRunning = false;
+
+// Pause information
+bool g_ctUnpaused = false;
+bool g_tUnpaused = false;
 
 #define CONFIG_STRING_LENGTH 256
 Handle g_GameConfigFiles = INVALID_HANDLE;
@@ -127,6 +133,7 @@ public OnPluginStart() {
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
+    g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "0", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this cvar will let anybody use the !unpause command.");
     g_hNeverAutoLO3 = CreateConVar("sm_pugsetup_never_autolo3", "0", "Set to 1 to always use auto-lo3=disabled, otherwise it is an option in the setup menu.");
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
@@ -612,30 +619,57 @@ public Action Command_ForceEnd(int client, args) {
 }
 
 public Action Command_Pause(int client, args) {
-    if (!g_Setup || !g_MatchLive)
+    bool paused = bool:GameRules_GetProp("m_bMatchWaitingForResume");
+    if (!g_Setup || !g_MatchLive || paused)
         return Plugin_Handled;
 
     if (GetConVarInt(g_hAnyCanPause) != 0)
         PermissionCheck(Permission_Captains)
 
+    g_ctUnpaused = false;
+    g_tUnpaused = false;
+    ServerCommand("mp_pause_match");
     if (IsPlayer(client)) {
-        ServerCommand("mp_pause_match");
         PugSetupMessageToAll("%t", "Pause", client);
     }
+
     return Plugin_Handled;
 }
 
 public Action Command_Unpause(int client, args) {
-    if (!g_Setup || !g_MatchLive)
+    bool paused = bool:GameRules_GetProp("m_bMatchWaitingForResume");
+    if (!g_Setup || !g_MatchLive || !paused)
         return Plugin_Handled;
 
-    if (GetConVarInt(g_hAnyCanPause) != 0)
-        PermissionCheck(Permission_Captains)
+    if (GetConVarInt(g_hMutualUnpause) != 0) {
+        if (GetConVarInt(g_hAnyCanPause) != 0)
+            PermissionCheck(Permission_Captains)
 
-    if (IsPlayer(client)) {
         ServerCommand("mp_unpause_match");
-        PugSetupMessageToAll("%t", "Unpause", client);
+        if (IsPlayer(client)) {
+            PugSetupMessageToAll("%t", "Unpause", client);
+        }
+    } else {
+        // Let console force unpause
+        if (!IsPlayer(client)) {
+            ServerCommand("mp_unpause_match");
+        } else {
+            int team = GetClientTeam(client);
+            if (team == CS_TEAM_T)
+                g_tUnpaused = true;
+            else if (team == CS_TEAM_CT)
+                g_ctUnpaused = true;
+
+            if (g_tUnpaused && g_ctUnpaused)  {
+                ServerCommand("mp_unpause_match");
+            } else if (g_tUnpaused && !g_ctUnpaused) {
+                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "T", "CT");
+            } else if (!g_tUnpaused && g_ctUnpaused) {
+                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "CT", "T");
+            }
+        }
     }
+
     return Plugin_Handled;
 }
 

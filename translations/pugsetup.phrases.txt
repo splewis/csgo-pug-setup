@@ -276,5 +276,9 @@
 	{
 		"en"		"No, continue the match"
 	}
-
+	"MutualUnpauseMessage"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"The {1} team wants to unpause, waiting for the {2} team to type {GREEN}!unpause"
+	}
 }
