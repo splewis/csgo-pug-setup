@@ -641,7 +641,7 @@ public Action Command_Unpause(int client, args) {
     if (!g_Setup || !g_MatchLive || !paused)
         return Plugin_Handled;
 
-    if (GetConVarInt(g_hMutualUnpause) != 0) {
+    if (GetConVarInt(g_hMutualUnpause) == 0) {
         if (GetConVarInt(g_hAnyCanPause) != 0)
             PermissionCheck(Permission_Captains)
 
