@@ -14,12 +14,10 @@
 	}
 	"ReadyStatus"
 	{
-		"#format"	"{1:i},{2:i}"
 		"es"		"{1} de {2} jugadores están listos\nEscribe .ready cuando estés listo"
 	}
 	"ReadyStatusCaptains"
 	{
-		"#format"	"{1:i},{2:i},{3:s},{4:s}"
 		"es"		"{1} de {2} jugadores están listos\nCapitán 1: {3}\nCapitán 2: {4}"
 	}
 	"CaptainNotSelected"
@@ -44,62 +42,50 @@
 	}
 	"ForceEnd"
 	{
-		"#format"	"{1:N}"
 		"es"		"{GREEN}{1}{NORMAL} forzó el final del encuentro."
 	}
 	"Pause"
 	{
-		"#format"	"{1:N}"
 		"es"		"{GREEN}{1}	{NORMAL}ha pedido una pausa."
 	}
 	"Unpause"
 	{
-		"#format"	"{1:N}"
 		"es"		"{GREEN}{1} {NORMAL}ha reanudado"
 	}
 	"ReadyToStart"
 	{
-		"#format"	"{1:N}"
 		"es"		"Todo el mundo listo! Esperando por {GREEN}{1} {NORMAL}a que escriba {PINK}!start{NORMAL}."
 	}
 	"SetupBy"
 	{
-		"#format"	"{1:N}"
 		"es"		"{GREEN}{1}{NORMAL} ha configurado el juego"
 	}
 	"ReadyToStart"
 	{
-		"#format"	"{1:N}"
 		"es"		"Todo el mundo listo! Esperando por {GREEN}{1} {NORMAL}a que escriba {PINK}!start{NORMAL}."
 	}
 	"GameType"
 	{
-		"#format"	"{1:s}"
 		"es"		"Tipo de juego: {GREEN}{1}"
 	}
 	"TeamType"
 	{
-		"#format"	"{1:d},{2:d},{3:s}"
 		"es"		"Equipos: ({GREEN}{1} vs {2}) {GREEN}{3}"
 	}
 	"MapType"
 	{
-		"#format"	"{1:s}"
 		"es"		"Mapa: {GREEN}{1}"
 	}
 	"LO3Setting"
 	{
-		"#format"		"{1:s}"
 		"es"		"Auto inicio-en-3: {GREEN}{1}"
 	}
 	"NewLeader"
 	{
-		"#format"		"{1:N}"
 		"es"		"El nuevo lider es {GREEN}{1}"
 	}
 	"CaptMessage"
 	{
-		"#format"		"{1:d},{2:s}"
 		"es"		"El capitán de {1} será {2}"
 	}
 	"GameTypeTitle"
@@ -200,12 +186,10 @@
 	}
 	"InitialPickPlayerChoice"
 	{
-		"#format"	"{1:s}"
 		"es"		"{1} ha elegido escoger {GREEN}al primer jugador."
 	}
 	"InitialPickSideChoice"
 	{
-		"#format"	"{1:s}"
 		"es"		"{1} ha elegido escoger {GREEN}el equipo de inicio."
 	}
 	"SideChoiceTitle"
@@ -214,7 +198,6 @@
 	}
 	"SideChoiceSelected"
 	{
-		"#format"	"{1:s},{2:s}"
 		"es"		"{1} eligió jugar en {GREEN}{2} {NORMAL}primero."
 	}
 	"PlayerPickTitle"
@@ -223,7 +206,6 @@
 	}
 	"PlayerPickChoice"
 	{
-		"#format"	"{1:s},{2:s}"
 		"es"		"{1} escogió a {2}."
 	}
 	"SpecCantReady"
@@ -232,7 +214,6 @@
 	}
 	"RestartCounter"
 	{
-		"#format"	"{1:d}"
 		"es"		"Reinicio {1}/3"
 	}
 	"Live"
@@ -245,7 +226,6 @@
 	}
 	"PlayerVetoed"
 	{
-		"#format"	"{1:s},{2:s}"
 		"es"		"{1} {NORMAL}excluyó {LIGHT_RED}{2}."
 	}
 	"MapsLeft"
@@ -278,7 +258,6 @@
 	}
 	"MutualUnpauseMessage"
 	{
-		"#format"	"{1:s},{2:s}"
 		"es"		"El equipo {1} quiere reanudar, esperando por el equipo {2} a que escriba {GREEN}!unpause"
 	}
 }
