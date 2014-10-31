@@ -1,0 +1,284 @@
+﻿"Phrases"
+{
+	"VetoMessage"
+	{
+		"es"		"La votación de exclusión de mapas empezará en unos segundos."
+	}
+	"VoteMessage"
+	{
+		"es"		"La votación de mapas comenzará en unos segundos."
+	}
+	"AlreadyLive"
+	{
+		"es"		"El juego ya comenzó!"
+	}
+	"ReadyStatus"
+	{
+		"#format"	"{1:i},{2:i}"
+		"es"		"{1} de {2} jugadores están listos\nEscribe .ready cuando estés listo"
+	}
+	"ReadyStatusCaptains"
+	{
+		"#format"	"{1:i},{2:i},{3:s},{4:s}"
+		"es"		"{1} de {2} jugadores están listos\nCapitán 1: {3}\nCapitán 2: {4}"
+	}
+	"CaptainNotSelected"
+	{
+		"es"		"no seleccionado"
+	}
+	"NoPermission"
+	{
+		"es"		"No tienes permiso para hacer eso."
+	}
+	"NotUsingCaptains"
+	{
+		"es"		"Este juego no está usando capitanes."
+	}
+	"LO3Message"
+	{
+		"es"		"El encuentro comenzará pronto - comenzando en 3!"
+	}
+	"Scrambling"
+	{
+		"es"		"{GREEN}Mezclar los equipos!"
+	}
+	"ForceEnd"
+	{
+		"#format"	"{1:N}"
+		"es"		"{GREEN}{1}{NORMAL} forzó el final del encuentro."
+	}
+	"Pause"
+	{
+		"#format"	"{1:N}"
+		"es"		"{GREEN}{1}	{NORMAL}ha pedido una pausa."
+	}
+	"Unpause"
+	{
+		"#format"	"{1:N}"
+		"es"		"{GREEN}{1} {NORMAL}ha reanudado"
+	}
+	"ReadyToStart"
+	{
+		"#format"	"{1:N}"
+		"es"		"Todo el mundo listo! Esperando por {GREEN}{1} {NORMAL}a que escriba {PINK}!start{NORMAL}."
+	}
+	"SetupBy"
+	{
+		"#format"	"{1:N}"
+		"es"		"{GREEN}{1}{NORMAL} ha configurado el juego"
+	}
+	"ReadyToStart"
+	{
+		"#format"	"{1:N}"
+		"es"		"Todo el mundo listo! Esperando por {GREEN}{1} {NORMAL}a que escriba {PINK}!start{NORMAL}."
+	}
+	"GameType"
+	{
+		"#format"	"{1:s}"
+		"es"		"Tipo de juego: {GREEN}{1}"
+	}
+	"TeamType"
+	{
+		"#format"	"{1:d},{2:d},{3:s}"
+		"es"		"Equipos: ({GREEN}{1} vs {2}) {GREEN}{3}"
+	}
+	"MapType"
+	{
+		"#format"	"{1:s}"
+		"es"		"Mapa: {GREEN}{1}"
+	}
+	"LO3Setting"
+	{
+		"#format"		"{1:s}"
+		"es"		"Auto inicio-en-3: {GREEN}{1}"
+	}
+	"NewLeader"
+	{
+		"#format"		"{1:N}"
+		"es"		"El nuevo lider es {GREEN}{1}"
+	}
+	"CaptMessage"
+	{
+		"#format"		"{1:d},{2:s}"
+		"es"		"El capitán de {1} será {2}"
+	}
+	"GameTypeTitle"
+	{
+		"es"		"¿Qué tipo de juego debe utilizarse?"
+	}
+	"TeamSetupMenuTitle"
+	{
+		"es"		"¿Cómo se configurarán los equipos?"
+	}
+	"TeamSetupMenuCaptains"
+	{
+		"es"		"Los capitanes asignados escogen sus equipos"
+	}
+	"TeamSetupMenuRandom"
+	{
+		"es"		"Equipos aleatorios"
+	}
+	"TeamSetupMenuManual"
+	{
+		"es"		"Los jugadores cambian los equipos manualmente"
+	}
+	"TeamSetupCaptainsShort"
+	{
+		"es"		"los capitanes escogen los jugadores"
+	}
+	"TeamSetupRandomShort"
+	{
+		"es"		"equipos aleatorios"
+	}
+	"TeamSetupManualsShort"
+	{
+		"es"		"intercambio manual"
+	}
+	"HowManyPlayers"
+	{
+		"es"		"¿Cuantos jugadores por equipo?"
+	}
+	"MapChoiceMenuTitle"
+	{
+		"es"		"¿Cómo se debe elegir el mapa?"
+	}
+	"MapChoiceCurrent"
+	{
+		"es"		"Utilizar el mapa actual"
+	}
+	"MapChoiceVote"
+	{
+		"es"		"Votar por un mapa"
+	}
+	"MapChoiceVeto"
+	{
+		"es"		"Los capitanes excluyen mapas hasta que quede 1"
+	}
+	"MapChoiceCurrentShort"
+	{
+		"es"		"utilizar el mapa actual"
+	}
+	"MapChoiceVoteShort"
+	{
+		"es"		"votar por un mapa"
+	}
+	"MapChoiceVetoShort"
+	{
+		"es"		"los capitanes excluyen mapas"
+	}
+	"AutoLO3MenuTitle"
+	{
+		"es"		"¿Iniciar automáticamente el juego cuando esté listo?"
+	}
+	"Yes"
+	{
+		"es"		"Sí"
+	}
+	"No"
+	{
+		"es"		"No"
+	}
+	"Enabled"
+	{
+		"es"		"habilitado"
+	}
+	"Disabled"
+	{
+		"es"		"deshabilitado"
+	}
+	"InitialPickTitle"
+	{
+		"es"		"Qué prefieres:"
+	}
+	"InitialPickSides"
+	{
+		"es"		"Escoger el equipo de inicio"
+	}
+	"InitialPickPlayer"
+	{
+		"es"		"Escoger el primer jugador"
+	}
+	"InitialPickPlayerChoice"
+	{
+		"#format"	"{1:s}"
+		"es"		"{1} ha elegido escoger {GREEN}al primer jugador."
+	}
+	"InitialPickSideChoice"
+	{
+		"#format"	"{1:s}"
+		"es"		"{1} ha elegido escoger {GREEN}el equipo de inicio."
+	}
+	"SideChoiceTitle"
+	{
+		"es"		"En qué lado quieres epezar:"
+	}
+	"SideChoiceSelected"
+	{
+		"#format"	"{1:s},{2:s}"
+		"es"		"{1} eligió jugar en {GREEN}{2} {NORMAL}primero."
+	}
+	"PlayerPickTitle"
+	{
+		"es"		"Escoge tus jugadores:"
+	}
+	"PlayerPickChoice"
+	{
+		"#format"	"{1:s},{2:s}"
+		"es"		"{1} escogió a {2}."
+	}
+	"SpecCantReady"
+	{
+		"es"		"No puedes estar listo cuando eres un espectador."
+	}
+	"RestartCounter"
+	{
+		"#format"	"{1:d}"
+		"es"		"Reinicio {1}/3"
+	}
+	"Live"
+	{
+		"es"		"El encuentro ha {GREEN}COMENZADO"
+	}
+	"VetoMenuTitle"
+	{
+		"es"		"Selecciona un mapa para excluir"
+	}
+	"PlayerVetoed"
+	{
+		"#format"	"{1:s},{2:s}"
+		"es"		"{1} {NORMAL}excluyó {LIGHT_RED}{2}."
+	}
+	"MapsLeft"
+	{
+		"es"		"Mapas restantes:"
+	}
+	"VoteMenuTitle"
+	{
+		"es"		"Vota por un mapa"
+	}
+	"Random"
+	{
+		"es"		"Aleatorio"
+	}
+	"NotLiveYet"
+	{
+		"es"		"El encuentro no ha comenzado todavía."
+	}
+	"EndMatchMenuTitle"
+	{
+		"es"		"¿Estás seguro de que quieres finalizar el encuentro?"
+	}
+	"EndMatch"
+	{
+		"es"		"Sí, finalizar el encuentro"
+	}
+	"ContinueMatch"
+	{
+		"es"		"No, continuar con el encuentro"
+	}
+	"MutualUnpauseMessage"
+	{
+		"#format"	"{1:s},{2:s}"
+		"es"		"El equipo {1} quiere reanudar, esperando por el equipo {2} a que escriba {GREEN}!unpause"
+	}
+}
