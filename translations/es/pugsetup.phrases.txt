@@ -116,7 +116,7 @@
 	{
 		"es"		"equipos aleatorios"
 	}
-	"TeamSetupManualsShort"
+	"TeamSetupManualShort"
 	{
 		"es"		"intercambio manual"
 	}

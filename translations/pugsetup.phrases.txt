@@ -130,7 +130,7 @@
 	{
 		"en"		"random teams"
 	}
-	"TeamSetupManualsShort"
+	"TeamSetupManualShort"
 	{
 		"en"		"manually switch"
 	}
