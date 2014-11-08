@@ -90,8 +90,13 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
             Handle menu = CreateMenu(PlayerMenuHandler);
             SetMenuTitle(menu, "%t", "PlayerPickTitle");
             SetMenuExitButton(menu, false);
-            AddPlayersToMenu(menu);
-            DisplayMenu(menu, client, MENU_TIME_FOREVER);
+            if (AddPlayersToMenu(menu) > 0) {
+                DisplayMenu(menu, client, MENU_TIME_FOREVER);
+            } else {
+                CloseHandle(menu);
+                PugSetupMessageToAll("Not enough players for picking, aborting the game.");
+                EndMatch(false);
+            }
         } else {
             PugSetupMessageToAll("A captain is missing, aborting the game.");
             EndMatch(false);

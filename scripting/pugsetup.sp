@@ -205,6 +205,8 @@ public OnMapStart() {
     g_MapNames = CreateArray(PLATFORM_MAX_PATH);
     g_MapVetoed = CreateArray();
     g_Recording = false;
+    g_MatchLive = false;
+    g_LiveTimerRunning = false;
 
     for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
