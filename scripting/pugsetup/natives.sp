@@ -65,6 +65,7 @@ public Native_AddGameType(Handle plugin, int numParams) {
     GetNativeString(3, mapList, sizeof(mapList));
     bool showInMenu = GetNativeCell(4);
     int teamSize = GetNativeCell(5);
+    LO3Setting lo3Setting = LO3Setting:GetNativeCell(6);
 
     // Check for existence of live cfg
     char path[PLATFORM_MAX_PATH];
@@ -84,6 +85,7 @@ public Native_AddGameType(Handle plugin, int numParams) {
     PushArrayString(g_GameMapFiles, mapList);
     PushArrayCell(g_GameTypeHidden, !showInMenu);
     PushArrayCell(g_GameTypeTeamSize, teamSize);
+    PushArrayCell(g_GameTypeLO3Setting, lo3Setting);
     return GetArraySize(g_GameTypes) - 1;
 }
 

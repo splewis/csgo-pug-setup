@@ -23,29 +23,36 @@ enum Permissions {
     Permission_Leader
 };
 
+// User-picked live-on-3 settings
+enum LO3Setting {
+    LO3_Auto, // auto-lo3 when all ready
+    LO3_Wait, // wait for a user to type !start
+    LO3_Unspecified // could be either of the above
+};
+
 // Called when a setup menu is finished.
-forward OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
+forward void OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
 
 // Called when a player marks themselves as ready.
-forward OnReady(int client);
+forward void OnReady(int client);
 
 // Called when a player marks themselves as unready.
-forward OnUnready(int client);
+forward void OnUnready(int client);
 
 // Called when the going-live process begins, before the lo3.
-forward OnGoingLive();
+forward void OnGoingLive();
 
 // Called after the last restart when the game is completely live.
-forward OnLive();
+forward void OnLive();
 
 // Called when the match is over.
 // If you plan on using the result of the demo file,
 // I'd suggest adding a slight delay from when this is called
 // to accomodate the time spent flushing the demo to disk.
-forward OnMatchOver(bool hasDemo, const char demoFileName[]);
+forward void OnMatchOver(bool hasDemo, const char demoFileName[]);
 
 // Called when a client is not picked in a captain-selection game.
-forward OnNotPicked(int client);
+forward void OnNotPicked(int client);
 
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam, bool autolo3);
@@ -58,7 +65,12 @@ native int FindGameType(const char name[]);
 
 // Adds a game type to the game type list. These are fully reset every map.
 // Returns the index of the game type.
-native int AddGameType(const char name[], const char liveCfg[], const char mapList[], bool showInMenu=true, int teamSize=-1);
+native int AddGameType(const char name[],
+                       const char liveCfg[],
+                       const char mapList[],
+                       bool showInMenu=true,
+                       int teamSize=-1,
+                       LO3Setting lo3setting=LO3_Unspecified);
 
 // Readies up a player.
 native void ReadyPlayer(int client);
@@ -157,3 +169,42 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetRandomCaptains");
 }
 #endif
+
+stock TeamType TeamTypeFromString(const char[] teamTypeString) {
+    if (StrEqual(teamTypeString, "captains"))
+        return TeamType_Captains;
+    else if (StrEqual(teamTypeString, "manual"))
+        return TeamType_Manual;
+    else if (StrEqual(teamTypeString, "random"))
+        return TeamType_Random;
+    else
+        LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\"", teamTypeString);
+
+    return TeamType_Captains;
+}
+
+stock MapType MapTypeFromString(const char[] mapTypeString) {
+    if (StrEqual(mapTypeString, "current"))
+        return MapType_Current;
+    else if (StrEqual(mapTypeString, "vote"))
+        return MapType_Vote;
+    else if (StrEqual(mapTypeString, "veto"))
+        return MapType_Veto;
+    else
+        LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
+
+    return MapType_Vote;
+}
+
+stock LO3Setting LO3SettingFromString(const char[] lo3String) {
+    if (StrEqual(lo3String, "auto"))
+        return LO3_Auto;
+    else if (StrEqual(lo3String, "wait"))
+        return LO3_Wait;
+    else if (StrEqual(lo3String, "ask"))
+        return LO3_Unspecified;
+    else
+        LogError("Unknown lo3 setting: \"%s\", allowed values: \"auto\", \"wait\", \"ask\"",  lo3String);
+
+    return LO3_Unspecified;
+}

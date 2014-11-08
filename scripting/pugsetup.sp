@@ -20,7 +20,6 @@ enum InitialPick {
 
 /** ConVar handles **/
 Handle g_hAdminFlag = INVALID_HANDLE;
-Handle g_hAlways5v5 = INVALID_HANDLE;
 Handle g_hAnyCanPause = INVALID_HANDLE;
 Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
 Handle g_hAutorecord = INVALID_HANDLE;
@@ -32,7 +31,6 @@ Handle g_hExecDefaultConfig = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hMessagePrefix = INVALID_HANDLE;
 Handle g_hMutualUnpause = INVALID_HANDLE;
-Handle g_hNeverAutoLO3 = INVALID_HANDLE;
 Handle g_hQuickRestarts = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
 Handle g_hRequireAdminToSetup = INVALID_HANDLE;
@@ -66,6 +64,7 @@ Handle g_GameMapFiles = INVALID_HANDLE;
 Handle g_GameTypes = INVALID_HANDLE;
 Handle g_GameTypeHidden = INVALID_HANDLE;
 Handle g_GameTypeTeamSize = INVALID_HANDLE;
+Handle g_GameTypeLO3Setting = INVALID_HANDLE;
 
 /** Map-voting variables **/
 Handle g_MapNames = INVALID_HANDLE;
@@ -123,7 +122,6 @@ public OnPluginStart() {
 
     /** ConVars **/
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
-    g_hAlways5v5 = CreateConVar("sm_pugsetup_always_5v5", "0", "Set to 1 to make the team sizes always 5v5 and not give a .setup option to set team sizes.");
     g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "0", "Whether everyone can pause, or just captains/leader");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
@@ -134,7 +132,6 @@ public OnPluginStart() {
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "0", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this cvar will let anybody use the !unpause command.");
-    g_hNeverAutoLO3 = CreateConVar("sm_pugsetup_never_autolo3", "0", "Set to 1 to always use auto-lo3=disabled, otherwise it is an option in the setup menu.");
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the sm_pugsetup_admin_flag flag to use the .setup command.");

@@ -25,7 +25,7 @@ public Plugin:myinfo = {
     url = "https://github.com/splewis/csgo-pug-setup"
 };
 
-public OnPluginStart() {
+public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_hAutolo3 = CreateConVar("sm_pugsetup_autosetup_autolo3", "1", "Whether auto-live on 3 should be used.");
     g_hEnabled = CreateConVar("sm_pugsetup_autosetup_teamsize", "5", "Number of players per team.");
@@ -36,51 +36,31 @@ public OnPluginStart() {
     AutoExecConfig(true, "pugsetup_autosetup", "sourcemod/pugsetup");
 }
 
-public OnMapStart() {
+public void OnMapStart() {
     g_Setup = false;
 }
 
-public OnMatchOver() {
+public void OnMatchOver() {
     g_Setup = false;
     Setup();
 }
 
-public OnClientConnected() {
+public void OnClientConnected() {
     Setup();
 }
 
-public Setup() {
+public void Setup() {
     if (GetConVarInt(g_hEnabled) != 0 && !IsSetup() && !g_Setup) {
         bool autolo3 = GetConVarInt(g_hAutolo3) != 0;
         int teamsize = GetConVarInt(g_hTeamSize);
 
         char mapTypeStr[32];
         GetConVarString(g_hMapType, mapTypeStr, sizeof(mapTypeStr));
-        MapType mapType = MapType_Vote;
-
-        if (StrEqual(mapTypeStr, "current")) {
-            mapType = MapType_Current;
-        } else if (StrEqual(mapTypeStr, "vote")) {
-            mapType = MapType_Vote;
-        } else if (StrEqual(mapTypeStr, "veto")) {
-            mapType = MapType_Veto;
-        } else {
-            LogError("Invalid map type: %s", mapTypeStr);
-        }
+        MapType mapType = MapTypeFromString(mapTypeStr);
 
         char teamTypeStr[32];
         GetConVarString(g_hTeamType, teamTypeStr, sizeof(teamTypeStr));
-        TeamType teamType = TeamType_Captains;
-
-        if (StrEqual(teamTypeStr, "captains")) {
-            teamType = TeamType_Captains;
-        } else if (StrEqual(teamTypeStr, "manual")) {
-            teamType = TeamType_Manual;
-        } else if (StrEqual(teamTypeStr, "random")) {
-            teamType = TeamType_Random;
-        } else {
-            LogError("Invalid team type: %s", teamTypeStr);
-        }
+        TeamType teamType = TeamTypeFromString(teamTypeStr);
 
         char gameType[256];
         GetConVarString(g_hGameType, gameType, sizeof(gameType));

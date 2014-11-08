@@ -123,10 +123,13 @@ There are other key/values you can use inside a gametype. For example:
         "config"        "sourcemod/pugsetup/standard.cfg"
         "maplist"       "2v2maps.txt"
         "teamsize"      "2"
+        "lo3"      "auto"
     }
 ```
 
 This will always make the game type use teams of 2, and not display the player-count menu in the setup menu.
+
+In addition, you can use the key "lo3" with allowed values "ask" (makes the lo3 option show up in the setup menu), "auto" (always auto-lo3 for that game type), or "wait" (never auto-lo3 for that game type).
 
 There is also another field ``hidden``, which you can set to 1 to make the game type not appear in the setup menu. This may be useful for other plugin developers using the ``SetupGame`` native.
 

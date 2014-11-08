@@ -58,12 +58,7 @@ public TeamTypeMenuHandler(Handle menu, MenuAction action, param1, param2) {
 
         // team size not specified by the gametype:
         if (teamsize <= 0) {
-            if (GetConVarInt(g_hAlways5v5) == 0) {
-                GivePlayerCountMenu(client);
-            } else {
-                MapMenu(client);
-                g_PlayersPerTeam = 5;
-            }
+            GivePlayerCountMenu(client);
         } else {
             MapMenu(client);
             g_PlayersPerTeam = teamsize;
@@ -118,12 +113,18 @@ public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
             case MapType_Veto: g_mapSet = false;
             default: LogError("unknown maptype=%d", g_MapType);
         }
-        if (GetConVarInt(g_hNeverAutoLO3) == 0) {
-            AutoLO3Menu(client);
-        } else {
+
+        LO3Setting lo3Setting = LO3Setting:GetArrayCell(g_GameTypeLO3Setting, g_GameTypeIndex);
+        if (lo3Setting == LO3_Auto) {
+            g_AutoLO3 = true;
+            SetupFinished();
+        } else if (lo3Setting == LO3_Wait) {
             g_AutoLO3 = false;
             SetupFinished();
+        } else {
+            AutoLO3Menu(client);
         }
+
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
