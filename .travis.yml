@@ -1,0 +1,24 @@
+language: c
+
+install:
+    - sudo apt-get update
+    - sudo apt-get install -y gcc-multilib lynx git lib32stdc++6
+    - git clone https://github.com/splewis/sm-builder
+    - cd sm-builder
+    - sudo pip install -r requirements.txt
+    - sudo python setup.py install
+    - cd ..
+
+before_script:
+    - SMPATTERN="http:.*sourcemod-.*-linux.*"
+    - SMURL="http://www.sourcemod.net/smdrop/1.7/"
+    - SMPACKAGE=`lynx -dump "$SMURL" | egrep -o "$SMPATTERN" | tail -1`
+    - wget $SMPACKAGE
+    - tar -xzf $(basename "$SMPACKAGE")
+    - cd addons/sourcemod/scripting/
+    - chmod +x spcomp
+    - PATH+=":$PWD"
+    - cd ../../..
+
+script:
+    - smbuilder
