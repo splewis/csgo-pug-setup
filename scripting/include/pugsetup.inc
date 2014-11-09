@@ -171,7 +171,7 @@ public __pl_pugsetup_SetNTVOptional() {
 #endif
 
 stock TeamType TeamTypeFromString(const char[] teamTypeString) {
-    if (StrEqual(teamTypeString, "captains"))
+    if (StrEqual(teamTypeString, "captains") || StrEqual(teamTypeString, "captain"))
         return TeamType_Captains;
     else if (StrEqual(teamTypeString, "manual"))
         return TeamType_Manual;
@@ -197,9 +197,9 @@ stock MapType MapTypeFromString(const char[] mapTypeString) {
 }
 
 stock LO3Setting LO3SettingFromString(const char[] lo3String) {
-    if (StrEqual(lo3String, "auto"))
+    if (StrEqual(lo3String, "auto") || StrEqual(lo3String, "yes"))
         return LO3_Auto;
-    else if (StrEqual(lo3String, "wait"))
+    else if (StrEqual(lo3String, "wait") || StrEqual(lo3String, "never") || StrEqual(lo3String, "no"))
         return LO3_Wait;
     else if (StrEqual(lo3String, "ask"))
         return LO3_Unspecified;
