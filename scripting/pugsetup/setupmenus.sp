@@ -185,7 +185,7 @@ public SetupFinished() {
 /**
  * Converts enum choice types to strings to show to players.
  */
-public void GetTeamString(char buffer[], int length, TeamType type) {
+public void GetTeamString(char[] buffer, int length, TeamType type) {
     switch (type) {
         case TeamType_Manual: Format(buffer, length, "%t", "TeamSetupManualShort");
         case TeamType_Random: Format(buffer, length, "%t", "TeamSetupRandomShort");
@@ -194,7 +194,7 @@ public void GetTeamString(char buffer[], int length, TeamType type) {
     }
 }
 
-public void GetMapString(char buffer[], int length, MapType type) {
+public void GetMapString(char[] buffer, int length, MapType type) {
     switch (type) {
         case MapType_Current: Format(buffer, length, "%t", "MapChoiceCurrentShort");
         case MapType_Vote: Format(buffer, length, "%t", "MapChoiceVoteShort");
@@ -203,7 +203,7 @@ public void GetMapString(char buffer[], int length, MapType type) {
     }
 }
 
-public void GetEnabledString(char buffer[], int length, bool var) {
+public void GetEnabledString(char[] buffer, int length, bool var) {
     if (var)
         Format(buffer, length, "%t", "Enabled");
     else

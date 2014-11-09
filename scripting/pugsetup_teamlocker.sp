@@ -20,7 +20,7 @@ public OnPluginStart() {
     AddCommandListener(Command_TeamJoin, "jointeam");
 }
 
-public Action Command_TeamJoin(int client, const char command[], argc) {
+public Action Command_TeamJoin(int client, const char[] command, argc) {
     if (!IsValidClient(client))
         return Plugin_Handled;
 
@@ -31,6 +31,8 @@ public Action Command_TeamJoin(int client, const char command[], argc) {
     GetCmdArg(1, arg, sizeof(arg));
     int team_to = StringToInt(arg);
 
+    LogMessage("Teamjoin %N -> %d", client, team_to);
+
     int playerCount = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && GetClientTeam(i) == team_to) {
@@ -38,9 +40,13 @@ public Action Command_TeamJoin(int client, const char command[], argc) {
         }
     }
 
+    LogMessage("playerCount=%d max=%d", playerCount, GetPugMaxPlayers() / 2);
+
     if (playerCount >= GetPugMaxPlayers() / 2) {
+        LogMessage("blocking");
         return Plugin_Handled;
     } else {
+        LogMessage("allowing");
         return Plugin_Continue;
     }
 }

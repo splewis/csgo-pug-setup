@@ -14,7 +14,7 @@ stock void ExecCfg(Handle ConVarName) {
 /**
  * Adds an integer to a menu as a string choice.
  */
-stock void AddMenuInt(Handle menu, int value, const char display[], any:...) {
+stock void AddMenuInt(Handle menu, int value, const char[] display, any:...) {
     char formattedDisplay[128];
     VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
     char buffer[8];
@@ -43,7 +43,7 @@ stock int GetMenuInt(Handle menu, param2) {
 /**
  * Adds a boolean to a menu as a string choice.
  */
-stock void AddMenuBool(Handle menu, bool value, const char display[], any:...) {
+stock void AddMenuBool(Handle menu, bool value, const char[] display, any:...) {
     char formattedDisplay[128];
     VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
     int convertedInt = value ? 1 : 0;
@@ -139,7 +139,7 @@ stock any:GetArrayCellRandom(Handle array) {
     return GetArrayCell(array, GetArrayRandomIndex(array));
 }
 
-stock void Colorize(char msg[], int size) {
+stock void Colorize(char[] msg, int size) {
     for (int i = 0; i < sizeof(g_ColorNames); i ++) {
         ReplaceString(msg, size, g_ColorNames[i], g_ColorCodes[i]);
     }
@@ -154,7 +154,7 @@ stock void RandomizeArray(Handle array) {
 }
 
 // Thanks to KissLick https://forums.alliedmods.net/member.php?u=210752
-stock bool SplitStringRight(const char source[], const char split[], char part[], int partLen) {
+stock bool SplitStringRight(const char[] source, const char[] split, char[] part, int partLen) {
     int index = StrContains(source, split);
     if (index == -1)
         return false;
@@ -164,6 +164,6 @@ stock bool SplitStringRight(const char source[], const char split[], char part[]
     return true;
 }
 
-stock bool IsPrefix(const char str[], const char prefix[]) {
+stock bool IsPrefix(const char[] str, const char[] prefix) {
     return StrContains(str, prefix, false) == 0;
 }

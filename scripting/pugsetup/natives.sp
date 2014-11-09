@@ -1,6 +1,6 @@
 // See include/pugsetup.inc for documentation.
 
-public APLRes AskPluginLoad2(Handle myself, bool late, char error[], err_max) {
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, err_max) {
     CreateNative("SetupGame", Native_SetupGame);
     CreateNative("ClearGameTypes", Native_ClearGameTypes);
     CreateNative("FindGameType", Native_FindGameType);

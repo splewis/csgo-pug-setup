@@ -134,7 +134,7 @@ public void FillPotentialNames(int team, Handle names, Handle flags) {
     }
 }
 
-public void SetTeamInfo(int team, char name[], char flag[]) {
+public void SetTeamInfo(int team, const char[] name, const char[] flag) {
     int team_int = (team == CS_TEAM_CT) ? 1 : 2;
     ServerCommand("mp_teamname_%d %s", team_int, name);
     ServerCommand("mp_teamflag_%d %s", team_int, flag);

@@ -179,7 +179,7 @@ public OnPluginStart() {
 }
 
 
-public bool OnClientConnect(int client, char rejectmsg[], int maxlen) {
+public bool OnClientConnect(int client, char[] rejectmsg, int maxlen) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
     g_PlayerAtStart[client] = false;
@@ -536,7 +536,7 @@ static bool CheckChatAlias(const char[] alias, const char[] command, const char[
     return false;
 }
 
-public Action OnClientSayCommand(client, const char command[], const char sArgs[]) {
+public Action OnClientSayCommand(client, const char[] command, const char[] sArgs) {
     char aliases[][][] = {
         {".setup", "sm_setup"},
         {".10man", "sm_10man"},
@@ -709,7 +709,7 @@ public Action Command_Leader(int client, args) {
  *                     *
  ***********************/
 
-public Action Event_MatchOver(Handle event, const char name[], bool dontBroadcast) {
+public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcast) {
     if (g_MatchLive) {
         CreateTimer(15.0, Timer_EndMatch);
         ExecCfg(g_hWarmupCfg);
@@ -725,7 +725,7 @@ public Action Timer_EndMatch(Handle timer) {
 /**
  * Called when a player joins a team, silences team join events during player selection.
  */
-public Action Event_PlayerTeam(Handle event, const char name[], bool dontBroadcast)  {
+public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)  {
     if (g_Setup && !g_MatchLive) {
         dontBroadcast = true;
         return Plugin_Changed;

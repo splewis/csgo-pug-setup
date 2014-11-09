@@ -49,7 +49,7 @@ forward void OnLive();
 // If you plan on using the result of the demo file,
 // I'd suggest adding a slight delay from when this is called
 // to accomodate the time spent flushing the demo to disk.
-forward void OnMatchOver(bool hasDemo, const char demoFileName[]);
+forward void OnMatchOver(bool hasDemo, const char[] demoFileName);
 
 // Called when a client is not picked in a captain-selection game.
 forward void OnNotPicked(int client);
@@ -61,13 +61,13 @@ native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int
 native void ClearGameTypes();
 
 // Returns the index of a game type, or -1 if it hasn't been registered.
-native int FindGameType(const char name[]);
+native int FindGameType(const char[] name);
 
 // Adds a game type to the game type list. These are fully reset every map.
 // Returns the index of the game type.
-native int AddGameType(const char name[],
-                       const char liveCfg[],
-                       const char mapList[],
+native int AddGameType(const char[] name,
+                       const char[] liveCfg,
+                       const char[] mapList,
                        bool showInMenu=true,
                        int teamSize=-1,
                        LO3Setting lo3setting=LO3_Unspecified);
@@ -111,10 +111,10 @@ native void SetCaptain(int captainNumber, int client);
 native int GetCaptain(int captainNumber);
 
 // Prints a plugin-formatted message to a client.
-native void PugSetupMessage(int client, const char format[], any:...);
+native void PugSetupMessage(int client, const char[] format, any:...);
 
 // Prints a plugin-formatted message to all clients.
-native void PugSetupMessageToAll(const char format[], any:...);
+native void PugSetupMessageToAll(const char[] format, any:...);
 
 // Returns the maximum number of players in the pug.
 // Only valid if the game has already been setup.
