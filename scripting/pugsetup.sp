@@ -463,66 +463,7 @@ public Action Command_Start(int client, args) {
             return Plugin_Handled;
 
     PermissionCheck(Permission_Leader)
-
-    if (GetConVarInt(g_hAutorecord) != 0) {
-        // get the map, with any workshop stuff before removed
-        // this is {MAP} in the format string
-        char mapName[128];
-        GetCurrentMap(mapName, sizeof(mapName));
-        int last_slash = 0;
-        int len = strlen(mapName);
-        for (int i = 0;  i < len; i++) {
-            if (mapName[i] == '/' || mapName[i] == '\\')
-                last_slash = i + 1;
-        }
-
-        // get the time, this is {TIME} in the format string
-        char timeFormat[64];
-        GetConVarString(g_hDemoTimeFormat, timeFormat, sizeof(timeFormat));
-        int timeStamp = GetTime();
-        char formattedTime[64];
-        FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
-
-        // get the player count, this is {TEAMSIZE} in the format string
-        char playerCount[8];
-        IntToString(g_PlayersPerTeam, playerCount, sizeof(playerCount));
-
-        // create the actual demo name to use
-        char demoName[256];
-        GetConVarString(g_hDemoNameFormat, demoName, sizeof(demoName));
-
-        ReplaceString(demoName, sizeof(demoName), "{MAP}", mapName[last_slash], false);
-        ReplaceString(demoName, sizeof(demoName), "{TEAMSIZE}", playerCount, false);
-        ReplaceString(demoName, sizeof(demoName), "{TIME}", formattedTime, false);
-
-        ServerCommand("tv_record \"%s\"", demoName);
-        LogMessage("Recording to %s", demoName);
-        Format(g_DemoFileName, sizeof(g_DemoFileName), "%s.dem", demoName);
-        g_Recording = true;
-    }
-
-    if (GetConVarInt(g_hExecDefaultConfig) != 0)
-        ServerCommand("exec gamemode_competitive");
-
-    char liveCfg[CONFIG_STRING_LENGTH];
-    GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
-    ServerCommand("exec %s", liveCfg);
-
-    for (int i = 1; i <= MaxClients; i++) {
-        g_PlayerAtStart[i] = IsPlayer(i);
-    }
-
-
-    g_MatchLive = true;
-    if (g_TeamType == TeamType_Random) {
-        PugSetupMessageToAll("%t", "Scrambling");
-        ServerCommand("mp_scrambleteams");
-    }
-
-    for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("%t", "LO3Message");
-    CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
-
+    StartGame();
     return Plugin_Handled;
 }
 
@@ -762,10 +703,71 @@ public void PrintSetupInfo(int client) {
 
 public void ReadyToStart() {
     if (g_AutoLO3) {
-        Command_Start(0, 0);
+        StartGame();
     } else {
         PugSetupMessageToAll("%t", "ReadyToStart", GetLeader());
     }
+}
+
+
+public void StartGame() {
+    if (GetConVarInt(g_hAutorecord) != 0) {
+        // get the map, with any workshop stuff before removed
+        // this is {MAP} in the format string
+        char mapName[128];
+        GetCurrentMap(mapName, sizeof(mapName));
+        int last_slash = 0;
+        int len = strlen(mapName);
+        for (int i = 0;  i < len; i++) {
+            if (mapName[i] == '/' || mapName[i] == '\\')
+                last_slash = i + 1;
+        }
+
+        // get the time, this is {TIME} in the format string
+        char timeFormat[64];
+        GetConVarString(g_hDemoTimeFormat, timeFormat, sizeof(timeFormat));
+        int timeStamp = GetTime();
+        char formattedTime[64];
+        FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
+
+        // get the player count, this is {TEAMSIZE} in the format string
+        char playerCount[8];
+        IntToString(g_PlayersPerTeam, playerCount, sizeof(playerCount));
+
+        // create the actual demo name to use
+        char demoName[256];
+        GetConVarString(g_hDemoNameFormat, demoName, sizeof(demoName));
+
+        ReplaceString(demoName, sizeof(demoName), "{MAP}", mapName[last_slash], false);
+        ReplaceString(demoName, sizeof(demoName), "{TEAMSIZE}", playerCount, false);
+        ReplaceString(demoName, sizeof(demoName), "{TIME}", formattedTime, false);
+
+        ServerCommand("tv_record \"%s\"", demoName);
+        LogMessage("Recording to %s", demoName);
+        Format(g_DemoFileName, sizeof(g_DemoFileName), "%s.dem", demoName);
+        g_Recording = true;
+    }
+
+    if (GetConVarInt(g_hExecDefaultConfig) != 0)
+        ServerCommand("exec gamemode_competitive");
+
+    char liveCfg[CONFIG_STRING_LENGTH];
+    GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
+    ServerCommand("exec %s", liveCfg);
+
+    for (int i = 1; i <= MaxClients; i++) {
+        g_PlayerAtStart[i] = IsPlayer(i);
+    }
+
+    g_MatchLive = true;
+    if (g_TeamType == TeamType_Random) {
+        PugSetupMessageToAll("%t", "Scrambling");
+        ServerCommand("mp_scrambleteams");
+    }
+
+    for (int i = 0; i < 5; i++)
+        PugSetupMessageToAll("%t", "LO3Message");
+    CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public void EndMatch(bool execConfigs) {
