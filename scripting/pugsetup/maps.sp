@@ -42,6 +42,8 @@ public void GetMapList() {
         AddMap("de_inferno");
         AddMap("de_mirage");
         AddMap("de_nuke");
+        AddMap("de_overpass");
+        AddMap("de_season");
         AddMap("de_train");
     }
 
