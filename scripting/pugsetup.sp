@@ -655,6 +655,12 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
         CreateTimer(15.0, Timer_EndMatch);
         ExecCfg(g_hWarmupCfg);
     }
+
+    // Always make these false, in case the players didn't use the plugin's lo3/start functionality
+    // and manually rcon'd the commands.
+    g_mapSet = false;
+    g_Setup = false;
+    g_MatchLive = false;
     return Plugin_Continue;
 }
 
