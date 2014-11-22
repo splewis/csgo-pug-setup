@@ -17,7 +17,7 @@ public Plugin:myinfo = {
     url = "https://github.com/splewis/csgo-pug-setup"
 };
 
-public OnPluginStart() {
+public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "1", "Whether the autokicker is enabled or not");
     g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
@@ -26,7 +26,7 @@ public OnPluginStart() {
     AutoExecConfig(true, "pugsetup_autokicker", "sourcemod/pugsetup");
 }
 
-public OnClientPostAdminCheck(int client) {
+public void OnClientPostAdminCheck(int client) {
     if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && !PlayerAtStart(client)) {
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
@@ -44,13 +44,13 @@ public OnClientPostAdminCheck(int client) {
     }
 }
 
-public OnNotPicked(int client) {
+public void OnNotPicked(int client) {
     if (GetConVarInt(g_hAutoKickerEnabled) != 0 && GetConVarInt(g_hKickNotPicked) == 0) {
         Kick(client);
     }
 }
 
-static Kick(int client) {
+static void Kick(int client) {
     if (GetConVarInt(g_hUseAdminImmunity) != 0 && IsPugAdmin(client)) {
         return;
     }

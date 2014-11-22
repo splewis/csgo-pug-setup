@@ -116,7 +116,7 @@ public Plugin:myinfo = {
     url = "https://github.com/splewis/csgo-pug-setup"
 };
 
-public OnPluginStart() {
+public void OnPluginStart() {
     LoadTranslations("common.phrases");
     LoadTranslations("pugsetup.phrases");
 
@@ -186,7 +186,7 @@ public bool OnClientConnect(int client, char[] rejectmsg, int maxlen) {
     return true;
 }
 
-public OnClientDisconnect(int client) {
+public void OnClientDisconnect(int client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
     g_PlayerAtStart[client] = false;
@@ -200,7 +200,7 @@ public OnClientDisconnect(int client) {
     }
 }
 
-public OnMapStart() {
+public void OnMapStart() {
     Config_MapStart();
     g_MapNames = CreateArray(PLATFORM_MAX_PATH);
     g_MapVetoed = CreateArray();
@@ -227,7 +227,7 @@ public OnMapStart() {
     }
 }
 
-public OnMapEnd() {
+public void OnMapEnd() {
     Config_MapEnd();
     CloseHandle(g_MapNames);
     CloseHandle(g_MapVetoed);
