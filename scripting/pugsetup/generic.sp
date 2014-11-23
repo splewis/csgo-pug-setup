@@ -167,3 +167,10 @@ stock bool SplitStringRight(const char[] source, const char[] split, char[] part
 stock bool IsPrefix(const char[] str, const char[] prefix) {
     return StrContains(str, prefix, false) == 0;
 }
+
+stock void Record(const char[] demoName) {
+    char szDemoName[256];
+    strcopy(szDemoName, sizeof(szDemoName), demoName);
+    ReplaceString(szDemoName, sizeof(szDemoName), "\"", "\\\"");
+    ServerCommand("tv_record \"%s\"", szDemoName);
+}
