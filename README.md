@@ -37,6 +37,12 @@ Generally, here is what happens:
 
 
 ## Installation
+Since this is a sourcemod plugin, you must have sourcemod installed. You can download it at http://www.sourcemod.net/downloads.php.
+
+Note that sourcemod also requires MetaMod:Source to be on the server. You can download it at http://www.sourcemm.net/downloads.
+
+**As of 1.3.0, sourcemod 1.7 is required.**
+
 Download pugsetup.zip and extract the files to the game server. From the download, you should have installed the following (to the ``csgo`` directory):
 - ``addons/sourcemod/plugins/pugsetup.smx``
 - ``addons/sourcemod/translations/`` (the entire directory)
@@ -50,8 +56,6 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 - ``pugsetup_autosetup``: automatically sets up a game when a player connects so nobody has to type .setup
 
 Most of these create a cfg file in ``cfg/sourcemod/pugsetup``you can tweak.
-
-**As of 1.3.0, sourcemod 1.7 is required. If you must use sourcemod 1.6, I'd suggest trying an older version.**
 
 **Once all of these are on the server, it should just work.** If you want to tweak the configs or maplists read on.
 
