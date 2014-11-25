@@ -497,7 +497,9 @@ public Action OnClientSayCommand(client, const char[] command, const char[] sArg
         {".unready", "sm_unready"},
         {".notready", "sm_unready"},
         {".pause", "sm_pause"},
-        {".unpause", "sm_unpause"}
+        {".paws", "sm_pause"},
+        {".unpause", "sm_unpause"},
+        {".unpaws", "sm_unpause"}
     };
 
     for (int i = 0; i < sizeof(aliases); i++) {
