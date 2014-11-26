@@ -9,7 +9,6 @@ public Config_MapStart() {
     g_GameTypes = CreateArray(CONFIG_STRING_LENGTH);
     g_GameTypeHidden = CreateArray();
     g_GameTypeTeamSize = CreateArray();
-    g_GameTypeLO3Setting = CreateArray();
 
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/gametypes.cfg");
@@ -33,16 +32,13 @@ public Config_MapStart() {
         char name[CONFIG_STRING_LENGTH];
         char config[CONFIG_STRING_LENGTH];
         char maplist[CONFIG_STRING_LENGTH];
-        char lo3String[CONFIG_STRING_LENGTH];
         KvGetSectionName(kv, name, sizeof(name));
         KvGetString(kv, "config", config, sizeof(config), "gamemode_competitive.cfg");
         KvGetString(kv, "maplist", maplist, sizeof(maplist), "standard.txt");
         bool visible = !KvGetNum(kv, "hidden", 0);
         int teamsize = KvGetNum(kv, "teamsize", -1);
-        KvGetString(kv, "lo3", lo3String, sizeof(lo3String), "ask");
-        LO3Setting lo3 = LO3SettingFromString(lo3String);
 
-        AddGameType(name, config, maplist, visible, teamsize, lo3);
+        AddGameType(name, config, maplist, visible, teamsize);
     } while (KvGotoNextKey(kv));
 
     CloseHandle(kv);

@@ -105,7 +105,6 @@ public MapMenu(int client) {
 
 public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
-        int client = param1;
         g_MapType = MapType:GetMenuInt(menu, param2);
         switch (g_MapType) {
             case MapType_Current: g_mapSet = true;
@@ -114,37 +113,6 @@ public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
             default: LogError("unknown maptype=%d", g_MapType);
         }
 
-        LO3Setting lo3Setting = LO3Setting:GetArrayCell(g_GameTypeLO3Setting, g_GameTypeIndex);
-        if (lo3Setting == LO3_Auto) {
-            g_AutoLO3 = true;
-            SetupFinished();
-        } else if (lo3Setting == LO3_Wait) {
-            g_AutoLO3 = false;
-            SetupFinished();
-        } else {
-            AutoLO3Menu(client);
-        }
-
-    } else if (action == MenuAction_End) {
-        CloseHandle(menu);
-    }
-}
-
-/**
- * Generic map choice-type menu.
- */
-public AutoLO3Menu(int client) {
-    Handle menu = CreateMenu(AutoLO3MenuHandler);
-    SetMenuTitle(menu, "%t", "AutoLO3MenuTitle");
-    SetMenuExitButton(menu, false);
-    AddMenuBool(menu, true, "%t", "Yes");
-    AddMenuBool(menu, false, "%t", "No");
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
-}
-
-public AutoLO3MenuHandler(Handle menu, MenuAction action, param1, param2) {
-    if (action == MenuAction_Select) {
-        g_AutoLO3 = GetMenuBool(menu, param2);
         SetupFinished();
     } else if (action == MenuAction_End) {
         CloseHandle(menu);

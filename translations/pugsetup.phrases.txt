@@ -34,10 +34,6 @@
 	{
 		"en"		"This game isn't using team captains."
 	}
-	"LO3Message"
-	{
-		"en"		"The match will begin shortly - live on 3!"
-	}
 	"Scrambling"
 	{
 		"en"		"{GREEN}Scrambling the teams!"
@@ -280,5 +276,14 @@
 	{
 		"#format"	"{1:s},{2:s}"
 		"en"		"The {1} team wants to unpause, waiting for the {2} team to type {GREEN}!unpause"
+	}
+	"CancelCountdownMessage"
+	{
+		"en"		"The match has been cancelled."
+	}
+	"Countdown"
+	{
+		"#format"	"{1:d}"
+		"en"		"Countdown: {GREEN}%d {NORMAL}seconds"
 	}
 }

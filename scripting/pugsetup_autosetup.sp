@@ -5,7 +5,6 @@
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
-Handle g_hAutolo3 = INVALID_HANDLE;
 Handle g_hEnabled = INVALID_HANDLE;
 Handle g_hGameType = INVALID_HANDLE;
 Handle g_hMapType = INVALID_HANDLE;
@@ -27,7 +26,6 @@ public Plugin:myinfo = {
 
 public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
-    g_hAutolo3 = CreateConVar("sm_pugsetup_autosetup_autolo3", "1", "Whether auto-live on 3 should be used.");
     g_hEnabled = CreateConVar("sm_pugsetup_autosetup_teamsize", "5", "Number of players per team.");
     g_hGameType = CreateConVar("sm_pugsetup_autosetup_gametype", "Normal", "Game type from addons/sourcemod/configs/pugsetup/gametypes.cfg to use.");
     g_hMapType = CreateConVar("sm_pugsetup_autosetup_maptype", "vote", "Vote type to use. Allowed values: \"vote\", \"veto\", \"current\".");
@@ -51,7 +49,6 @@ public void OnClientConnected() {
 
 public void Setup() {
     if (GetConVarInt(g_hEnabled) != 0 && !IsSetup() && !g_Setup) {
-        bool autolo3 = GetConVarInt(g_hAutolo3) != 0;
         int teamsize = GetConVarInt(g_hTeamSize);
 
         char mapTypeStr[32];
@@ -68,7 +65,7 @@ public void Setup() {
         if (gameTypeIndex < 0) {
             LogError("There is no gametype matching \"%s\" in addons/sourcemod/configs/pugsetup/gametypes.cfg", gameType);
         } else {
-            SetupGame(gameTypeIndex, teamType, mapType, teamsize, autolo3);
+            SetupGame(gameTypeIndex, teamType, mapType, teamsize);
             g_Setup = true;
         }
     }

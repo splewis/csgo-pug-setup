@@ -23,13 +23,6 @@ enum Permissions {
     Permission_Leader
 };
 
-// User-picked live-on-3 settings
-enum LO3Setting {
-    LO3_Auto, // auto-lo3 when all ready
-    LO3_Wait, // wait for a user to type !start
-    LO3_Unspecified // could be either of the above
-};
-
 // Called when a setup menu is finished.
 forward void OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
 
@@ -55,7 +48,7 @@ forward void OnMatchOver(bool hasDemo, const char[] demoFileName);
 forward void OnNotPicked(int client);
 
 // Sets a game up with the given settings.
-native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam, bool autolo3);
+native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam);
 
 // Clears all game types.
 native void ClearGameTypes();
@@ -69,8 +62,7 @@ native int AddGameType(const char[] name,
                        const char[] liveCfg,
                        const char[] mapList,
                        bool showInMenu=true,
-                       int teamSize=-1,
-                       LO3Setting lo3setting=LO3_Unspecified);
+                       int teamSize=-1);
 
 // Readies up a player.
 native void ReadyPlayer(int client);
@@ -194,17 +186,4 @@ stock MapType MapTypeFromString(const char[] mapTypeString) {
         LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
 
     return MapType_Vote;
-}
-
-stock LO3Setting LO3SettingFromString(const char[] lo3String) {
-    if (StrEqual(lo3String, "auto") || StrEqual(lo3String, "yes"))
-        return LO3_Auto;
-    else if (StrEqual(lo3String, "wait") || StrEqual(lo3String, "never") || StrEqual(lo3String, "no"))
-        return LO3_Wait;
-    else if (StrEqual(lo3String, "ask"))
-        return LO3_Unspecified;
-    else
-        LogError("Unknown lo3 setting: \"%s\", allowed values: \"auto\", \"wait\", \"ask\"",  lo3String);
-
-    return LO3_Unspecified;
 }

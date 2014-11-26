@@ -32,10 +32,6 @@
 	{
 		"es"		"Este juego no está usando capitanes."
 	}
-	"LO3Message"
-	{
-		"es"		"El encuentro comenzará pronto - comenzando en 3!"
-	}
 	"Scrambling"
 	{
 		"es"		"{GREEN}Mezclar los equipos!"

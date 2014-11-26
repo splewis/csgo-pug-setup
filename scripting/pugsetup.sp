@@ -20,6 +20,7 @@ enum InitialPick {
 
 /** ConVar handles **/
 Handle g_hAdminFlag = INVALID_HANDLE;
+Handle g_hAnnounceCountdown = INVALID_HANDLE;
 Handle g_hAnyCanPause = INVALID_HANDLE;
 Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
 Handle g_hAutorecord = INVALID_HANDLE;
@@ -35,6 +36,7 @@ Handle g_hQuickRestarts = INVALID_HANDLE;
 Handle g_hRandomizeMapOrder = INVALID_HANDLE;
 Handle g_hRequireAdminToSetup = INVALID_HANDLE;
 Handle g_hSnakeCaptains = INVALID_HANDLE;
+Handle g_hStartDelay = INVALID_HANDLE;
 Handle g_hWarmupCfg = INVALID_HANDLE;
 
 /** Setup info **/
@@ -43,7 +45,6 @@ int g_Leader = -1;
 // Specific choices made when setting up
 int g_GameTypeIndex = 0;
 int g_PlayersPerTeam = 5;
-bool g_AutoLO3 = false;
 TeamType g_TeamType;
 MapType g_MapType;
 
@@ -53,6 +54,7 @@ bool g_mapSet = false;
 bool g_Recording = true;
 char g_DemoFileName[256];
 bool g_LiveTimerRunning = false;
+int g_CountDownTicks = 0;
 
 // Pause information
 bool g_ctUnpaused = false;
@@ -64,7 +66,6 @@ Handle g_GameMapFiles = INVALID_HANDLE;
 Handle g_GameTypes = INVALID_HANDLE;
 Handle g_GameTypeHidden = INVALID_HANDLE;
 Handle g_GameTypeTeamSize = INVALID_HANDLE;
-Handle g_GameTypeLO3Setting = INVALID_HANDLE;
 
 /** Map-voting variables **/
 Handle g_MapNames = INVALID_HANDLE;
@@ -122,6 +123,7 @@ public void OnPluginStart() {
 
     /** ConVars **/
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
+    g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins");
     g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "0", "Whether everyone can pause, or just captains/leader");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
@@ -136,6 +138,7 @@ public void OnPluginStart() {
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the sm_pugsetup_admin_flag flag to use the .setup command.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
+    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "10", "How many seconds before the lo3 process should being. You might want to make this longer if you want to move people into teamspeak/mumble channels or similar.");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
 
     /** Create and exec plugin's configuration file **/
@@ -150,8 +153,6 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_unready", Command_Unready, "Marks the client as not ready");
     RegConsoleCmd("sm_setup", Command_Setup, "Starts pug setup (.ready, .capt commands become avaliable)");
     RegConsoleCmd("sm_10man", Command_10man, "Starts 10man setup (alias for .setup with 10 man/gather settings)");
-    RegConsoleCmd("sm_lo3", Command_LO3, "Restarts the game with a lo3 (generally this command is not neeeded!)");
-    RegConsoleCmd("sm_start", Command_Start, "Starts the game if auto-lo3 is disabled");
     RegConsoleCmd("sm_rand", Command_Rand, "Sets random captains");
     RegConsoleCmd("sm_pause", Command_Pause, "Pauses the game");
     RegConsoleCmd("sm_unpause", Command_Unpause, "Unpauses the game");
@@ -396,7 +397,7 @@ public Action Command_10man(int client, args) {
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
-    SetupGame(0, TeamType_Captains, MapType_Vote, 5, false);
+    SetupGame(0, TeamType_Captains, MapType_Vote, 5);
     return Plugin_Handled;
 }
 
@@ -446,27 +447,6 @@ public Action Command_Capt(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_LO3(int client, args) {
-    if (!g_Setup || g_MatchLive || !g_mapSet || g_LiveTimerRunning)
-            return Plugin_Handled;
-
-    PermissionCheck(Permission_Leader)
-
-    for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("%t", "LO3Message");
-    CreateTimer(2.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
-    return Plugin_Handled;
-}
-
-public Action Command_Start(int client, args) {
-    if (!g_Setup || g_MatchLive || !g_mapSet || g_LiveTimerRunning)
-            return Plugin_Handled;
-
-    PermissionCheck(Permission_Leader)
-    StartGame();
-    return Plugin_Handled;
-}
-
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] sArgs, int client) {
     if (IsPrefix(sArgs, alias)) {
         char text[255];
@@ -481,7 +461,6 @@ public Action OnClientSayCommand(client, const char[] command, const char[] sArg
     char aliases[][][] = {
         {".setup", "sm_setup"},
         {".10man", "sm_10man"},
-        {".start", "sm_start"},
         {".endgame", "sm_endmatch"},
         {".endmatch", "sm_endmatch"},
         {".forceend", "sm_forceend"},
@@ -704,19 +683,32 @@ public void PrintSetupInfo(int client) {
 
     GetMapString(buffer, sizeof(buffer), g_MapType);
     PugSetupMessage(client, "%t", "MapType", buffer);
-
-    GetEnabledString(buffer, sizeof(buffer), g_AutoLO3);
-    PugSetupMessage(client, "%t", "LO3Setting", buffer);
 }
 
 public void ReadyToStart() {
-    if (g_AutoLO3) {
-        StartGame();
-    } else {
-        PugSetupMessageToAll("%t", "ReadyToStart", GetLeader());
-    }
+    g_CountDownTicks = GetConVarInt(g_hStartDelay);
+    CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
+public Action Timer_CountDown(Handle timer)  {
+    if (!g_Setup) {
+        // match cancelled
+        PugSetupMessageToAll("%t", "CancelCountdownMessage");
+        return Plugin_Stop;
+    }
+
+    g_CountDownTicks--;
+
+    if (g_CountDownTicks == 0) {
+        StartGame();
+        return Plugin_Stop;
+    } else if (GetConVarInt(g_hAnnounceCountdown) != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
+        PugSetupMessageToAll("%t", "Countdown", g_CountDownTicks);
+        return Plugin_Continue;
+    }
+
+    return Plugin_Continue;
+}
 
 public void StartGame() {
     if (GetConVarInt(g_hAutorecord) != 0) {
@@ -774,8 +766,6 @@ public void StartGame() {
         ServerCommand("mp_scrambleteams");
     }
 
-    for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("%t", "LO3Message");
     CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 

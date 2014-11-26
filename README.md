@@ -129,13 +129,10 @@ There are other key/values you can use inside a gametype. For example:
         "config"        "sourcemod/pugsetup/standard.cfg"
         "maplist"       "standard.txt"
         "teamsize"      "5"
-        "lo3"       "wait" // might want to move players in mumble/teamspeak (equivalent of auto-lo3 disabled)
     }
 ```
 
 ``teamsize`` will force a team size for that game type. If left blank, there will be an option in the setup menu for the leader to select the teamsize.
-
-In addition, you can use the key ``lo3`` with allowed values "ask" (makes the lo3 option show up in the setup menu), "auto" (always auto-lo3 for that game type), or "wait" (never auto-lo3 for that game type).
 
 There is also another field ``hidden``, which you can set to 1 to make the game type not appear in the setup menu. This may be useful for other plugin developers using the ``SetupGame`` native.
 
@@ -176,7 +173,6 @@ Of course, you can tweak the values.
 
 Some commands that are important are:
 - **!setup**, begins the setup phase and sets the pug leader
-- **!start**, begins the game (note that the cvar sm_teamselect_autolo3 controls if this is needed
 - **!ready**
 - **!unready**
 - **!pause**
@@ -189,7 +185,7 @@ Some commands that are important are:
 You can also type .start instead of !start, or .ready instead of !ready.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
-- sm_10man (this just uses the first game type from ``gametypes.cfg``, with 5v5, captains, map vote, and auto-lo3 disabled)
+- sm_10man (this just uses the first game type from ``gametypes.cfg``, with 5v5, captains, map vote)
 - sm_forceend (force ends the game with no confirmation menu)
 - sm_pugmaps (lists the maps in the current maplist, requires a game to be !setup already)
 
