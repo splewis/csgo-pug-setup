@@ -171,8 +171,8 @@ public void GetMapString(char[] buffer, int length, MapType type) {
     }
 }
 
-public void GetEnabledString(char[] buffer, int length, bool var) {
-    if (var)
+public void GetEnabledString(char[] buffer, int length, bool variable) {
+    if (variable)
         Format(buffer, length, "%t", "Enabled");
     else
         Format(buffer, length, "%t", "Disabled");
