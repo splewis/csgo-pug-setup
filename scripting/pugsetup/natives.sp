@@ -64,6 +64,8 @@ public Native_AddGameType(Handle plugin, int numParams) {
     GetNativeString(3, mapList, sizeof(mapList));
     bool showInMenu = GetNativeCell(4);
     int teamSize = GetNativeCell(5);
+    TeamType teamType = TeamType:GetNativeCell(6);
+    MapType mapType = MapType:GetNativeCell(7);
 
     // Check for existence of live cfg
     char path[PLATFORM_MAX_PATH];
@@ -83,6 +85,9 @@ public Native_AddGameType(Handle plugin, int numParams) {
     PushArrayString(g_GameMapFiles, mapList);
     PushArrayCell(g_GameTypeHidden, !showInMenu);
     PushArrayCell(g_GameTypeTeamSize, teamSize);
+    PushArrayCell(g_GameTypeTeamTypes, teamType);
+    PushArrayCell(g_GameTypeMapTypes, mapType);
+
     return GetArraySize(g_GameTypes) - 1;
 }
 

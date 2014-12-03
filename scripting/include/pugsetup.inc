@@ -5,22 +5,24 @@
 
 // Different ways teams can be selected.
 enum TeamType {
-    TeamType_Manual,
-    TeamType_Random,
-    TeamType_Captains
+    TeamType_Unspecified = -1,
+    TeamType_Manual = 0,
+    TeamType_Random = 1,
+    TeamType_Captains = 2
 };
 
 // Different ways the map can be selected.
 enum MapType {
-    MapType_Current,
-    MapType_Vote,
-    MapType_Veto
+    MapType_Unspecified = -1,
+    MapType_Current = 0,
+    MapType_Vote = 1,
+    MapType_Veto = 2
 };
 
 // Permissions checking values.
 enum Permissions {
-    Permission_Captains,
-    Permission_Leader
+    Permission_Captains = 0,
+    Permission_Leader = 1
 };
 
 // Called when a setup menu is finished.
@@ -57,12 +59,16 @@ native void ClearGameTypes();
 native int FindGameType(const char[] name);
 
 // Adds a game type to the game type list. These are fully reset every map.
+// The choices "teamSize", "teamType", and "mapType" only affect what is shown
+// to a client going through the setup menu.
 // Returns the index of the game type.
 native int AddGameType(const char[] name,
                        const char[] liveCfg,
                        const char[] mapList,
                        bool showInMenu=true,
-                       int teamSize=-1);
+                       int teamSize=-1,
+                       TeamType teamType=TeamType_Unspecified,
+                       MapType mapType=MapType_Unspecified);
 
 // Readies up a player.
 native void ReadyPlayer(int client);
@@ -162,28 +168,28 @@ public __pl_pugsetup_SetNTVOptional() {
 }
 #endif
 
-stock TeamType TeamTypeFromString(const char[] teamTypeString) {
+stock TeamType TeamTypeFromString(const char[] teamTypeString, TeamType fallback=TeamType_Captains, bool logError=true) {
     if (StrEqual(teamTypeString, "captains") || StrEqual(teamTypeString, "captain"))
         return TeamType_Captains;
     else if (StrEqual(teamTypeString, "manual"))
         return TeamType_Manual;
     else if (StrEqual(teamTypeString, "random"))
         return TeamType_Random;
-    else
+    else if (logError)
         LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\"", teamTypeString);
 
-    return TeamType_Captains;
+    return fallback;
 }
 
-stock MapType MapTypeFromString(const char[] mapTypeString) {
+stock MapType MapTypeFromString(const char[] mapTypeString, MapType fallback=MapType_Vote, bool logError=true) {
     if (StrEqual(mapTypeString, "current"))
         return MapType_Current;
     else if (StrEqual(mapTypeString, "vote"))
         return MapType_Vote;
     else if (StrEqual(mapTypeString, "veto"))
         return MapType_Veto;
-    else
+    else if (logError)
         LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
 
-    return MapType_Vote;
+    return fallback;
 }

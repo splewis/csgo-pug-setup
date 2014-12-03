@@ -66,6 +66,8 @@ Handle g_GameMapFiles = INVALID_HANDLE;
 Handle g_GameTypes = INVALID_HANDLE;
 Handle g_GameTypeHidden = INVALID_HANDLE;
 Handle g_GameTypeTeamSize = INVALID_HANDLE;
+Handle g_GameTypeMapTypes = INVALID_HANDLE;
+Handle g_GameTypeTeamTypes = INVALID_HANDLE;
 
 /** Map-voting variables **/
 Handle g_MapNames = INVALID_HANDLE;

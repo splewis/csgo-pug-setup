@@ -129,6 +129,8 @@ There are other key/values you can use inside a gametype. For example:
         "config"        "sourcemod/pugsetup/standard.cfg"
         "maplist"       "standard.txt"
         "teamsize"      "5"
+        "maptype"      "vote"
+        "teamtype"      "captains"
     }
 ```
 
@@ -136,7 +138,7 @@ There are other key/values you can use inside a gametype. For example:
 
 There is also another field ``hidden``, which you can set to 1 to make the game type not appear in the setup menu. This may be useful for other plugin developers using the ``SetupGame`` native.
 
-
+Similar to ``teamsize``, the ``maptype`` and ``teamtype`` fields will let you force a setup option.
 
 
 ## For developers

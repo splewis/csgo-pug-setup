@@ -40,44 +40,47 @@ public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
 }
 
 public void TeamTypeMenu(int client) {
-    Handle menu = CreateMenu(TeamTypeMenuHandler);
-    SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
-    SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:TeamType_Captains, "%t", "TeamSetupMenuCaptains");
-    AddMenuInt(menu, _:TeamType_Random, "%t", "TeamSetupMenuRandom");
-    AddMenuInt(menu, _:TeamType_Manual, "%t", "TeamSetupMenuManual");
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    TeamType teamType = GetArrayCell(g_GameTypeTeamTypes, g_GameTypeIndex);
+    if (teamType == TeamType_Unspecified) {
+        Handle menu = CreateMenu(TeamTypeMenuHandler);
+        SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
+        SetMenuExitButton(menu, false);
+        AddMenuInt(menu, _:TeamType_Captains, "%t", "TeamSetupMenuCaptains");
+        AddMenuInt(menu, _:TeamType_Random, "%t", "TeamSetupMenuRandom");
+        AddMenuInt(menu, _:TeamType_Manual, "%t", "TeamSetupMenuManual");
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    } else {
+        g_TeamType = teamType;
+        GivePlayerCountMenu(client);
+    }
 }
 
 public TeamTypeMenuHandler(Handle menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
-
-        int teamsize = GetArrayCell(g_GameTypeTeamSize, g_GameTypeIndex);
-
-        // team size not specified by the gametype:
-        if (teamsize <= 0) {
-            GivePlayerCountMenu(client);
-        } else {
-            MapMenu(client);
-            g_PlayersPerTeam = teamsize;
-        }
-
+        GivePlayerCountMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
 
 public void GivePlayerCountMenu(int client) {
-    Handle menu = CreateMenu(PlayerCountHandler);
-    SetMenuTitle(menu, "%t", "HowManyPlayers");
-    SetMenuExitButton(menu, false);
-    int choices[] = {1, 2, 3, 4, 5, 6};
-    for (int i = 0; i < sizeof(choices); i++)
-        AddMenuInt(menu, choices[i], "");
+    int teamsize = GetArrayCell(g_GameTypeTeamSize, g_GameTypeIndex);
 
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    if (teamsize <= 0) { // not specified by the game type
+        Handle menu = CreateMenu(PlayerCountHandler);
+        SetMenuTitle(menu, "%t", "HowManyPlayers");
+        SetMenuExitButton(menu, false);
+        int choices[] = {1, 2, 3, 4, 5, 6};
+        for (int i = 0; i < sizeof(choices); i++)
+            AddMenuInt(menu, choices[i], "");
+
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    } else {
+        g_PlayersPerTeam = teamsize;
+        MapMenu(client);
+    }
 }
 
 public PlayerCountHandler(Handle menu, MenuAction action, param1, param2) {
@@ -94,13 +97,20 @@ public PlayerCountHandler(Handle menu, MenuAction action, param1, param2) {
  * Generic map choice-type menu.
  */
 public MapMenu(int client) {
-    Handle menu = CreateMenu(MapMenuHandler);
-    SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
-    SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:MapType_Current, "%t", "MapChoiceCurrent");
-    AddMenuInt(menu, _:MapType_Vote, "%t", "MapChoiceVote");
-    AddMenuInt(menu, _:MapType_Veto, "%t", "MapChoiceVeto");
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    MapType mapType = GetArrayCell(g_GameTypeMapTypes, g_GameTypeIndex);
+    LogMessage("got map type = %d", mapType);
+    if (mapType == MapType_Unspecified) {
+        Handle menu = CreateMenu(MapMenuHandler);
+        SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
+        SetMenuExitButton(menu, false);
+        AddMenuInt(menu, _:MapType_Current, "%t", "MapChoiceCurrent");
+        AddMenuInt(menu, _:MapType_Vote, "%t", "MapChoiceVote");
+        AddMenuInt(menu, _:MapType_Veto, "%t", "MapChoiceVeto");
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    } else {
+        g_MapType = mapType;
+        SetupFinished();
+    }
 }
 
 public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
