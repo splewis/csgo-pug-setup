@@ -4,9 +4,10 @@
  * arrays that specify options for each game type.
  */
 public Config_MapStart() {
+    g_GameTypes = CreateArray(CONFIG_STRING_LENGTH);
     g_GameConfigFiles = CreateArray(CONFIG_STRING_LENGTH);
     g_GameMapFiles = CreateArray(CONFIG_STRING_LENGTH);
-    g_GameTypes = CreateArray(CONFIG_STRING_LENGTH);
+
     g_GameTypeHidden = CreateArray();
     g_GameTypeTeamSize = CreateArray();
     g_GameTypeMapTypes = CreateArray();
@@ -60,9 +61,10 @@ static LoadBackupConfig() {
 }
 
 public Config_MapEnd() {
+    CloseHandle(g_GameTypes);
     CloseHandle(g_GameConfigFiles);
     CloseHandle(g_GameMapFiles);
-    CloseHandle(g_GameConfigFiles);
+
     CloseHandle(g_GameTypeHidden);
     CloseHandle(g_GameTypeHidden);
     CloseHandle(g_GameTypeMapTypes);
