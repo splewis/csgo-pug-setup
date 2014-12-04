@@ -44,10 +44,10 @@ public Config_MapStart() {
         bool visible = !KvGetNum(kv, "hidden", 0);
         int teamsize = KvGetNum(kv, "teamsize", -1);
 
-        KvGetString(kv, "teamtype", teamTypeString, sizeof(teamTypeString), "ask");
-        KvGetString(kv, "maptype", mapTypeString, sizeof(mapTypeString), "ask");
-        TeamType teamType = TeamTypeFromString(teamTypeString, TeamType_Unspecified, false);
-        MapType mapType = MapTypeFromString(mapTypeString, MapType_Unspecified, false);
+        KvGetString(kv, "teamtype", teamTypeString, sizeof(teamTypeString), "unspecified");
+        KvGetString(kv, "maptype", mapTypeString, sizeof(mapTypeString), "unspecified");
+        TeamType teamType = TeamTypeFromString(teamTypeString, TeamType_Unspecified, true, true);
+        MapType mapType = MapTypeFromString(mapTypeString, MapType_Unspecified, true, true);
 
         AddGameType(name, config, maplist, visible, teamsize, teamType, mapType);
     } while (KvGotoNextKey(kv));
