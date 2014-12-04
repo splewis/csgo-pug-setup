@@ -25,28 +25,50 @@ enum Permissions {
     Permission_Leader = 1
 };
 
-// Called when a setup menu is finished.
+/**
+ * Called when a setup menu is finished.
+ *
+ * @param client Client that did the setup menu (e.g. the leader).
+ * @param teamType The team type selected
+ * @param mapType The map type selected
+ * @param playersPerTeam The number of players per team
+ */
 forward void OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
 
-// Called when a player marks themselves as ready.
+/**
+ * Called when a player marks themselves as ready.
+ */
 forward void OnReady(int client);
 
-// Called when a player marks themselves as unready.
+/**
+ * Called when a player marks themselves as not ready.
+ */
 forward void OnUnready(int client);
 
-// Called when the going-live process begins, before the lo3.
+/**
+ * Called when the going-live process begins, before the lo3.
+ */
 forward void OnGoingLive();
 
-// Called after the last restart when the game is completely live.
+/**
+ * Called after the last restart when the game is completely live.
+ */
 forward void OnLive();
 
-// Called when the match is over.
-// If you plan on using the result of the demo file,
-// I'd suggest adding a slight delay from when this is called
-// to accomodate the time spent flushing the demo to disk.
+/**
+ * Called when the match is over.
+ * If you plan on using the result of the demo file,
+ * I'd suggest adding a slight delay from when this is called
+ * to accomodate the time spent flushing the demo to disk.
+ *
+ * @param hasDemo whether a demo was being recorded
+ * @param demoFileName the filename of the demo (including the .dem extension)
+ */
 forward void OnMatchOver(bool hasDemo, const char[] demoFileName);
 
-// Called when a client is not picked in a captain-selection game.
+/**
+ * Called when a client is not picked in a captain-selection game.
+ */
 forward void OnNotPicked(int client);
 
 // Sets a game up with the given settings.
