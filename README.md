@@ -214,3 +214,5 @@ Just for fun, I added support to automatically set mp_teamname_1 and mp_teamflag
 - note that the team flags are the [2-letter country codes](http://countrycode.org/)
 - the team names/flags are stored using the clientprefs API, so a database for clientprefs must be set (by default SQLite is used)
 
+For adding translations, you can either use git and follow the instructions above, or use the [SourceMod translator](http://translator.mitchdempsey.com/sourcemod_plugins/151). I'd prefer you use git & GitHub, but using the sourcmeod translator is probably easier for most people.
+
