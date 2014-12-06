@@ -225,7 +225,7 @@ public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     int bytesWritten = 0;
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (!IsPlayer(i))
+        if (!IsClientConnected(i))
             continue;
 
         SetGlobalTransTarget(i);
