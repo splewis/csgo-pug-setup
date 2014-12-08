@@ -284,6 +284,6 @@
 	"Countdown"
 	{
 		"#format"	"{1:d}"
-		"en"		"Countdown: {GREEN}%d {NORMAL}seconds"
+		"en"		"Countdown: {GREEN}{1} {NORMAL}seconds"
 	}
 }
