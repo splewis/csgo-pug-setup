@@ -45,7 +45,7 @@ public void OnClientPostAdminCheck(int client) {
 }
 
 public void OnNotPicked(int client) {
-    if (GetConVarInt(g_hAutoKickerEnabled) != 0 && GetConVarInt(g_hKickNotPicked) == 0) {
+    if (GetConVarInt(g_hAutoKickerEnabled) != 0 && GetConVarInt(g_hKickNotPicked) != 0) {
         Kick(client);
     }
 }
