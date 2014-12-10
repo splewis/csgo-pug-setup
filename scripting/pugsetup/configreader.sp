@@ -66,7 +66,7 @@ public Config_MapEnd() {
     CloseHandle(g_GameMapFiles);
 
     CloseHandle(g_GameTypeHidden);
-    CloseHandle(g_GameTypeHidden);
+    CloseHandle(g_GameTypeTeamSize);
     CloseHandle(g_GameTypeMapTypes);
     CloseHandle(g_GameTypeTeamTypes);
 }
