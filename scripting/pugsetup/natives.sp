@@ -196,7 +196,7 @@ public Native_GetCaptain(Handle plugin, int numParams) {
 public Native_PugSetupMessage(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
 
-    if (!IsPlayer(client))
+    if (!IsValidClient(client))
         return;
 
     char buffer[1024];
@@ -225,7 +225,7 @@ public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     int bytesWritten = 0;
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (!IsClientConnected(i))
+        if (!IsValidClient(i))
             continue;
 
         SetGlobalTransTarget(i);
