@@ -218,7 +218,7 @@ public void OnMapStart() {
         g_Teams[i] = -1;
     }
 
-    if (g_mapSet) {
+    if (g_mapSet || g_Setup) {
         ExecCfg(g_hWarmupCfg);
         g_Setup = true;
         if (!g_LiveTimerRunning) {
