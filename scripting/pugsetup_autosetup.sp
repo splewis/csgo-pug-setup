@@ -26,10 +26,10 @@ public Plugin:myinfo = {
 
 public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
-    g_hEnabled = CreateConVar("sm_pugsetup_autosetup_teamsize", "5", "Number of players per team.");
+    g_hEnabled = CreateConVar("sm_pugsetup_autosetup_enabled", "1", "Whether the plugin is enabled or not.");
     g_hGameType = CreateConVar("sm_pugsetup_autosetup_gametype", "Normal", "Game type from addons/sourcemod/configs/pugsetup/gametypes.cfg to use.");
     g_hMapType = CreateConVar("sm_pugsetup_autosetup_maptype", "vote", "Vote type to use. Allowed values: \"vote\", \"veto\", \"current\".");
-    g_hTeamSize = CreateConVar("sm_pugsetup_autosetup_enabled", "1", "Whether the plugin is enabled or not.");
+    g_hTeamSize = CreateConVar("sm_pugsetup_autosetup_teamsize", "5", "Number of players per team.");
     g_hTeamType = CreateConVar("sm_pugsetup_autosetup_teamtype", "captains", "What team type to use. Allowed values: \"captains\", \"manual\", and \"random\".");
     AutoExecConfig(true, "pugsetup_autosetup", "sourcemod/pugsetup");
 }
