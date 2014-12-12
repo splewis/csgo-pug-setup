@@ -48,7 +48,13 @@ public void OnForceEnd(int client) {
 
 public void OnMatchOver() {
     g_ForceEnded = false;
+    CreateTimer(15.0, Timer_DelaySetup);
     Setup();
+}
+
+public Action Timer_DelaySetup(Handle timer) {
+    Setup();
+    return Plugin_Handled;
 }
 
 public void Setup() {
