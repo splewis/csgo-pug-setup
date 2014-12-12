@@ -91,6 +91,7 @@ Handle g_hOnNotPicked = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
+Handle g_OnForceEnd = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configreader.sp"
@@ -177,6 +178,7 @@ public void OnPluginStart() {
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
+    g_OnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
 
     g_LiveTimerRunning = false;
 }
@@ -536,6 +538,11 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
 
 public Action Command_ForceEnd(int client, args) {
     PermissionCheck(Permission_Leader)
+
+    Call_StartForward(g_OnForceEnd);
+    Call_PushCell(client);
+    Call_Finish();
+
     PugSetupMessageToAll("%t", "ForceEnd", client);
     EndMatch(true);
     return Plugin_Handled;

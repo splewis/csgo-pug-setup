@@ -36,6 +36,13 @@ enum Permissions {
 forward void OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
 
 /**
+ * Called when a client force-ends the match.
+ *
+ * @param client Client that force-ended the match.
+ */
+forward void OnForceEnd(int client);
+
+/**
  * Called when a player marks themselves as ready.
  */
 forward void OnReady(int client);
