@@ -78,6 +78,11 @@ forward void OnMatchOver(bool hasDemo, const char[] demoFileName);
  */
 forward void OnNotPicked(int client);
 
+/**
+ * Called every timer-check for whether the pug is ready to start or not.
+ */
+forward void OnReadyToStartCheck(int readyPlayers, int totalPlayers);
+
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam);
 

@@ -92,6 +92,7 @@ Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 Handle g_OnForceEnd = INVALID_HANDLE;
+Handle g_OnLiveCheck = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configreader.sp"
@@ -179,6 +180,7 @@ public void OnPluginStart() {
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
     g_OnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
+    g_OnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
 
     g_LiveTimerRunning = false;
 }
@@ -300,6 +302,11 @@ public Action Timer_CheckReady(Handle timer) {
     } else {
         StatusHint(readyPlayers, totalPlayers);
     }
+
+    Call_StartForward(g_OnLiveCheck);
+    Call_PushCell(readyPlayers);
+    Call_PushCell(totalPlayers);
+    Call_Finish();
 
     return Plugin_Continue;
 }
