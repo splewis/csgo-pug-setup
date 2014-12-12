@@ -773,7 +773,6 @@ public void StartGame() {
         g_PlayerAtStart[i] = IsPlayer(i);
     }
 
-    g_MatchLive = true;
     if (g_TeamType == TeamType_Random) {
         PugSetupMessageToAll("%t", "Scrambling");
         ServerCommand("mp_scrambleteams");

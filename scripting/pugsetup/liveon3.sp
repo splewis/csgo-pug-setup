@@ -1,8 +1,5 @@
 /** Begins the LO3 process. **/
 public Action BeginLO3(Handle timer) {
-    if (!g_MatchLive)
-        return;
-
     Call_StartForward(g_hOnGoingLive);
     Call_Finish();
 
@@ -24,27 +21,19 @@ public Action BeginLO3(Handle timer) {
 }
 
 public Action Restart2(Handle timer) {
-    if (!g_MatchLive)
-        return;
-
     PugSetupMessageToAll("%t", "RestartCounter", 2);
     ServerCommand("mp_restartgame 1");
     CreateTimer(4.0, Restart3);
 }
 
 public Action Restart3(Handle timer) {
-    if (!g_MatchLive)
-        return;
-
     PugSetupMessageToAll("%t", "RestartCounter", 3);
     ServerCommand("mp_restartgame 5");
     CreateTimer(5.1, MatchLive);
 }
 
 public Action MatchLive(Handle timer) {
-    if (!g_MatchLive)
-        return;
-
+    g_MatchLive = true;
     Call_StartForward(g_hOnLive);
     Call_Finish();
 
