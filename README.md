@@ -54,6 +54,7 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 - ``pugsetup_teamnames``: sets team names/flag according to the players on the team, see more detail at the end of the readme
 - ``pugsetup_teamlocker``: blocks players from joining full teams when a game is live
 - ``pugsetup_autosetup``: automatically sets up a game when a player connects so nobody has to type .setup
+- ``pugsetup_hostname``: adds some tags to the server hostname depending on the pug status, examples: "[LIVE]" and "[NEED 3]"
 
 Most of these create a cfg file in ``cfg/sourcemod/pugsetup``you can tweak.
 

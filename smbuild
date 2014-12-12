@@ -3,8 +3,9 @@ Plugin(source='scripting/pugsetup_autosetup.sp')
 Plugin(source='scripting/pugsetup_autokicker.sp')
 Plugin(source='scripting/pugsetup_teamlocker.sp')
 Plugin(source='scripting/pugsetup_teamnames.sp')
+Plugin(source='scripting/pugsetup_hostname.sp')
 
 Package(name='pugsetup',
-        plugins=['pugsetup', 'pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames'],
-        disabled_plugins=['pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames'],
+        plugins=['pugsetup', 'pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames', 'pugsetup_hostname'],
+        disabled_plugins=['pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames', 'pugsetup_hostname'],
 )
