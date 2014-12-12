@@ -494,7 +494,6 @@ public Action OnClientSayCommand(client, const char[] command, const char[] sArg
     if (StrEqual(sArgs[0], ".help")) {
         PugSetupMessage(client, "{GREEN}Useful commands:");
         PugSetupMessage(client, "  {LIGHT_GREEN}!setup {NORMAL}begins the setup phase");
-        PugSetupMessage(client, "  {LIGHT_GREEN}!start {NORMAL}starts the match if needed");
         PugSetupMessage(client, "  {LIGHT_GREEN}!endgame {NORMAL}ends the match");
         PugSetupMessage(client, "  {LIGHT_GREEN}!leader {NORMAL}allows you to set the game leader");
         PugSetupMessage(client, "  {LIGHT_GREEN}!capt {NORMAL}allows you to set team captains");
