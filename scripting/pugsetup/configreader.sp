@@ -19,6 +19,7 @@ public Config_MapStart() {
     if (!FileExists(configFile)) {
         LogError("The pugsetup config file does not exist");
         LoadBackupConfig();
+        GameTypeForward();
         return;
     }
 
@@ -28,6 +29,7 @@ public Config_MapStart() {
         LogError("The pugsetup config file was empty");
         CloseHandle(kv);
         LoadBackupConfig();
+        GameTypeForward();
         return;
     }
 
@@ -53,6 +55,12 @@ public Config_MapStart() {
     } while (KvGotoNextKey(kv));
 
     CloseHandle(kv);
+    GameTypeForward();
+}
+
+static void GameTypeForward() {
+    Call_StartForward(g_OnGameTypesAdded);
+    Call_Finish();
 }
 
 static LoadBackupConfig() {

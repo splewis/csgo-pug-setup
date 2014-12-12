@@ -26,6 +26,12 @@ enum Permissions {
 };
 
 /**
+ * Called when the game types are read and added each map.
+ * @noreturn
+ */
+forward void OnGameTypesAdded();
+
+/**
  * Called when a setup menu is finished.
  *
  * @param client Client that did the setup menu (e.g. the leader).
