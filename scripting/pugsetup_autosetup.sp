@@ -14,7 +14,7 @@ Handle g_hTeamType = INVALID_HANDLE;
 // To prevent multiple setups if the game is aborted (!endmatch, !forceend),
 // this tracks if this plugin has done a setup - so at most 1
 // call to SetupGame happens per map.
-bool g_Setup = false;
+bool g_ForceEnded = false;
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: auto setup",
@@ -35,20 +35,24 @@ public void OnPluginStart() {
 }
 
 public void OnMapStart() {
-    g_Setup = false;
-}
-
-public void OnMatchOver() {
-    g_Setup = false;
-    Setup();
+    g_ForceEnded = false;
 }
 
 public void OnClientConnected() {
     Setup();
 }
 
+public void OnForceEnd(int client) {
+    g_ForceEnded = true;
+}
+
+public void OnMatchOver() {
+    g_ForceEnded = false;
+    Setup();
+}
+
 public void Setup() {
-    if (GetConVarInt(g_hEnabled) != 0 && !IsSetup() && !g_Setup) {
+    if (GetConVarInt(g_hEnabled) != 0 && !IsSetup() && !g_ForceEnded) {
         int teamsize = GetConVarInt(g_hTeamSize);
 
         char mapTypeStr[32];
@@ -66,7 +70,6 @@ public void Setup() {
             LogError("There is no gametype matching \"%s\" in addons/sourcemod/configs/pugsetup/gametypes.cfg", gameType);
         } else {
             SetupGame(gameTypeIndex, teamType, mapType, teamsize);
-            g_Setup = true;
         }
     }
 }
