@@ -174,3 +174,7 @@ stock void Record(const char[] demoName) {
     ReplaceString(szDemoName, sizeof(szDemoName), "\"", "\\\"");
     ServerCommand("tv_record \"%s\"", szDemoName);
 }
+
+stock bool IsPaused() {
+    return bool:GameRules_GetProp("m_bMatchWaitingForResume");
+}

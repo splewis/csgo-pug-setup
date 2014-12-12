@@ -549,8 +549,7 @@ public Action Command_ForceEnd(int client, args) {
 }
 
 public Action Command_Pause(int client, args) {
-    bool paused = bool:GameRules_GetProp("m_bMatchWaitingForResume");
-    if (!g_Setup || !g_MatchLive || paused)
+    if (!g_Setup || !g_MatchLive || IsPaused())
         return Plugin_Handled;
 
     if (GetConVarInt(g_hAnyCanPause) != 0)
@@ -567,8 +566,7 @@ public Action Command_Pause(int client, args) {
 }
 
 public Action Command_Unpause(int client, args) {
-    bool paused = bool:GameRules_GetProp("m_bMatchWaitingForResume");
-    if (!g_Setup || !g_MatchLive || !paused)
+    if (!g_Setup || !g_MatchLive || !IsPaused())
         return Plugin_Handled;
 
     if (GetConVarInt(g_hMutualUnpause) == 0) {
