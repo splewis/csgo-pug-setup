@@ -4,7 +4,23 @@
 #include <sourcemod>
 
 #include "include/priorityqueue.inc"
+#include "include/pugsetup.inc"
+#include "pugsetup/generic.sp"
 
+/*
+ * This isn't meant to be a comprehensive stats system, it's meant to be a simple
+ * way to balance teams to replace manual stuff.
+ * The update takes place every round, following this equation
+ *
+ * R' = (1-a) * R_prev + alpha * R
+ * Where
+ *    R' is the new rating
+ *    a is the alpha factor (how much a new round counts into the new rating)
+ *    R is the round-rating
+ *
+ * Alpha is made to be variable, where it decreases linearly to allow
+ * ratings to change more quickly early on when a player has few rounds played.
+ */
 #define ALPHA_INIT 0.50
 #define ALPHA_FINAL 0.005
 #define ROUNDS_FINAL 150.0
@@ -20,8 +36,8 @@ int g_PlayerRounds[MAXPLAYERS+1];
 /** Rounds stats **/
 int g_RoundPoints[MAXPLAYERS+1];
 
-#include "include/pugsetup.inc"
-#include "pugsetup/generic.sp"
+TeamType g_TeamType;
+
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: RWS balancer",
@@ -60,16 +76,23 @@ public OnClientConnected(int client) {
     g_RoundPoints[client] = 0;
 }
 
+public void OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam) {
+    g_TeamType = teamType;
+}
+
 /**
  * Here the teams are actually set to use the rws stuff.
  */
 public void OnGoingLive() {
+    // only do balancing if we didn' do captains
+    if (g_TeamType == TeamType_Captains)
+        return;
+
     Handle pq = PQ_Init();
 
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && PlayerAtStart(i)) {
             PQ_Enqueue(pq, i, g_PlayerRWS[i]);
-            LogMessage("Enqueue %L, %f", i, g_PlayerRWS[i]);
         }
     }
 
@@ -78,9 +101,6 @@ public void OnGoingLive() {
     while (!PQ_IsEmpty(pq) && count < GetPugMaxPlayers()) {
         int p1 = PQ_Dequeue(pq);
         int p2 = PQ_Dequeue(pq);
-
-        LogMessage("Dequeue %L -> CT", p1);
-        LogMessage("Dequeue %L -> T", p2);
 
         if (IsValidClient(p1))
             SwitchPlayerTeam(p1, CS_TEAM_CT);
