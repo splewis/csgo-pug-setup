@@ -8,7 +8,7 @@
 #define MAX_HOST_LENGTH 256
 
 Handle g_hEnabled = INVALID_HANDLE;
-char g_HostName[MAX_HOST_LENGTH];
+char g_HostName[MAX_HOST_LENGTH];  // stores the original hostname
 Handle g_HostnameCvar = INVALID_HANDLE;
 
 public Plugin:myinfo = {
@@ -24,6 +24,9 @@ public void OnPluginStart() {
     g_hEnabled = CreateConVar("sm_pugsetup_hostname_enabled", "1", "Whether the plugin is enabled");
     AutoExecConfig(true, "pugsetup_hostname", "sourcemod/pugsetup");
     g_HostnameCvar = FindConVar("hostname");
+
+    if (g_HostnameCvar == INVALID_HANDLE)
+        SetFailState("Failed to find cvar \"hostname\"");
 }
 
 public void OnConfigsExecuted() {
