@@ -47,7 +47,6 @@ public void OnForceEnd(int client) {
 }
 
 public void OnMatchOver() {
-    g_ForceEnded = false;
     CreateTimer(15.0, Timer_DelaySetup);
     Setup();
 }
