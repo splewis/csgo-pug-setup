@@ -784,7 +784,7 @@ public void StartGame() {
         ServerCommand("mp_scrambleteams");
     }
 
-    CreateTimer(7.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public void EndMatch(bool execConfigs) {
