@@ -36,6 +36,10 @@ int g_PlayerRounds[MAXPLAYERS+1];
 /** Rounds stats **/
 int g_RoundPoints[MAXPLAYERS+1];
 
+/** Cvars **/
+Handle g_RecordRWS = INVALID_HANDLE;
+Handle g_MoveTeams = INVALID_HANDLE;
+
 TeamType g_TeamType;
 
 
@@ -58,6 +62,9 @@ public OnPluginStart() {
 
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
+
+    g_RecordRWS = CreateConVar("sm_pugsetup_rws_recordstats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
+    g_MoveTeams = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 }
@@ -85,7 +92,7 @@ public void OnSetup(int client, TeamType teamType, MapType mapType, int playersP
  */
 public void OnGoingLive() {
     // only do balancing if we didn' do captains
-    if (g_TeamType == TeamType_Captains)
+    if (g_TeamType == TeamType_Captains || GetConVarInt(g_MoveTeams) == 0)
         return;
 
     Handle pq = PQ_Init();
@@ -163,12 +170,11 @@ public bool HelpfulAttack(int attacker, int victim) {
     return ateam != vteam && attacker != victim;
 }
 
-
 /**
  * Round end event, updates rws values for everyone.
  */
 public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive())
+    if (!IsMatchLive() || GetConVarInt(g_RecordRWS) == 0)
         return;
 
     int winner = GetEventInt(event, "winner");
@@ -182,7 +188,7 @@ public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
 /**
  * Here we apply magic updates to a player's rws based on the previous round.
  */
-public void RWSUpdate(int client, bool winner) {
+static void RWSUpdate(int client, bool winner) {
     float rws = 0.0;
     if (winner) {
         int playerCount = 0;
