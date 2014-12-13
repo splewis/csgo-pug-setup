@@ -18,6 +18,11 @@ public OnPluginStart() {
     g_hLockTeamsEnabled = CreateConVar("sm_pugsetup_teamlocker_enabled", "1", "Whether teams are locked when matches are live.");
     AutoExecConfig(true, "pugsetup_teamlocker", "sourcemod/pugsetup");
     AddCommandListener(Command_TeamJoin, "jointeam");
+    HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Pre);
+}
+
+public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
+    return Plugin_Changed;
 }
 
 public Action Command_TeamJoin(int client, const char[] command, argc) {
@@ -31,8 +36,6 @@ public Action Command_TeamJoin(int client, const char[] command, argc) {
     GetCmdArg(1, arg, sizeof(arg));
     int team_to = StringToInt(arg);
 
-    LogMessage("Teamjoin %N -> %d", client, team_to);
-
     int playerCount = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && GetClientTeam(i) == team_to) {
@@ -40,13 +43,9 @@ public Action Command_TeamJoin(int client, const char[] command, argc) {
         }
     }
 
-    LogMessage("playerCount=%d max=%d", playerCount, GetPugMaxPlayers() / 2);
-
     if (playerCount >= GetPugMaxPlayers() / 2) {
-        LogMessage("blocking");
         return Plugin_Handled;
     } else {
-        LogMessage("allowing");
         return Plugin_Continue;
     }
 }
