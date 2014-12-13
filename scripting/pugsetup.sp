@@ -536,6 +536,10 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
         int client = param1;
         bool choice = GetMenuBool(menu, param2);
         if (choice) {
+            Call_StartForward(g_OnForceEnd);
+            Call_PushCell(client);
+            Call_Finish();
+
             PugSetupMessageToAll("%t", "ForceEnd", client);
             EndMatch(true);
         }

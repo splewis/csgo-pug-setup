@@ -137,9 +137,12 @@ public SetupFinished() {
     g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
 
-    for (int i = 1; i <= MaxClients; i++)
-        if (IsPlayer(i))
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i)) {
+            UnreadyPlayer(i);
             PrintSetupInfo(i);
+        }
+    }
 
     g_Setup = true;
     if (!g_LiveTimerRunning)
