@@ -178,3 +178,27 @@ stock void Record(const char[] demoName) {
 stock bool IsPaused() {
     return bool:GameRules_GetProp("m_bMatchWaitingForResume");
 }
+
+stock int GetCookieInt(int client, Handle cookie) {
+    char buffer[32];
+    GetClientCookie(client, cookie, buffer, sizeof(buffer));
+    return StringToInt(buffer);
+}
+
+stock float GetCookieFloat(int client, Handle cookie) {
+    char buffer[32];
+    GetClientCookie(client, cookie, buffer, sizeof(buffer));
+    return StringToFloat(buffer);
+}
+
+stock void SetCookieInt(int client, Handle cookie, int value) {
+    char buffer[32];
+    IntToString(value, buffer, sizeof(buffer));
+    SetClientCookie(client, cookie, buffer);
+}
+
+stock void SetCookieFloat(int client, Handle cookie, float value) {
+    char buffer[32];
+    FloatToString(value, buffer, sizeof(buffer));
+    SetClientCookie(client, cookie, buffer);
+}
