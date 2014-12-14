@@ -55,6 +55,7 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 - ``pugsetup_teamlocker``: blocks players from joining full teams when a game is live
 - ``pugsetup_autosetup``: automatically sets up a game when a player connects so nobody has to type .setup
 - ``pugsetup_hostname``: adds some tags to the server hostname depending on the pug status, examples: "[LIVE]" and "[NEED 3]"
+- ``pugsetup_rwsbalancer``: implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual/random teams
 
 Most of these create a cfg file in ``cfg/sourcemod/pugsetup``you can tweak.
 
@@ -80,66 +81,14 @@ and the .setup menu will contain a page to choose which option. Otherwise, if th
 
 To create a new game type, add a section to the gametypes.cfg file, create the .cfg file in ``csgo/cfg/sourcemod/pugsetup``, and create a maplist in ``csgo/addons/sourcemod/configs/pugsetup``.
 
+The ``config`` and ``maplist`` keys are required. Optional keys are:
+- ``teamsize`` to force a teamsize
+- ``maptype`` to force a map type
+- ``teamtype`` to force a team type
 
-#### Example Configuration
+These 3 options just force the setting - if you don't specify any setting then there will be an option to pick one in the .setup menu.
 
-One use of this is to have different rule sets. For example, I like playing 2v2's on more maps (we generally use the map veto option), so I create a new section like so:
-```
-"GameTypes"
-{
-    "Normal"
-    {
-        "config"        "sourcemod/pugsetup/standard.cfg"
-        "maplist"       "standard.txt"
-    }
-    "2v2"
-    {
-        "config"        "sourcemod/pugsetup/standard.cfg"
-        "maplist"       "2v2maps.txt"
-    }
-}
-```
-
-And then I create a new maplist ``csgo/addons/sourcemod/configs/pugsetup/2v2maps.txt``:
-
-```
-de_aztec
-de_cache
-de_cbble
-de_dust
-de_dust2
-de_inferno
-de_mirage
-de_nuke
-de_overpass
-de_train
-workshop/125689191/de_season_rc1
-workshop/144923022/de_contra_b3
-workshop/201811336/de_toscan
-workshop/239672577/de_crown
-workshop/267340686/de_facade
-```
-
-When creating configs, realize that CS:GO's standard competitive config (``csgo/cfg/gamemode_competitive.cfg``) will be executed first. Two example deathmatch-style configs (good for aim maps) are included as examples, ``csgo/cfg/sourcemod/pugsetup`` contains ``awp.cfg`` and ``ak.cfg``.
-
-
-There are other key/values you can use inside a gametype. For example:
-```
-    "10man"
-    {
-        "config"        "sourcemod/pugsetup/standard.cfg"
-        "maplist"       "standard.txt"
-        "teamsize"      "5"
-        "maptype"      "vote"
-        "teamtype"      "captains"
-    }
-```
-
-``teamsize`` will force a team size for that game type. If left blank, there will be an option in the setup menu for the leader to select the teamsize.
-
-There is also another field ``hidden``, which you can set to 1 to make the game type not appear in the setup menu. This may be useful for other plugin developers using the ``SetupGame`` native.
-
-Similar to ``teamsize``, the ``maptype`` and ``teamtype`` fields will let you force a setup option.
+Also see the [configuration examples](configuration_examples.md).
 
 
 ## For developers
@@ -183,7 +132,8 @@ Some commands that are important are:
 - **!capt** gives the pug leader a menu to select captains
 - **!rand** selects random captains
 - **!leader** gives a menu to change the game leader
-- **!endgame**, force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
+- **!endgame** force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
+- **!forceend** force ends the game without a confirmation menu
 
 You can also type .start instead of !start, or .ready instead of !ready.
 
@@ -214,6 +164,3 @@ Just for fun, I added support to automatically set mp_teamname_1 and mp_teamflag
 - when running the sm_name command, the syntax is: ``sm_name <player> <teamname> <teamflag>``
 - note that the team flags are the [2-letter country codes](http://countrycode.org/)
 - the team names/flags are stored using the clientprefs API, so a database for clientprefs must be set (by default SQLite is used)
-
-For adding translations, you can either use git and follow the instructions above, or use the [SourceMod translator](http://translator.mitchdempsey.com/sourcemod_plugins/151). I'd prefer you use git & GitHub, but using the sourcmeod translator is probably easier for most people.
-
