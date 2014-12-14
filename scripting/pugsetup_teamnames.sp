@@ -133,18 +133,3 @@ public void FillPotentialNames(int team, Handle names, Handle flags) {
         }
     }
 }
-
-public void SetTeamInfo(int team, const char[] name, const char[] flag) {
-    int team_int = (team == CS_TEAM_CT) ? 1 : 2;
-
-    // Escape the name/flag string properly, just in case...
-    char szName[TEAM_NAME_LENGTH*2];
-    char szFlag[TEAM_FLAG_LENGTH*2];
-    strcopy(szName, sizeof(szName), name);
-    strcopy(szFlag, sizeof(szFlag), flag);
-    ReplaceString(szName, sizeof(szName), "\"", "\\\"");
-    ReplaceString(szFlag, sizeof(szFlag), "\"", "\\\"");
-
-    ServerCommand("mp_teamname_%d \"%s\"", team_int, szName);
-    ServerCommand("mp_teamflag_%d \"%s\"", team_int, szFlag);
-}

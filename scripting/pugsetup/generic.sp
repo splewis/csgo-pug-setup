@@ -1,3 +1,6 @@
+#include <cstrike>
+#include <sdktools>
+
 #define PLUGIN_VERSION "1.3.0-dev"
 char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
 char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
@@ -87,6 +90,9 @@ stock int RandomPlayer() {
  * Switches and respawns a player onto a new team.
  */
 stock void SwitchPlayerTeam(int client, int team) {
+    if (GetClientTeam(client) == team)
+        return;
+
     if (team > CS_TEAM_SPECTATOR) {
         CS_SwitchTeam(client, team);
         CS_UpdateClientModel(client);
@@ -201,4 +207,25 @@ stock void SetCookieFloat(int client, Handle cookie, float value) {
     char buffer[32];
     FloatToString(value, buffer, sizeof(buffer));
     SetClientCookie(client, cookie, buffer);
+}
+
+stock void SetConVarStringSafe(const char[] name, const char[] value) {
+    Handle cvar = FindConVar(name);
+    if (cvar == INVALID_HANDLE) {
+        LogError("Failed to find cvar: \"%s\"", name);
+    } else {
+        SetConVarString(cvar, value);
+    }
+}
+
+stock void SetTeamInfo(int team, const char[] name, const char[] flag) {
+    int team_int = (team == CS_TEAM_CT) ? 1 : 2;
+
+    char teamCvarName[32];
+    char flagCvarName[32];
+    Format(teamCvarName, sizeof(teamCvarName), "mp_teamname_%d", team_int);
+    Format(flagCvarName, sizeof(flagCvarName), "mp_teamflag_%d", team_int);
+
+    SetConVarStringSafe(teamCvarName, name);
+    SetConVarStringSafe(flagCvarName, flag);
 }
