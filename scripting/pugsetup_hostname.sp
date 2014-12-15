@@ -60,7 +60,7 @@ public void OnGoingLive() {
 
     char hostname[MAX_HOST_LENGTH];
     Format(hostname, sizeof(hostname), "%s [LIVE]", g_HostName);
-    SetConVarString(g_HostnameCvar, g_HostName);
+    SetConVarString(g_HostnameCvar, hostname);
 }
 
 public void OnMatchOver() {
