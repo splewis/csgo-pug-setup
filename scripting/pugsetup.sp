@@ -694,8 +694,12 @@ public void PrintSetupInfo(int client) {
         PugSetupMessage(client, "%t", "SetupBy", GetLeader());
 
     char buffer[128];
-    GetArrayString(g_GameTypes, g_GameTypeIndex, buffer, sizeof(buffer));
-    PugSetupMessage(client, "%t", "GameType", buffer);
+
+    bool hidden = GetArrayCell(g_GameTypeHidden, g_GameTypeIndex);
+    if (!hidden) {
+        GetArrayString(g_GameTypes, g_GameTypeIndex, buffer, sizeof(buffer));
+        PugSetupMessage(client, "%t", "GameType", buffer);
+    }
 
     GetTeamString(buffer, sizeof(buffer), g_TeamType);
     PugSetupMessage(client, "%t", "TeamType", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
