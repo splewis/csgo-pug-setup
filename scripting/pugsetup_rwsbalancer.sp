@@ -109,12 +109,18 @@ public void OnGoingLive() {
         int p1 = PQ_Dequeue(pq);
         int p2 = PQ_Dequeue(pq);
 
-        if (IsValidClient(p1))
+        if (IsPlayer(p1))
             SwitchPlayerTeam(p1, CS_TEAM_CT);
-        if (IsValidClient(p2))
+        if (IsPlayer(p2))
             SwitchPlayerTeam(p1, CS_TEAM_T);
 
         count += 2;
+    }
+
+    while (!PQ_IsEmpty(pq)) {
+        int client = PQ_Dequeue(pq);
+        if (IsPlayer(client))
+            SwitchPlayerTeam(client, CS_TEAM_SPECTATOR);
     }
 
     CloseHandle(pq);
