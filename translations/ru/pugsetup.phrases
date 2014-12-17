@@ -38,7 +38,7 @@
 	}
 	"ForceEnd"
 	{
-		"ru"		"The match was force-ended by {GREEN}{1}{NORMAL}."
+		"ru"		"Матч был принудительно остановлен {GREEN}{1}{NORMAL}."
 	}
 	"Pause"
 	{
