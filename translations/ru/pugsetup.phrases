@@ -1,0 +1,267 @@
+"Phrases"
+{
+	"VetoMessage"
+	{
+		"ru"		"Вето голосование начнется через несколько секунд."
+	}
+	"VoteMessage"
+	{
+		"ru"		"Голосование за карту начнется через несколько секунд."
+	}
+	"AlreadyLive"
+	{
+		"ru"		"Матч уже запущен!"
+	}
+	"ReadyStatus"
+	{
+		"ru"		"{1} из {2} игроков готовы\nПишите .ready для подтверждения готовности"
+	}
+	"ReadyStatusCaptains"
+	{
+		"ru"		"{1} из {2} игроков готовы\nКапитан 1: {3}\nКапитан 2: {4}"
+	}
+	"CaptainNotSelected"
+	{
+		"ru"		"не выбран"
+	}
+	"NoPermission"
+	{
+		"ru"		"Недостаточно прав."
+	}
+	"NotUsingCaptains"
+	{
+		"ru"		"Игра без капитанов."
+	}
+	"Scrambling"
+	{
+		"ru"		"{GREEN}Перемешивание команд!"
+	}
+	"ForceEnd"
+	{
+		"ru"		"The match was force-ended by {GREEN}{1}{NORMAL}."
+	}
+	"Pause"
+	{
+		"ru"		"{GREEN}{1} {NORMAL}has called for a pause."
+	}
+	"Unpause"
+	{
+		"ru"		"{GREEN}{1} {NORMAL}has unpaused."
+	}
+	"ReadyToStart"
+	{
+		"ru"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
+	}
+	"SetupBy"
+	{
+		"ru"		"The game has been setup by {GREEN}{1}"
+	}
+	"ReadyToStart"
+	{
+		"ru"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
+	}
+	"GameType"
+	{
+		"ru"		"Game type: {GREEN}{1}"
+	}
+	"TeamType"
+	{
+		"ru"		"Teams: ({GREEN}{1} vs {2}) {GREEN}{3}"
+	}
+	"MapType"
+	{
+		"ru"		"Map: {GREEN}{1}"
+	}
+	"LO3Setting"
+	{
+		"ru"		"Auto live-on-3: {GREEN}{1}"
+	}
+	"NewLeader"
+	{
+		"ru"		"The new leader is {GREEN}{1}"
+	}
+	"CaptMessage"
+	{
+		"ru"		"Captain {1} will be {2}"
+	}
+	"GameTypeTitle"
+	{
+		"ru"		"What game type should be used?"
+	}
+	"TeamSetupMenuTitle"
+	{
+		"ru"		"How will teams be setup?"
+	}
+	"TeamSetupMenuCaptains"
+	{
+		"ru"		"Assigned captains pick their teams"
+	}
+	"TeamSetupMenuRandom"
+	{
+		"ru"		"Random teams"
+	}
+	"TeamSetupMenuManual"
+	{
+		"ru"		"Players manually switch teams"
+	}
+	"TeamSetupCaptainsShort"
+	{
+		"ru"		"captains pick players"
+	}
+	"TeamSetupRandomShort"
+	{
+		"ru"		"random teams"
+	}
+	"TeamSetupManualShort"
+	{
+		"ru"		"manually switch"
+	}
+	"HowManyPlayers"
+	{
+		"ru"		"How many players per team?"
+	}
+	"MapChoiceMenuTitle"
+	{
+		"ru"		"How should the map be chosen?"
+	}
+	"MapChoiceCurrent"
+	{
+		"ru"		"Use the current map"
+	}
+	"MapChoiceVote"
+	{
+		"ru"		"Vote for a map"
+	}
+	"MapChoiceVeto"
+	{
+		"ru"		"Captains veto maps until 1 left"
+	}
+	"MapChoiceCurrentShort"
+	{
+		"ru"		"use the current map"
+	}
+	"MapChoiceVoteShort"
+	{
+		"ru"		"vote for a map"
+	}
+	"MapChoiceVetoShort"
+	{
+		"ru"		"captains veto maps"
+	}
+	"AutoLO3MenuTitle"
+	{
+		"ru"		"Automatically start the game when ready?"
+	}
+	"Yes"
+	{
+		"ru"		"Yes"
+	}
+	"No"
+	{
+		"ru"		"No"
+	}
+	"Enabled"
+	{
+		"ru"		"enabled"
+	}
+	"Disabled"
+	{
+		"ru"		"disabled"
+	}
+	"InitialPickTitle"
+	{
+		"ru"		"Which would you prefer:"
+	}
+	"InitialPickSides"
+	{
+		"ru"		"Pick the starting sides"
+	}
+	"InitialPickPlayer"
+	{
+		"ru"		"Pick the first player"
+	}
+	"InitialPickPlayerChoice"
+	{
+		"ru"		"{1} has elected to get the {GREEN}first player pick."
+	}
+	"InitialPickSideChoice"
+	{
+		"ru"		"{1} has elected to pick the {GREEN}starting sides."
+	}
+	"SideChoiceTitle"
+	{
+		"ru"		"Which side do you want first:"
+	}
+	"SideChoiceSelected"
+	{
+		"ru"		"{1} has picked {GREEN}{2} {NORMAL}first."
+	}
+	"PlayerPickTitle"
+	{
+		"ru"		"Pick your players:"
+	}
+	"PlayerPickChoice"
+	{
+		"ru"		"{1} has picked {2}."
+	}
+	"SpecCantReady"
+	{
+		"ru"		"You cannot ready up whe you are on spectator."
+	}
+	"RestartCounter"
+	{
+		"ru"		"Restart {1}/3"
+	}
+	"Live"
+	{
+		"ru"		"Match is {GREEN}LIVE"
+	}
+	"VetoMenuTitle"
+	{
+		"ru"		"Select a map to veto"
+	}
+	"PlayerVetoed"
+	{
+		"ru"		"{1} {NORMAL}vetoed {LIGHT_RED}{2}."
+	}
+	"MapsLeft"
+	{
+		"ru"		"Maps left:"
+	}
+	"VoteMenuTitle"
+	{
+		"ru"		"Vote for a map"
+	}
+	"Random"
+	{
+		"ru"		"Random"
+	}
+	"NotLiveYet"
+	{
+		"ru"		"The match has not begun yet."
+	}
+	"EndMatchMenuTitle"
+	{
+		"ru"		"Are you sure you want to end the match?"
+	}
+	"EndMatch"
+	{
+		"ru"		"Yes, end the match"
+	}
+	"ContinueMatch"
+	{
+		"ru"		"No, continue the match"
+	}
+	"MutualUnpauseMessage"
+	{
+		"ru"		"The {1} team wants to unpause, waiting for the {2} team to type {GREEN}!unpause"
+	}
+	"CancelCountdownMessage"
+	{
+		"ru"		"The match has been cancelled."
+	}
+	"Countdown"
+	{
+		"ru"		"Countdown: {GREEN}{1} {NORMAL}seconds"
+	}
+}
