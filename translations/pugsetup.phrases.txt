@@ -63,11 +63,6 @@
 		"#format"	"{1:N}"
 		"en"		"The game has been setup by {GREEN}{1}"
 	}
-	"ReadyToStart"
-	{
-		"#format"	"{1:N}"
-		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
-	}
 	"GameType"
 	{
 		"#format"	"{1:s}"
