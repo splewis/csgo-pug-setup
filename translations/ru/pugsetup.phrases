@@ -42,7 +42,7 @@
 	}
 	"Pause"
 	{
-		"ru"		"{GREEN}{1} {NORMAL}has called for a pause."
+		"ru"		"{GREEN}{1} {NORMAL}просит приостановить матч."
 	}
 	"Unpause"
 	{
@@ -50,15 +50,11 @@
 	}
 	"ReadyToStart"
 	{
-		"ru"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
+		"ru"		"Все готовы! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
 	}
 	"SetupBy"
 	{
 		"ru"		"The game has been setup by {GREEN}{1}"
-	}
-	"ReadyToStart"
-	{
-		"ru"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
 	}
 	"GameType"
 	{
