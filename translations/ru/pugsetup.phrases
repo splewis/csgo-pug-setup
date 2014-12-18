@@ -70,7 +70,7 @@
 	}
 	"MapType"
 	{
-		"ru"		"Map: {GREEN}{1}"
+		"ru"		"Карта: {GREEN}{1}"
 	}
 	"LO3Setting"
 	{
@@ -102,7 +102,7 @@
 	}
 	"TeamSetupMenuManual"
 	{
-		"ru"		"Players manually switch teams"
+		"ru"		"Игроки самостоятельно выбирают команды"
 	}
 	"TeamSetupCaptainsShort"
 	{
@@ -118,7 +118,7 @@
 	}
 	"HowManyPlayers"
 	{
-		"ru"		"How many players per team?"
+		"ru"		"Сколько игроков команде?"
 	}
 	"MapChoiceMenuTitle"
 	{
@@ -154,19 +154,19 @@
 	}
 	"Yes"
 	{
-		"ru"		"Yes"
+		"ru"		"Да"
 	}
 	"No"
 	{
-		"ru"		"No"
+		"ru"		"Нет"
 	}
 	"Enabled"
 	{
-		"ru"		"enabled"
+		"ru"		"включен"
 	}
 	"Disabled"
 	{
-		"ru"		"disabled"
+		"ru"		"выключен"
 	}
 	"InitialPickTitle"
 	{
@@ -178,7 +178,7 @@
 	}
 	"InitialPickPlayer"
 	{
-		"ru"		"Pick the first player"
+		"ru"		"Выберите первого игрока"
 	}
 	"InitialPickPlayerChoice"
 	{
@@ -198,19 +198,19 @@
 	}
 	"PlayerPickTitle"
 	{
-		"ru"		"Pick your players:"
+		"ru"		"Выберите игроков:"
 	}
 	"PlayerPickChoice"
 	{
-		"ru"		"{1} has picked {2}."
+		"ru"		"{1} выбрал {2}."
 	}
 	"SpecCantReady"
 	{
-		"ru"		"You cannot ready up whe you are on spectator."
+		"ru"		"Вы не можете быть готовы, находять в спектрах."
 	}
 	"RestartCounter"
 	{
-		"ru"		"Restart {1}/3"
+		"ru"		"Рестарт {1}/3"
 	}
 	"Live"
 	{
@@ -246,11 +246,11 @@
 	}
 	"EndMatch"
 	{
-		"ru"		"Yes, end the match"
+		"ru"		"Да, завершить матч"
 	}
 	"ContinueMatch"
 	{
-		"ru"		"No, continue the match"
+		"ru"		"Нет, продолжить матч"
 	}
 	"MutualUnpauseMessage"
 	{
@@ -258,7 +258,7 @@
 	}
 	"CancelCountdownMessage"
 	{
-		"ru"		"The match has been cancelled."
+		"ru"		"Матч отменен."
 	}
 	"Countdown"
 	{
