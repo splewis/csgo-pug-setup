@@ -1,5 +1,9 @@
 // See include/pugsetup.inc for documentation.
 
+#define CHECK_CLIENT(%1) if (!IsValidClient(%1)) ThrowNativeError(SP_ERROR_PARAM, "Client %d is not connected", %1)
+#define CHECK_CAPTAIN(%1) if (%1 != 1 && %1 != 2) ThrowNativeError(SP_ERROR_PARAM, "Captain number %d is not valid", %1)
+
+
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, err_max) {
     CreateNative("SetupGame", Native_SetupGame);
     CreateNative("ClearGameTypes", Native_ClearGameTypes);
@@ -93,6 +97,7 @@ public Native_AddGameType(Handle plugin, int numParams) {
 
 public Native_ReadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+    CHECK_CLIENT(client);
 
     if (!g_Setup || g_MatchLive || !IsPlayer(client))
         return;
@@ -112,6 +117,7 @@ public Native_ReadyPlayer(Handle plugin, int numParams) {
 
 public Native_UnreadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+    CHECK_CLIENT(client);
 
     if (!g_Setup || g_MatchLive || !IsPlayer(client))
         return;
@@ -126,8 +132,8 @@ public Native_UnreadyPlayer(Handle plugin, int numParams) {
 
 public Native_IsReady(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
-    if (!IsPlayer(client))
-        ThrowNativeError(SP_ERROR_PARAM, "Client %d is not a player", client);
+    CHECK_CLIENT(client);
+
     return g_Ready[client];
 }
 
@@ -149,6 +155,8 @@ public Native_IsMatchLive(Handle plugin, int numParams) {
 
 public Native_SetLeader(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+    CHECK_CLIENT(client);
+
     if (IsPlayer(client)) {
         PugSetupMessageToAll("%t", "NewLeader", client);
         g_Leader = GetSteamAccountID(client);
@@ -164,12 +172,21 @@ public Native_GetLeader(Handle plugin, int numParams) {
     int r = RandomPlayer();
     if (IsPlayer(r))
         g_Leader = GetSteamAccountID(r);
+
+    Call_StartForward(g_OnGetLeader);
+    Call_PushCellRef(r);
+    Call_Finish();
+
     return r;
 }
 
 public Native_SetCaptain(Handle plugin, int numParams) {
     int captainNumber = GetNativeCell(1);
+    CHECK_CAPTAIN(captainNumber);
+
     int client = GetNativeCell(2);
+    CHECK_CLIENT(client);
+
     if (IsPlayer(client)) {
         if (captainNumber == 1)
             g_capt1 = client;
@@ -180,11 +197,12 @@ public Native_SetCaptain(Handle plugin, int numParams) {
         FormatPlayerName(client, client, buffer);
         PugSetupMessageToAll("%t", "CaptMessage", captainNumber, buffer);
     }
-
 }
 
 public Native_GetCaptain(Handle plugin, int numParams) {
     int captainNumber = GetNativeCell(1);
+    CHECK_CAPTAIN(captainNumber);
+
     int capt = (captainNumber == 1) ? g_capt1 : g_capt2;
 
     if (IsValidClient(capt) && !IsFakeClient(capt))
@@ -195,9 +213,7 @@ public Native_GetCaptain(Handle plugin, int numParams) {
 
 public Native_PugSetupMessage(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
-
-    if (!IsValidClient(client))
-        return;
+    CHECK_CLIENT(client);
 
     char buffer[1024];
     int bytesWritten = 0;
@@ -255,6 +271,8 @@ public Native_PlayerAtStart(Handle plugin, int numParams) {
 
 public Native_IsPugAdmin(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
+    CHECK_CLIENT(client);
+
     AdminId admin = GetUserAdmin(client);
     if (admin != INVALID_ADMIN_ID) {
         char flags[8];
@@ -273,14 +291,12 @@ public Native_IsPugAdmin(Handle plugin, int numParams) {
 
 public Native_HasPermissions(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
-    Permissions p = Permissions:GetNativeCell(2);
-
     if (client == 0)
         return true;
 
-    if (!IsPlayer(client))
-        return false;
+    CHECK_CLIENT(client);
 
+    Permissions p = Permissions:GetNativeCell(2);
     bool isAdmin = IsPugAdmin(client);
     bool isLeader = (GetLeader() == client) || isAdmin;
     bool isCapt = (isLeader) || (client == g_capt1) || (client == g_capt2);
