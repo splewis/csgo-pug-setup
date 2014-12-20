@@ -254,14 +254,12 @@ public Action Timer_CheckReady(Handle timer) {
     int totalPlayers = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
+            UpdateClanTag(i);
             int team = GetClientTeam(i);
             if (GetConVarInt(g_hExcludeSpectators) == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
                 totalPlayers++;
                 if (g_Ready[i]) {
-                    CS_SetClientClanTag(i, "[Ready]");
                     readyPlayers++;
-                } else {
-                    CS_SetClientClanTag(i, "[Not ready]");
                 }
             }
         }
@@ -803,11 +801,6 @@ public void EndMatch(bool execConfigs) {
         Call_Finish();
     }
 
-    for (new i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i))
-            CS_SetClientClanTag(i, "");
-    }
-
     ServerCommand("mp_unpause_match");
     if (g_MatchLive && execConfigs)
         ExecCfg(g_hWarmupCfg);
@@ -819,6 +812,11 @@ public void EndMatch(bool execConfigs) {
     g_mapSet = false;
     g_Setup = false;
     g_MatchLive = false;
+
+    for (new i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i))
+            UpdateClanTag(i);
+    }
 }
 
 public Action MapSetup(Handle timer) {

@@ -4,9 +4,11 @@ public Action BeginLO3(Handle timer) {
     Call_Finish();
 
     // reset player tags
-    for (int i = 1; i <= MaxClients; i++)
-        if (IsValidClient(i) && !IsFakeClient(i))
-            CS_SetClientClanTag(i, "");
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i)) {
+            UpdateClanTag(i);
+        }
+    }
 
     if (GetConVarInt(g_hQuickRestarts) == 0) {
         // start lo3

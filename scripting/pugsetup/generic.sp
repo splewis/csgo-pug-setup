@@ -229,3 +229,27 @@ stock void SetTeamInfo(int team, const char[] name, const char[] flag) {
     SetConVarStringSafe(teamCvarName, name);
     SetConVarStringSafe(flagCvarName, flag);
 }
+
+stock void UpdateClanTag(int client) {
+    if (IsPlayer(client)) {
+
+        // don't bother with crazy things when the plugin isn't active
+        if (g_MatchLive || !g_Setup) {
+            CS_SetClientClanTag(client, "");
+            return;
+        }
+
+        int team = GetClientTeam(client);
+        if (GetConVarInt(g_hExcludeSpectators) == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+            char tag[32];
+            if (g_Ready[client]) {
+                Format(tag, sizeof(tag), "[%T]", "Ready", LANG_SERVER);
+            } else {
+                Format(tag, sizeof(tag), "[%T]", "NotReady", LANG_SERVER);
+            }
+            CS_SetClientClanTag(client, tag);
+        } else {
+            CS_SetClientClanTag(client, "");
+        }
+    }
+}

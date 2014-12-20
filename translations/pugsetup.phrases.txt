@@ -286,4 +286,12 @@
 		"#format"	"{1:d}"
 		"en"		"Countdown: {GREEN}{1} {NORMAL}seconds"
 	}
+	"Ready"
+	{
+		"en"		"Ready"
+	}
+	"NotReady"
+	{
+		"en"		"Not Ready"
+	}
 }

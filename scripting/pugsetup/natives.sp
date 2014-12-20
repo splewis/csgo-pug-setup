@@ -112,7 +112,7 @@ public Native_ReadyPlayer(Handle plugin, int numParams) {
     Call_Finish();
 
     g_Ready[client] = true;
-    CS_SetClientClanTag(client, "[Ready]");
+    UpdateClanTag(client);
 }
 
 public Native_UnreadyPlayer(Handle plugin, int numParams) {
@@ -127,7 +127,7 @@ public Native_UnreadyPlayer(Handle plugin, int numParams) {
     Call_Finish();
 
     g_Ready[client] = false;
-    CS_SetClientClanTag(client, "[Not ready]");
+    UpdateClanTag(client);
 }
 
 public Native_IsReady(Handle plugin, int numParams) {
