@@ -21,9 +21,9 @@
  * Alpha is made to be variable, where it decreases linearly to allow
  * ratings to change more quickly early on when a player has few rounds played.
  */
-#define ALPHA_INIT 0.50
-#define ALPHA_FINAL 0.005
-#define ROUNDS_FINAL 150.0
+#define ALPHA_INIT 0.1
+#define ALPHA_FINAL 0.003
+#define ROUNDS_FINAL 250.0
 
 /** Client cookie handles **/
 Handle g_RWSCookie = INVALID_HANDLE;
@@ -37,8 +37,9 @@ int g_PlayerRounds[MAXPLAYERS+1];
 int g_RoundPoints[MAXPLAYERS+1];
 
 /** Cvars **/
-Handle g_RecordRWS = INVALID_HANDLE;
 Handle g_MoveTeams = INVALID_HANDLE;
+Handle g_RecordRWS = INVALID_HANDLE;
+Handle g_SetCaptainsByRWS = INVALID_HANDLE;
 
 TeamType g_TeamType;
 
@@ -63,8 +64,9 @@ public OnPluginStart() {
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
 
-    g_RecordRWS = CreateConVar("sm_pugsetup_rws_recordstats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_MoveTeams = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
+    g_RecordRWS = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
+    g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior cannot be overwritten by the pug-leader or admins.");
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 }
@@ -234,5 +236,37 @@ static float GetAlphaFactor(int client) {
         return ALPHA_INIT + (ALPHA_INIT - ALPHA_FINAL) / (-ROUNDS_FINAL) * rounds;
     } else {
         return ALPHA_FINAL;
+    }
+}
+
+public int rwsSortFunction(index1, index2, Handle array, Handle hndl) {
+    int client1 = GetArrayCell(array, index1);
+    int client2 = GetArrayCell(array, index2);
+    return g_PlayerRWS[client1] < g_PlayerRWS[client2];
+}
+
+public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
+    if (GetConVarInt(g_SetCaptainsByRWS) != 0 && totalPlayers >= GetPugMaxPlayers() && g_TeamType == TeamType_Captains) {
+
+        // The idea is to set the captains to the 2 highest rws players,
+        // so they are thrown into an array and sorted by rws,
+        // then the captains are set to the first 2 elements of the array.
+
+        Handle players = CreateArray();
+
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i))
+                PushArrayCell(players, i);
+        }
+
+        SortADTArrayCustom(players, rwsSortFunction);
+
+        if (GetArraySize(players) >= 1)
+            SetCaptain(1, GetArrayCell(players, 0));
+
+        if (GetArraySize(players) >= 2)
+            SetCaptain(2, GetArrayCell(players, 1));
+
+        CloseHandle(players);
     }
 }
