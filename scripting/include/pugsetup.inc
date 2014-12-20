@@ -89,11 +89,6 @@ forward void OnNotPicked(int client);
  */
 forward void OnReadyToStartCheck(int readyPlayers, int totalPlayers);
 
-/**
- * Called when the leader is being fetched.
- */
-forward void OnGetLeader(int& leader);
-
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam);
 

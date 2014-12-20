@@ -173,10 +173,6 @@ public Native_GetLeader(Handle plugin, int numParams) {
     if (IsPlayer(r))
         g_Leader = GetSteamAccountID(r);
 
-    Call_StartForward(g_OnGetLeader);
-    Call_PushCellRef(r);
-    Call_Finish();
-
     return r;
 }
 

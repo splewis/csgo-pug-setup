@@ -93,7 +93,6 @@ Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 Handle g_OnForceEnd = INVALID_HANDLE;
 Handle g_OnGameTypesAdded = INVALID_HANDLE;
-Handle g_OnGetLeader = INVALID_HANDLE;
 Handle g_OnLiveCheck = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
@@ -183,7 +182,6 @@ public void OnPluginStart() {
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
     g_OnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_OnGameTypesAdded = CreateGlobalForward("OnGameTypesAdded", ET_Ignore);
-    g_OnGetLeader = CreateGlobalForward("OnGetLeader", ET_Ignore, Param_CellByRef);
     g_OnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
 
     g_LiveTimerRunning = false;
