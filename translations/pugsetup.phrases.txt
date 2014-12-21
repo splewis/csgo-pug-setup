@@ -288,10 +288,10 @@
 	}
 	"Ready"
 	{
-		"en"		"Ready"
+		"en"		"[Ready]"
 	}
 	"NotReady"
 	{
-		"en"		"Not Ready"
+		"en"		"[Not Ready]"
 	}
 }
