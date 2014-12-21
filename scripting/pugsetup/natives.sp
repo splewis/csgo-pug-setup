@@ -165,11 +165,19 @@ public Native_SetLeader(Handle plugin, int numParams) {
 }
 
 public Native_GetLeader(Handle plugin, int numParams) {
+    // first check if our "leader" is still connected
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == g_Leader)
             return i;
     }
 
+    // then check if we have someone with admin permissions
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && IsPugAdmin(i))
+            return i;
+    }
+
+    // otherwise fall back to a random player
     int r = RandomPlayer();
     if (IsPlayer(r))
         g_Leader = GetSteamAccountID(r);
