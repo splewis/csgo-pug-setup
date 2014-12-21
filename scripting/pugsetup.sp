@@ -69,6 +69,10 @@ Handle g_GameTypeTeamSize = INVALID_HANDLE;
 Handle g_GameTypeMapTypes = INVALID_HANDLE;
 Handle g_GameTypeTeamTypes = INVALID_HANDLE;
 
+/** Chat aliases loaded from the config file **/
+Handle g_ChatAliases = INVALID_HANDLE;
+Handle g_ChatAliasesCommands = INVALID_HANDLE;
+
 /** Map-voting variables **/
 Handle g_MapNames = INVALID_HANDLE;
 Handle g_MapVetoed = INVALID_HANDLE;
@@ -185,6 +189,11 @@ public void OnPluginStart() {
     g_OnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
 
     g_LiveTimerRunning = false;
+
+    /** Chat aliases **/
+    g_ChatAliases = CreateArray();
+    g_ChatAliasesCommands = CreateArray();
+    LoadChatAliases();
 }
 
 
@@ -468,33 +477,39 @@ static bool CheckChatAlias(const char[] alias, const char[] command, const char[
     return false;
 }
 
-public Action OnClientSayCommand(client, const char[] command, const char[] sArgs) {
-    char aliases[][][] = {
-        {".setup", "sm_setup"},
-        {".10man", "sm_10man"},
-        {".endgame", "sm_endmatch"},
-        {".endmatch", "sm_endmatch"},
-        {".forceend", "sm_forceend"},
-        {".cancel", "sm_endmatch"},
-        {".capt", "sm_capt"},
-        {".captain", "sm_capt"},
-        {".leader", "sm_leader"},
-        {".rand", "sm_rand"},
-        {".gaben", "sm_ready"},
-        {".ready", "sm_ready"},
-        {".gs4lyfe", "sm_ready"},
-        {".splewis", "sm_ready"},
-        {".unready", "sm_unready"},
-        {".notready", "sm_unready"},
-        {".pause", "sm_pause"},
-        {".paws", "sm_pause"},
-        {".unpause", "sm_unpause"},
-        {".unpaws", "sm_unpause"}
-    };
+public void LoadChatAliases() {
+    AddChatAlias(".setup", "sm_setup");
+    AddChatAlias(".10man", "sm_10man");
+    AddChatAlias(".endgame", "sm_endmatch");
+    AddChatAlias(".endmatch", "sm_endmatch");
+    AddChatAlias(".forceend", "sm_forceend");
+    AddChatAlias(".cancel", "sm_endmatch");
+    AddChatAlias(".capt", "sm_capt");
+    AddChatAlias(".captain", "sm_capt");
+    AddChatAlias(".leader", "sm_leader");
+    AddChatAlias(".rand", "sm_rand");
+    AddChatAlias(".gaben", "sm_ready");
+    AddChatAlias(".ready", "sm_ready");
+    AddChatAlias(".gs4lyfe", "sm_ready");
+    AddChatAlias(".splewis", "sm_ready");
+    AddChatAlias(".unready", "sm_unready");
+    AddChatAlias(".notready", "sm_unready");
+    AddChatAlias(".pause", "sm_pause");
+    AddChatAlias(".paws", "sm_pause");
+    AddChatAlias(".unpause", "sm_unpause");
+    AddChatAlias(".unpaws", "sm_unpause");
+}
 
-    for (int i = 0; i < sizeof(aliases); i++) {
-        if (CheckChatAlias(aliases[i][0], aliases[i][1], sArgs, client))
+public Action OnClientSayCommand(client, const char[] command, const char[] sArgs) {
+    for (int i = 0; i < GetArraySize(g_ChatAliases); i++) {
+        char alias[64];
+        char cmd[64];
+        GetArrayString(g_ChatAliases, i, alias, sizeof(alias));
+        GetArrayString(g_ChatAliasesCommands, i, cmd, sizeof(cmd));
+
+        if (CheckChatAlias(alias, cmd, sArgs, client)) {
             break;
+        }
     }
 
     // there is no sm_help command since we don't want override the built-in sm_help command

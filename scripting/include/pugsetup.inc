@@ -171,6 +171,9 @@ native bool HasPermissions(int client, Permissions p);
 // Sets random captains.
 native void SetRandomCaptains();
 
+// Adds a chat alias for a command. For example: .setup as a chat trigger for sm_setup
+native void AddChatAlias(const char[] alias, const char[] command);
+
 public SharedPlugin:__pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
@@ -205,6 +208,7 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("IsPugAdmin");
     MarkNativeAsOptional("HasPermissions");
     MarkNativeAsOptional("SetRandomCaptains");
+    MarkNativeAsOptional("AddChatAlias");
 }
 #endif
 

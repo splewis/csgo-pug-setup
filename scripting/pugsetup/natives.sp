@@ -27,6 +27,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, err_max) {
     CreateNative("IsPugAdmin", Native_IsPugAdmin);
     CreateNative("HasPermissions", Native_HasPermissions);
     CreateNative("SetRandomCaptains", Native_SetRandomCaptains);
+    CreateNative("AddChatAlias", Native_AddChatAlias);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -321,4 +322,13 @@ public Native_SetRandomCaptains(Handle plugin, int numParams) {
 
     SetCaptain(1, c1);
     SetCaptain(2, c2);
+}
+
+public Native_AddChatAlias(Handle plugin, int numParams) {
+    char alias[64];
+    char command[64];
+    GetNativeString(1, alias, sizeof(alias));
+    GetNativeString(2, command, sizeof(command));
+    PushArrayString(g_ChatAliases, alias);
+    PushArrayString(g_ChatAliasesCommands, command);
 }
