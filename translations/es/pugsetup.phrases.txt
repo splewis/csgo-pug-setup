@@ -48,17 +48,9 @@
 	{
 		"es"		"{GREEN}{1} {NORMAL}ha reanudado"
 	}
-	"ReadyToStart"
-	{
-		"es"		"Todo el mundo listo! Esperando por {GREEN}{1} {NORMAL}a que escriba {PINK}!start{NORMAL}."
-	}
 	"SetupBy"
 	{
 		"es"		"{GREEN}{1}{NORMAL} ha configurado el juego"
-	}
-	"ReadyToStart"
-	{
-		"es"		"Todo el mundo listo! Esperando por {GREEN}{1} {NORMAL}a que escriba {PINK}!start{NORMAL}."
 	}
 	"GameType"
 	{

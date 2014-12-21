@@ -48,10 +48,6 @@
 	{
 		"ru"		"{GREEN}{1} {NORMAL}возобновлял матч."
 	}
-	"ReadyToStart"
-	{
-		"ru"		"Все готовы! Ждем когда {GREEN}{1} {NORMAL}напишет {PINK}!start{NORMAL}."
-	}
 	"SetupBy"
 	{
 		"ru"		"Параметры матча установил {GREEN}{1}"

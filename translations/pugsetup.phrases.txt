@@ -53,20 +53,10 @@
 		"#format"	"{1:N}"
 		"en"		"{GREEN}{1} {NORMAL}has unpaused."
 	}
-	"ReadyToStart"
-	{
-		"#format"	"{1:N}"
-		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
-	}
 	"SetupBy"
 	{
 		"#format"	"{1:N}"
 		"en"		"The game has been setup by {GREEN}{1}"
-	}
-	"ReadyToStart"
-	{
-		"#format"	"{1:N}"
-		"en"		"Everybody is ready! Waiting for {GREEN}{1} {NORMAL}to type {PINK}!start{NORMAL}."
 	}
 	"GameType"
 	{
