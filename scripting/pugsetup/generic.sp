@@ -244,9 +244,9 @@ stock void UpdateClanTag(int client) {
         if (GetConVarInt(g_hExcludeSpectators) == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
             char tag[32];
             if (g_Ready[client]) {
-                Format(tag, sizeof(tag), "[%T]", "Ready", LANG_SERVER);
+                Format(tag, sizeof(tag), "%T", "Ready", LANG_SERVER);
             } else {
-                Format(tag, sizeof(tag), "[%T]", "NotReady", LANG_SERVER);
+                Format(tag, sizeof(tag), "%T", "NotReady", LANG_SERVER);
             }
             CS_SetClientClanTag(client, tag);
         } else {
