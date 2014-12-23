@@ -15,7 +15,7 @@
 	"ReadyStatus"
 	{
 		"#format"	"{1:i},{2:i}"
-		"en"		"{1} out of {2} players are ready\nType .ready to ready up"
+		"en"		"{1} out of {2} players are ready\nType !ready to ready up"
 	}
 	"ReadyStatusCaptains"
 	{
