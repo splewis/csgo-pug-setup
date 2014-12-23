@@ -14,7 +14,7 @@
 	}
 	"ReadyStatus"
 	{
-		"es"		"{1} de {2} jugadores están listos\nEscribe .ready cuando estés listo"
+		"es"		"{1} de {2} jugadores están listos\nEscribe !ready cuando estés listo"
 	}
 	"ReadyStatusCaptains"
 	{
