@@ -25,6 +25,9 @@ enum Permissions {
     Permission_Leader = 1
 };
 
+// Offsets
+new g_iAccount = -1;
+
 /**
  * Called when the game types are read and added each map.
  * @noreturn
@@ -248,4 +251,39 @@ stock MapType MapTypeFromString(const char[] mapTypeString,
         LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
 
     return fallback;
+}
+
+/**
+*  get the comma'd string version of an integer
+*
+* @param  OldMoney			the integer to convert
+* @param  String:NewMoney	the buffer to save the string in
+* @param  size				the size of the buffer
+* @noreturn
+*/
+
+stock IntToMoney(OldMoney, String:NewMoney[], size)
+{
+    new String:Temp[32];
+    new String:OldMoneyStr[32];
+    new tempChar;
+    new RealLen = 0;
+
+    IntToString(OldMoney, OldMoneyStr, sizeof(OldMoneyStr));
+
+    for (new i = strlen(OldMoneyStr) - 1; i >= 0; i--)
+    {
+        if (RealLen % 3 == 0 && RealLen != strlen(OldMoneyStr) && i != strlen(OldMoneyStr)-1)
+        {
+            tempChar = OldMoneyStr[i];
+            Format(Temp, sizeof(Temp), "%s,%s", tempChar, Temp);
+        }
+        else
+        {
+            tempChar = OldMoneyStr[i];
+            Format(Temp, sizeof(Temp), "%s%s", tempChar, Temp);
+        }
+        RealLen++;
+    }
+    Format(NewMoney, size, "%s", Temp);
 }
