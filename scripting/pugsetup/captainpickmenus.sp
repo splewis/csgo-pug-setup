@@ -3,13 +3,20 @@
 int g_PickCounter = 0;
 
 public void InitialChoiceMenu(int client) {
-    g_PickingPlayers = true;
-    Handle menu = CreateMenu(InitialChoiceHandler);
-    SetMenuTitle(menu, "%t", "InitialPickTitle");
-    SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:InitialPick_Side, "%t", "InitialPickSides");
-    AddMenuInt(menu, _:InitialPick_Player, "%t", "InitialPickPlayer");
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    if (GetConVarInt(g_hKnifeRounds) == 0) {
+        // if no knife rounds, they get to choose between side/1st pick
+        g_PickingPlayers = true;
+        Handle menu = CreateMenu(InitialChoiceHandler);
+        SetMenuTitle(menu, "%t", "InitialPickTitle");
+        SetMenuExitButton(menu, false);
+        AddMenuInt(menu, _:InitialPick_Side, "%t", "InitialPickSides");
+        AddMenuInt(menu, _:InitialPick_Player, "%t", "InitialPickPlayer");
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    } else {
+        // if using knife rounds, they just always get the 1st pick
+        g_PickCounter = 0;
+        CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(g_capt1));
+    }
 }
 
 public InitialChoiceHandler(Handle menu, MenuAction action, param1, param2) {
@@ -69,8 +76,8 @@ public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
         int otherCaptain = OtherCaptain(client);
         g_Teams[otherCaptain] = otherTeam;
         SwitchPlayerTeam(otherCaptain, otherTeam);
-        g_PickCounter = 0;
 
+        g_PickCounter = 0;
         ServerCommand("mp_restartgame 1");
         CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(otherCaptain));
     } else if (action == MenuAction_End) {

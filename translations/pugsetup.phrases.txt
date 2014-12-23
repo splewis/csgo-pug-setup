@@ -284,4 +284,13 @@
 	{
 		"en"		"[Not Ready]"
 	}
+	"KnifeRound"
+	{
+		"en"		"KNIFE!"
+	}
+	"KnifeRoundWinner"
+	{
+		"#format"	"{1:s}"
+		"en"		"The {1} team won the knife round. Waiting for them to type {GREEN}!stay {NORMAL}or {GREEN}!swap"
+	}
 }

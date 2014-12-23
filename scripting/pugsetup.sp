@@ -29,6 +29,7 @@ Handle g_hDemoNameFormat = INVALID_HANDLE;
 Handle g_hDemoTimeFormat = INVALID_HANDLE;
 Handle g_hExcludeSpectators = INVALID_HANDLE;
 Handle g_hExecDefaultConfig = INVALID_HANDLE;
+Handle g_hKnifeRounds = INVALID_HANDLE;
 Handle g_hMapVoteTime = INVALID_HANDLE;
 Handle g_hMessagePrefix = INVALID_HANDLE;
 Handle g_hMutualUnpause = INVALID_HANDLE;
@@ -87,6 +88,11 @@ bool g_PlayerAtStart[MAXPLAYERS+1];
 bool g_PickingPlayers = false;
 bool g_MatchLive = false;
 
+/** Knife round data **/
+bool g_WaitingForKnifeWinner = false;
+bool g_WaitingForKnifeDecision = false;
+int g_KnifeWinner = -1;
+
 /** Forwards **/
 Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnLive = INVALID_HANDLE;
@@ -102,6 +108,7 @@ Handle g_OnLiveCheck = INVALID_HANDLE;
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configreader.sp"
 #include "pugsetup/generic.sp"
+#include "pugsetup/kniferounds.sp"
 #include "pugsetup/leadermenus.sp"
 #include "pugsetup/liveon3.sp"
 #include "pugsetup/maps.sp"
@@ -140,6 +147,7 @@ public void OnPluginStart() {
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains, as well.");
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
+    g_hKnifeRounds = CreateConVar("sm_pugsetup_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this cvar will let anybody use the !unpause command.");
@@ -172,10 +180,13 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_capt", Command_Capt, "Gives the client a menu to pick captains");
     RegConsoleCmd("sm_captain", Command_Capt, "Gives the client a menu to pick captains");
     RegConsoleCmd("sm_pugmaps", Command_ListPugMaps, "Lists maps for the current gametype");
+    RegConsoleCmd("sm_stay", Command_Stay, "Elects to stay on the current team after winning a knife round");
+    RegConsoleCmd("sm_swap", Command_Swap, "Elects to swap the current teams after winning a knife round");
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
+    HookEvent("round_end", Event_RoundEnd);
 
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
@@ -191,8 +202,8 @@ public void OnPluginStart() {
     g_LiveTimerRunning = false;
 
     /** Chat aliases **/
-    g_ChatAliases = CreateArray();
-    g_ChatAliasesCommands = CreateArray();
+    g_ChatAliases = CreateArray(64);
+    g_ChatAliasesCommands = CreateArray(64);
     LoadChatAliases();
 }
 
@@ -225,6 +236,8 @@ public void OnMapStart() {
     g_Recording = false;
     g_MatchLive = false;
     g_LiveTimerRunning = false;
+    g_WaitingForKnifeWinner = false;
+    g_WaitingForKnifeDecision = false;
 
     for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -235,7 +248,7 @@ public void OnMapStart() {
         ExecCfg(g_hWarmupCfg);
         g_Setup = true;
         if (!g_LiveTimerRunning) {
-            CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+            CreateTimer(0.3, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             g_LiveTimerRunning = true;
         }
     } else {
@@ -498,6 +511,8 @@ public void LoadChatAliases() {
     AddChatAlias(".paws", "sm_pause");
     AddChatAlias(".unpause", "sm_unpause");
     AddChatAlias(".unpaws", "sm_unpause");
+    AddChatAlias(".stay", "sm_stay");
+    AddChatAlias(".swap", "sm_swap");
 }
 
 public Action OnClientSayCommand(client, const char[] command, const char[] sArgs) {
@@ -674,6 +689,8 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
     g_mapSet = false;
     g_Setup = false;
     g_MatchLive = false;
+    g_WaitingForKnifeDecision = false;
+    g_WaitingForKnifeWinner = false;
     return Plugin_Continue;
 }
 
@@ -694,6 +711,23 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
     }
 }
 
+public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
+    int winner = GetEventInt(event, "winner");
+    LogMessage("winner=%d, waiting=%d", winner, g_WaitingForKnifeWinner);
+    if (g_WaitingForKnifeWinner) {
+        g_WaitingForKnifeWinner = false;
+        g_WaitingForKnifeDecision = true;
+        g_KnifeWinner = winner;
+
+        char teamString[4];
+        if (g_KnifeWinner == CS_TEAM_CT)
+            teamString = "CT";
+        else
+            teamString = "T";
+
+        PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString);
+    }
+}
 
 
 /***********************
@@ -785,13 +819,6 @@ public void StartGame() {
         g_Recording = true;
     }
 
-    if (GetConVarInt(g_hExecDefaultConfig) != 0)
-        ServerCommand("exec gamemode_competitive");
-
-    char liveCfg[CONFIG_STRING_LENGTH];
-    GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
-    ServerCommand("exec %s", liveCfg);
-
     for (int i = 1; i <= MaxClients; i++) {
         g_PlayerAtStart[i] = IsPlayer(i);
     }
@@ -801,7 +828,24 @@ public void StartGame() {
         ServerCommand("mp_scrambleteams");
     }
 
-    CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
+    LogMessage("rdy");
+    if (GetConVarInt(g_hKnifeRounds) != 0) {
+        LogMessage("knife");
+        StartKnifeRound();
+    } else {
+        ExecGameConfigs();
+        CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
+    }
+
+}
+
+public void ExecGameConfigs() {
+    if (GetConVarInt(g_hExecDefaultConfig) != 0)
+        ServerCommand("exec gamemode_competitive");
+
+    char liveCfg[CONFIG_STRING_LENGTH];
+    GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
+    ServerCommand("exec %s", liveCfg);
 }
 
 public void EndMatch(bool execConfigs) {
@@ -825,6 +869,7 @@ public void EndMatch(bool execConfigs) {
     g_mapSet = false;
     g_Setup = false;
     g_MatchLive = false;
+    g_WaitingForKnifeWinner = false;
 
     for (new i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i))
@@ -856,7 +901,11 @@ public Action StartPicking(Handle timer) {
 
     // temporary teams
     SwitchPlayerTeam(g_capt2, CS_TEAM_CT);
+    g_Teams[g_capt2] = CS_TEAM_CT;
+
     SwitchPlayerTeam(g_capt1, CS_TEAM_T);
+    g_Teams[g_capt1] = CS_TEAM_T;
+
     InitialChoiceMenu(g_capt1);
     return Plugin_Handled;
 }
