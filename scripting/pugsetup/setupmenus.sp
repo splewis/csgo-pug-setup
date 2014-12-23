@@ -145,6 +145,9 @@ public SetupFinished() {
     }
 
     g_Setup = true;
+    g_WaitingForKnifeWinner = false;
+    g_WaitingForKnifeDecision = false;
+
     if (!g_LiveTimerRunning)
         CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
     g_LiveTimerRunning = true;
