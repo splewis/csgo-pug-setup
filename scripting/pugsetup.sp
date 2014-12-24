@@ -713,7 +713,6 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
 
 public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
     int winner = GetEventInt(event, "winner");
-    LogMessage("winner=%d, waiting=%d", winner, g_WaitingForKnifeWinner);
     if (g_WaitingForKnifeWinner) {
         g_WaitingForKnifeWinner = false;
         g_WaitingForKnifeDecision = true;
@@ -828,9 +827,7 @@ public void StartGame() {
         ServerCommand("mp_scrambleteams");
     }
 
-    LogMessage("rdy");
     if (GetConVarInt(g_hKnifeRounds) != 0) {
-        LogMessage("knife");
         StartKnifeRound();
     } else {
         ExecGameConfigs();
