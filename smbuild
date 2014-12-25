@@ -1,16 +1,6 @@
-Plugin(source='scripting/pugsetup.sp')
-Plugin(source='scripting/pugsetup_autosetup.sp')
-Plugin(source='scripting/pugsetup_autokicker.sp')
-Plugin(source='scripting/pugsetup_teamlocker.sp')
-Plugin(source='scripting/pugsetup_teamnames.sp')
-Plugin(source='scripting/pugsetup_hostname.sp')
-Plugin(source='scripting/pugsetup_rwsbalancer.sp')
+GlobPlugins('scripting/*.sp')
 
 Package(name='pugsetup',
-
-        plugins=['pugsetup',
-            'pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames', 'pugsetup_hostname', 'pugsetup_rwsbalancer'],
-
-        disabled_plugins=[
-            'pugsetup_autosetup', 'pugsetup_autokicker', 'pugsetup_teamlocker', 'pugsetup_teamnames', 'pugsetup_hostname', 'pugsetup_rwsbalancer'],
+        plugins=Plugins('pugsetup*'),
+        disabled_plugins=Plugins('pugsetup_*'),
 )
