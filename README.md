@@ -91,6 +91,8 @@ These 3 options just force the setting - if you don't specify any setting then t
 
 Also see the [configuration examples](configuration_examples.md).
 
+You can also add more chat alias commands in ``addons/sourcemod/configs/pugsetup/chataliases.cfg`` if you wish.
+
 
 ## For developers
 There is some extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).

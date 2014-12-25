@@ -332,6 +332,10 @@ public Native_AddChatAlias(Handle plugin, int numParams) {
     char command[64];
     GetNativeString(1, alias, sizeof(alias));
     GetNativeString(2, command, sizeof(command));
-    g_ChatAliases.PushString(alias);
-    g_ChatAliasesCommands.PushString(command);
+
+    // don't allow duplicate aliases to be added
+    if (g_ChatAliases.FindString(alias) == -1) {
+        g_ChatAliases.PushString(alias);
+        g_ChatAliasesCommands.PushString(command);
+    }
 }
