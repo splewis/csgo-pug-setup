@@ -460,12 +460,16 @@ public Action Command_Capt(int client, args) {
 
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
-        SetCaptain(1, target);
+        if (IsPlayer(target))
+            SetCaptain(1, target);
 
         if (GetCmdArgs() >= 2) {
             GetCmdArg(2, buffer, sizeof(buffer));
             target = FindTarget(client, buffer, true, false);
-            SetCaptain(2, target);
+
+            if (IsPlayer(target))
+                SetCaptain(2, target);
+
         } else {
             Captain2Menu(client);
         }
