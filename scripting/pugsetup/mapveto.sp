@@ -12,7 +12,7 @@ public void CreateMapVeto() {
 public void GiveVetoMenu(int client) {
     Handle mapList = GetCurrentMapList();
 
-    Handle menu = CreateMenu(VetoHandler);
+    Menu menu = new Menu(VetoHandler);
     SetMenuExitButton(menu, false);
     SetMenuTitle(menu, "%t", "VetoMenuTitle");
     for (int i = 0; i < GetArraySize(mapList); i++) {
@@ -46,7 +46,7 @@ static int GetFirstMapLeft() {
     return -1;
 }
 
-public VetoHandler(Handle menu, MenuAction action, param1, param2) {
+public VetoHandler(Menu menu, MenuAction action, param1, param2) {
     Handle mapList = GetCurrentMapList();
 
     if (action == MenuAction_Select) {
@@ -81,7 +81,7 @@ public VetoHandler(Handle menu, MenuAction action, param1, param2) {
 static VetoStatusDisplay(int client) {
     Handle mapList = GetCurrentMapList();
 
-    Handle menu = CreateMenu(VetoStatusHandler);
+    Menu menu = new Menu(VetoStatusHandler);
     SetMenuExitButton(menu, true);
     SetMenuTitle(menu, "%t", "MapsLeft");
     for (int i = 0; i < GetArraySize(mapList); i++) {
@@ -94,7 +94,7 @@ static VetoStatusDisplay(int client) {
     DisplayMenu(menu, client, 30);
 }
 
-public VetoStatusHandler(Handle menu, MenuAction action, param1, param2) {
+public VetoStatusHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_End) {
         CloseHandle(menu);
     }

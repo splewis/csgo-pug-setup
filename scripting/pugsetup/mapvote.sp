@@ -11,9 +11,9 @@ public void CreateMapVote() {
 }
 
 static void ShowMapVote() {
-    Handle mapList = GetCurrentMapList();
+    ArrayList mapList = GetCurrentMapList();
 
-    Handle menu = CreateMenu(MapVoteHandler);
+    Menu menu = new Menu(MapVoteHandler);
     SetMenuTitle(menu, "%t", "VoteMenuTitle");
     SetMenuExitButton(menu, false);
 
@@ -26,8 +26,8 @@ static void ShowMapVote() {
     VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
 }
 
-public MapVoteHandler(Handle menu, MenuAction action, param1, param2) {
-    Handle mapList = GetCurrentMapList();
+public int MapVoteHandler(Menu menu, MenuAction action, param1, param2) {
+    ArrayList mapList = GetCurrentMapList();
 
     if (action == MenuAction_VoteEnd) {
         int winner = GetMenuInt(menu, param1);

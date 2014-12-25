@@ -8,45 +8,45 @@ char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x0
 /**
  * Executes a config file named by a convar.
  */
-stock void ExecCfg(Handle ConVarName) {
+stock void ExecCfg(ConVar ConVarName) {
     char cfg[PLATFORM_MAX_PATH];
-    GetConVarString(ConVarName, cfg, sizeof(cfg));
+    ConVarName.GetString(cfg, sizeof(cfg));
     ServerCommand("exec \"%s\"", cfg);
 }
 
 /**
  * Adds an integer to a menu as a string choice.
  */
-stock void AddMenuInt(Handle menu, int value, const char[] display, any:...) {
+stock void AddMenuInt(Menu menu, int value, const char[] display, any:...) {
     char formattedDisplay[128];
     VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
     char buffer[8];
     IntToString(value, buffer, sizeof(buffer));
-    AddMenuItem(menu, buffer, formattedDisplay);
+    menu.AddItem(buffer, formattedDisplay);
 }
 
 /**
  * Adds an integer to a menu, named by the integer itself.
  */
-stock void AddMenuInt2(Handle menu, int value) {
+stock void AddMenuInt2(Menu menu, int value) {
     char buffer[8];
     IntToString(value, buffer, sizeof(buffer));
-    AddMenuItem(menu, buffer, buffer);
+    menu.AddItem(buffer, buffer);
 }
 
 /**
  * Gets an integer to a menu from a string choice.
  */
-stock int GetMenuInt(Handle menu, param2) {
+stock int GetMenuInt(Menu menu, param2) {
     char buffer[8];
-    GetMenuItem(menu, param2, buffer, sizeof(buffer));
+    menu.GetItem(param2, buffer, sizeof(buffer));
     return StringToInt(buffer);
 }
 
 /**
  * Adds a boolean to a menu as a string choice.
  */
-stock void AddMenuBool(Handle menu, bool value, const char[] display, any:...) {
+stock void AddMenuBool(Menu menu, bool value, const char[] display, any:...) {
     char formattedDisplay[128];
     VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
     int convertedInt = value ? 1 : 0;
@@ -56,14 +56,14 @@ stock void AddMenuBool(Handle menu, bool value, const char[] display, any:...) {
 /**
  * Gets a boolean to a menu from a string choice.
  */
-stock bool GetMenuBool(Handle menu, param2) {
+stock bool GetMenuBool(Menu menu, param2) {
     return GetMenuInt(menu, param2) != 0;
 }
 
 /**
  * Returns the number of human clients on a team.
  */
-stock int GetNumHumansOnTeam(team) {
+stock int GetNumHumansOnTeam(int team) {
     int count = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsValidClient(i) && !IsFakeClient(i))
@@ -241,7 +241,7 @@ stock void UpdateClanTag(int client, bool strip=false) {
         }
 
         int team = GetClientTeam(client);
-        if (GetConVarInt(g_hExcludeSpectators) == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+        if (g_hExcludeSpectators.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
             char tag[32];
             if (g_Ready[client]) {
                 Format(tag, sizeof(tag), "%T", "Ready", LANG_SERVER);

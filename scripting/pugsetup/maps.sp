@@ -13,7 +13,7 @@ public Action Timer_DelayedChangeMap(Handle timer) {
     return Plugin_Handled;
 }
 
-public void AddBackupMaps(Handle array) {
+public void AddBackupMaps(ArrayList array) {
     AddMap("de_cache", array);
     AddMap("de_dust2", array);
     AddMap("de_inferno", array);
@@ -24,7 +24,7 @@ public void AddBackupMaps(Handle array) {
     AddMap("de_train", array);
 }
 
-public void GetMapList(const char[] fileName, Handle array) {
+public void GetMapList(const char[] fileName, ArrayList array) {
     char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", fileName);
 
@@ -46,7 +46,7 @@ public void GetMapList(const char[] fileName, Handle array) {
     }
 }
 
-static void AddMap(const char[] mapName, Handle array) {
+static void AddMap(const char[] mapName, ArrayList array) {
     bool isComment = strlen(mapName) >= 2 && mapName[0] == '/' && mapName[1] == '/';
     if (strlen(mapName) <= 2 || isComment) {
         return;
@@ -54,6 +54,6 @@ static void AddMap(const char[] mapName, Handle array) {
 
     // only add valid maps and non-duplicate maps
     if (IsMapValid(mapName) && FindStringInArray(array, mapName) == -1) {
-        PushArrayString(array, mapName);
+        array.PushString(mapName);
     }
 }

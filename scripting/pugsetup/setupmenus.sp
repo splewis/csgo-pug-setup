@@ -9,7 +9,7 @@ public void SetupMenu(int client) {
         g_GameTypeIndex = 0;
         TeamTypeMenu(client);
     } else {
-        Handle menu = CreateMenu(SetupMenuHandler);
+        Menu menu = new Menu(SetupMenuHandler);
         SetMenuTitle(menu, "%t", "GameTypeTitle");
         SetMenuExitButton(menu, false);
         char buffer[256];
@@ -29,7 +29,7 @@ public void SetupMenu(int client) {
     }
 }
 
-public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
+public int SetupMenuHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_GameTypeIndex = GetMenuInt(menu, param2);
@@ -42,7 +42,7 @@ public SetupMenuHandler(Handle menu, MenuAction action, param1, param2) {
 public void TeamTypeMenu(int client) {
     TeamType teamType = GetArrayCell(g_GameTypeTeamTypes, g_GameTypeIndex);
     if (teamType == TeamType_Unspecified) {
-        Handle menu = CreateMenu(TeamTypeMenuHandler);
+        Menu menu = new Menu(TeamTypeMenuHandler);
         SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
         SetMenuExitButton(menu, false);
         AddMenuInt(menu, _:TeamType_Captains, "%t", "TeamSetupMenuCaptains");
@@ -55,7 +55,7 @@ public void TeamTypeMenu(int client) {
     }
 }
 
-public TeamTypeMenuHandler(Handle menu, MenuAction action, param1, param2) {
+public int TeamTypeMenuHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
@@ -69,7 +69,7 @@ public void GivePlayerCountMenu(int client) {
     int teamsize = GetArrayCell(g_GameTypeTeamSize, g_GameTypeIndex);
 
     if (teamsize <= 0) { // not specified by the game type
-        Handle menu = CreateMenu(PlayerCountHandler);
+        Menu menu = new Menu(PlayerCountHandler);
         SetMenuTitle(menu, "%t", "HowManyPlayers");
         SetMenuExitButton(menu, false);
         int choices[] = {1, 2, 3, 4, 5, 6};
@@ -83,7 +83,7 @@ public void GivePlayerCountMenu(int client) {
     }
 }
 
-public PlayerCountHandler(Handle menu, MenuAction action, param1, param2) {
+public int PlayerCountHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_PlayersPerTeam = GetMenuInt(menu, param2);
@@ -96,11 +96,11 @@ public PlayerCountHandler(Handle menu, MenuAction action, param1, param2) {
 /**
  * Generic map choice-type menu.
  */
-public MapMenu(int client) {
+public void MapMenu(int client) {
     MapType mapType = GetArrayCell(g_GameTypeMapTypes, g_GameTypeIndex);
     LogMessage("got map type = %d", mapType);
     if (mapType == MapType_Unspecified) {
-        Handle menu = CreateMenu(MapMenuHandler);
+        Menu menu = new Menu(MapMenuHandler);
         SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
         SetMenuExitButton(menu, false);
         AddMenuInt(menu, _:MapType_Current, "%t", "MapChoiceCurrent");
@@ -113,7 +113,7 @@ public MapMenu(int client) {
     }
 }
 
-public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
+public int MapMenuHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         g_MapType = MapType:GetMenuInt(menu, param2);
         switch (g_MapType) {
@@ -132,7 +132,7 @@ public MapMenuHandler(Handle menu, MenuAction action, param1, param2) {
 /**
  * Called when the setup phase is over and the ready-up period should begin.
  */
-public SetupFinished() {
+public void SetupFinished() {
     g_capt1 = -1;
     g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);

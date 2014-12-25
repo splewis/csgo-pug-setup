@@ -52,7 +52,7 @@ public Config_MapStart() {
         MapType mapType = MapTypeFromString(mapTypeString, MapType_Unspecified, true, true);
 
         // now we read the actual maps
-        Handle maps = CreateArray(PLATFORM_MAX_PATH);
+        ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
 
         // first, the optional "maps" section in the config file
         KvSavePosition(kv);
@@ -71,7 +71,7 @@ public Config_MapStart() {
 
         AddGameType(name, config, maps, visible, teamsize, teamType, mapType);
 
-        CloseHandle(maps);
+        delete maps;
     } while (KvGotoNextKey(kv));
 
     CloseHandle(kv);
@@ -85,9 +85,10 @@ static void GameTypeForward() {
 
 static LoadBackupConfig() {
     LogError("Falling back to builtin backup config");
-    Handle maps = CreateArray(PLATFORM_MAX_PATH);
+    ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
     AddBackupMaps(maps);
     AddGameType("Normal", "gamemode_competitive.cfg", maps);
+    delete maps;
 }
 
 public Config_MapEnd() {

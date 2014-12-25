@@ -2,7 +2,7 @@
  * Displays a menu to select the captains for the game.
  */
 public Captain1Menu(int client) {
-    Handle menu = CreateMenu(Captain1MenuHandler);
+    Menu menu = new Menu(Captain1MenuHandler);
     SetMenuTitle(menu, "Chose captain 1:");
     if (AddPotentialCaptains(menu, g_capt2) >= 1)
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -10,7 +10,7 @@ public Captain1Menu(int client) {
         CloseHandle(menu);
 }
 
-public Captain1MenuHandler(Handle menu, MenuAction action, param1, param2) {
+public Captain1MenuHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         int choice = GetMenuInt(menu, param2);
@@ -22,7 +22,7 @@ public Captain1MenuHandler(Handle menu, MenuAction action, param1, param2) {
 }
 
 public Captain2Menu(client) {
-    Handle menu = CreateMenu(Captain2MenuHandler);
+    Menu menu = new Menu(Captain2MenuHandler);
     SetMenuTitle(menu, "Chose captain 2:");
     if (AddPotentialCaptains(menu, g_capt1) >= 1)
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -30,7 +30,7 @@ public Captain2Menu(client) {
         CloseHandle(menu);
 }
 
-public Captain2MenuHandler(Handle menu, MenuAction action, param1, param2) {
+public Captain2MenuHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int choice = GetMenuInt(menu, param2);
         SetCaptain(2, choice);
@@ -39,7 +39,7 @@ public Captain2MenuHandler(Handle menu, MenuAction action, param1, param2) {
     }
 }
 
-static AddPotentialCaptains(Handle menu, otherCaptain) {
+static AddPotentialCaptains(Menu menu, otherCaptain) {
     int count = 0;
     for (int client = 1; client <= MaxClients; client++) {
         if (IsValidClient(client) && !IsFakeClient(client) && otherCaptain != client) {
@@ -56,7 +56,7 @@ static AddPotentialCaptains(Handle menu, otherCaptain) {
  * Extra menu for selecting the leader of the game.
  */
  public LeaderMenu(int client) {
-    Handle menu = CreateMenu(LeaderMenuHandler);
+    Menu menu = new Menu(LeaderMenuHandler);
     SetMenuTitle(menu, "Chose the game leader:");
     if (AddAllPlayers(menu) >= 1)
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -64,7 +64,7 @@ static AddPotentialCaptains(Handle menu, otherCaptain) {
         CloseHandle(menu);
 }
 
-public LeaderMenuHandler(Handle menu, MenuAction:action, param1, param2) {
+public LeaderMenuHandler(Menu menu, MenuAction:action, param1, param2) {
     if (action == MenuAction_Select) {
         int choice = GetMenuInt(menu, param2);
         SetLeader(choice);
@@ -73,6 +73,6 @@ public LeaderMenuHandler(Handle menu, MenuAction:action, param1, param2) {
     }
 }
 
-static AddAllPlayers(Handle menu) {
+static AddAllPlayers(Menu menu) {
     return AddPotentialCaptains(menu, -1); // adds everyone (excludes client -1)
 }

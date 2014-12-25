@@ -6,7 +6,7 @@ public void InitialChoiceMenu(int client) {
     if (GetConVarInt(g_hKnifeRounds) == 0) {
         // if no knife rounds, they get to choose between side/1st pick
         g_PickingPlayers = true;
-        Handle menu = CreateMenu(InitialChoiceHandler);
+        Menu menu = new Menu(InitialChoiceHandler);
         SetMenuTitle(menu, "%t", "InitialPickTitle");
         SetMenuExitButton(menu, false);
         AddMenuInt(menu, _:InitialPick_Side, "%t", "InitialPickSides");
@@ -19,7 +19,7 @@ public void InitialChoiceMenu(int client) {
     }
 }
 
-public InitialChoiceHandler(Handle menu, MenuAction action, param1, param2) {
+public int InitialChoiceHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         if (client != g_capt1)
@@ -44,7 +44,7 @@ public InitialChoiceHandler(Handle menu, MenuAction action, param1, param2) {
 }
 
 public void SideMenu(int client) {
-    Handle menu = CreateMenu(SideMenuHandler);
+    Menu menu = new Menu(SideMenuHandler);
     SetMenuTitle(menu, "%t", "SideChoiceTitle");
     SetMenuExitButton(menu, false);
     AddMenuInt(menu, CS_TEAM_CT, "CT");
@@ -52,7 +52,7 @@ public void SideMenu(int client) {
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public SideMenuHandler(Handle menu, MenuAction action, param1, param2) {
+public int SideMenuHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         int teamPick = GetMenuInt(menu, param2);
@@ -94,7 +94,7 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
         CreateTimer(1.0, FinishPicking);
     } else {
         if (IsValidClient(client)) {
-            Handle menu = CreateMenu(PlayerMenuHandler);
+            Menu menu = new Menu(PlayerMenuHandler);
             SetMenuTitle(menu, "%t", "PlayerPickTitle");
             SetMenuExitButton(menu, false);
             if (AddPlayersToMenu(menu) > 0) {
@@ -111,7 +111,7 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
     }
 }
 
-public PlayerMenuHandler(Handle menu, MenuAction action, param1, param2) {
+public int PlayerMenuHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         int selected = GetMenuInt(menu, param2);
@@ -187,7 +187,7 @@ public int OtherCaptain(int captain) {
         return g_capt1;
 }
 
-static int AddPlayersToMenu(Handle menu) {
+static int AddPlayersToMenu(Menu menu) {
     char name[MAX_NAME_LENGTH];
     int count = 0;
     for (int client = 1; client <= MaxClients; client++) {

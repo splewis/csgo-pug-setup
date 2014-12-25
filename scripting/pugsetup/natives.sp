@@ -96,7 +96,7 @@ public Native_ReadyPlayer(Handle plugin, int numParams) {
     if (!g_Setup || g_MatchLive || !IsPlayer(client))
         return;
 
-    if (GetConVarInt(g_hExcludeSpectators) != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
+    if (g_hExcludeSpectators.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
         PugSetupMessage(client, "%t", "SpecCantReady");
         return;
     }

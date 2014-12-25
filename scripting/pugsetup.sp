@@ -19,26 +19,26 @@ enum InitialPick {
 };
 
 /** ConVar handles **/
-Handle g_hAdminFlag = INVALID_HANDLE;
-Handle g_hAnnounceCountdown = INVALID_HANDLE;
-Handle g_hAnyCanPause = INVALID_HANDLE;
-Handle g_hAutoRandomizeCaptains = INVALID_HANDLE;
-Handle g_hAutorecord = INVALID_HANDLE;
-Handle g_hCvarVersion = INVALID_HANDLE;
-Handle g_hDemoNameFormat = INVALID_HANDLE;
-Handle g_hDemoTimeFormat = INVALID_HANDLE;
-Handle g_hExcludeSpectators = INVALID_HANDLE;
-Handle g_hExecDefaultConfig = INVALID_HANDLE;
-Handle g_hKnifeRounds = INVALID_HANDLE;
-Handle g_hMapVoteTime = INVALID_HANDLE;
-Handle g_hMessagePrefix = INVALID_HANDLE;
-Handle g_hMutualUnpause = INVALID_HANDLE;
-Handle g_hQuickRestarts = INVALID_HANDLE;
-Handle g_hRandomizeMapOrder = INVALID_HANDLE;
-Handle g_hRequireAdminToSetup = INVALID_HANDLE;
-Handle g_hSnakeCaptains = INVALID_HANDLE;
-Handle g_hStartDelay = INVALID_HANDLE;
-Handle g_hWarmupCfg = INVALID_HANDLE;
+ConVar g_hAdminFlag;
+ConVar g_hAnnounceCountdown;
+ConVar g_hAnyCanPause;
+ConVar g_hAutoRandomizeCaptains;
+ConVar g_hAutorecord;
+ConVar g_hCvarVersion;
+ConVar g_hDemoNameFormat;
+ConVar g_hDemoTimeFormat;
+ConVar g_hExcludeSpectators;
+ConVar g_hExecDefaultConfig;
+ConVar g_hKnifeRounds;
+ConVar g_hMapVoteTime;
+ConVar g_hMessagePrefix;
+ConVar g_hMutualUnpause;
+ConVar g_hQuickRestarts;
+ConVar g_hRandomizeMapOrder;
+ConVar g_hRequireAdminToSetup;
+ConVar g_hSnakeCaptains;
+ConVar g_hStartDelay;
+ConVar g_hWarmupCfg;
 
 /** Setup info **/
 int g_Leader = -1;
@@ -272,7 +272,7 @@ public Action Timer_CheckReady(Handle timer) {
         if (IsPlayer(i)) {
             UpdateClanTag(i);
             int team = GetClientTeam(i);
-            if (GetConVarInt(g_hExcludeSpectators) == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+            if (g_hExcludeSpectators.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
                 totalPlayers++;
                 if (g_Ready[i]) {
                     readyPlayers++;
@@ -381,7 +381,7 @@ public Action Command_Setup(int client, args) {
         return Plugin_Handled;
     }
 
-    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !IsPugAdmin(client)) {
+    if (g_hRequireAdminToSetup.IntValue != 0 && !IsPugAdmin(client)) {
         PugSetupMessage(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
@@ -411,7 +411,7 @@ public Action Command_10man(int client, args) {
         return Plugin_Handled;
     }
 
-    if (GetConVarInt(g_hRequireAdminToSetup) != 0 && !IsPugAdmin(client)) {
+    if (g_hRequireAdminToSetup.IntValue != 0 && !IsPugAdmin(client)) {
         PugSetupMessage(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
@@ -545,7 +545,7 @@ public Action Command_EndGame(int client, args) {
     } else {
         PermissionCheck(Permission_Leader)
 
-        Handle menu = CreateMenu(MatchEndHandler);
+        Menu menu = new Menu(MatchEndHandler);
         SetMenuTitle(menu, "%t", "EndMatchMenuTitle");
         SetMenuExitButton(menu, true);
         AddMenuBool(menu, false, "%t", "ContinueMatch");
@@ -555,7 +555,7 @@ public Action Command_EndGame(int client, args) {
     return Plugin_Handled;
 }
 
-public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
+public int MatchEndHandler(Menu menu, MenuAction action, param1, param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         bool choice = GetMenuBool(menu, param2);
@@ -588,7 +588,7 @@ public Action Command_Pause(int client, args) {
     if (!g_Setup || !g_MatchLive || IsPaused())
         return Plugin_Handled;
 
-    if (GetConVarInt(g_hAnyCanPause) != 0)
+    if (g_hAnyCanPause.IntValue != 0)
         PermissionCheck(Permission_Captains)
 
     g_ctUnpaused = false;
@@ -605,8 +605,8 @@ public Action Command_Unpause(int client, args) {
     if (!g_Setup || !g_MatchLive || !IsPaused())
         return Plugin_Handled;
 
-    if (GetConVarInt(g_hMutualUnpause) == 0) {
-        if (GetConVarInt(g_hAnyCanPause) != 0)
+    if (g_hMutualUnpause.IntValue == 0) {
+        if (g_hAnyCanPause.IntValue != 0)
             PermissionCheck(Permission_Captains)
 
         ServerCommand("mp_unpause_match");
@@ -751,7 +751,7 @@ public void PrintSetupInfo(int client) {
 }
 
 public void ReadyToStart() {
-    g_CountDownTicks = GetConVarInt(g_hStartDelay);
+    g_CountDownTicks = g_hStartDelay.IntValue;
     CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -767,7 +767,7 @@ public Action Timer_CountDown(Handle timer)  {
     if (g_CountDownTicks == 0) {
         StartGame();
         return Plugin_Stop;
-    } else if (GetConVarInt(g_hAnnounceCountdown) != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
+    } else if (g_hAnnounceCountdown.IntValue != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
         PugSetupMessageToAll("%t", "Countdown", g_CountDownTicks);
         return Plugin_Continue;
     }
@@ -776,7 +776,7 @@ public Action Timer_CountDown(Handle timer)  {
 }
 
 public void StartGame() {
-    if (GetConVarInt(g_hAutorecord) != 0) {
+    if (g_hAutorecord.IntValue != 0) {
         // get the map, with any workshop stuff before removed
         // this is {MAP} in the format string
         char mapName[128];
@@ -790,7 +790,7 @@ public void StartGame() {
 
         // get the time, this is {TIME} in the format string
         char timeFormat[64];
-        GetConVarString(g_hDemoTimeFormat, timeFormat, sizeof(timeFormat));
+        g_hDemoTimeFormat.GetString(timeFormat, sizeof(timeFormat));
         int timeStamp = GetTime();
         char formattedTime[64];
         FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
@@ -801,7 +801,7 @@ public void StartGame() {
 
         // create the actual demo name to use
         char demoName[256];
-        GetConVarString(g_hDemoNameFormat, demoName, sizeof(demoName));
+        g_hDemoNameFormat.GetString(demoName, sizeof(demoName));
 
         ReplaceString(demoName, sizeof(demoName), "{MAP}", mapName[last_slash], false);
         ReplaceString(demoName, sizeof(demoName), "{TEAMSIZE}", playerCount, false);
@@ -823,7 +823,7 @@ public void StartGame() {
         ServerCommand("mp_scrambleteams");
     }
 
-    if (GetConVarInt(g_hKnifeRounds) != 0) {
+    if (g_hKnifeRounds.IntValue != 0) {
         StartKnifeRound();
     } else {
         ExecGameConfigs();
@@ -833,7 +833,7 @@ public void StartGame() {
 }
 
 public void ExecGameConfigs() {
-    if (GetConVarInt(g_hExecDefaultConfig) != 0)
+    if (g_hExecDefaultConfig.IntValue != 0)
         ServerCommand("exec gamemode_competitive");
 
     char liveCfg[CONFIG_STRING_LENGTH];
@@ -870,8 +870,8 @@ public void EndMatch(bool execConfigs) {
     }
 }
 
-public Handle GetCurrentMapList() {
-    return Handle:GetArrayCell(g_GameMapLists, g_GameTypeIndex);
+public ArrayList GetCurrentMapList() {
+    return ArrayList:GetArrayCell(g_GameMapLists, g_GameTypeIndex);
 }
 
 public Action MapSetup(Handle timer) {
