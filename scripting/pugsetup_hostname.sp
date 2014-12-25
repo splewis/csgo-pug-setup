@@ -7,10 +7,11 @@
 
 #define MAX_HOST_LENGTH 256
 
-Handle g_hEnabled = INVALID_HANDLE;
+ConVar g_hEnabled;
+ConVar g_HostnameCvar;
+
 bool g_GotHostName = false;  // keep track of it, so we only fetch it once
 char g_HostName[MAX_HOST_LENGTH];  // stores the original hostname
-Handle g_HostnameCvar = INVALID_HANDLE;
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: hostname setter",
@@ -33,13 +34,13 @@ public void OnPluginStart() {
 
 public void OnConfigsExecuted() {
     if (!g_GotHostName) {
-        GetConVarString(g_HostnameCvar, g_HostName, sizeof(g_HostName));
+        g_HostnameCvar.GetString(g_HostName, sizeof(g_HostName));
         g_GotHostName = true;
     }
 }
 
 public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
-    if (GetConVarInt(g_hEnabled) == 0)
+    if (g_hEnabled.IntValue == 0)
         return;
 
     char hostname[MAX_HOST_LENGTH];
@@ -51,21 +52,21 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
         Format(hostname, sizeof(hostname), "%s", g_HostName);
     }
 
-    SetConVarString(g_HostnameCvar, hostname);
+    g_HostnameCvar.SetString(hostname);
 }
 
 public void OnGoingLive() {
-    if (GetConVarInt(g_hEnabled) == 0)
+    if (g_hEnabled.IntValue == 0)
         return;
 
     char hostname[MAX_HOST_LENGTH];
     Format(hostname, sizeof(hostname), "%s [LIVE]", g_HostName);
-    SetConVarString(g_HostnameCvar, hostname);
+    g_HostnameCvar.SetString(hostname);
 }
 
 public void OnMatchOver() {
     if (GetConVarInt(g_hEnabled) == 0)
         return;
 
-    SetConVarString(g_HostnameCvar, g_HostName);
+    g_HostnameCvar.SetString(g_HostName);
 }

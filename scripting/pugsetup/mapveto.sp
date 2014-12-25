@@ -3,22 +3,29 @@
  * Map vetoing functions
  */
 public void CreateMapVeto() {
+    ArrayList mapList = GetCurrentMapList();
+
     if (GetConVarInt(g_hRandomizeMapOrder) != 0)
-        RandomizeArray(GetCurrentMapList());
+        RandomizeArray(mapList);
+
+    ClearArray(g_MapVetoed);
+    for (int i = 0; i < mapList.Length; i++)
+        g_MapVetoed.Push(false);
 
     GiveVetoMenu(g_capt1);
 }
 
 public void GiveVetoMenu(int client) {
-    Handle mapList = GetCurrentMapList();
+    ArrayList mapList = GetCurrentMapList();
 
     Menu menu = new Menu(VetoHandler);
-    SetMenuExitButton(menu, false);
-    SetMenuTitle(menu, "%t", "VetoMenuTitle");
-    for (int i = 0; i < GetArraySize(mapList); i++) {
-        if (!GetArrayCell(g_MapVetoed, i)) {
+    menu.ExitButton = false;
+    menu.SetTitle("%t", "VetoMenuTitle");
+
+    for (int i = 0; i < mapList.Length; i++) {
+        if (!g_MapVetoed.Get(i)) {
             char map[PLATFORM_MAX_PATH];
-            GetArrayString(mapList, i, map, sizeof(map));
+            mapList.GetString(i, map, sizeof(map));
             AddMenuInt(menu, i, map);
         }
     }
@@ -26,40 +33,40 @@ public void GiveVetoMenu(int client) {
 }
 
 static int GetNumMapsLeft() {
-    Handle mapList = GetCurrentMapList();
+    ArrayList mapList = GetCurrentMapList();
 
     int count = 0;
-    for (int i = 0; i < GetArraySize(mapList); i++) {
-        if (!GetArrayCell(g_MapVetoed, i))
+    for (int i = 0; i < mapList.Length; i++) {
+        if (!g_MapVetoed.Get(i))
             count++;
     }
     return count;
 }
 
 static int GetFirstMapLeft() {
-    Handle mapList = GetCurrentMapList();
+    ArrayList mapList = GetCurrentMapList();
 
-    for (int i = 0; i < GetArraySize(mapList); i++) {
-        if (!GetArrayCell(g_MapVetoed, i))
+    for (int i = 0; i < mapList.Length; i++) {
+        if (!g_MapVetoed.Get(i))
             return i;
     }
     return -1;
 }
 
 public VetoHandler(Menu menu, MenuAction action, param1, param2) {
-    Handle mapList = GetCurrentMapList();
+    ArrayList mapList = GetCurrentMapList();
 
     if (action == MenuAction_Select) {
         int client = param1;
         new index = GetMenuInt(menu, param2);
         char map[PLATFORM_MAX_PATH];
-        GetArrayString(mapList, index, map, sizeof(map));
+        mapList.GetString(index, map, sizeof(map));
 
         char captString[64];
         FormatPlayerName(client, client, captString);
         PugSetupMessageToAll("%t", "PlayerVetoed", captString, map);
 
-        SetArrayCell(g_MapVetoed, index, true);
+        g_MapVetoed.Set(index, true);
         if (GetNumMapsLeft() == 1) {
             g_ChosenMap = GetFirstMapLeft();
             ChangeMap();
@@ -67,7 +74,7 @@ public VetoHandler(Menu menu, MenuAction action, param1, param2) {
             int other = OtherCaptain(client);
             GiveVetoMenu(other);
             for (int i = 1; i <= MaxClients; i++) {
-                if (IsValidClient(i) && !IsFakeClient(i) && i != other) {
+                if (IsPlayer(i) && i != other) {
                     VetoStatusDisplay(i);
                 }
             }
@@ -79,15 +86,15 @@ public VetoHandler(Menu menu, MenuAction action, param1, param2) {
 }
 
 static VetoStatusDisplay(int client) {
-    Handle mapList = GetCurrentMapList();
+    ArrayList mapList = GetCurrentMapList();
 
     Menu menu = new Menu(VetoStatusHandler);
     SetMenuExitButton(menu, true);
     SetMenuTitle(menu, "%t", "MapsLeft");
-    for (int i = 0; i < GetArraySize(mapList); i++) {
-        if (!GetArrayCell(g_MapVetoed, i)) {
+    for (int i = 0; i < mapList.Length; i++) {
+        if (!g_MapVetoed.Get(i)) {
             char map[PLATFORM_MAX_PATH];
-            GetArrayString(mapList, i, map, sizeof(map));
+            mapList.GetString(i, map, sizeof(map));
             AddMenuItem(menu, "", map, ITEMDRAW_DISABLED);
         }
     }

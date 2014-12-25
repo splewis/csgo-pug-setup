@@ -41,17 +41,17 @@ public Native_SetupGame(Handle plugin, int numParams) {
 }
 
 public Native_ClearGameTypes(Handle plugin, int numParams) {
-    ClearArray(g_GameTypes);
-    ClearArray(g_GameConfigFiles);
+    g_GameTypes.ClearArray();
+    g_GameConfigFiles.ClearArray();
     CloseNestedArray(g_GameMapLists, false);
 }
 
 public Native_FindGameType(Handle plugin, int numParams) {
     char name[CONFIG_STRING_LENGTH];
     GetNativeString(1, name, sizeof(name));
-    for (int i = 0; i < GetArraySize(g_GameTypes); i++) {
+    for (int i = 0; i < g_GameTypes.Length; i++) {
         char buffer[CONFIG_STRING_LENGTH];
-        GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
+        g_GameTypes.GetString(i, buffer, sizeof(buffer));
         if (StrEqual(name, buffer, false)) {
             return i;
         }
@@ -78,15 +78,15 @@ public Native_AddGameType(Handle plugin, int numParams) {
         LogError("Gametype \"%s\" uses non-existent live cfg: \"%s\"", name, liveCfg);
     }
 
-    PushArrayString(g_GameTypes, name);
-    PushArrayString(g_GameConfigFiles, liveCfg);
-    PushArrayCell(g_GameMapLists, mapList);
-    PushArrayCell(g_GameTypeHidden, !showInMenu);
-    PushArrayCell(g_GameTypeTeamSize, teamSize);
-    PushArrayCell(g_GameTypeTeamTypes, teamType);
-    PushArrayCell(g_GameTypeMapTypes, mapType);
+    g_GameTypes.PushString(name);
+    g_GameConfigFiles.PushString(liveCfg);
+    g_GameMapLists.Push(mapList);
+    g_GameTypeHidden.Push(!showInMenu);
+    g_GameTypeTeamSize.Push(teamSize);
+    g_GameTypeTeamTypes.Push(teamType);
+    g_GameTypeMapTypes.Push(mapType);
 
-    return GetArraySize(g_GameTypes) - 1;
+    return g_GameTypes.Length - 1;
 }
 
 public Native_ReadyPlayer(Handle plugin, int numParams) {
@@ -219,7 +219,7 @@ public Native_PugSetupMessage(Handle plugin, int numParams) {
     FormatNativeString(0, 2, 3, sizeof(buffer), bytesWritten, buffer);
 
     char prefix[64];
-    GetConVarString(g_hMessagePrefix, prefix, sizeof(prefix));
+    g_hMessagePrefix.GetString(prefix, sizeof(prefix));
 
     char finalMsg[1024];
     if (StrEqual(prefix, ""))
@@ -234,7 +234,7 @@ public Native_PugSetupMessage(Handle plugin, int numParams) {
 
 public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     char prefix[64];
-    GetConVarString(g_hMessagePrefix, prefix, sizeof(prefix));
+    g_hMessagePrefix.GetString(prefix, sizeof(prefix));
     char buffer[1024];
     int bytesWritten = 0;
 
@@ -275,7 +275,7 @@ public Native_IsPugAdmin(Handle plugin, int numParams) {
     if (admin != INVALID_ADMIN_ID) {
         char flags[8];
         AdminFlag flag;
-        GetConVarString(g_hAdminFlag, flags, sizeof(flags));
+        g_hAdminFlag.GetString(flags, sizeof(flags));
         if (!FindFlagByChar(flags[0], flag)) {
             LogError("Invalid immunity flag: %s", flags[0]);
             return false;
@@ -332,6 +332,6 @@ public Native_AddChatAlias(Handle plugin, int numParams) {
     char command[64];
     GetNativeString(1, alias, sizeof(alias));
     GetNativeString(2, command, sizeof(command));
-    PushArrayString(g_ChatAliases, alias);
-    PushArrayString(g_ChatAliasesCommands, command);
+    g_ChatAliases.PushString(alias);
+    g_ChatAliasesCommands.PushString(command);
 }

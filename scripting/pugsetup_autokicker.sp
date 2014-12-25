@@ -4,10 +4,10 @@
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
-Handle g_hAutoKickerEnabled = INVALID_HANDLE;
-Handle g_hKickMessage = INVALID_HANDLE;
-Handle g_hKickNotPicked = INVALID_HANDLE;
-Handle g_hUseAdminImmunity = INVALID_HANDLE;
+ConVar g_hAutoKickerEnabled;
+ConVar g_hKickMessage;
+ConVar g_hKickNotPicked;
+ConVar g_hUseAdminImmunity;
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: autokicker",
@@ -27,7 +27,7 @@ public void OnPluginStart() {
 }
 
 public void OnClientPostAdminCheck(int client) {
-    if (IsMatchLive() && GetConVarInt(g_hAutoKickerEnabled) != 0 && !PlayerAtStart(client)) {
+    if (IsMatchLive() && g_hAutoKickerEnabled.IntValue != 0 && !PlayerAtStart(client)) {
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
@@ -45,13 +45,13 @@ public void OnClientPostAdminCheck(int client) {
 }
 
 public void OnNotPicked(int client) {
-    if (GetConVarInt(g_hAutoKickerEnabled) != 0 && GetConVarInt(g_hKickNotPicked) != 0) {
+    if (g_hAutoKickerEnabled.IntValue != 0 && g_hKickNotPicked.IntValue != 0) {
         Kick(client);
     }
 }
 
 static void Kick(int client) {
-    if (GetConVarInt(g_hUseAdminImmunity) != 0 && IsPugAdmin(client)) {
+    if (g_hUseAdminImmunity.IntValue != 0 && IsPugAdmin(client)) {
         return;
     }
 

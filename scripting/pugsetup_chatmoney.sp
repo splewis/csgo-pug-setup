@@ -5,7 +5,7 @@
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
-Handle g_hEnabled = INVALID_HANDLE;
+ConVar g_hEnabled;
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: write team money to chat",
@@ -23,7 +23,7 @@ public void OnPluginStart() {
 }
 
 public Event_Round_Start(Handle event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive() || GetConVarInt(g_hEnabled) == 0)
+    if (!IsMatchLive() || g_hEnabled.IntValue == 0)
         return;
 
     ArrayList players = new ArrayList();
@@ -41,7 +41,7 @@ public Event_Round_Start(Handle event, const char[] name, bool dontBroadcast) {
     char has_weapon[4];
     int pri_weapon;
 
-    int numPlayers = GetArraySize(players);
+    int numPlayers = players.Length;
 
     // display team players money
     for (int i = 0; i < numPlayers; i++) {

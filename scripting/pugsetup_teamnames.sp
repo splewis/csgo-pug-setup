@@ -32,10 +32,10 @@ public OnPluginStart() {
 }
 
 public OnGoingLive() {
-    Handle ctNames = CreateArray(TEAM_NAME_LENGTH);
-    Handle ctFlags = CreateArray(TEAM_FLAG_LENGTH);
-    Handle tNames = CreateArray(TEAM_NAME_LENGTH);
-    Handle tFlags = CreateArray(TEAM_FLAG_LENGTH);
+    ArrayList ctNames = new ArrayList(TEAM_NAME_LENGTH);
+    ArrayList ctFlags = new ArrayList(TEAM_FLAG_LENGTH);
+    ArrayList tNames = new ArrayList(TEAM_NAME_LENGTH);
+    ArrayList tFlags = new ArrayList(TEAM_FLAG_LENGTH);
 
     FillPotentialNames(CS_TEAM_CT, ctNames, ctFlags);
     FillPotentialNames(CS_TEAM_T, tNames, tFlags);
@@ -58,10 +58,10 @@ public OnGoingLive() {
         SetTeamInfo(CS_TEAM_T, name, flag);
     }
 
-    CloseHandle(ctNames);
-    CloseHandle(ctFlags);
-    CloseHandle(tNames);
-    CloseHandle(tFlags);
+    delete ctNames;
+    delete ctFlags;
+    delete tNames;
+    delete tFlags;
 }
 
 public Action Command_ListNames(int client, args) {
@@ -117,7 +117,7 @@ static void GetPlayerFlagFromIP(int client, char flag[3]) {
     }
 }
 
-public void FillPotentialNames(int team, Handle names, Handle flags) {
+public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && GetClientTeam(i) == team && AreClientCookiesCached(i)) {
             char name[TEAM_NAME_LENGTH];
@@ -128,8 +128,8 @@ public void FillPotentialNames(int team, Handle names, Handle flags) {
             if (StrEqual(name, ""))
                 continue;
 
-            PushArrayString(names, name);
-            PushArrayString(flags, flag);
+            names.PushString(name);
+            flags.PushString(flag);
         }
     }
 }

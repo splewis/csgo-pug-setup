@@ -31,16 +31,16 @@ public void GetMapList(const char[] fileName, ArrayList array) {
     if (!FileExists(mapFile)) {
         LogError("Missing map file: %s", mapFile);
     } else {
-        Handle file = OpenFile(mapFile, "r");
+        File file = OpenFile(mapFile, "r");
         char mapName[PLATFORM_MAX_PATH];
-        while (!IsEndOfFile(file) && ReadFileLine(file, mapName, sizeof(mapName))) {
+        while (!file.EndOfFile() && file.ReadLine(mapName, sizeof(mapName))) {
             TrimString(mapName);
             AddMap(mapName, array);
         }
-        CloseHandle(file);
+        delete file;
     }
 
-    if (GetArraySize(array) < 1) {
+    if (array.Length < 1) {
         LogError("The map file was empty: %s", mapFile);
         AddBackupMaps(array);
     }

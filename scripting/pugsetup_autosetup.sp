@@ -5,11 +5,11 @@
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
-Handle g_hEnabled = INVALID_HANDLE;
-Handle g_hGameType = INVALID_HANDLE;
-Handle g_hMapType = INVALID_HANDLE;
-Handle g_hTeamSize = INVALID_HANDLE;
-Handle g_hTeamType = INVALID_HANDLE;
+ConVar g_hEnabled;
+ConVar g_hGameType;
+ConVar g_hMapType;
+ConVar g_hTeamSize;
+ConVar g_hTeamType;
 
 // To prevent multiple setups if the game is aborted (!endmatch, !forceend),
 // this tracks if this plugin has done a setup - so at most 1
@@ -57,19 +57,19 @@ public Action Timer_DelaySetup(Handle timer) {
 }
 
 public void Setup() {
-    if (GetConVarInt(g_hEnabled) != 0 && !IsSetup() && !g_ForceEnded) {
-        int teamsize = GetConVarInt(g_hTeamSize);
+    if (g_hEnabled.IntValue != 0 && !IsSetup() && !g_ForceEnded) {
+        int teamsize = g_hTeamSize.IntValue;
 
         char mapTypeStr[32];
-        GetConVarString(g_hMapType, mapTypeStr, sizeof(mapTypeStr));
+        g_hMapType.GetString(mapTypeStr, sizeof(mapTypeStr));
         MapType mapType = MapTypeFromString(mapTypeStr);
 
         char teamTypeStr[32];
-        GetConVarString(g_hTeamType, teamTypeStr, sizeof(teamTypeStr));
+        g_hTeamType.GetString(teamTypeStr, sizeof(teamTypeStr));
         TeamType teamType = TeamTypeFromString(teamTypeStr);
 
         char gameType[256];
-        GetConVarString(g_hGameType, gameType, sizeof(gameType));
+        g_hGameType.GetString(gameType, sizeof(gameType));
         int gameTypeIndex = FindGameType(gameType);
         if (gameTypeIndex < 0) {
             LogError("There is no gametype matching \"%s\" in addons/sourcemod/configs/pugsetup/gametypes.cfg", gameType);

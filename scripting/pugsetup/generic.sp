@@ -132,8 +132,8 @@ stock int GetRealClientCount() {
 /**
  * Returns a random index from an array.
  */
-stock int GetArrayRandomIndex(Handle array) {
-    int len = GetArraySize(array);
+stock int GetArrayRandomIndex(ArrayList array) {
+    int len = array.Length;
     if (len == 0)
         ThrowError("Can't get random index from empty array");
     return GetRandomInt(0, len - 1);
@@ -142,8 +142,9 @@ stock int GetArrayRandomIndex(Handle array) {
 /**
  * Returns a random element from an array.
  */
-stock any:GetArrayCellRandom(Handle array) {
-    return GetArrayCell(array, GetArrayRandomIndex(array));
+stock any:GetArrayCellRandom(ArrayList array) {
+    int index = GetArrayRandomIndex(array);
+    return array.Get(index);
 }
 
 stock void Colorize(char[] msg, int size) {
@@ -152,11 +153,11 @@ stock void Colorize(char[] msg, int size) {
     }
 }
 
-stock void RandomizeArray(Handle array) {
-    int n = GetArraySize(array);
+stock void RandomizeArray(ArrayList array) {
+    int n = array.Length;
     for (int i = 0; i < n; i++) {
         int choice = GetRandomInt(0, n - 1);
-        SwapArrayItems(array, i, choice);
+        array.SwapAt(i, choice);
     }
 }
 

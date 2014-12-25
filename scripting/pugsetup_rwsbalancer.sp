@@ -37,9 +37,9 @@ int g_PlayerRounds[MAXPLAYERS+1];
 int g_RoundPoints[MAXPLAYERS+1];
 
 /** Cvars **/
-Handle g_MoveTeams = INVALID_HANDLE;
-Handle g_RecordRWS = INVALID_HANDLE;
-Handle g_SetCaptainsByRWS = INVALID_HANDLE;
+ConVar g_MoveTeams;
+ConVar g_RecordRWS;
+ConVar g_SetCaptainsByRWS;
 
 TeamType g_TeamType;
 
@@ -94,7 +94,7 @@ public void OnSetup(int client, TeamType teamType, MapType mapType, int playersP
  */
 public void OnGoingLive() {
     // only do balancing if we didn' do captains
-    if (g_TeamType == TeamType_Captains || GetConVarInt(g_MoveTeams) == 0)
+    if (g_TeamType == TeamType_Captains || g_MoveTeams.IntValue == 0)
         return;
 
     Handle pq = PQ_Init();
@@ -182,7 +182,7 @@ public bool HelpfulAttack(int attacker, int victim) {
  * Round end event, updates rws values for everyone.
  */
 public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive() || GetConVarInt(g_RecordRWS) == 0)
+    if (!IsMatchLive() || g_RecordRWS.IntValue == 0)
         return;
 
     int winner = GetEventInt(event, "winner");
@@ -246,13 +246,13 @@ public int rwsSortFunction(index1, index2, Handle array, Handle hndl) {
 }
 
 public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
-    if (GetConVarInt(g_SetCaptainsByRWS) != 0 && totalPlayers >= GetPugMaxPlayers() && g_TeamType == TeamType_Captains) {
+    if (g_SetCaptainsByRWS.IntValue != 0 && totalPlayers >= GetPugMaxPlayers() && g_TeamType == TeamType_Captains) {
 
         // The idea is to set the captains to the 2 highest rws players,
         // so they are thrown into an array and sorted by rws,
         // then the captains are set to the first 2 elements of the array.
 
-        Handle players = CreateArray();
+        ArrayList players = new ArrayList();
 
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i))
@@ -261,12 +261,12 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
 
         SortADTArrayCustom(players, rwsSortFunction);
 
-        if (GetArraySize(players) >= 1)
+        if (players.Length >= 1)
             SetCaptain(1, GetArrayCell(players, 0));
 
-        if (GetArraySize(players) >= 2)
+        if (players.Length >= 2)
             SetCaptain(2, GetArrayCell(players, 1));
 
-        CloseHandle(players);
+        delete players;
     }
 }

@@ -62,20 +62,20 @@ bool g_ctUnpaused = false;
 bool g_tUnpaused = false;
 
 #define CONFIG_STRING_LENGTH 256
-Handle g_GameConfigFiles = INVALID_HANDLE;
-Handle g_GameMapLists = INVALID_HANDLE;
-Handle g_GameTypes = INVALID_HANDLE;
-Handle g_GameTypeHidden = INVALID_HANDLE;
-Handle g_GameTypeTeamSize = INVALID_HANDLE;
-Handle g_GameTypeMapTypes = INVALID_HANDLE;
-Handle g_GameTypeTeamTypes = INVALID_HANDLE;
+ArrayList g_GameConfigFiles;
+ArrayList g_GameMapLists;
+ArrayList g_GameTypes;
+ArrayList g_GameTypeHidden;
+ArrayList g_GameTypeTeamSize;
+ArrayList g_GameTypeMapTypes;
+ArrayList g_GameTypeTeamTypes;
 
 /** Chat aliases loaded from the config file **/
-Handle g_ChatAliases = INVALID_HANDLE;
-Handle g_ChatAliasesCommands = INVALID_HANDLE;
+ArrayList g_ChatAliases;
+ArrayList g_ChatAliasesCommands;
 
 /** Map-voting variables **/
-Handle g_MapVetoed = INVALID_HANDLE;
+ArrayList g_MapVetoed;
 int g_ChosenMap = -1;
 
 /** Data about team selections **/
@@ -229,7 +229,7 @@ public void OnClientDisconnect(int client) {
 
 public void OnMapStart() {
     Config_MapStart();
-    g_MapVetoed = CreateArray();
+    g_MapVetoed = new ArrayList();
     g_Recording = false;
     g_MatchLive = false;
     g_LiveTimerRunning = false;

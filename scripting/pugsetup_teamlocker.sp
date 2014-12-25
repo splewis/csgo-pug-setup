@@ -4,7 +4,7 @@
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
-Handle g_hLockTeamsEnabled = INVALID_HANDLE;
+ConVar g_hLockTeamsEnabled;
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: team locker",
@@ -29,7 +29,7 @@ public Action Command_TeamJoin(int client, const char[] command, argc) {
     if (!IsValidClient(client))
         return Plugin_Handled;
 
-    if (GetConVarInt(g_hLockTeamsEnabled) == 0 || !IsMatchLive())
+    if (g_hLockTeamsEnabled.IntValue == 0 || !IsMatchLive())
         return Plugin_Continue;
 
     char arg[4];

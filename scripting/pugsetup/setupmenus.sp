@@ -2,10 +2,12 @@
  * Main .setup menu
  */
 public void SetupMenu(int client) {
-    if (GetArraySize(g_GameTypes) == 0) {
-        PugSetupMessage(client, "The server are no game types specified.");
+    int numGameTypes = g_GameTypes.Length;
+
+    if (numGameTypes == 0) {
+        PugSetupMessage(client, "The server has no game types specified.");
         LogError("There are no game types specified.");
-    } else if (GetArraySize(g_GameTypes) == 1) {
+    } else if (numGameTypes == 1) {
         g_GameTypeIndex = 0;
         TeamTypeMenu(client);
     } else {
@@ -14,7 +16,7 @@ public void SetupMenu(int client) {
         SetMenuExitButton(menu, false);
         char buffer[256];
         int count = 0;
-        for (new i = 0; i < GetArraySize(g_GameTypes); i++) {
+        for (new i = 0; i < numGameTypes; i++) {
             if (!GetArrayCell(g_GameTypeHidden, i)) {
                 count++;
                 GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
