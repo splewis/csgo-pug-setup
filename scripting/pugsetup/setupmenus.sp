@@ -162,8 +162,6 @@ public SetupFinished() {
     Call_PushCell(g_MapType);
     Call_PushCell(g_PlayersPerTeam);
     Call_Finish();
-
-    GetMapList();
 }
 
 /**

@@ -102,10 +102,11 @@ native int FindGameType(const char[] name);
 // Adds a game type to the game type list. These are fully reset every map.
 // The choices "teamSize", "teamType", and "mapType" only affect what is shown
 // to a client going through the setup menu.
+// Note: the data in mapList will be copied, so you should close the handle to array when finished with it.
 // Returns the index of the game type.
 native int AddGameType(const char[] name,
                        const char[] liveCfg,
-                       const char[] mapList,
+                       Handle mapList,
                        bool showInMenu=true,
                        int teamSize=-1,
                        TeamType teamType=TeamType_Unspecified,

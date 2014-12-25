@@ -6,7 +6,7 @@
 public Config_MapStart() {
     g_GameTypes = CreateArray(CONFIG_STRING_LENGTH);
     g_GameConfigFiles = CreateArray(CONFIG_STRING_LENGTH);
-    g_GameMapFiles = CreateArray(CONFIG_STRING_LENGTH);
+    g_GameMapLists = CreateArray();
 
     g_GameTypeHidden = CreateArray();
     g_GameTypeTeamSize = CreateArray();
@@ -42,7 +42,7 @@ public Config_MapStart() {
     do {
         KvGetSectionName(kv, name, sizeof(name));
         KvGetString(kv, "config", config, sizeof(config), "gamemode_competitive.cfg");
-        KvGetString(kv, "maplist", maplist, sizeof(maplist), "standard.txt");
+        KvGetString(kv, "maplist", maplist, sizeof(maplist));
         bool visible = !KvGetNum(kv, "hidden", 0);
         int teamsize = KvGetNum(kv, "teamsize", -1);
 
@@ -51,7 +51,27 @@ public Config_MapStart() {
         TeamType teamType = TeamTypeFromString(teamTypeString, TeamType_Unspecified, true, true);
         MapType mapType = MapTypeFromString(mapTypeString, MapType_Unspecified, true, true);
 
-        AddGameType(name, config, maplist, visible, teamsize, teamType, mapType);
+        // now we read the actual maps
+        Handle maps = CreateArray(PLATFORM_MAX_PATH);
+
+        // first, the optional "maps" section in the config file
+        KvSavePosition(kv);
+        if (KvJumpToKey(kv, "maps") && KvGotoFirstSubKey(kv, false)) {
+            char map[PLATFORM_MAX_PATH];
+            do {
+                KvGetSectionName(kv, map, sizeof(map));
+                PushArrayString(maps, map);
+            } while (KvGotoNextKey(kv, false));
+        }
+        KvRewind(kv);
+
+        // second, any maps in the maplist  if it was given
+        if (!StrEqual(maplist, ""))
+            GetMapList(maplist, maps);
+
+        AddGameType(name, config, maps, visible, teamsize, teamType, mapType);
+
+        CloseHandle(maps);
     } while (KvGotoNextKey(kv));
 
     CloseHandle(kv);
@@ -65,13 +85,15 @@ static void GameTypeForward() {
 
 static LoadBackupConfig() {
     LogError("Falling back to builtin backup config");
-    AddGameType("Normal", "gamemode_competitive.cfg", "standard.txt");
+    Handle maps = CreateArray(PLATFORM_MAX_PATH);
+    AddBackupMaps(maps);
+    AddGameType("Normal", "gamemode_competitive.cfg", maps);
 }
 
 public Config_MapEnd() {
     CloseHandle(g_GameTypes);
     CloseHandle(g_GameConfigFiles);
-    CloseHandle(g_GameMapFiles);
+    CloseNestedArray(g_GameMapLists);
 
     CloseHandle(g_GameTypeHidden);
     CloseHandle(g_GameTypeTeamSize);

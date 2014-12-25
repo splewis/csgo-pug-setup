@@ -1,19 +1,24 @@
+
 /**
  * Map vetoing functions
  */
 public void CreateMapVeto() {
-    GetMapList();
+    if (GetConVarInt(g_hRandomizeMapOrder) != 0)
+        RandomizeArray(GetCurrentMapList());
+
     GiveVetoMenu(g_capt1);
 }
 
 public void GiveVetoMenu(int client) {
+    Handle mapList = GetCurrentMapList();
+
     Handle menu = CreateMenu(VetoHandler);
     SetMenuExitButton(menu, false);
     SetMenuTitle(menu, "%t", "VetoMenuTitle");
-    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
+    for (int i = 0; i < GetArraySize(mapList); i++) {
         if (!GetArrayCell(g_MapVetoed, i)) {
             char map[PLATFORM_MAX_PATH];
-            GetArrayString(g_MapNames, i, map, sizeof(map));
+            GetArrayString(mapList, i, map, sizeof(map));
             AddMenuInt(menu, i, map);
         }
     }
@@ -21,8 +26,10 @@ public void GiveVetoMenu(int client) {
 }
 
 static int GetNumMapsLeft() {
+    Handle mapList = GetCurrentMapList();
+
     int count = 0;
-    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
+    for (int i = 0; i < GetArraySize(mapList); i++) {
         if (!GetArrayCell(g_MapVetoed, i))
             count++;
     }
@@ -30,7 +37,9 @@ static int GetNumMapsLeft() {
 }
 
 static int GetFirstMapLeft() {
-    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
+    Handle mapList = GetCurrentMapList();
+
+    for (int i = 0; i < GetArraySize(mapList); i++) {
         if (!GetArrayCell(g_MapVetoed, i))
             return i;
     }
@@ -38,11 +47,13 @@ static int GetFirstMapLeft() {
 }
 
 public VetoHandler(Handle menu, MenuAction action, param1, param2) {
+    Handle mapList = GetCurrentMapList();
+
     if (action == MenuAction_Select) {
         int client = param1;
         new index = GetMenuInt(menu, param2);
         char map[PLATFORM_MAX_PATH];
-        GetArrayString(g_MapNames, index, map, PLATFORM_MAX_PATH);
+        GetArrayString(mapList, index, map, sizeof(map));
 
         char captString[64];
         FormatPlayerName(client, client, captString);
@@ -68,13 +79,15 @@ public VetoHandler(Handle menu, MenuAction action, param1, param2) {
 }
 
 static VetoStatusDisplay(int client) {
+    Handle mapList = GetCurrentMapList();
+
     Handle menu = CreateMenu(VetoStatusHandler);
     SetMenuExitButton(menu, true);
     SetMenuTitle(menu, "%t", "MapsLeft");
-    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
+    for (int i = 0; i < GetArraySize(mapList); i++) {
         if (!GetArrayCell(g_MapVetoed, i)) {
             char map[PLATFORM_MAX_PATH];
-            GetArrayString(g_MapNames, i, map, sizeof(map));
+            GetArrayString(mapList, i, map, sizeof(map));
             AddMenuItem(menu, "", map, ITEMDRAW_DISABLED);
         }
     }

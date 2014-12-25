@@ -4,29 +4,35 @@
  * Map voting functions
  */
 public void CreateMapVote() {
-    GetMapList();
+    if (GetConVarInt(g_hRandomizeMapOrder) != 0)
+        RandomizeArray(GetCurrentMapList());
+
     ShowMapVote();
 }
 
 static void ShowMapVote() {
+    Handle mapList = GetCurrentMapList();
+
     Handle menu = CreateMenu(MapVoteHandler);
     SetMenuTitle(menu, "%t", "VoteMenuTitle");
     SetMenuExitButton(menu, false);
 
     AddMenuInt(menu, RANDOM_MAP_VOTE, "%t", "Random");
-    for (int i = 0; i < GetArraySize(g_MapNames); i++) {
+    for (int i = 0; i < GetArraySize(mapList); i++) {
         char mapName[PLATFORM_MAX_PATH];
-        GetArrayString(g_MapNames, i, mapName, sizeof(mapName));
+        GetArrayString(mapList, i, mapName, sizeof(mapName));
         AddMenuInt(menu, i, mapName);
     }
     VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
 }
 
 public MapVoteHandler(Handle menu, MenuAction action, param1, param2) {
+    Handle mapList = GetCurrentMapList();
+
     if (action == MenuAction_VoteEnd) {
         int winner = GetMenuInt(menu, param1);
         if (winner == RANDOM_MAP_VOTE) {
-            g_ChosenMap = GetArrayRandomIndex(g_MapNames);
+            g_ChosenMap = GetArrayRandomIndex(mapList);
         } else {
             g_ChosenMap = GetMenuInt(menu, param1);
         }

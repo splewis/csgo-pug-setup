@@ -262,3 +262,17 @@ stock bool OnActiveTeam(int client) {
     int team = GetClientTeam(client);
     return team == CS_TEAM_CT || team == CS_TEAM_T;
 }
+
+/**
+ * Closes a nested adt-array.
+ */
+stock void CloseNestedArray(Handle array, bool clearOuterArray=true) {
+    int n = GetArraySize(array);
+    for (int i = 0; i < n; i++) {
+        Handle h = GetArrayCell(array, i);
+        CloseHandle(h);
+    }
+
+    if (clearOuterArray)
+        CloseHandle(array);
+}

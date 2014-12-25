@@ -43,7 +43,7 @@ public Native_SetupGame(Handle plugin, int numParams) {
 public Native_ClearGameTypes(Handle plugin, int numParams) {
     ClearArray(g_GameTypes);
     ClearArray(g_GameConfigFiles);
-    ClearArray(g_GameMapFiles);
+    CloseNestedArray(g_GameMapLists, false);
 }
 
 public Native_FindGameType(Handle plugin, int numParams) {
@@ -62,11 +62,10 @@ public Native_FindGameType(Handle plugin, int numParams) {
 public Native_AddGameType(Handle plugin, int numParams) {
     char name[CONFIG_STRING_LENGTH];
     char liveCfg[CONFIG_STRING_LENGTH];
-    char mapList[CONFIG_STRING_LENGTH];
 
     GetNativeString(1, name, sizeof(name));
     GetNativeString(2, liveCfg, sizeof(liveCfg));
-    GetNativeString(3, mapList, sizeof(mapList));
+    Handle mapList = CloneArray(Handle:GetNativeCell(3));
     bool showInMenu = GetNativeCell(4);
     int teamSize = GetNativeCell(5);
     TeamType teamType = TeamType:GetNativeCell(6);
@@ -79,15 +78,9 @@ public Native_AddGameType(Handle plugin, int numParams) {
         LogError("Gametype \"%s\" uses non-existent live cfg: \"%s\"", name, liveCfg);
     }
 
-    // Check for existence of map file
-    BuildPath(Path_SM, path, sizeof(path), "configs/pugsetup/%s", mapList);
-    if (!FileExists(path)) {
-        LogError("Gametype \"%s\" uses non-existent map list: \"%s\"", name, mapList);
-    }
-
     PushArrayString(g_GameTypes, name);
     PushArrayString(g_GameConfigFiles, liveCfg);
-    PushArrayString(g_GameMapFiles, mapList);
+    PushArrayCell(g_GameMapLists, mapList);
     PushArrayCell(g_GameTypeHidden, !showInMenu);
     PushArrayCell(g_GameTypeTeamSize, teamSize);
     PushArrayCell(g_GameTypeTeamTypes, teamType);

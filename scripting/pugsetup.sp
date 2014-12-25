@@ -63,7 +63,7 @@ bool g_tUnpaused = false;
 
 #define CONFIG_STRING_LENGTH 256
 Handle g_GameConfigFiles = INVALID_HANDLE;
-Handle g_GameMapFiles = INVALID_HANDLE;
+Handle g_GameMapLists = INVALID_HANDLE;
 Handle g_GameTypes = INVALID_HANDLE;
 Handle g_GameTypeHidden = INVALID_HANDLE;
 Handle g_GameTypeTeamSize = INVALID_HANDLE;
@@ -75,7 +75,6 @@ Handle g_ChatAliases = INVALID_HANDLE;
 Handle g_ChatAliasesCommands = INVALID_HANDLE;
 
 /** Map-voting variables **/
-Handle g_MapNames = INVALID_HANDLE;
 Handle g_MapVetoed = INVALID_HANDLE;
 int g_ChosenMap = -1;
 
@@ -179,7 +178,6 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_leader", Command_Leader, "Sets the pug leader");
     RegConsoleCmd("sm_capt", Command_Capt, "Gives the client a menu to pick captains");
     RegConsoleCmd("sm_captain", Command_Capt, "Gives the client a menu to pick captains");
-    RegConsoleCmd("sm_pugmaps", Command_ListPugMaps, "Lists maps for the current gametype");
     RegConsoleCmd("sm_stay", Command_Stay, "Elects to stay on the current team after winning a knife round");
     RegConsoleCmd("sm_swap", Command_Swap, "Elects to swap the current teams after winning a knife round");
 
@@ -231,7 +229,6 @@ public void OnClientDisconnect(int client) {
 
 public void OnMapStart() {
     Config_MapStart();
-    g_MapNames = CreateArray(PLATFORM_MAX_PATH);
     g_MapVetoed = CreateArray();
     g_Recording = false;
     g_MatchLive = false;
@@ -260,7 +257,6 @@ public void OnMapStart() {
 
 public void OnMapEnd() {
     Config_MapEnd();
-    CloseHandle(g_MapNames);
     CloseHandle(g_MapVetoed);
 }
 
@@ -872,6 +868,10 @@ public void EndMatch(bool execConfigs) {
         if (IsPlayer(i))
             UpdateClanTag(i);
     }
+}
+
+public Handle GetCurrentMapList() {
+    return Handle:GetArrayCell(g_GameMapLists, g_GameTypeIndex);
 }
 
 public Action MapSetup(Handle timer) {
