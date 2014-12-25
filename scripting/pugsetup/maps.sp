@@ -51,7 +51,9 @@ static void AddMap(const char[] mapName, Handle array) {
     if (strlen(mapName) <= 2 || isComment) {
         return;
     }
-    if (IsMapValid(mapName)) {
+
+    // only add valid maps and non-duplicate maps
+    if (IsMapValid(mapName) && FindStringInArray(array, mapName) == -1) {
         PushArrayString(array, mapName);
     }
 }
