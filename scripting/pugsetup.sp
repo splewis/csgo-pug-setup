@@ -573,7 +573,7 @@ public MatchEndHandler(Handle menu, MenuAction action, param1, param2) {
 }
 
 public Action Command_ForceEnd(int client, args) {
-    PermissionCheck(Permission_Leader)
+    PermissionCheck(Permission_Admin)
 
     Call_StartForward(g_OnForceEnd);
     Call_PushCell(client);

@@ -10,7 +10,7 @@ Handle g_hEnabled = INVALID_HANDLE;
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: write team money to chat",
     author = "Versatile_BFG/jkroepke",
-    description = "Write the teamsmebers money to the chat (like WarMod)",
+    description = "Write the team members' money to the chat (like WarMod)",
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };

@@ -63,10 +63,20 @@ workshop/267340686/de_facade
     "Match"
     {
         "config"        "sourcemod/pugsetup/standard.cfg"
-        "maplist"       "standard.txt"
         "teamsize"      "5"
         "maptype"      "current"
         "teamtype"      "manual"
+        "maps"
+        {
+            "de_dust2"
+            "de_inferno"
+            "de_mirage"
+            "de_cache"
+            "de_nuke"
+        }
     }
 }
 ```
+
+This match example also shows how you can use the optional "maps" section instead of creating a file for a maplist.
+
