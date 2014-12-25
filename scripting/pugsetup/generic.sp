@@ -231,11 +231,11 @@ stock void SetTeamInfo(int team, const char[] name, const char[] flag) {
     SetConVarStringSafe(flagCvarName, flag);
 }
 
-stock void UpdateClanTag(int client) {
+stock void UpdateClanTag(int client, bool strip=false) {
     if (IsPlayer(client)) {
 
         // don't bother with crazy things when the plugin isn't active
-        if (g_MatchLive || !g_Setup) {
+        if (g_MatchLive || !g_Setup || strip) {
             CS_SetClientClanTag(client, "");
             return;
         }

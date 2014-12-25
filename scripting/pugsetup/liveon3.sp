@@ -6,7 +6,7 @@ public Action BeginLO3(Handle timer) {
     // reset player tags
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
-            UpdateClanTag(i);
+            UpdateClanTag(i, true); // force strip them
         }
     }
 
