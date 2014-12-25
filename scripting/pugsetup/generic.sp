@@ -254,3 +254,11 @@ stock void UpdateClanTag(int client, bool strip=false) {
         }
     }
 }
+
+stock bool OnActiveTeam(int client) {
+    if (!IsPlayer(client))
+        return false;
+
+    int team = GetClientTeam(client);
+    return team == CS_TEAM_CT || team == CS_TEAM_T;
+}

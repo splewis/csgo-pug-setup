@@ -6,7 +6,6 @@
 #include "pugsetup/generic.sp"
 
 Handle g_hEnabled = INVALID_HANDLE;
-int g_iAccount = -1;
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: write team money to chat",
@@ -20,7 +19,6 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_hEnabled = CreateConVar("sm_pugsetup_chatmoney_enabled", "1", "Whether the plugin is enabled");
     AutoExecConfig(true, "pugsetup_chatmoney", "sourcemod/pugsetup");
-    g_iAccount = FindSendPropOffs("CCSPlayer", "m_iAccount");
     HookEvent("round_start", Event_Round_Start);
 }
 
@@ -28,68 +26,78 @@ public Event_Round_Start(Handle event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive() || GetConVarInt(g_hEnabled) == 0)
         return;
 
-    new the_money[MAXPLAYERS + 1];
-    new num_players;
+    ArrayList players = new ArrayList();
 
     // sort by money
-    for (new i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && GetClientTeam(i) > 1) {
-            the_money[num_players] = i;
-            num_players++;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && OnActiveTeam(i)) {
+            players.Push(i);
         }
     }
 
-    SortCustom1D(the_money, num_players, SortMoney);
+    SortADTArrayCustom(players, SortMoneyFunction);
 
-    new String:player_name[64];
-    new String:player_money[10];
-    new String:has_weapon[1];
-    new pri_weapon;
+    char player_money[16];
+    char has_weapon[4];
+    int pri_weapon;
+
+    int numPlayers = GetArraySize(players);
 
     // display team players money
-    for (new i = 1; i <= MaxClients; i++) {
-        for (new x = 0; x < num_players; x++) {
-            GetClientName(the_money[x], player_name, sizeof(player_name));
-            if (IsClientInGame(i) && !IsFakeClient(i) && GetClientTeam(i) == GetClientTeam(the_money[x])) {
-                pri_weapon = GetPlayerWeaponSlot(the_money[x], 0);
+    for (int i = 0; i < numPlayers; i++) {
+        for (int j = 0; j < numPlayers; j++) {
+
+            int displayClient = players.Get(i);
+            int moneyClient = players.Get(j);
+
+            if (GetClientTeam(displayClient) == GetClientTeam(moneyClient)) {
+                pri_weapon = GetPlayerWeaponSlot(moneyClient, 0);
                 if (pri_weapon == -1) {
                     has_weapon = ">";
                 } else {
                     has_weapon = "\0";
                 }
-                IntToMoney(GetEntData(the_money[x], g_iAccount), player_money, sizeof(player_money));
-                PrintToChat(i, "\x01$%s \x04%s> \x03%s", player_money, has_weapon, player_name);
+                IntToMoney(GetClientMoney(moneyClient), player_money, sizeof(player_money));
+                PugSetupMessage(displayClient, "\x01$%s \x04%s> \x03%N", player_money, has_weapon, moneyClient);
             }
         }
     }
+
+    delete players;
 }
 
-public SortMoney(elem1, elem2, const array[], Handle:hndl) {
-	int money1 = GetEntData(elem1, g_iAccount);
-	int money2 = GetEntData(elem2, g_iAccount);
+public int SortMoneyFunction(int index1, int index2, Handle array, Handle hnd) {
+    int client1 = GetArrayCell(array, index1);
+    int client2 = GetArrayCell(array, index2);
+    int money1 = GetClientMoney(client1);
+    int money2 = GetClientMoney(client2);
 
-	if (money1 > money2) {
-		return -1;
-	} else if (money1 == money2) {
-    		return 0;
-	} else {
-		return 1;
-	}
+    if (money1 > money2) {
+        return -1;
+    } else if (money1 == money2) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+public int GetClientMoney(int client) {
+    int offset = FindSendPropOffs("CCSPlayer", "m_iAccount");
+    return GetEntData(client, offset);
 }
 
 /**
-*  get the comma'd string version of an integer
+* Get the comma'd string version of an integer
 *
 * @param  OldMoney          the integer to convert
 * @param  String:NewMoney   the buffer to save the string in
 * @param  size              the size of the buffer
 * @noreturn
 */
-
 public void IntToMoney(int OldMoney, char[] NewMoney, int size) {
     char Temp[32];
     char OldMoneyStr[32];
-    new tempChar;
+    char tempChar;
     int RealLen = 0;
 
     IntToString(OldMoney, OldMoneyStr, sizeof(OldMoneyStr));
