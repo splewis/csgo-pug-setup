@@ -22,7 +22,8 @@ enum MapType {
 // Permissions checking values.
 enum Permissions {
     Permission_Captains = 0,
-    Permission_Leader = 1
+    Permission_Leader = 1,
+    Permission_Admin = 2
 };
 
 /**

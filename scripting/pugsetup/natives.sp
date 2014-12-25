@@ -303,10 +303,12 @@ public Native_HasPermissions(Handle plugin, int numParams) {
 
     Permissions p = Permissions:GetNativeCell(2);
     bool isAdmin = IsPugAdmin(client);
-    bool isLeader = (GetLeader() == client) || isAdmin;
-    bool isCapt = (isLeader) || (client == g_capt1) || (client == g_capt2);
+    bool isLeader = GetLeader() == client;
+    bool isCapt = (client == g_capt1) || (client == g_capt2);
 
-    if (p == Permission_Leader)
+    if (p == Permission_Admin)
+        return isAdmin;
+    else if (p == Permission_Leader)
         return isLeader;
     else if (p == Permission_Captains)
         return isCapt;
