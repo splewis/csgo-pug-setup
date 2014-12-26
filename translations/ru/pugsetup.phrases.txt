@@ -264,4 +264,12 @@
 	{
 		"ru"		"Не готов"
 	}
+	"KnifeRound"
+	{
+		"ru"		"НОЖЕВОЙ РАУНД!"
+	}
+	"KnifeRoundWinner"
+	{
+		"ru"		"Команда {1} выиграла ножевой раунд. Ждем их пока напишут {GREEN}!stay {NORMAL}или {GREEN}!swap"
+	}
 }
