@@ -370,7 +370,7 @@ if (!HasPermissions(client, %1)) { \
     return Plugin_Handled; \
 }
 
-public Action Command_Setup(int client, args) {
+public Action Command_Setup(int client, int args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
@@ -400,7 +400,7 @@ public Action Command_Setup(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_10man(int client, args) {
+public Action Command_10man(int client, int args) {
     if (g_MatchLive) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
@@ -430,7 +430,7 @@ public Action Command_10man(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Rand(int client, args) {
+public Action Command_Rand(int client, int args) {
     if (!g_Setup || g_MatchLive)
         return Plugin_Handled;
 
@@ -444,7 +444,7 @@ public Action Command_Rand(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Capt(int client, args) {
+public Action Command_Capt(int client, int args) {
     if (!g_Setup || g_MatchLive || g_PickingPlayers)
         return Plugin_Handled;
 
@@ -560,7 +560,7 @@ public Action OnClientSayCommand(client, const char[] command, const char[] sArg
     return Plugin_Continue;
 }
 
-public Action Command_EndGame(int client, args) {
+public Action Command_EndGame(int client, int args) {
     if (!g_Setup) {
         PugSetupMessage(client, "%t", "NotLiveYet");
     } else {
@@ -593,7 +593,7 @@ public int MatchEndHandler(Menu menu, MenuAction action, param1, param2) {
     }
 }
 
-public Action Command_ForceEnd(int client, args) {
+public Action Command_ForceEnd(int client, int args) {
     PermissionCheck(Permission_Admin)
 
     Call_StartForward(g_OnForceEnd);
@@ -605,7 +605,7 @@ public Action Command_ForceEnd(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Pause(int client, args) {
+public Action Command_Pause(int client, int args) {
     if (!g_Setup || !g_MatchLive || IsPaused())
         return Plugin_Handled;
 
@@ -622,7 +622,7 @@ public Action Command_Pause(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Unpause(int client, args) {
+public Action Command_Unpause(int client, int args) {
     if (!g_Setup || !g_MatchLive || !IsPaused())
         return Plugin_Handled;
 
@@ -658,17 +658,17 @@ public Action Command_Unpause(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Ready(int client, args) {
+public Action Command_Ready(int client, int args) {
     ReadyPlayer(client);
     return Plugin_Handled;
 }
 
-public Action Command_Unready(int client, args) {
+public Action Command_Unready(int client, int args) {
     UnreadyPlayer(client);
     return Plugin_Handled;
 }
 
-public Action Command_Leader(int client, args) {
+public Action Command_Leader(int client, int args) {
     if (!g_Setup)
         return Plugin_Handled;
 

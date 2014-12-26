@@ -229,7 +229,6 @@ public Native_PugSetupMessage(Handle plugin, int numParams) {
 
     Colorize(finalMsg, sizeof(finalMsg));
     PrintToChat(client, finalMsg);
-    SetGlobalTransTarget(LANG_SERVER);
 }
 
 public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
@@ -254,8 +253,6 @@ public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
         Colorize(finalMsg, sizeof(finalMsg));
         PrintToChat(i, finalMsg);
     }
-
-    SetGlobalTransTarget(LANG_SERVER);
 }
 
 public Native_GetPugMaxPlayers(Handle plugin, int numParams) {
