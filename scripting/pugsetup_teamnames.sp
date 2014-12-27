@@ -95,8 +95,8 @@ public Action Command_Name(int client, args) {
 
             // by default, use arg3 from the command, otherwise try to use the ip address
             if (args <= 2 || !GetCmdArg(3, flag, sizeof(flag))) {
-                GetPlayerFlagFromIP(target, flag);
-                SetClientCookie(target, g_teamFlagCookie, flag);
+                if (GetPlayerFlagFromIP(target, flag))
+                    SetClientCookie(target, g_teamFlagCookie, flag);
             }
             SetClientCookie(target, g_teamFlagCookie, flag);
         }
@@ -110,11 +110,13 @@ public Action Command_Name(int client, args) {
     return Plugin_Handled;
 }
 
-static void GetPlayerFlagFromIP(int client, char flag[3]) {
+static bool GetPlayerFlagFromIP(int client, char flag[3]) {
     char ip[32];
     if (!GetClientIP(client, ip, sizeof(ip)) || !GeoipCode2(ip, flag)) {
         Format(flag, sizeof(flag), "");
+        return true;
     }
+    return false;
 }
 
 public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
@@ -130,6 +132,17 @@ public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
 
             names.PushString(name);
             flags.PushString(flag);
+        }
+    }
+
+    // if we have no results, might as well throw in some geo-ip flags with empty names
+    if (names.Length == 0) {
+        for (int i = 1; i <= MaxClients; i++) {
+            char flag[3];
+            if (IsPlayer(i) && GetClientTeam(i) == team && GetPlayerFlagFromIP(i, flag)) {
+                names.PushString("");
+                flags.PushString(flag);
+            }
         }
     }
 }

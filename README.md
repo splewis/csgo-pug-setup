@@ -152,8 +152,8 @@ You may also want to change ``sm_vote_progress_chat`` in ``cfg/sourcemod/sourcem
 (Using the included ``pugsetup_teamnames.smx`` plugin)
 
 Just for fun, I added support to automatically set mp_teamname_1 and mp_teamflag_1 (and 2). Here's how it works
-- you run the **sm_name** command in console to associate a player with a team name and flag (example: ``sm_name splewis "splewises terrible team1" "US"``)
-- when the game goes live, the plugin picks a name/flag randomly from the players on the team
+- you run the **sm_name** command in console to associate a player with a team name and flag (example: ``sm_name splewis "splewises terrible team" "US"``)
+- when the game goes live, the plugin picks a name/flag randomly from the players on each team
 - when running the sm_name command, the syntax is: ``sm_name <player> <teamname> <teamflag>``
 - note that the team flags are the [2-letter country codes](http://countrycode.org/)
-- the team names/flags are stored using the clientprefs API, so a database for clientprefs must be set (by default SQLite is used)
+- the team names/flags are stored using the clientprefs API, so a database for clientprefs must be set (it is by default)
