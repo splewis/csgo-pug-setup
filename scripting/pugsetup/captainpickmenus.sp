@@ -19,7 +19,7 @@ public void InitialChoiceMenu(int client) {
     }
 }
 
-public int InitialChoiceHandler(Menu menu, MenuAction action, param1, param2) {
+public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         if (client != g_capt1)
@@ -52,7 +52,7 @@ public void SideMenu(int client) {
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public int SideMenuHandler(Menu menu, MenuAction action, param1, param2) {
+public int SideMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         int teamPick = GetMenuInt(menu, param2);
@@ -111,7 +111,7 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
     }
 }
 
-public int PlayerMenuHandler(Menu menu, MenuAction action, param1, param2) {
+public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         int selected = GetMenuInt(menu, param2);
@@ -140,7 +140,7 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, param1, param2) {
     }
 }
 
-static void MoreMenuPicks(client) {
+static void MoreMenuPicks(int client) {
     if (IsPickingFinished() || !IsValidClient(client) || !IsClientInGame(client)) {
         CreateTimer(5.0, FinishPicking);
         return;
@@ -200,7 +200,7 @@ static int AddPlayersToMenu(Menu menu) {
     return count;
 }
 
-public FormatPlayerName(int capt, int client, char buffer[64]) {
+public void FormatPlayerName(int capt, int client, char buffer[64]) {
     if (capt == g_capt1) {
         Format(buffer, sizeof(buffer), "{PINK}%N{NORMAL}", client);
     } else {

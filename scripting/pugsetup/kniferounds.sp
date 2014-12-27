@@ -24,14 +24,14 @@ static bool AwaitingDecision(int client) {
     return IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
 }
 
-public Action Command_Stay(int client, args) {
+public Action Command_Stay(int client, int args) {
     if (AwaitingDecision(client)) {
         g_WaitingForKnifeDecision = false;
         EndKnifeRound();
     }
 }
 
-public Action Command_Swap(int client, args) {
+public Action Command_Swap(int client, int args) {
     if (AwaitingDecision(client)) {
         g_WaitingForKnifeDecision = false;
         for (int i = 1; i <= MaxClients; i++) {

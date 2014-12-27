@@ -53,12 +53,12 @@ static int GetFirstMapLeft() {
     return -1;
 }
 
-public VetoHandler(Menu menu, MenuAction action, param1, param2) {
+public int VetoHandler(Menu menu, MenuAction action, int param1, int param2) {
     ArrayList mapList = GetCurrentMapList();
 
     if (action == MenuAction_Select) {
         int client = param1;
-        new index = GetMenuInt(menu, param2);
+        int index = GetMenuInt(menu, param2);
         char map[PLATFORM_MAX_PATH];
         mapList.GetString(index, map, sizeof(map));
 
@@ -85,7 +85,7 @@ public VetoHandler(Menu menu, MenuAction action, param1, param2) {
     }
 }
 
-static VetoStatusDisplay(int client) {
+static void VetoStatusDisplay(int client) {
     ArrayList mapList = GetCurrentMapList();
 
     Menu menu = new Menu(VetoStatusHandler);
@@ -101,7 +101,7 @@ static VetoStatusDisplay(int client) {
     DisplayMenu(menu, client, 30);
 }
 
-public VetoStatusHandler(Menu menu, MenuAction action, param1, param2) {
+public int VetoStatusHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_End) {
         CloseHandle(menu);
     }

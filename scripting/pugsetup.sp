@@ -532,7 +532,7 @@ public void LoadChatAliases() {
 
 }
 
-public Action OnClientSayCommand(client, const char[] command, const char[] sArgs) {
+public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
     for (int i = 0; i < GetArraySize(g_ChatAliases); i++) {
         char alias[64];
         char cmd[64];
@@ -576,7 +576,7 @@ public Action Command_EndGame(int client, int args) {
     return Plugin_Handled;
 }
 
-public int MatchEndHandler(Menu menu, MenuAction action, param1, param2) {
+public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         bool choice = GetMenuBool(menu, param2);
@@ -728,7 +728,7 @@ public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadca
     }
 }
 
-public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
     int winner = GetEventInt(event, "winner");
     if (g_WaitingForKnifeWinner) {
         g_WaitingForKnifeWinner = false;
@@ -885,7 +885,7 @@ public void EndMatch(bool execConfigs) {
     g_MatchLive = false;
     g_WaitingForKnifeWinner = false;
 
-    for (new i = 1; i <= MaxClients; i++) {
+    for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i))
             UpdateClanTag(i);
     }

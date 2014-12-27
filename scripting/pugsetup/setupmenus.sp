@@ -16,7 +16,7 @@ public void SetupMenu(int client) {
         SetMenuExitButton(menu, false);
         char buffer[256];
         int count = 0;
-        for (new i = 0; i < numGameTypes; i++) {
+        for (int i = 0; i < numGameTypes; i++) {
             if (!GetArrayCell(g_GameTypeHidden, i)) {
                 count++;
                 GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
@@ -31,7 +31,7 @@ public void SetupMenu(int client) {
     }
 }
 
-public int SetupMenuHandler(Menu menu, MenuAction action, param1, param2) {
+public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_GameTypeIndex = GetMenuInt(menu, param2);
@@ -57,7 +57,7 @@ public void TeamTypeMenu(int client) {
     }
 }
 
-public int TeamTypeMenuHandler(Menu menu, MenuAction action, param1, param2) {
+public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
@@ -85,7 +85,7 @@ public void GivePlayerCountMenu(int client) {
     }
 }
 
-public int PlayerCountHandler(Menu menu, MenuAction action, param1, param2) {
+public int PlayerCountHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_PlayersPerTeam = GetMenuInt(menu, param2);
@@ -115,7 +115,7 @@ public void MapMenu(int client) {
     }
 }
 
-public int MapMenuHandler(Menu menu, MenuAction action, param1, param2) {
+public int MapMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         g_MapType = MapType:GetMenuInt(menu, param2);
         switch (g_MapType) {

@@ -26,7 +26,7 @@ static void ShowMapVote() {
     VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
 }
 
-public int MapVoteHandler(Menu menu, MenuAction action, param1, param2) {
+public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) {
     ArrayList mapList = GetCurrentMapList();
 
     if (action == MenuAction_VoteEnd) {

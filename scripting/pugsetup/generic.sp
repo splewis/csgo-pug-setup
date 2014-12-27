@@ -37,7 +37,7 @@ stock void AddMenuInt2(Menu menu, int value) {
 /**
  * Gets an integer to a menu from a string choice.
  */
-stock int GetMenuInt(Menu menu, param2) {
+stock int GetMenuInt(Menu menu, int param2) {
     char buffer[8];
     menu.GetItem(param2, buffer, sizeof(buffer));
     return StringToInt(buffer);
@@ -56,7 +56,7 @@ stock void AddMenuBool(Menu menu, bool value, const char[] display, any:...) {
 /**
  * Gets a boolean to a menu from a string choice.
  */
-stock bool GetMenuBool(Menu menu, param2) {
+stock bool GetMenuBool(Menu menu, int param2) {
     return GetMenuInt(menu, param2) != 0;
 }
 
@@ -142,7 +142,7 @@ stock int GetArrayRandomIndex(ArrayList array) {
 /**
  * Returns a random element from an array.
  */
-stock any:GetArrayCellRandom(ArrayList array) {
+stock int GetArrayCellRandom(ArrayList array) {
     int index = GetArrayRandomIndex(array);
     return array.Get(index);
 }

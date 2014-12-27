@@ -3,7 +3,7 @@
  * gametype / map files / config files
  * arrays that specify options for each game type.
  */
-public Config_MapStart() {
+public void Config_MapStart() {
     g_GameTypes = new ArrayList(CONFIG_STRING_LENGTH);
     g_GameConfigFiles = new ArrayList(CONFIG_STRING_LENGTH);
     g_GameMapLists = new ArrayList();
@@ -84,7 +84,7 @@ static void GameTypeForward() {
     Call_Finish();
 }
 
-static LoadBackupConfig() {
+static void LoadBackupConfig() {
     LogError("Falling back to builtin backup config");
     ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
     AddBackupMaps(maps);
@@ -92,7 +92,7 @@ static LoadBackupConfig() {
     delete maps;
 }
 
-public Config_MapEnd() {
+public void Config_MapEnd() {
     delete g_GameTypes;
     delete g_GameConfigFiles;
     CloseNestedArray(g_GameMapLists);

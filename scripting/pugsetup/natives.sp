@@ -4,7 +4,7 @@
 #define CHECK_CAPTAIN(%1) if (%1 != 1 && %1 != 2) ThrowNativeError(SP_ERROR_PARAM, "Captain number %d is not valid", %1)
 
 
-public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, err_max) {
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
     CreateNative("SetupGame", Native_SetupGame);
     CreateNative("ClearGameTypes", Native_ClearGameTypes);
     CreateNative("FindGameType", Native_FindGameType);
@@ -32,7 +32,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, err_max) {
     return APLRes_Success;
 }
 
-public Native_SetupGame(Handle plugin, int numParams) {
+public int Native_SetupGame(Handle plugin, int numParams) {
     g_GameTypeIndex = GetNativeCell(1);
     g_TeamType = TeamType:GetNativeCell(2);
     g_MapType = MapType:GetNativeCell(3);
@@ -40,13 +40,13 @@ public Native_SetupGame(Handle plugin, int numParams) {
     SetupFinished();
 }
 
-public Native_ClearGameTypes(Handle plugin, int numParams) {
+public int Native_ClearGameTypes(Handle plugin, int numParams) {
     g_GameTypes.ClearArray();
     g_GameConfigFiles.ClearArray();
     CloseNestedArray(g_GameMapLists, false);
 }
 
-public Native_FindGameType(Handle plugin, int numParams) {
+public int Native_FindGameType(Handle plugin, int numParams) {
     char name[CONFIG_STRING_LENGTH];
     GetNativeString(1, name, sizeof(name));
     for (int i = 0; i < g_GameTypes.Length; i++) {
@@ -59,7 +59,7 @@ public Native_FindGameType(Handle plugin, int numParams) {
     return -1;
 }
 
-public Native_AddGameType(Handle plugin, int numParams) {
+public int Native_AddGameType(Handle plugin, int numParams) {
     char name[CONFIG_STRING_LENGTH];
     char liveCfg[CONFIG_STRING_LENGTH];
 
@@ -89,7 +89,7 @@ public Native_AddGameType(Handle plugin, int numParams) {
     return g_GameTypes.Length - 1;
 }
 
-public Native_ReadyPlayer(Handle plugin, int numParams) {
+public int Native_ReadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
@@ -109,7 +109,7 @@ public Native_ReadyPlayer(Handle plugin, int numParams) {
     UpdateClanTag(client);
 }
 
-public Native_UnreadyPlayer(Handle plugin, int numParams) {
+public int Native_UnreadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
@@ -124,30 +124,30 @@ public Native_UnreadyPlayer(Handle plugin, int numParams) {
     UpdateClanTag(client);
 }
 
-public Native_IsReady(Handle plugin, int numParams) {
+public int Native_IsReady(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
     return g_Ready[client];
 }
 
-public Native_IsSetup(Handle plugin, int numParams) {
+public int Native_IsSetup(Handle plugin, int numParams) {
     return g_Setup;
 }
 
-public Native_GetMapType(Handle plugin, int numParams) {
+public int Native_GetMapType(Handle plugin, int numParams) {
     return _:g_MapType;
 }
 
-public Native_GetTeamType(Handle plugin, int numParams) {
+public int Native_GetTeamType(Handle plugin, int numParams) {
     return _:g_TeamType;
 }
 
-public Native_IsMatchLive(Handle plugin, int numParams) {
+public int Native_IsMatchLive(Handle plugin, int numParams) {
     return g_MatchLive;
 }
 
-public Native_SetLeader(Handle plugin, int numParams) {
+public int Native_SetLeader(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
@@ -157,7 +157,7 @@ public Native_SetLeader(Handle plugin, int numParams) {
     }
 }
 
-public Native_GetLeader(Handle plugin, int numParams) {
+public int Native_GetLeader(Handle plugin, int numParams) {
     // first check if our "leader" is still connected
     for (int i = 1; i <= MaxClients; i++) {
         if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == g_Leader)
@@ -178,7 +178,7 @@ public Native_GetLeader(Handle plugin, int numParams) {
     return r;
 }
 
-public Native_SetCaptain(Handle plugin, int numParams) {
+public int Native_SetCaptain(Handle plugin, int numParams) {
     int captainNumber = GetNativeCell(1);
     CHECK_CAPTAIN(captainNumber);
 
@@ -197,7 +197,7 @@ public Native_SetCaptain(Handle plugin, int numParams) {
     }
 }
 
-public Native_GetCaptain(Handle plugin, int numParams) {
+public int Native_GetCaptain(Handle plugin, int numParams) {
     int captainNumber = GetNativeCell(1);
     CHECK_CAPTAIN(captainNumber);
 
@@ -209,7 +209,7 @@ public Native_GetCaptain(Handle plugin, int numParams) {
         return -1;
 }
 
-public Native_PugSetupMessage(Handle plugin, int numParams) {
+public int Native_PugSetupMessage(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
@@ -231,7 +231,7 @@ public Native_PugSetupMessage(Handle plugin, int numParams) {
     PrintToChat(client, finalMsg);
 }
 
-public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
+public int Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     char prefix[64];
     g_hMessagePrefix.GetString(prefix, sizeof(prefix));
     char buffer[1024];
@@ -255,16 +255,16 @@ public Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     }
 }
 
-public Native_GetPugMaxPlayers(Handle plugin, int numParams) {
+public int Native_GetPugMaxPlayers(Handle plugin, int numParams) {
     return 2 * g_PlayersPerTeam;
 }
 
-public Native_PlayerAtStart(Handle plugin, int numParams) {
+public int Native_PlayerAtStart(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     return IsPlayer(client) && g_PlayerAtStart[client];
 }
 
-public Native_IsPugAdmin(Handle plugin, int numParams) {
+public int Native_IsPugAdmin(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
@@ -284,7 +284,7 @@ public Native_IsPugAdmin(Handle plugin, int numParams) {
     return false;
 }
 
-public Native_HasPermissions(Handle plugin, int numParams) {
+public int Native_HasPermissions(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (client == 0)
         return true;
@@ -308,7 +308,7 @@ public Native_HasPermissions(Handle plugin, int numParams) {
     return false;
 }
 
-public Native_SetRandomCaptains(Handle plugin, int numParams) {
+public int Native_SetRandomCaptains(Handle plugin, int numParams) {
     int c1 = -1;
     int c2 = -1;
 
@@ -324,7 +324,7 @@ public Native_SetRandomCaptains(Handle plugin, int numParams) {
     SetCaptain(2, c2);
 }
 
-public Native_AddChatAlias(Handle plugin, int numParams) {
+public int Native_AddChatAlias(Handle plugin, int numParams) {
     char alias[64];
     char command[64];
     GetNativeString(1, alias, sizeof(alias));
