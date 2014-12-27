@@ -187,7 +187,7 @@ public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
 
     int winner = GetEventInt(event, "winner");
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i)) {
+        if (IsPlayer(i) && AreClientCookiesCached(i)) {
             RWSUpdate(i, GetClientTeam(i) == winner);
         }
     }
