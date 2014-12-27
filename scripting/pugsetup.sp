@@ -53,7 +53,7 @@ MapType g_MapType;
 bool g_Setup = false;
 bool g_mapSet = false;
 bool g_Recording = true;
-char g_DemoFileName[256];
+char g_DemoFileName[PLATFORM_MAX_PATH];
 bool g_LiveTimerRunning = false;
 int g_CountDownTicks = 0;
 
