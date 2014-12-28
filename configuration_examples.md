@@ -68,11 +68,11 @@ workshop/267340686/de_facade
         "teamtype"      "manual"
         "maps"
         {
-            "de_dust2"
-            "de_inferno"
-            "de_mirage"
-            "de_cache"
-            "de_nuke"
+            "de_dust2"      ""
+            "de_inferno"        ""
+            "de_mirage"     ""
+            "de_cache"      ""
+            "de_nuke"       ""
         }
     }
 }
