@@ -4,6 +4,7 @@ public void StartKnifeRound() {
     g_WaitingForKnifeDecision = false;
     for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("%t", "KnifeRound");
+    ServerCommand("mp_restartgame 1");
 }
 
 public void EndKnifeRound() {
