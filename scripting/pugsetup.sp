@@ -321,6 +321,20 @@ public Action Timer_CheckReady(Handle timer) {
         StatusHint(readyPlayers, totalPlayers);
     }
 
+    if (g_TeamType == TeamType_Captains && g_hAutoRandomizeCaptains.IntValue != 0) {
+        // re-randomize captains if they aren't set yet
+        if (!IsPlayer(g_capt1)) {
+            g_capt1 = RandomPlayer();
+        }
+
+        while (!IsPlayer(g_capt2) && g_capt1 != g_capt2) {
+            if (GetRealClientCount() < 2)
+                break;
+            g_capt2 = RandomPlayer();
+        }
+
+    }
+
     Call_StartForward(g_OnLiveCheck);
     Call_PushCell(readyPlayers);
     Call_PushCell(totalPlayers);
