@@ -41,8 +41,8 @@ public int Native_SetupGame(Handle plugin, int numParams) {
 }
 
 public int Native_ClearGameTypes(Handle plugin, int numParams) {
-    g_GameTypes.ClearArray();
-    g_GameConfigFiles.ClearArray();
+    ClearArray(g_GameTypes);
+    ClearArray(g_GameConfigFiles);
     CloseNestedArray(g_GameMapLists, false);
 }
 

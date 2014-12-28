@@ -55,15 +55,19 @@ public void Config_MapStart() {
         ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
 
         // first, the optional "maps" section in the config file
-        kv.SavePosition();
-        if (kv.JumpToKey("maps") && kv.GotoFirstSubKey(false)) {
-            char map[PLATFORM_MAX_PATH];
-            do {
-                kv.GetSectionName(map, sizeof(map));
-                PushArrayString(maps, map);
-            } while (kv.GotoNextKey(false));
+        // kv.SavePosition();
+        if (kv.JumpToKey("maps")) {
+            if (kv.GotoFirstSubKey(false)) {
+                char map[PLATFORM_MAX_PATH];
+                do {
+                    kv.GetSectionName(map, sizeof(map));
+                    PushArrayString(maps, map);
+                } while (kv.GotoNextKey(false));
+                kv.GoBack();
+            }
+            kv.GoBack();
         }
-        kv.Rewind();
+        // kv.Rewind();
 
         // second, any maps in the maplist  if it was given
         if (!StrEqual(maplist, ""))
