@@ -47,13 +47,20 @@ workshop/267340686/de_facade
     "10man"
     {
         "config"        "sourcemod/pugsetup/standard.cfg"
-        "maplist"       "standard.txt"
+        "collection"        "12345678"
         "teamsize"      "5"
         "maptype"      "vote"
         "teamtype"      "captains"
     }
 }
 ```
+
+This is how you can use a workshop collection instead of a maplist. Note that the maps won't be downloade for you by the pugsetup plugin, but if the maps are avaliable they will be put into the map list.
+
+Generally, you would want to use the collection that the server was launched with to use.
+
+If you use this, you must install the [System2](https://forums.alliedmods.net/showthread.php?t=146019) extension.
+
 
 ## Match
 

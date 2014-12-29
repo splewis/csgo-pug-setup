@@ -211,7 +211,8 @@ public int Native_GetCaptain(Handle plugin, int numParams) {
 
 public int Native_PugSetupMessage(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
-    CHECK_CLIENT(client);
+    if (!IsValidClient(client))
+        return;
 
     char buffer[1024];
     int bytesWritten = 0;

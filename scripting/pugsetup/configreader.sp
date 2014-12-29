@@ -39,6 +39,19 @@ public void Config_MapStart() {
     char teamTypeString[CONFIG_STRING_LENGTH];
     char mapTypeString[CONFIG_STRING_LENGTH];
 
+    // setup any workshop cache information
+    BuildPath(Path_SM, g_DataDir, sizeof(g_DataDir), "data/pugsetup");
+
+    if (!DirExists(g_DataDir)) {
+        CreateDirectory(g_DataDir, 511);
+    }
+
+    Format(g_CacheFile, sizeof(g_CacheFile), "%s/cache.cfg", g_DataDir);
+
+    g_WorkshopCache = new KeyValues("Workshop");
+    g_WorkshopCache.ImportFromFile(g_CacheFile);
+
+    int gameTypeIndex = 0;
     do {
         kv.GetSectionName(name, sizeof(name));
         kv.GetString("config", config, sizeof(config), "gamemode_competitive.cfg");
@@ -67,13 +80,20 @@ public void Config_MapStart() {
             }
             kv.GoBack();
         }
-        // kv.Rewind();
 
-        // second, any maps in the maplist  if it was given
+        // second, any maps in the maplist if it was given
         if (!StrEqual(maplist, ""))
             GetMapList(maplist, maps);
 
+        // third, fetch workshop map info
+        char collection[64];
+        kv.GetString("collection", collection, sizeof(collection), "");
+        if (!StrEqual(collection, "")) {
+            UpdateWorkshopCache(collection, gameTypeIndex);
+        }
+
         AddGameType(name, config, maps, visible, teamsize, teamType, mapType);
+        gameTypeIndex++;
 
         delete maps;
     } while (KvGotoNextKey(kv));
@@ -105,4 +125,8 @@ public void Config_MapEnd() {
     delete g_GameTypeTeamSize;
     delete g_GameTypeMapTypes;
     delete g_GameTypeTeamTypes;
+
+    g_WorkshopCache.Rewind();
+    g_WorkshopCache.ExportToFile(g_CacheFile);
+    delete g_WorkshopCache;
 }

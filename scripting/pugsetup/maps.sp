@@ -39,11 +39,6 @@ public void GetMapList(const char[] fileName, ArrayList array) {
         }
         delete file;
     }
-
-    if (array.Length < 1) {
-        LogError("The map file was empty: %s", mapFile);
-        AddBackupMaps(array);
-    }
 }
 
 public void AddMap(const char[] mapName, ArrayList array) {
@@ -53,7 +48,7 @@ public void AddMap(const char[] mapName, ArrayList array) {
     }
 
     // only add valid maps and non-duplicate maps
-    if (IsMapValid(mapName) && FindStringInArray(array, mapName) == -1) {
+    if (IsMapValid(mapName) && array.FindString(mapName) == -1) {
         array.PushString(mapName);
     }
 }

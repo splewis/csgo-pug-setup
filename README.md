@@ -89,7 +89,7 @@ The ``config`` and ``maplist`` keys are required. Optional keys are:
 
 These 3 options just force the setting - if you don't specify any setting then there will be an option to pick one in the .setup menu.
 
-Also see the [configuration examples](configuration_examples.md).
+Also see the [configuration examples](configuration_examples.md) and alternate ways to specify maplists (e.g. workshop collections).
 
 You can also add more chat alias commands in ``addons/sourcemod/configs/pugsetup/chataliases.cfg`` if you wish.
 

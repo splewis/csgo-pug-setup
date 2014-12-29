@@ -4,6 +4,8 @@
 #include <sdktools>
 #include "include/pugsetup.inc"
 
+#undef REQUIRE_EXTENSIONS
+#include "include/system2.inc"
 
 
 /***********************
@@ -70,6 +72,11 @@ ArrayList g_GameTypeTeamSize;
 ArrayList g_GameTypeMapTypes;
 ArrayList g_GameTypeTeamTypes;
 
+/** Stuff for workshop map/collection cache **/
+char g_DataDir[PLATFORM_MAX_PATH]; // directory to leave cache files in
+char g_CacheFile[PLATFORM_MAX_PATH]; // filename of the keyvalue cache file
+KeyValues g_WorkshopCache; // keyvalue struct for the cache
+
 /** Chat aliases loaded from the config file **/
 ArrayList g_ChatAliases;
 ArrayList g_ChatAliasesCommands;
@@ -115,6 +122,7 @@ Handle g_OnLiveCheck = INVALID_HANDLE;
 #include "pugsetup/mapvote.sp"
 #include "pugsetup/natives.sp"
 #include "pugsetup/setupmenus.sp"
+#include "pugsetup/steamapi.sp"
 
 
 
@@ -204,7 +212,6 @@ public void OnPluginStart() {
     g_ChatAliasesCommands = CreateArray(64);
     LoadChatAliases();
 }
-
 
 public bool OnClientConnect(int client, char[] rejectmsg, int maxlen) {
     g_Teams[client] = CS_TEAM_NONE;
@@ -906,7 +913,11 @@ public void EndMatch(bool execConfigs) {
 }
 
 public ArrayList GetCurrentMapList() {
-    return ArrayList:GetArrayCell(g_GameMapLists, g_GameTypeIndex);
+    ArrayList list = ArrayList:GetArrayCell(g_GameMapLists, g_GameTypeIndex);
+    if (list.Length == 0) {
+        AddBackupMaps(list);
+    }
+    return list;
 }
 
 public Action MapSetup(Handle timer) {
