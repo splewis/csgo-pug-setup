@@ -61,6 +61,8 @@ public OnPluginStart() {
     HookEvent("player_hurt", Event_DamageDealt);
     HookEvent("round_end", Event_RoundEnd);
 
+    RegAdminCmd("sm_showrws", Command_ShowRWS, ADMFLAG_KICK, "");
+
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
 
@@ -188,7 +190,9 @@ public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
     int winner = GetEventInt(event, "winner");
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && AreClientCookiesCached(i)) {
-            RWSUpdate(i, GetClientTeam(i) == winner);
+            int team = GetClientTeam(i);
+            if (team == CS_TEAM_CT || team == CS_TEAM_T)
+                RWSUpdate(i, team == winner);
         }
     }
 }
@@ -269,4 +273,14 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
 
         delete players;
     }
+}
+
+public Action Command_ShowRWS(int client, int args) {
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && AreClientCookiesCached(i)) {
+            ReplyToCommand(client, "%L has RWS=%f, roundsplayed=%d", i, g_PlayerRWS[i], g_PlayerRounds[i]);
+        }
+    }
+
+    return Plugin_Handled;
 }
