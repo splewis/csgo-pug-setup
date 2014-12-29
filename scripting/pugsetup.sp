@@ -866,7 +866,8 @@ public void StartGame() {
     }
 
     if (g_hKnifeRounds.IntValue != 0) {
-        StartKnifeRound();
+        ExecGameConfigs();
+        CreateTimer(3.0, StartKnifeRound, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
         ExecGameConfigs();
         CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);

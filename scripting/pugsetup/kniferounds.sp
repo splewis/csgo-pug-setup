@@ -1,10 +1,19 @@
-public void StartKnifeRound() {
+public Action StartKnifeRound(Handle timer) {
+    // reset player tags
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i)) {
+            UpdateClanTag(i, true); // force strip them
+        }
+    }
+
     ServerCommand("exec sourcemod/pugsetup/knife");
     g_WaitingForKnifeWinner = true;
     g_WaitingForKnifeDecision = false;
     for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("%t", "KnifeRound");
     ServerCommand("mp_restartgame 1");
+
+    return Plugin_Handled;
 }
 
 public void EndKnifeRound() {
