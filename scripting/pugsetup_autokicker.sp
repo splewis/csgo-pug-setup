@@ -27,7 +27,7 @@ public void OnPluginStart() {
 }
 
 public void OnClientPostAdminCheck(int client) {
-    if (IsMatchLive() && g_hAutoKickerEnabled.IntValue != 0 && !PlayerAtStart(client)) {
+    if ((IsMatchLive() || IsPendingStart()) && g_hAutoKickerEnabled.IntValue != 0 && !PlayerAtStart(client)) {
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
