@@ -136,6 +136,9 @@ native MapType GetMapType();
 // Returns if there is currently a match setup.
 native bool IsMatchLive();
 
+// Returns if the match is pending start. (e.g. during the lo3)
+native bool IsPendingStart();
+
 // Sets the pug leader.
 native void SetLeader(int client);
 
@@ -199,6 +202,7 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("GetTeamType");
     MarkNativeAsOptional("GetMapType");
     MarkNativeAsOptional("IsMatchLive");
+    MarkNativeAsOptional("IsPendingStart");
     MarkNativeAsOptional("SetLeader");
     MarkNativeAsOptional("GetLeader");
     MarkNativeAsOptional("SetCaptain");

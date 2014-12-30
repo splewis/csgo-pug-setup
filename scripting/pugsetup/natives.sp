@@ -16,6 +16,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("GetTeamType", Native_GetTeamType);
     CreateNative("GetMapType", Native_GetMapType);
     CreateNative("IsMatchLive", Native_IsMatchLive);
+    CreateNative("IsPendingStart", Native_IsPendingStart);
     CreateNative("SetLeader", Native_SetLeader);
     CreateNative("GetLeader", Native_GetLeader);
     CreateNative("GetCaptain", Native_GetCaptain);
@@ -145,6 +146,10 @@ public int Native_GetTeamType(Handle plugin, int numParams) {
 
 public int Native_IsMatchLive(Handle plugin, int numParams) {
     return g_MatchLive;
+}
+
+public int Native_IsPendingStart(Handle plugin, int numParams) {
+    return g_InStartPhase;
 }
 
 public int Native_SetLeader(Handle plugin, int numParams) {

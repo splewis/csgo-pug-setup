@@ -36,6 +36,7 @@ public Action Restart3(Handle timer) {
 
 public Action MatchLive(Handle timer) {
     g_MatchLive = true;
+    g_InStartPhase = false;
     Call_StartForward(g_hOnLive);
     Call_Finish();
 

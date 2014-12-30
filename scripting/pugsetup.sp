@@ -93,6 +93,7 @@ bool g_Ready[MAXPLAYERS+1];
 bool g_PlayerAtStart[MAXPLAYERS+1];
 bool g_PickingPlayers = false;
 bool g_MatchLive = false;
+bool g_InStartPhase = false;
 
 /** Knife round data **/
 bool g_WaitingForKnifeWinner = false;
@@ -242,6 +243,7 @@ public void OnMapStart() {
     g_LiveTimerRunning = false;
     g_WaitingForKnifeWinner = false;
     g_WaitingForKnifeDecision = false;
+    g_InStartPhase = false;
 
     for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -793,6 +795,7 @@ public void PrintSetupInfo(int client) {
 }
 
 public void ReadyToStart() {
+    g_InStartPhase = true;
     g_CountDownTicks = g_hStartDelay.IntValue;
     CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -906,6 +909,7 @@ public void EndMatch(bool execConfigs) {
     g_Setup = false;
     g_MatchLive = false;
     g_WaitingForKnifeWinner = false;
+    g_InStartPhase = false;
 
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i))
