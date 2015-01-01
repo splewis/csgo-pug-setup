@@ -41,13 +41,20 @@ Since this is a sourcemod plugin, you must have sourcemod installed. You can dow
 
 Note that sourcemod also requires MetaMod:Source to be on the server. You can download it at http://www.sourcemm.net/downloads.
 
+Installing these simply means placing their files on the game server. Uploading them over FTP (for example, by FileZilla) is all you need to do.
+
 **As of 1.3.0, sourcemod 1.7 is required.**
 
-Download pugsetup.zip and extract the files to the game server. From the download, you should have installed the following (to the ``csgo`` directory):
+Download pugsetup.zip and extract the files to the game server. You only need to merge the ``cfg`` and ``addons`` folders from the downloaded zip archive.
+
+ From the download, you should have installed the following (to the ``csgo`` directory):
 - ``addons/sourcemod/plugins/pugsetup.smx``
 - ``addons/sourcemod/translations/`` (the entire directory)
+- ``addons/sourcemod/data/pugsetup/`` (the entire directory)
 - ``addons/sourcemod/configs/pugsetup/`` (the entire directory)
 - ``cfg/sourcemod/pugsetup`` (the entire directory)
+
+**Once all of these are on the server, it should just work.** If you want to tweak the configs, maplists, or use the addon-plugins, read on.
 
 Sometimes it's easier to add features in a separate plugin than the core plugin. So, there are a few addon (**optional**) plugins included in the download:
 - ``pugsetup_autokicker``: kicks players that join when the game is already live, and players not selected by captains when using captain-player selection
@@ -58,24 +65,13 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 - ``pugsetup_rwsbalancer``: implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual/random teams
 - ``pugsetup_chatmoney``: prints out the team members' money to chat on round starts
 
-Most of these create a cfg file in ``cfg/sourcemod/pugsetup`` you can tweak. All of these are in the ``plugins/disabled`` directory and they are all independent of each other.
+All of these are in the ``plugins/disabled`` directory and they are all independent of each other. To enable one, move it from the `plugins/disabled` directory to the `plugins` directory.
 
-**Once all of these are on the server, it should just work.** If you want to tweak the configs or maplists read on.
+Most of these create a cfg file in ``cfg/sourcemod/pugsetup`` you can tweak.
+
 
 ## Configuration
-One of the files you should have downloaded was `csgo/addons/sourcemod/configs/pugsetup/gametypes.cfg`:
-```
-"GameTypes"
-{
-    // Configs are relative to the csgo/cfg directory
-    // Maplists are relative to the csgo/addons/sourcemod/configs/pugsetup directory
-    "Normal"
-    {
-        "config"        "sourcemod/pugsetup/standard.cfg"
-        "maplist"       "standard.txt"
-    }
-}
-```
+One of the files you should have downloaded was [addons/sourcemod/configs/pugsetup/gametypes.cfg](configs/pugsetup/gametypes.cfg).
 
 This file specifies different "game types", which are just combonations of a cfg file and a map list. You can add more sections if you want,
 and the .setup menu will contain a page to choose which option. Otherwise, if there is only 1 game type, that one will always be used.
@@ -157,3 +153,5 @@ Just for fun, I added support to automatically set mp_teamname_1 and mp_teamflag
 - when running the sm_name command, the syntax is: ``sm_name <player> <teamname> <teamflag>``
 - note that the team flags are the [2-letter country codes](http://countrycode.org/)
 - the team names/flags are stored using the clientprefs API, so a database for clientprefs must be set (it is by default)
+
+
