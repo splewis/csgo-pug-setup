@@ -184,6 +184,7 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_endgame", Command_EndGame, "Pre-emptively ends the match");
     RegConsoleCmd("sm_endmatch", Command_EndGame, "Pre-emptively ends the match");
     RegConsoleCmd("sm_forceend", Command_ForceEnd, "Pre-emptively ends the match, without any confirmation menu");
+    RegConsoleCmd("sm_forceready", Command_ForceReady, "Force-readies a player");
     RegConsoleCmd("sm_leader", Command_Leader, "Sets the pug leader");
     RegConsoleCmd("sm_capt", Command_Capt, "Gives the client a menu to pick captains");
     RegConsoleCmd("sm_captain", Command_Capt, "Gives the client a menu to pick captains");
@@ -628,6 +629,19 @@ public Action Command_ForceEnd(int client, int args) {
     return Plugin_Handled;
 }
 
+public Action Command_ForceReady(int client, int args) {
+    PermissionCheck(Permission_Admin)
+
+    char buffer[64];
+    if (args >= 1 && GetCmdArg(1, buffer, sizeof(buffer))) {
+        int target = FindTarget(client, buffer, true, false);
+        if (IsPlayer(target))
+            ReadyPlayer(target);
+    }
+
+    return Plugin_Handled;
+}
+
 public Action Command_Pause(int client, int args) {
     if (!g_Setup || !g_MatchLive || IsPaused())
         return Plugin_Handled;
@@ -670,6 +684,9 @@ public Action Command_Unpause(int client, int args) {
 
             if (g_tUnpaused && g_ctUnpaused)  {
                 ServerCommand("mp_unpause_match");
+                if (IsPlayer(client)) {
+                    PugSetupMessageToAll("%t", "Unpause", client);
+                }
             } else if (g_tUnpaused && !g_ctUnpaused) {
                 PugSetupMessageToAll("%t", "MutualUnpauseMessage", "T", "CT");
             } else if (!g_tUnpaused && g_ctUnpaused) {
