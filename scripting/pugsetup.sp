@@ -937,6 +937,8 @@ public Action MapSetup(Handle timer) {
 }
 
 public Action StartPicking(Handle timer) {
+    g_InStartPhase = true;
+
     ServerCommand("mp_pause_match");
     ServerCommand("mp_restartgame 1");
 

@@ -29,7 +29,9 @@ public Action Command_TeamJoin(int client, const char[] command, argc) {
     if (!IsValidClient(client))
         return Plugin_Handled;
 
-    if (g_hLockTeamsEnabled.IntValue == 0 || !IsMatchLive())
+    bool live = IsMatchLive() || IsPendingStart();
+
+    if (g_hLockTeamsEnabled.IntValue == 0 || !live)
         return Plugin_Continue;
 
     char arg[4];
