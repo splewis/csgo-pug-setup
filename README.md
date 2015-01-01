@@ -33,7 +33,7 @@ Generally, here is what happens:
 - Other players join and all type ``!ready``
 - If the leader setup for a map vote, the map vote will occur and the map will change, then all players will type ``!ready`` on the new map
 - If the leader setup for a captain-style team selection, the game will wait for when 2 captains are selected, then the captains will be given menus to chose players
-- Then, either by the leader typing ``!start`` or the game auto-living (which is configurable), the game will initiate a live-on-3 restart and go
+- Then the game will initiate a live-on-3 restart and go
 
 
 ## Installation
@@ -133,7 +133,7 @@ Some commands that are important are:
 - **!endgame** force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
 - **!forceend** force ends the game without a confirmation menu
 
-You can also type .start instead of !start, or .ready instead of !ready.
+You can also type .ready instead of !ready, or .capt instead of !capt, etc.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
 - sm_10man (this just uses the first game type from ``gametypes.cfg``, with 5v5, captains, map vote)
