@@ -380,7 +380,9 @@ public Action Timer_CheckReady(Handle timer) {
 
 public void StatusHint(int readyPlayers, int totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
-        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, ".ready");
+        char rdyCommand[32];
+        FindChatCommand("sm_ready", rdyCommand, sizeof(rdyCommand));
+        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
             char cap1[64];
@@ -551,15 +553,15 @@ public void LoadChatAliases() {
     AddChatAlias(".leader", "sm_leader");
     AddChatAlias(".rand", "sm_rand");
     AddChatAlias(".gaben", "sm_ready");
-    AddChatAlias(".ready", "sm_ready");
     AddChatAlias(".gs4lyfe", "sm_ready");
     AddChatAlias(".splewis", "sm_ready");
-    AddChatAlias(".unready", "sm_unready");
+    AddChatAlias(".ready", "sm_ready");
     AddChatAlias(".notready", "sm_unready");
-    AddChatAlias(".pause", "sm_pause");
+    AddChatAlias(".unready", "sm_unready");
     AddChatAlias(".paws", "sm_pause");
-    AddChatAlias(".unpause", "sm_unpause");
     AddChatAlias(".unpaws", "sm_unpause");
+    AddChatAlias(".pause", "sm_pause");
+    AddChatAlias(".unpause", "sm_unpause");
     AddChatAlias(".stay", "sm_stay");
     AddChatAlias(".swap", "sm_swap");
 
@@ -579,6 +581,29 @@ public void LoadChatAliases() {
     }
     delete kv;
 
+}
+
+public void FindChatCommand(const char[] command, char[] buffer, int len) {
+    int n = g_ChatAliases.Length;
+    char tmpCommand[64];
+
+    // This loop is done backwards since users are generally more likely
+    // to add chat aliases to the end of the chataliases.cfg file, and
+    // generally we'd want the user-created chat alias to be the one specified
+    // to players on the server.
+    for (int i = n - 1; i >= 0; i--) {
+        g_ChatAliasesCommands.GetString(i, tmpCommand, sizeof(tmpCommand));
+
+        if (StrEqual(command, tmpCommand)) {
+            g_ChatAliases.GetString(i, buffer, len);
+            return;
+        }
+    }
+
+    // If we never found one, just use !<command> (without the sm_ prefix)
+    // TODO: The use of "!" is actually a sourcemod option, so this should probably
+    // detect that cvar's value instead of assuming it's always !
+    Format(buffer, len, "!%s", command[2]);
 }
 
 public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
@@ -688,6 +713,9 @@ public Action Command_Unpause(int client, int args) {
     if (!g_Setup || !g_MatchLive || !IsPaused())
         return Plugin_Handled;
 
+    char unpauseCmd[32];
+    FindChatCommand("sm_unpause", unpauseCmd, sizeof(unpauseCmd));
+
     if (g_hMutualUnpause.IntValue == 0) {
         if (g_hAnyCanPause.IntValue != 0)
             PermissionCheck(Permission_Captains)
@@ -713,9 +741,9 @@ public Action Command_Unpause(int client, int args) {
                     PugSetupMessageToAll("%t", "Unpause", client);
                 }
             } else if (g_tUnpaused && !g_ctUnpaused) {
-                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "T", "CT", "!unpause");
+                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "T", "CT", unpauseCmd);
             } else if (!g_tUnpaused && g_ctUnpaused) {
-                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "CT", "T", "!unpause");
+                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "CT", "T", unpauseCmd);
             }
         }
     }
@@ -806,7 +834,12 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
         else
             teamString = "T";
 
-        PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, "!stay", "!swap");
+        char stayCmd[32];
+        char swapCmd[32];
+        FindChatCommand("sm_stay", stayCmd, sizeof(stayCmd));
+        FindChatCommand("sm_swap", swapCmd, sizeof(swapCmd));
+
+        PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
     }
 }
 

@@ -100,7 +100,6 @@ public int PlayerCountHandler(Menu menu, MenuAction action, int param1, int para
  */
 public void MapMenu(int client) {
     MapType mapType = GetArrayCell(g_GameTypeMapTypes, g_GameTypeIndex);
-    LogMessage("got map type = %d", mapType);
     if (mapType == MapType_Unspecified) {
         Menu menu = new Menu(MapMenuHandler);
         SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");

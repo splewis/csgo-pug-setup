@@ -89,7 +89,24 @@ These 3 options just force the setting - if you don't specify any setting then t
 
 Also see the [configuration examples](configuration_examples.md) and alternate ways to specify maplists (e.g. workshop collections).
 
-You can also add more chat alias commands in ``addons/sourcemod/configs/pugsetup/chataliases.cfg`` if you wish.
+You can also add more chat alias commands in [addons/sourcemod/configs/pugsetup/chataliases.cfg](configs/pugsetup/chataliases.cfg) if you wish. If players are not comfortable with english, I'd
+strongly recommend adding chat aliases, since those will be read by the plugin and used in chat messages when referencing commands.
+
+Below is a list of commands you may want to alias:
+```
+sm_ready
+sm_unready
+sm_setup
+sm_rand
+sm_pause
+sm_unpause
+sm_endgame
+sm_forceend
+sm_leader
+sm_captain
+sm_stay
+sm_swap
+```
 
 
 ## For developers
