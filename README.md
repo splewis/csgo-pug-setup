@@ -24,6 +24,8 @@ The goal is to make setup easier for people, not provide a comprehensive pug pla
 ## Download
 You should be able to get the most recent download from https://github.com/splewis/csgo-pug-setup/releases.
 
+This plugin optionally supports the [Updater](https://forums.alliedmods.net/showthread.php?t=169095) plugin, which will automatically update to backwards compatible releases.
+
 
 #### Usage
 There is a notion of the the pug/game "leader". This is the player that writes .setup first and goes through the setup menu. The leader has elevated permissions and can use some extra commands (e.g. pause). To prevent some abuse there is also an admin command sm_leader to manually change the leader.

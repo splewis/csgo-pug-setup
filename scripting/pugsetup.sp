@@ -7,6 +7,10 @@
 #undef REQUIRE_EXTENSIONS
 #include "include/system2.inc"
 
+#undef REQUIRE_PLUGIN
+#tryinclude <updater>
+#define UPDATE_URL "https://dl.dropboxusercontent.com/u/76035852/csgo-pug-setup/csgo-pug-setup.txt"
+
 
 /***********************
  *                     *
@@ -26,6 +30,7 @@ ConVar g_hAnnounceCountdown;
 ConVar g_hAnyCanPause;
 ConVar g_hAutoRandomizeCaptains;
 ConVar g_hAutorecord;
+ConVar g_hAutoUpdate;
 ConVar g_hCvarVersion;
 ConVar g_hDemoNameFormat;
 ConVar g_hDemoTimeFormat;
@@ -129,7 +134,7 @@ Handle g_OnLiveCheck = INVALID_HANDLE;
 
 /***********************
  *                     *
- * Sourcemod overrides *
+ * Sourcemod forwards  *
  *                     *
  ***********************/
 
@@ -151,6 +156,7 @@ public void OnPluginStart() {
     g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "1", "Whether everyone can pause, or just captains/leader. Note: if sm_pugsetup_mutual_unpausing is set to 1, this cvar is ignored");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
+    g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains, as well.");
@@ -213,6 +219,25 @@ public void OnPluginStart() {
     g_ChatAliases = CreateArray(64);
     g_ChatAliasesCommands = CreateArray(64);
     LoadChatAliases();
+
+    /** Updater support **/
+    if (GetConVarInt(g_hAutoUpdate) != 0) {
+        AddUpdater();
+    }
+}
+
+public void OnLibraryAdded(const char[] name) {
+    if (GetConVarInt(g_hAutoUpdate) != 0) {
+        AddUpdater();
+    }
+}
+
+static void AddUpdater() {
+    #if defined _updater_included
+    if (LibraryExists("updater")) {
+        Updater_AddPlugin(UPDATE_URL);
+    }
+    #endif
 }
 
 public bool OnClientConnect(int client, char[] rejectmsg, int maxlen) {
