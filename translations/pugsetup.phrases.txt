@@ -73,11 +73,6 @@
 		"#format"	"{1:s}"
 		"en"		"Map: {GREEN}{1}"
 	}
-	"LO3Setting"
-	{
-		"#format"		"{1:s}"
-		"en"		"Auto live-on-3: {GREEN}{1}"
-	}
 	"NewLeader"
 	{
 		"#format"		"{1:N}"
@@ -151,10 +146,6 @@
 	"MapChoiceVetoShort"
 	{
 		"en"		"captains veto maps"
-	}
-	"AutoLO3MenuTitle"
-	{
-		"en"		"Automatically start the game when ready?"
 	}
 	"Yes"
 	{

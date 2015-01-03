@@ -64,10 +64,6 @@
 	{
 		"es"		"Mapa: {GREEN}{1}"
 	}
-	"LO3Setting"
-	{
-		"es"		"Auto inicio-en-3: {GREEN}{1}"
-	}
 	"NewLeader"
 	{
 		"es"		"El nuevo lider es {GREEN}{1}"
@@ -139,10 +135,6 @@
 	"MapChoiceVetoShort"
 	{
 		"es"		"los capitanes excluyen mapas"
-	}
-	"AutoLO3MenuTitle"
-	{
-		"es"		"¿Iniciar automáticamente el juego cuando esté listo?"
 	}
 	"Yes"
 	{

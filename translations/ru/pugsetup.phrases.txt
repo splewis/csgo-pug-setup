@@ -64,10 +64,6 @@
 	{
 		"ru"		"Карта: {GREEN}{1}"
 	}
-	"LO3Setting"
-	{
-		"ru"		"Auto live-on-3: {GREEN}{1}"
-	}
 	"NewLeader"
 	{
 		"ru"		"Новый лидер матча: {GREEN}{1}"
@@ -139,10 +135,6 @@
 	"MapChoiceVetoShort"
 	{
 		"ru"		"методом исключения"
-	}
-	"AutoLO3MenuTitle"
-	{
-		"ru"		"Начать матч автоматически когда все будут готовы?"
 	}
 	"Yes"
 	{
