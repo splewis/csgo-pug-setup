@@ -6,7 +6,7 @@
 /**
  * Initializes the queue and returns a handle to it that must be closed.
  */
-public Handle PQ_Init() {
+stock Handle PQ_Init() {
     Handle queueHandle = CreateArray(2);
     ClearArray(queueHandle);
     return queueHandle;
@@ -16,7 +16,7 @@ public Handle PQ_Init() {
  * Adds a player and a value to the queue.
  * If the player is already in the queue, their score is updated in place.
  */
-public void PQ_Enqueue(Handle queueHandle, int client, any:value) {
+stock void PQ_Enqueue(Handle queueHandle, int client, any:value) {
     int index = PQ_FindClient(queueHandle, client);
 
     // if they're not already in, put them at the end
@@ -33,7 +33,7 @@ public void PQ_Enqueue(Handle queueHandle, int client, any:value) {
 /**
  * Selects the player with the max value in the queue and removes them, returning their client index.
  */
-public int PQ_Dequeue(Handle queueHandle) {
+stock int PQ_Dequeue(Handle queueHandle) {
     int maxIndex = -1;
     int maxClient = -1;
     new any:maxScore;
@@ -56,7 +56,7 @@ public int PQ_Dequeue(Handle queueHandle) {
 /**
  * Finds an index of the client in the queue. Returns -1 if the client isn't in it.
  */
-public int PQ_FindClient(Handle queueHandle, int client) {
+stock int PQ_FindClient(Handle queueHandle, int client) {
     for (int i = 0; i < GetArraySize(queueHandle); i++) {
         int c = GetArrayCell(queueHandle, i, 0);
         if (client == c)
@@ -68,7 +68,7 @@ public int PQ_FindClient(Handle queueHandle, int client) {
 /**
  * Drops a client from the queue completely.
  */
-public void PQ_DropFromQueue(Handle queueHandle, int client) {
+stock void PQ_DropFromQueue(Handle queueHandle, int client) {
     int index = PQ_FindClient(queueHandle, client);
     if (index != -1)
         RemoveFromArray(queueHandle, index);
@@ -77,20 +77,20 @@ public void PQ_DropFromQueue(Handle queueHandle, int client) {
 /**
  * Returns the current size of the queue.
  */
-public int PQ_GetSize(Handle queueHandle) {
+stock int PQ_GetSize(Handle queueHandle) {
     return GetArraySize(queueHandle);
 }
 
 /**
  * Returns is the queu is empty.
  */
-public bool PQ_IsEmpty(Handle queueHandle) {
+stock bool PQ_IsEmpty(Handle queueHandle) {
     return PQ_GetSize(queueHandle) == 0;
 }
 
 /**
  * Clears the Handle for a queue.
  */
-public PQ_Destroy(Handle queueHandle) {
+stock PQ_Destroy(Handle queueHandle) {
     CloseHandle(queueHandle);
 }
