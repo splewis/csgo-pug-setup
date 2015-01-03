@@ -14,7 +14,7 @@
 	}
 	"ReadyStatus"
 	{
-		"es"		"{1} de {2} jugadores están listos\nEscribe .ready cuando estés listo"
+		"es"		"{1} de {2} jugadores están listos\nEscribe {3} cuando estés listo"
 	}
 	"ReadyStatusCaptains"
 	{
@@ -246,6 +246,6 @@
 	}
 	"MutualUnpauseMessage"
 	{
-		"es"		"El equipo {1} quiere reanudar, esperando por el equipo {2} a que escriba {GREEN}!unpause"
+		"es"		"El equipo {1} quiere reanudar, esperando por el equipo {2} a que escriba {GREEN}{3}"
 	}
 }

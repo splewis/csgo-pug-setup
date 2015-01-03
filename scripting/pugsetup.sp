@@ -380,7 +380,7 @@ public Action Timer_CheckReady(Handle timer) {
 
 public void StatusHint(int readyPlayers, int totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
-        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers);
+        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, ".ready");
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
             char cap1[64];
@@ -713,9 +713,9 @@ public Action Command_Unpause(int client, int args) {
                     PugSetupMessageToAll("%t", "Unpause", client);
                 }
             } else if (g_tUnpaused && !g_ctUnpaused) {
-                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "T", "CT");
+                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "T", "CT", "!unpause");
             } else if (!g_tUnpaused && g_ctUnpaused) {
-                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "CT", "T");
+                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "CT", "T", "!unpause");
             }
         }
     }
@@ -806,7 +806,7 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
         else
             teamString = "T";
 
-        PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString);
+        PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, "!stay", "!swap");
     }
 }
 
