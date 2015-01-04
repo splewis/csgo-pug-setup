@@ -191,14 +191,22 @@ public int Native_SetCaptain(Handle plugin, int numParams) {
     CHECK_CLIENT(client);
 
     if (IsPlayer(client)) {
-        if (captainNumber == 1)
+        int originalCaptain = -1;
+        if (captainNumber == 1) {
+            originalCaptain = g_capt1;
             g_capt1 = client;
-        else
+        }  else {
+            originalCaptain = g_capt2;
             g_capt2 = client;
+        }
 
-        char buffer[64];
-        FormatPlayerName(client, client, buffer);
-        PugSetupMessageToAll("%t", "CaptMessage", captainNumber, buffer);
+        // Only printout if it's a different captain
+        if (client != originalCaptain) {
+            char buffer[64];
+            FormatPlayerName(client, client, buffer);
+            PugSetupMessageToAll("%t", "CaptMessage", captainNumber, buffer);
+        }
+
     }
 }
 
