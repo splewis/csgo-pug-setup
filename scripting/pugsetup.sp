@@ -531,16 +531,6 @@ public Action Command_Capt(int client, int args) {
     return Plugin_Handled;
 }
 
-static bool CheckChatAlias(const char[] alias, const char[] command, const char[] sArgs, int client) {
-    if (IsPrefix(sArgs, alias)) {
-        char text[255];
-        SplitStringRight(sArgs, alias, text, sizeof(text));
-        FakeClientCommand(client, "%s %s", command, text);
-        return true;
-    }
-    return false;
-}
-
 public void LoadChatAliases() {
     AddChatAlias(".setup", "sm_setup");
     AddChatAlias(".10man", "sm_10man");
@@ -606,7 +596,17 @@ public void FindChatCommand(const char[] command, char[] buffer, int len) {
     Format(buffer, len, "!%s", command[2]);
 }
 
-public Action OnClientSayCommand(int client, const char[] command, const char[] sArgs) {
+static bool CheckChatAlias(const char[] alias, const char[] command, const char[] sArgs, int client) {
+    if (IsPrefix(sArgs, alias)) {
+        char text[255];
+        SplitStringRight(sArgs, alias, text, sizeof(text));
+        FakeClientCommand(client, "%s %s", command, text);
+        return true;
+    }
+    return false;
+}
+
+public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs) {
     for (int i = 0; i < GetArraySize(g_ChatAliases); i++) {
         char alias[64];
         char cmd[64];
@@ -629,9 +629,6 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
         PugSetupMessage(client, "  {LIGHT_GREEN}!ready/!unready {NORMAL}mark you as ready");
         PugSetupMessage(client, "  {LIGHT_GREEN}!pause/!unpause {NORMAL}pause the match");
     }
-
-    // continue normally
-    return Plugin_Continue;
 }
 
 public Action Command_EndGame(int client, int args) {
