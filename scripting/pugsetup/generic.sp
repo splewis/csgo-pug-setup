@@ -185,6 +185,13 @@ stock void Record(const char[] demoName) {
     strcopy(szDemoName, sizeof(szDemoName), demoName);
     ReplaceString(szDemoName, sizeof(szDemoName), "\"", "\\\"");
     ServerCommand("tv_record \"%s\"", szDemoName);
+
+    Handle tvEnabledCvar = FindConVar("tv_enable");
+    if (tvEnabledCvar == INVALID_HANDLE) {
+        LogError("Failed to get tv_enable cvar");
+    } else if (GetConVarInt(tvEnabledCvar) == 0) {
+        LogError("Autorecording will not work with current cvar \"tv_enable\"=0. Set \"tv_enable 1\" in server.cfg (or another config file) to fix this.");
+    }
 }
 
 stock bool IsPaused() {
