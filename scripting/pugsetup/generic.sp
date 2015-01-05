@@ -1,7 +1,11 @@
 #include <cstrike>
 #include <sdktools>
 
+#tryinclude "../include/pugsetup_version.inc"
+#if !defined PLUGIN_VERSION
 #define PLUGIN_VERSION "1.3.0-dev"
+#endif
+
 char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
 char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
 
