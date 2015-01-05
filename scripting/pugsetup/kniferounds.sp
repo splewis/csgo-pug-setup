@@ -9,10 +9,18 @@ public Action StartKnifeRound(Handle timer) {
     ServerCommand("exec sourcemod/pugsetup/knife");
     g_WaitingForKnifeWinner = true;
     g_WaitingForKnifeDecision = false;
-    for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("%t", "KnifeRound");
     ServerCommand("mp_restartgame 1");
 
+    // This is done on a delay since the cvar changes from
+    // the knife cfg execute have their own delay of when they are printed
+    // into global chat.
+    CreateTimer(1.0, Timer_AnnounceKnife);
+    return Plugin_Handled;
+}
+
+public Action Timer_AnnounceKnife(Handle timer) {
+    for (int i = 0; i < 5; i++)
+        PugSetupMessageToAll("%t", "KnifeRound");
     return Plugin_Handled;
 }
 
