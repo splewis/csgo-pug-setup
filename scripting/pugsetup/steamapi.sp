@@ -64,10 +64,10 @@ public OnGetPageComplete(const char[] output, const int size, CMDReturn status, 
             PrintToServer("Successfully received file details for ID %s", id);
 
             KeyValues kv = new KeyValues("response");
-            if (kv.ImportFromString(output) && kv.ExportToFile(filePath)) {
-                WriteCollectionInfo(filePath, id);
+            if (kv.ImportFromString(output)) {
+                WriteCollectionInfo(kv, id);
             } else {
-                LogError("failed to export kv to file %s", filePath);
+                LogError("failed import kv response:\n%s", output);
             }
             delete kv;
         }
@@ -77,10 +77,7 @@ public OnGetPageComplete(const char[] output, const int size, CMDReturn status, 
     AddWorkshopMapsToList(id, gameTypeIndex);
 }
 
-stock void WriteCollectionInfo(const char[] path, const char[] collectionId) {
-    KeyValues kv = new KeyValues("response");
-    kv.ImportFromFile(path);
-
+stock void WriteCollectionInfo(KeyValues kv, const char[] collectionId) {
     if (kv.JumpToKey("collectiondetails") && kv.JumpToKey("0") && kv.JumpToKey("children")) {
         kv.GotoFirstSubKey();
 
@@ -103,13 +100,9 @@ stock void WriteCollectionInfo(const char[] path, const char[] collectionId) {
             }
 
         } while (kv.GotoNextKey());
-
-        DeleteFile(path);
     } else {
-        LogError("Recieved improperly formatted respone in file %s", path);
+        LogError("Recieved improperly formatted respone in response kv");
     }
-
-    delete kv;
 }
 
 /** Adds a map id to the workshop collection **/
