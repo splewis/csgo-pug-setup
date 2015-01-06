@@ -104,7 +104,7 @@ public void Config_MapStart() {
 }
 
 static void GameTypeForward() {
-    Call_StartForward(g_OnGameTypesAdded);
+    Call_StartForward(g_hOnGameTypesAdded);
     Call_Finish();
 }
 

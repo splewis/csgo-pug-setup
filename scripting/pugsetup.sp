@@ -113,9 +113,10 @@ Handle g_hOnNotPicked = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
-Handle g_OnForceEnd = INVALID_HANDLE;
-Handle g_OnGameTypesAdded = INVALID_HANDLE;
-Handle g_OnLiveCheck = INVALID_HANDLE;
+Handle g_hOnForceEnd = INVALID_HANDLE;
+Handle g_hOnGameTypesAdded = INVALID_HANDLE;
+Handle g_hOnLiveCheck = INVALID_HANDLE;
+Handle g_hOnPermissionCheck = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configreader.sp"
@@ -209,9 +210,10 @@ public void OnPluginStart() {
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
-    g_OnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
-    g_OnGameTypesAdded = CreateGlobalForward("OnGameTypesAdded", ET_Ignore);
-    g_OnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
+    g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
+    g_hOnGameTypesAdded = CreateGlobalForward("OnGameTypesAdded", ET_Ignore);
+    g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
+    g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
 
     g_LiveTimerRunning = false;
 
@@ -370,7 +372,7 @@ public Action Timer_CheckReady(Handle timer) {
 
     }
 
-    Call_StartForward(g_OnLiveCheck);
+    Call_StartForward(g_hOnLiveCheck);
     Call_PushCell(readyPlayers);
     Call_PushCell(totalPlayers);
     Call_Finish();
@@ -414,11 +416,21 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
  ***********************/
 
 // PermissionCheck(Permissions:permissions)
-#define PermissionCheck(%1) \
-if (!HasPermissions(client, %1)) { \
-    if (IsValidClient(client)) \
-        PugSetupMessage(client, "%t", "NoPermission"); \
-    return Plugin_Handled; \
+#define PermissionCheck(%1) { \
+    bool _perm = HasPermissions(client, %1); \
+    char _cmd[64]; \
+    GetCmdArg(0, _cmd, sizeof(_cmd)); \
+    Call_StartForward(g_hOnPermissionCheck); \
+    Call_PushCell(client); \
+    Call_PushString(_cmd); \
+    Call_PushCell(%1); \
+    Call_PushCellRef(_perm); \
+    Call_Finish(); \
+    if (!_perm) { \
+        if (IsValidClient(client)) \
+            PugSetupMessage(client, "%t", "NoPermission"); \
+        return Plugin_Handled; \
+    } \
 }
 
 public Action Command_Setup(int client, int args) {
@@ -432,9 +444,10 @@ public Action Command_Setup(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (g_hRequireAdminToSetup.IntValue != 0 && !IsPugAdmin(client)) {
-        PugSetupMessage(client, "%t", "NoPermission");
-        return Plugin_Handled;
+    if (g_hRequireAdminToSetup.IntValue != 0) {
+        PermissionCheck(Permission_Admin)
+    } else {
+        PermissionCheck(Permission_All)
     }
 
     g_PickingPlayers = false;
@@ -462,9 +475,10 @@ public Action Command_10man(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (g_hRequireAdminToSetup.IntValue != 0 && !IsPugAdmin(client)) {
-        PugSetupMessage(client, "%t", "NoPermission");
-        return Plugin_Handled;
+    if (g_hRequireAdminToSetup.IntValue != 0) {
+        PermissionCheck(Permission_Admin)
+    } else {
+        PermissionCheck(Permission_All)
     }
 
     g_PickingPlayers = false;
@@ -652,7 +666,7 @@ public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2)
         int client = param1;
         bool choice = GetMenuBool(menu, param2);
         if (choice) {
-            Call_StartForward(g_OnForceEnd);
+            Call_StartForward(g_hOnForceEnd);
             Call_PushCell(client);
             Call_Finish();
 
@@ -667,7 +681,7 @@ public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2)
 public Action Command_ForceEnd(int client, int args) {
     PermissionCheck(Permission_Admin)
 
-    Call_StartForward(g_OnForceEnd);
+    Call_StartForward(g_hOnForceEnd);
     Call_PushCell(client);
     Call_Finish();
 

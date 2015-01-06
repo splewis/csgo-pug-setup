@@ -21,9 +21,10 @@ enum MapType {
 
 // Permissions checking values.
 enum Permissions {
-    Permission_Captains = 0,
-    Permission_Leader = 1,
-    Permission_Admin = 2
+    Permission_All = 0,
+    Permission_Captains = 1,
+    Permission_Leader = 2,
+    Permission_Admin = 3
 };
 
 /**
@@ -89,6 +90,18 @@ forward void OnNotPicked(int client);
  * Called every timer-check for whether the pug is ready to start or not.
  */
 forward void OnReadyToStartCheck(int readyPlayers, int totalPlayers);
+
+/**
+ * Called when user permissions are being checked. You can change
+ * the value of "allow" to change the result of the check and allow
+ * or disallow an action.
+ *
+ * @param client Client that initiated the command
+ * @param command The command that was issued
+ * @param p Default permissions the plugin checked against
+ * @param allow Result of the check
+ */
+forward void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow);
 
 // Sets a game up with the given settings.
 native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam);

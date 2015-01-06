@@ -316,6 +316,8 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
         return isLeader || isAdmin;
     else if (p == Permission_Captains)
         return isCapt || isLeader || isAdmin;
+    else if (p == Permission_All)
+        return true;
     else
         ThrowNativeError(SP_ERROR_PARAM, "Unknown permission value: %d", p);
 
@@ -334,8 +336,11 @@ public int Native_SetRandomCaptains(Handle plugin, int numParams) {
         c2 = RandomPlayer();
     }
 
-    SetCaptain(1, c1);
-    SetCaptain(2, c2);
+    if (IsPlayer(c1))
+        SetCaptain(1, c1);
+
+    if (IsPlayer(c2))
+        SetCaptain(2, c2);
 }
 
 public int Native_AddChatAlias(Handle plugin, int numParams) {
