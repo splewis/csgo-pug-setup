@@ -18,9 +18,7 @@ before_script:
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
-    - cd include
-    - wget https://bitbucket.org/GoD_Tony/updater/raw/94c43b6e49ac2e8f322b252bce52d6aef5c6a477/include/updater.inc
-    - cd ../../../..
+    - cd ../../..
 
 script:
     - smbuilder

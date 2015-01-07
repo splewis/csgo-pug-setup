@@ -8,7 +8,7 @@
 #include "include/system2.inc"
 
 #undef REQUIRE_PLUGIN
-#tryinclude <updater>
+#include "include/updater.inc"
 #define UPDATE_URL "https://dl.dropboxusercontent.com/u/76035852/csgo-pug-setup/csgo-pug-setup.txt"
 
 
