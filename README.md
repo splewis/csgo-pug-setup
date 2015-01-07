@@ -14,6 +14,7 @@ Part of being lightweight is doing nothing that can interfere with the server's 
 
 The goal is to make setup easier for people, not provide a comprehensive pug platform. Please keep this and the principle of **keep it simple, stupid** in mind when making any suggestions.
 
+Also see the [AlliedModders thread](https://forums.alliedmods.net/showthread.php?t=244114).
 
 #### Some alternatives
 - [Goonpug](https://github.com/goonpug/goonpug) (very similar to this plugin, but with more features - and more dependencies)
