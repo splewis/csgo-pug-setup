@@ -7,12 +7,13 @@
 ConVar g_hAutoKickerEnabled;
 ConVar g_hKickMessage;
 ConVar g_hKickNotPicked;
+ConVar g_hKickWhenLive;
 ConVar g_hUseAdminImmunity;
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: autokicker",
     author = "splewis",
-    description = "Automatically kicks joining players when the game is full",
+    description = "Adds cvars to automatically kick players when they aren't part of the current pug",
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
@@ -22,12 +23,16 @@ public void OnPluginStart() {
     g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "1", "Whether the autokicker is enabled or not");
     g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
     g_hKickNotPicked = CreateConVar("sm_pugsetup_autokicker_kick_not_picked", "1", "Whether to kick players not selected by captains in a captain-style game");
+    g_hKickWhenLive = CreateConVar("sm_pugsetup_autokicker_kick_when_live", "1", "Whether the autokicker kicks newly connecting clients during live matches when there are already full teams");
     g_hUseAdminImmunity = CreateConVar("sm_pugsetup_autokicker_admin_immunity", "1", "Whether admins (defined by pugsetup's admin flag cvar) are immune to kicks");
     AutoExecConfig(true, "pugsetup_autokicker", "sourcemod/pugsetup");
 }
 
 public void OnClientPostAdminCheck(int client) {
-    if ((IsMatchLive() || IsPendingStart()) && g_hAutoKickerEnabled.IntValue != 0 && !PlayerAtStart(client)) {
+    bool enabled = g_hAutoKickerEnabled.IntValue != 0 && g_hKickWhenLive.IntValue != 0;
+    bool live = IsMatchLive() || IsPendingStart();
+
+    if (enabled && live && !PlayerAtStart(client)) {
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
