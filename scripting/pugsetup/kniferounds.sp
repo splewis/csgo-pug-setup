@@ -1,4 +1,7 @@
 public Action StartKnifeRound(Handle timer) {
+    if (!g_InStartPhase)
+        return Plugin_Handled;
+
     // reset player tags
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
@@ -19,6 +22,9 @@ public Action StartKnifeRound(Handle timer) {
 }
 
 public Action Timer_AnnounceKnife(Handle timer) {
+    if (!g_InStartPhase)
+        return Plugin_Handled;
+
     for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("%t", "KnifeRound");
     return Plugin_Handled;
