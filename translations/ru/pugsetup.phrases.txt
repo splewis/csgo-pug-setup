@@ -52,10 +52,6 @@
 	{
 		"ru"		"Параметры матча установил {GREEN}{1}"
 	}
-	"GameType"
-	{
-		"ru"		"Тип игры: {GREEN}{1}"
-	}
 	"TeamType"
 	{
 		"ru"		"Команды: ({GREEN}{1} vs {2}) {GREEN}{3}"
@@ -71,10 +67,6 @@
 	"CaptMessage"
 	{
 		"ru"		"Капитаном {1} назначен {2}"
-	}
-	"GameTypeTitle"
-	{
-		"ru"		"Выберите тип игры:"
 	}
 	"TeamSetupMenuTitle"
 	{

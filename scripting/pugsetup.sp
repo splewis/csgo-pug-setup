@@ -29,14 +29,20 @@ ConVar g_hAdminFlag;
 ConVar g_hAnnounceCountdown;
 ConVar g_hAnyCanPause;
 ConVar g_hAutoRandomizeCaptains;
-ConVar g_hAutorecord;
+ConVar g_hAutoSetup;
 ConVar g_hAutoUpdate;
 ConVar g_hCvarVersion;
+ConVar g_hDefaultMapType;
+ConVar g_hDefaultRecord;
+ConVar g_hDefaultTeamSize;
+ConVar g_hDefaultTeamType;
 ConVar g_hDemoNameFormat;
 ConVar g_hDemoTimeFormat;
 ConVar g_hExcludeSpectators;
 ConVar g_hExecDefaultConfig;
 ConVar g_hKnifeRounds;
+ConVar g_hLiveCfg;
+ConVar g_hMapList;
 ConVar g_hMapVoteTime;
 ConVar g_hMessagePrefix;
 ConVar g_hMutualUnpause;
@@ -49,12 +55,15 @@ ConVar g_hWarmupCfg;
 
 /** Setup info **/
 int g_Leader = -1;
+ArrayList g_MapList;
+bool g_ForceEnded = false;
 
 // Specific choices made when setting up
-int g_GameTypeIndex = 0;
 int g_PlayersPerTeam = 5;
 TeamType g_TeamType;
 MapType g_MapType;
+bool g_RecordGameOption;
+bool g_SetDefaultConfig = false;
 
 // Other important variables about the state of the game
 bool g_Setup = false;
@@ -67,15 +76,6 @@ int g_CountDownTicks = 0;
 // Pause information
 bool g_ctUnpaused = false;
 bool g_tUnpaused = false;
-
-#define CONFIG_STRING_LENGTH 256
-ArrayList g_GameConfigFiles;
-ArrayList g_GameMapLists;
-ArrayList g_GameTypes;
-ArrayList g_GameTypeHidden;
-ArrayList g_GameTypeTeamSize;
-ArrayList g_GameTypeMapTypes;
-ArrayList g_GameTypeTeamTypes;
 
 /** Stuff for workshop map/collection cache **/
 char g_DataDir[PLATFORM_MAX_PATH]; // directory to leave cache files in
@@ -106,17 +106,18 @@ bool g_WaitingForKnifeDecision = false;
 int g_KnifeWinner = -1;
 
 /** Forwards **/
+Handle g_hOnForceEnd = INVALID_HANDLE;
 Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnLive = INVALID_HANDLE;
+Handle g_hOnLiveCheck = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnNotPicked = INVALID_HANDLE;
+Handle g_hOnPermissionCheck = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
+Handle g_hOnSetupMenuOpen = INVALID_HANDLE;
+Handle g_hOnSetupMenuSelect = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
-Handle g_hOnForceEnd = INVALID_HANDLE;
-Handle g_hOnGameTypesAdded = INVALID_HANDLE;
-Handle g_hOnLiveCheck = INVALID_HANDLE;
-Handle g_hOnPermissionCheck = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configreader.sp"
@@ -156,13 +157,19 @@ public void OnPluginStart() {
     g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins");
     g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "1", "Whether everyone can pause, or just captains/leader. Note: if sm_pugsetup_mutual_unpausing is set to 1, this cvar is ignored");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
-    g_hAutorecord = CreateConVar("sm_pugsetup_autorecord", "0", "Should the plugin attempt to record a gotv demo each game, requries tv_enable 1 to work");
+    g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not");
     g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
+    g_hDefaultMapType = CreateConVar("sm_pugsetup_default_maptype", "vote", "Default team type to use. Allowed values: \"vote\", \"veto\", \"current\"");
+    g_hDefaultRecord = CreateConVar("sm_pugsetup_autorecord", "0", "Default value for recording demoes each game, requries tv_enable 1 to work");
+    g_hDefaultTeamSize = CreateConVar("sm_pugsetup_default_teamsize", "5", "Default number of players per team, can be changed in the .setup menu");
+    g_hDefaultTeamType = CreateConVar("sm_pugsetup_default_teamtype", "captains", "What team type to use. Allowed values: \"captains\", \"manual\", and \"random\"");
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains, as well.");
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_hKnifeRounds = CreateConVar("sm_pugsetup_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
+    g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config to execute when the game goes live");
+    g_hMapList = CreateConVar("sm_pugsetup_maplist", "standard.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the System2 extension installed.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this cvar will let anybody use the !unpause command.");
@@ -203,17 +210,18 @@ public void OnPluginStart() {
     HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
     HookEvent("round_end", Event_RoundEnd);
 
+    g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
+    g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
     g_hOnNotPicked = CreateGlobalForward("OnNotPicked", ET_Ignore, Param_Cell);
+    g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnSetupMenuOpen = CreateGlobalForward("OnSetupMenuOpen", ET_Ignore, Param_Cell, Param_Cell);
+    g_hOnSetupMenuSelect = CreateGlobalForward("OnSetupMenuSelect", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
-    g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
-    g_hOnGameTypesAdded = CreateGlobalForward("OnGameTypesAdded", ET_Ignore);
-    g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
-    g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
 
     g_LiveTimerRunning = false;
 
@@ -226,6 +234,8 @@ public void OnPluginStart() {
     if (GetConVarInt(g_hAutoUpdate) != 0) {
         AddUpdater();
     }
+
+    g_SetDefaultConfig = false;
 }
 
 public void OnLibraryAdded(const char[] name) {
@@ -246,6 +256,7 @@ public bool OnClientConnect(int client, char[] rejectmsg, int maxlen) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
     g_PlayerAtStart[client] = false;
+    CheckAutoSetup();
     return true;
 }
 
@@ -264,6 +275,8 @@ public void OnClientDisconnect(int client) {
 }
 
 public void OnMapStart() {
+    g_MapList = CreateArray(PLATFORM_MAX_PATH);
+    g_ForceEnded = false;
     Config_MapStart();
     g_MapVetoed = new ArrayList();
     g_Recording = false;
@@ -290,11 +303,16 @@ public void OnMapStart() {
         g_capt2 = -1;
         g_Leader = -1;
     }
+
+    if (!g_Setup && !g_SetDefaultConfig) {
+        SetConfigDefaults();
+        g_SetDefaultConfig = true;
+    }
 }
 
 public void OnMapEnd() {
-    Config_MapEnd();
     CloseHandle(g_MapVetoed);
+    CloseHandle(g_MapList);
 }
 
 public Action Timer_CheckReady(Handle timer) {
@@ -489,7 +507,7 @@ public Action Command_10man(int client, int args) {
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
-    SetupGame(0, TeamType_Captains, MapType_Vote, 5);
+    SetupGame(TeamType_Captains, MapType_Vote, 5);
     return Plugin_Handled;
 }
 
@@ -670,6 +688,7 @@ public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2)
 
             PugSetupMessageToAll("%t", "ForceEnd", client);
             EndMatch(true);
+            g_ForceEnded = true;
         }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -685,6 +704,7 @@ public Action Command_ForceEnd(int client, int args) {
 
     PugSetupMessageToAll("%t", "ForceEnd", client);
     EndMatch(true);
+    g_ForceEnded = true;
     return Plugin_Handled;
 }
 
@@ -810,6 +830,8 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
     g_MatchLive = false;
     g_WaitingForKnifeDecision = false;
     g_WaitingForKnifeWinner = false;
+
+    CreateTimer(15.0, Timer_CheckAutoSetup);
     return Plugin_Continue;
 }
 
@@ -865,16 +887,10 @@ public void PrintSetupInfo(int client) {
 
     char buffer[128];
 
-    bool hidden = GetArrayCell(g_GameTypeHidden, g_GameTypeIndex);
-    if (!hidden) {
-        GetArrayString(g_GameTypes, g_GameTypeIndex, buffer, sizeof(buffer));
-        PugSetupMessage(client, "%t", "GameType", buffer);
-    }
-
-    GetTeamString(buffer, sizeof(buffer), g_TeamType);
+    GetTeamString(buffer, sizeof(buffer), g_TeamType, GetClientLanguage(client));
     PugSetupMessage(client, "%t", "TeamType", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
-    GetMapString(buffer, sizeof(buffer), g_MapType);
+    GetMapString(buffer, sizeof(buffer), g_MapType, GetClientLanguage(client));
     PugSetupMessage(client, "%t", "MapType", buffer);
 }
 
@@ -905,7 +921,7 @@ public Action Timer_CountDown(Handle timer)  {
 }
 
 public void StartGame() {
-    if (g_hAutorecord.IntValue != 0) {
+    if (g_RecordGameOption) {
         // get the map, with any workshop stuff before removed
         // this is {MAP} in the format string
         char mapName[128];
@@ -966,9 +982,7 @@ public void ExecGameConfigs() {
     if (g_hExecDefaultConfig.IntValue != 0)
         ServerCommand("exec gamemode_competitive");
 
-    char liveCfg[CONFIG_STRING_LENGTH];
-    GetArrayString(g_GameConfigFiles, g_GameTypeIndex, liveCfg, sizeof(liveCfg));
-    ServerCommand("exec %s", liveCfg);
+    ExecCfg(g_hLiveCfg);
 }
 
 public void EndMatch(bool execConfigs) {
@@ -1002,11 +1016,10 @@ public void EndMatch(bool execConfigs) {
 }
 
 public ArrayList GetCurrentMapList() {
-    ArrayList list = ArrayList:GetArrayCell(g_GameMapLists, g_GameTypeIndex);
-    if (list.Length == 0) {
-        AddBackupMaps(list);
+    if (g_MapList.Length == 0) {
+        AddBackupMaps();
     }
-    return list;
+    return g_MapList;
 }
 
 public Action MapSetup(Handle timer) {
@@ -1071,4 +1084,15 @@ public Action StopDemo(Handle timer) {
     Call_PushString(g_DemoFileName);
     Call_Finish();
     return Plugin_Handled;
+}
+
+public Action Timer_CheckAutoSetup(Handle timer) {
+    CheckAutoSetup();
+    return Plugin_Handled;
+}
+
+public void CheckAutoSetup() {
+    if (g_hAutoSetup.IntValue != 0 && !g_Setup && !g_ForceEnded && !g_InStartPhase && !g_MatchLive) {
+        SetupFinished();
+    }
 }

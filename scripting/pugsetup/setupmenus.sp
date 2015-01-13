@@ -2,35 +2,43 @@
  * Main .setup menu
  */
  public void SetupMenu(int client) {
+        int lang = GetClientLanguage(client);
         Menu menu = new Menu(SetupMenuHandler);
         SetMenuTitle(menu, "%t", "SetupMenuTitle");
         SetMenuExitButton(menu, true);
 
         char buffer[256];
 
-        // 1. game type
-        char gameType[128];
-        GetArrayString(g_GameTypes, g_GameTypeIndex, gameType, sizeof(gameType));
-        Format(buffer, sizeof(buffer), "%t: %s", "GameTypeOption", gameType);
-        AddMenuItem(menu, "gametype", buffer);
-
-        // 2. team type
+        // 1. team type
         char teamType[128];
-        GetTeamString(teamType, sizeof(teamType), g_TeamType);
-        Format(buffer, sizeof(buffer), "%t: %s", "TeamTypeOption", teamType);
+        GetTeamString(teamType, sizeof(teamType), g_TeamType, lang);
+        Format(buffer, sizeof(buffer), "%T: %s", "TeamTypeOption", lang, teamType);
         AddMenuItem(menu, "teamtype", buffer);
 
-        // 3. team size
-        Format(buffer, sizeof(buffer), "%t: %d", "TeamSizeOption", g_PlayersPerTeam);
+        // 2. team size
+        Format(buffer, sizeof(buffer), "%T: %d", "TeamSizeOption", lang, g_PlayersPerTeam);
         AddMenuItem(menu, "teamsize", buffer);
 
-        // 4. map type
+        // 3. map type
         char mapType[128];
-        GetMapString(mapType, sizeof(mapType), g_MapType);
-        Format(buffer, sizeof(buffer), "%t: %s", "MapTypeOption", mapType);
+        GetMapString(mapType, sizeof(mapType), g_MapType, lang);
+        Format(buffer, sizeof(buffer), "%T: %s", "MapTypeOption", lang, mapType);
         AddMenuItem(menu, "maptype", buffer);
 
-        // TODO: add a forward here for more options
+        // 4. demo option
+        char demoString[128];
+        if (g_RecordGameOption)
+            Format(demoString, sizeof(demoString), "%T", "Yes", lang);
+        else
+            Format(demoString, sizeof(demoString), "%T", "No", lang);
+
+        Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", lang, demoString);
+        AddMenuItem(menu, "demo", buffer);
+
+        Call_StartForward(g_hOnSetupMenuOpen);
+        Call_PushCell(client);
+        Call_PushCell(menu);
+        Call_Finish();
 
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
@@ -41,82 +49,28 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         char buffer[64];
         menu.GetItem(param2, buffer, sizeof(buffer));
 
-        if (StrEqual(buffer, "gametype")) {
-            GameTypeMenu(client);
-        } else if (StrEqual(buffer, "maptype")) {
+        if (StrEqual(buffer, "maptype")) {
             MapTypeMenu(client);
         } else if (StrEqual(buffer, "teamtype")) {
             TeamTypeMenu(client);
         } else if (StrEqual(buffer, "teamsize")) {
             TeamSizeMenu(client);
-        } else {
-            LogError("Unknown setup menu info string: %s", buffer);
+        } else if (StrEqual(buffer, "demo")) {
+            DemoHandler(client);
         }
+
+        Call_StartForward(g_hOnSetupMenuSelect);
+        Call_PushCell(menu);
+        Call_PushCell(action);
+        Call_PushCell(param1);
+        Call_PushCell(param2);
+        Call_Finish();
+
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
         if (!g_Setup && param1 == MenuEnd_Exit) {
             SetupFinished();
         }
-    }
-}
-
- public void GameTypeMenu(int client) {
-    int numGameTypes = g_GameTypes.Length;
-    if (numGameTypes == 0) {
-        PugSetupMessage(client, "The server has no game types specified.");
-        LogError("There are no game types specified.");
-    } else {
-        Menu menu = new Menu(GameTypeHandler);
-        SetMenuTitle(menu, "%t", "GameTypeTitle");
-        SetMenuExitButton(menu, false);
-        char buffer[256];
-        int count = 0;
-        for (int i = 0; i < numGameTypes; i++) {
-            if (!GetArrayCell(g_GameTypeHidden, i)) {
-                count++;
-                GetArrayString(g_GameTypes, i, buffer, sizeof(buffer));
-                AddMenuInt(menu, i, buffer);
-            }
-        }
-        if (count <= 0) {
-            LogError("All game types were marked as hidden.");
-        } else {
-            DisplayMenu(menu, client, MENU_TIME_FOREVER);
-        }
-    }
-}
-
-public int GameTypeHandler(Menu menu, MenuAction action, int param1, int param2) {
-    if (action == MenuAction_Select) {
-        int client = param1;
-        int index = GetMenuInt(menu, param2);
-        g_GameTypeIndex = index;
-
-        int teamsize = g_GameTypeTeamSize.Get(index);
-        MapType maptype = g_GameTypeMapTypes.Get(index);
-        TeamType teamtype = g_GameTypeTeamTypes.Get(index);
-
-        if (teamsize == -1) {
-            g_PlayersPerTeam = 5;
-        } else {
-            g_PlayersPerTeam = teamsize;
-        }
-
-        if (maptype == MapType_Unspecified) {
-            g_MapType = MapType_Vote;
-        } else {
-            g_MapType = maptype;
-        }
-
-        if (teamtype == TeamType_Unspecified) {
-            g_TeamType = TeamType_Captains;
-        } else {
-            g_TeamType = teamtype;
-        }
-
-        SetupMenu(client);
-    } else if (action == MenuAction_End) {
-        CloseHandle(menu);
     }
 }
 
@@ -190,6 +144,15 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
     }
 }
 
+public int DemoHandler(int client) {
+    g_RecordGameOption = !g_RecordGameOption;
+    if (!IsTVEnabled() && g_RecordGameOption) {
+        PugSetupMessage(client, "%t", "TVDisabled");
+        g_RecordGameOption = false;
+    }
+    SetupMenu(client);
+}
+
 /**
  * Called when the setup phase is over and the ready-up period should begin.
  */
@@ -228,27 +191,27 @@ public void SetupFinished() {
 /**
  * Converts enum choice types to strings to show to players.
  */
-public void GetTeamString(char[] buffer, int length, TeamType type) {
+public void GetTeamString(char[] buffer, int length, TeamType type, int lang) {
     switch (type) {
-        case TeamType_Manual: Format(buffer, length, "%t", "TeamSetupManualShort");
-        case TeamType_Random: Format(buffer, length, "%t", "TeamSetupRandomShort");
-        case TeamType_Captains: Format(buffer, length, "%t", "TeamSetupCaptainsShort");
+        case TeamType_Manual: Format(buffer, length, "%T", "TeamSetupManualShort", lang);
+        case TeamType_Random: Format(buffer, length, "%T", "TeamSetupRandomShort", lang);
+        case TeamType_Captains: Format(buffer, length, "%T", "TeamSetupCaptainsShort", lang);
         default: LogError("unknown teamtype=%d", type);
     }
 }
 
-public void GetMapString(char[] buffer, int length, MapType type) {
+public void GetMapString(char[] buffer, int length, MapType type, int lang) {
     switch (type) {
-        case MapType_Current: Format(buffer, length, "%t", "MapChoiceCurrentShort");
-        case MapType_Vote: Format(buffer, length, "%t", "MapChoiceVoteShort");
-        case MapType_Veto: Format(buffer, length, "%t", "MapChoiceVetoShort");
+        case MapType_Current: Format(buffer, length, "%T", "MapChoiceCurrentShort", lang);
+        case MapType_Vote: Format(buffer, length, "%T", "MapChoiceVoteShort", lang);
+        case MapType_Veto: Format(buffer, length, "%T", "MapChoiceVetoShort", lang);
         default: LogError("unknown maptype=%d", type);
     }
 }
 
-public void GetEnabledString(char[] buffer, int length, bool variable) {
+public void GetEnabledString(char[] buffer, int length, bool variable, int lang) {
     if (variable)
-        Format(buffer, length, "%t", "Enabled");
+        Format(buffer, length, "%T", "Enabled", lang);
     else
-        Format(buffer, length, "%t", "Disabled");
+        Format(buffer, length, "%T", "Disabled", lang);
 }

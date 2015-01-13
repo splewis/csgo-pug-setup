@@ -65,32 +65,16 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 - ``pugsetup_autokicker``: kicks players that join when the game is already live, and players not selected by captains when using captain-player selection
 - ``pugsetup_teamnames``: sets team names/flag according to the players on the team, see more detail at the end of the readme
 - ``pugsetup_teamlocker``: blocks players from joining full teams when a game is live
-- ``pugsetup_autosetup``: automatically sets up a game when a player connects so nobody has to type .setup
 - ``pugsetup_hostname``: adds some tags to the server hostname depending on the pug status, examples: "[LIVE]" and "[NEED 3]"
 - ``pugsetup_rwsbalancer``: implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual/random teams
 - ``pugsetup_chatmoney``: prints out the team members' money to chat on round starts
 
 All of these are in the ``plugins/disabled`` directory and they are all independent of each other. To enable one, move it from the `plugins/disabled` directory to the `plugins` directory.
 
-Most of these create a cfg file in ``cfg/sourcemod/pugsetup`` you can tweak.
-
 
 ## Configuration
-One of the files you should have downloaded was [addons/sourcemod/configs/pugsetup/gametypes.cfg](configs/pugsetup/gametypes.cfg).
 
-This file specifies different "game types", which are just combonations of a cfg file and a map list. You can add more sections if you want,
-and the .setup menu will contain a page to choose which option. Otherwise, if there is only 1 game type, that one will always be used.
-
-To create a new game type, add a section to the gametypes.cfg file, create the .cfg file in ``csgo/cfg/sourcemod/pugsetup``, and create a maplist in ``csgo/addons/sourcemod/configs/pugsetup``.
-
-The ``config`` and ``maplist`` keys are required. Optional keys are:
-- ``teamsize`` to force a teamsize
-- ``maptype`` to force a map type
-- ``teamtype`` to force a team type
-
-These 3 options just force the setting - if you don't specify any setting then there will be an option to pick one in the .setup menu.
-
-Also see the [configuration examples](configuration_examples.md) and alternate ways to specify maplists (e.g. workshop collections).
+After installing the plugin, start the server and check ``cfg/sourcemod/pugsetup``. There will be a file called ``pugsetup.cfg`` that you can edit to change the cvars the plugin uses.
 
 You can also add more chat alias commands in [addons/sourcemod/configs/pugsetup/chataliases.cfg](configs/pugsetup/chataliases.cfg) if you wish. If players are not comfortable with english, I'd
 strongly recommend adding chat aliases, since those will be read by the plugin and used in chat messages when referencing commands.

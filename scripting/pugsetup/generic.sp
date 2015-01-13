@@ -180,6 +180,15 @@ stock bool IsPrefix(const char[] str, const char[] prefix) {
     return StrContains(str, prefix, false) == 0;
 }
 
+stock bool IsTVEnabled() {
+    Handle tvEnabledCvar = FindConVar("tv_enable");
+    if (tvEnabledCvar == INVALID_HANDLE) {
+        LogError("Failed to get tv_enable cvar");
+        return false;
+    }
+    return GetConVarInt(tvEnabledCvar) != 0;
+}
+
 stock void Record(const char[] demoName) {
     char szDemoName[256];
     strcopy(szDemoName, sizeof(szDemoName), demoName);

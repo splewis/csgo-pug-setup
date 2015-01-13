@@ -52,10 +52,6 @@
 	{
 		"es"		"{GREEN}{1}{NORMAL} ha configurado el juego"
 	}
-	"GameType"
-	{
-		"es"		"Tipo de juego: {GREEN}{1}"
-	}
 	"TeamType"
 	{
 		"es"		"Equipos: ({GREEN}{1} vs {2}) {GREEN}{3}"
@@ -71,10 +67,6 @@
 	"CaptMessage"
 	{
 		"es"		"El capitán de {1} será {2}"
-	}
-	"GameTypeTitle"
-	{
-		"es"		"¿Qué tipo de juego debe utilizarse?"
 	}
 	"TeamSetupMenuTitle"
 	{
