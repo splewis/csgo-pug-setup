@@ -1,5 +1,25 @@
 "Phrases"
 {
+	"SetupMenuTitle"
+	{
+		"en"		"Setup options"
+	}
+	"GameTypeOption"
+	{
+		"en"		"Game type"
+	}
+	"MapTypeOption"
+	{
+		"en"		"Map type"
+	}
+	"TeamTypeOption"
+	{
+		"en"		"Team type"
+	}
+	"TeamSizeOption"
+	{
+		"en"		"Team size"
+	}
 	"VetoMessage"
 	{
 		"en"		"The map veto process will begin in a few seconds."

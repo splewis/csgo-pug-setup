@@ -453,7 +453,6 @@ public Action Command_Setup(int client, int args) {
     g_PickingPlayers = false;
     g_capt1 = -1;
     g_capt2 = -1;
-    g_Setup = true;
     if (IsPlayer(client))
         g_Leader = GetSteamAccountID(client);
 
@@ -484,7 +483,6 @@ public Action Command_10man(int client, int args) {
     g_PickingPlayers = false;
     g_capt1 = -1;
     g_capt2 = -1;
-    g_Setup = true;
     if (IsPlayer(client))
         g_Leader = GetSteamAccountID(client);
 

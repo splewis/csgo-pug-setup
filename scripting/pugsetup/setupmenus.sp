@@ -1,17 +1,72 @@
 /**
  * Main .setup menu
  */
-public void SetupMenu(int client) {
-    int numGameTypes = g_GameTypes.Length;
+ public void SetupMenu(int client) {
+        Menu menu = new Menu(SetupMenuHandler);
+        SetMenuTitle(menu, "%t", "SetupMenuTitle");
+        SetMenuExitButton(menu, true);
 
+        char buffer[256];
+
+        // 1. game type
+        char gameType[128];
+        GetArrayString(g_GameTypes, g_GameTypeIndex, gameType, sizeof(gameType));
+        Format(buffer, sizeof(buffer), "%t: %s", "GameTypeOption", gameType);
+        AddMenuItem(menu, "gametype", buffer);
+
+        // 2. team type
+        char teamType[128];
+        GetTeamString(teamType, sizeof(teamType), g_TeamType);
+        Format(buffer, sizeof(buffer), "%t: %s", "TeamTypeOption", teamType);
+        AddMenuItem(menu, "teamtype", buffer);
+
+        // 3. team size
+        Format(buffer, sizeof(buffer), "%t: %d", "TeamSizeOption", g_PlayersPerTeam);
+        AddMenuItem(menu, "teamsize", buffer);
+
+        // 4. map type
+        char mapType[128];
+        GetMapString(mapType, sizeof(mapType), g_MapType);
+        Format(buffer, sizeof(buffer), "%t: %s", "MapTypeOption", mapType);
+        AddMenuItem(menu, "maptype", buffer);
+
+        // TODO: add a forward here for more options
+
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+}
+
+public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
+    if (action == MenuAction_Select) {
+        int client = param1;
+        char buffer[64];
+        menu.GetItem(param2, buffer, sizeof(buffer));
+
+        if (StrEqual(buffer, "gametype")) {
+            GameTypeMenu(client);
+        } else if (StrEqual(buffer, "maptype")) {
+            MapTypeMenu(client);
+        } else if (StrEqual(buffer, "teamtype")) {
+            TeamTypeMenu(client);
+        } else if (StrEqual(buffer, "teamsize")) {
+            TeamSizeMenu(client);
+        } else {
+            LogError("Unknown setup menu info string: %s", buffer);
+        }
+    } else if (action == MenuAction_End) {
+        CloseHandle(menu);
+        if (!g_Setup && param1 == MenuEnd_Exit) {
+            SetupFinished();
+        }
+    }
+}
+
+ public void GameTypeMenu(int client) {
+    int numGameTypes = g_GameTypes.Length;
     if (numGameTypes == 0) {
         PugSetupMessage(client, "The server has no game types specified.");
         LogError("There are no game types specified.");
-    } else if (numGameTypes == 1) {
-        g_GameTypeIndex = 0;
-        TeamTypeMenu(client);
     } else {
-        Menu menu = new Menu(SetupMenuHandler);
+        Menu menu = new Menu(GameTypeHandler);
         SetMenuTitle(menu, "%t", "GameTypeTitle");
         SetMenuExitButton(menu, false);
         char buffer[256];
@@ -31,65 +86,75 @@ public void SetupMenu(int client) {
     }
 }
 
-public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
+public int GameTypeHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        g_GameTypeIndex = GetMenuInt(menu, param2);
-        TeamTypeMenu(client);
+        int index = GetMenuInt(menu, param2);
+        g_GameTypeIndex = index;
+
+        int teamsize = g_GameTypeTeamSize.Get(index);
+        MapType maptype = g_GameTypeMapTypes.Get(index);
+        TeamType teamtype = g_GameTypeTeamTypes.Get(index);
+
+        if (teamsize == -1) {
+            g_PlayersPerTeam = 5;
+        } else {
+            g_PlayersPerTeam = teamsize;
+        }
+
+        if (maptype == MapType_Unspecified) {
+            g_MapType = MapType_Vote;
+        } else {
+            g_MapType = maptype;
+        }
+
+        if (teamtype == TeamType_Unspecified) {
+            g_TeamType = TeamType_Captains;
+        } else {
+            g_TeamType = teamtype;
+        }
+
+        SetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
 
 public void TeamTypeMenu(int client) {
-    TeamType teamType = GetArrayCell(g_GameTypeTeamTypes, g_GameTypeIndex);
-    if (teamType == TeamType_Unspecified) {
-        Menu menu = new Menu(TeamTypeMenuHandler);
-        SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
-        SetMenuExitButton(menu, false);
-        AddMenuInt(menu, _:TeamType_Captains, "%t", "TeamSetupMenuCaptains");
-        AddMenuInt(menu, _:TeamType_Random, "%t", "TeamSetupMenuRandom");
-        AddMenuInt(menu, _:TeamType_Manual, "%t", "TeamSetupMenuManual");
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
-    } else {
-        g_TeamType = teamType;
-        GivePlayerCountMenu(client);
-    }
+    Menu menu = new Menu(TeamTypeMenuHandler);
+    SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
+    SetMenuExitButton(menu, false);
+    AddMenuInt(menu, _:TeamType_Captains, "%t", "TeamSetupMenuCaptains");
+    AddMenuInt(menu, _:TeamType_Random, "%t", "TeamSetupMenuRandom");
+    AddMenuInt(menu, _:TeamType_Manual, "%t", "TeamSetupMenuManual");
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
-        GivePlayerCountMenu(client);
+        SetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
 }
 
-public void GivePlayerCountMenu(int client) {
-    int teamsize = GetArrayCell(g_GameTypeTeamSize, g_GameTypeIndex);
-
-    if (teamsize <= 0) { // not specified by the game type
-        Menu menu = new Menu(PlayerCountHandler);
-        SetMenuTitle(menu, "%t", "HowManyPlayers");
-        SetMenuExitButton(menu, false);
-        int choices[] = {1, 2, 3, 4, 5, 6};
-        for (int i = 0; i < sizeof(choices); i++)
-            AddMenuInt(menu, choices[i], "");
-
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
-    } else {
-        g_PlayersPerTeam = teamsize;
-        MapMenu(client);
-    }
+public void TeamSizeMenu(int client) {
+    Menu menu = new Menu(TeamSizeHandler);
+    SetMenuTitle(menu, "%t", "HowManyPlayers");
+    SetMenuExitButton(menu, false);
+    int choices[] = {1, 2, 3, 4, 5, 6};
+    for (int i = 0; i < sizeof(choices); i++)
+        AddMenuInt(menu, choices[i], "");
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public int PlayerCountHandler(Menu menu, MenuAction action, int param1, int param2) {
+public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         g_PlayersPerTeam = GetMenuInt(menu, param2);
-        MapMenu(client);
+        SetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -98,24 +163,19 @@ public int PlayerCountHandler(Menu menu, MenuAction action, int param1, int para
 /**
  * Generic map choice-type menu.
  */
-public void MapMenu(int client) {
-    MapType mapType = GetArrayCell(g_GameTypeMapTypes, g_GameTypeIndex);
-    if (mapType == MapType_Unspecified) {
-        Menu menu = new Menu(MapMenuHandler);
-        SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
-        SetMenuExitButton(menu, false);
-        AddMenuInt(menu, _:MapType_Current, "%t", "MapChoiceCurrent");
-        AddMenuInt(menu, _:MapType_Vote, "%t", "MapChoiceVote");
-        AddMenuInt(menu, _:MapType_Veto, "%t", "MapChoiceVeto");
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
-    } else {
-        g_MapType = mapType;
-        SetupFinished();
-    }
+public void MapTypeMenu(int client) {
+    Menu menu = new Menu(MapTypeHandler);
+    SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
+    SetMenuExitButton(menu, false);
+    AddMenuInt(menu, _:MapType_Current, "%t", "MapChoiceCurrent");
+    AddMenuInt(menu, _:MapType_Vote, "%t", "MapChoiceVote");
+    AddMenuInt(menu, _:MapType_Veto, "%t", "MapChoiceVeto");
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
-public int MapMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
+public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
+        int client = param1;
         g_MapType = MapType:GetMenuInt(menu, param2);
         switch (g_MapType) {
             case MapType_Current: g_mapSet = true;
@@ -124,7 +184,7 @@ public int MapMenuHandler(Menu menu, MenuAction action, int param1, int param2) 
             default: LogError("unknown maptype=%d", g_MapType);
         }
 
-        SetupFinished();
+        SetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
