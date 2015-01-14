@@ -81,11 +81,12 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
 public void TeamTypeMenu(int client) {
     Menu menu = new Menu(TeamTypeMenuHandler);
-    SetMenuTitle(menu, "%t", "TeamSetupMenuTitle");
+    int lang = GetClientLanguage(client);
+    SetMenuTitle(menu, "%T", "TeamSetupMenuTitle", lang);
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:TeamType_Captains, "%t", "TeamSetupMenuCaptains");
-    AddMenuInt(menu, _:TeamType_Random, "%t", "TeamSetupMenuRandom");
-    AddMenuInt(menu, _:TeamType_Manual, "%t", "TeamSetupMenuManual");
+    AddMenuInt(menu, _:TeamType_Captains, "%T", "TeamSetupMenuCaptains", lang);
+    AddMenuInt(menu, _:TeamType_Random, "%T", "TeamSetupMenuRandom", lang);
+    AddMenuInt(menu, _:TeamType_Manual, "%T", "TeamSetupMenuManual", lang);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -101,7 +102,8 @@ public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int par
 
 public void TeamSizeMenu(int client) {
     Menu menu = new Menu(TeamSizeHandler);
-    SetMenuTitle(menu, "%t", "HowManyPlayers");
+    int lang = GetClientLanguage(client);
+    SetMenuTitle(menu, "%T", "HowManyPlayers", lang);
     SetMenuExitButton(menu, false);
     int choices[] = {1, 2, 3, 4, 5, 6};
     for (int i = 0; i < sizeof(choices); i++)
@@ -124,11 +126,12 @@ public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2)
  */
 public void MapTypeMenu(int client) {
     Menu menu = new Menu(MapTypeHandler);
-    SetMenuTitle(menu, "%t", "MapChoiceMenuTitle");
+    int lang = GetClientLanguage(client);
+    SetMenuTitle(menu, "%T", "MapChoiceMenuTitle", lang);
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:MapType_Current, "%t", "MapChoiceCurrent");
-    AddMenuInt(menu, _:MapType_Vote, "%t", "MapChoiceVote");
-    AddMenuInt(menu, _:MapType_Veto, "%t", "MapChoiceVeto");
+    AddMenuInt(menu, _:MapType_Current, "%T", "MapChoiceCurrent", lang);
+    AddMenuInt(menu, _:MapType_Vote, "%T", "MapChoiceVote", lang);
+    AddMenuInt(menu, _:MapType_Veto, "%T", "MapChoiceVeto", lang);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
