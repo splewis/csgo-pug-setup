@@ -404,7 +404,7 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
         char rdyCommand[32];
         FindChatCommand("sm_ready", rdyCommand, sizeof(rdyCommand));
-        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
+        PrintHintTextToAll("%T", "ReadyStatus", LANG_SERVER, readyPlayers, totalPlayers, rdyCommand);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
             char cap1[64];
@@ -412,16 +412,16 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
             if (IsPlayer(g_capt1))
                 Format(cap1, sizeof(cap1), "%N", g_capt1);
             else
-                Format(cap1, sizeof(cap1), "%t", "CaptainNotSelected");
+                Format(cap1, sizeof(cap1), "%T", "CaptainNotSelected", LANG_SERVER);
 
             if (IsPlayer(g_capt2))
                 Format(cap2, sizeof(cap2), "%N", g_capt2);
             else
-                Format(cap2, sizeof(cap2), "%t", "CaptainNotSelected");
+                Format(cap2, sizeof(cap2), "%T", "CaptainNotSelected", LANG_SERVER);
 
-            PrintHintTextToAll("%t", "ReadyStatusCaptains", readyPlayers, totalPlayers, cap1, cap2);
+            PrintHintTextToAll("%T", "ReadyStatusCaptains", LANG_SERVER, readyPlayers, totalPlayers, cap1, cap2);
         } else {
-            PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers);
+            PrintHintTextToAll("%T", "ReadyStatus", LANG_SERVER, readyPlayers, totalPlayers);
         }
 
     }
@@ -670,10 +670,11 @@ public Action Command_EndGame(int client, int args) {
         PermissionCheck(Permission_Leader)
 
         Menu menu = new Menu(MatchEndHandler);
-        SetMenuTitle(menu, "%t", "EndMatchMenuTitle");
+        int lang = GetClientLanguage(client);
+        SetMenuTitle(menu, "%T", "EndMatchMenuTitle", lang);
         SetMenuExitButton(menu, true);
-        AddMenuBool(menu, false, "%t", "ContinueMatch");
-        AddMenuBool(menu, true, "%t", "EndMatch");
+        AddMenuBool(menu, false, "%T", "ContinueMatch", lang);
+        AddMenuBool(menu, true, "%T", "EndMatch", lang);
         DisplayMenu(menu, client, 20);
     }
     return Plugin_Handled;
