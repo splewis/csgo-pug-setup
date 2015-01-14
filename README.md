@@ -138,7 +138,7 @@ Some commands that are important are:
 You can also type .ready instead of !ready, or .capt instead of !capt, etc.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
-- sm_10man (this just uses the first game type from ``gametypes.cfg``, with 5v5, captains, map vote)
+- sm_10man (sets up a 5v5 game using captains and a map vote)
 - sm_forceend (force ends the game with no confirmation menu)
 
 
@@ -159,5 +159,3 @@ Just for fun, I added support to automatically set mp_teamname_1 and mp_teamflag
 - when running the sm_name command, the syntax is: ``sm_name <player> <teamname> <teamflag>``
 - note that the team flags are the [2-letter country codes](http://countrycode.org/)
 - the team names/flags are stored using the clientprefs API, so a database for clientprefs must be set (it is by default)
-
-
