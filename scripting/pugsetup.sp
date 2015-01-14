@@ -40,6 +40,7 @@ ConVar g_hDemoNameFormat;
 ConVar g_hDemoTimeFormat;
 ConVar g_hExcludeSpectators;
 ConVar g_hExecDefaultConfig;
+ConVar g_hForceDefaults;
 ConVar g_hKnifeRounds;
 ConVar g_hLiveCfg;
 ConVar g_hMapList;
@@ -167,6 +168,7 @@ public void OnPluginStart() {
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains, as well.");
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
+    g_hForceDefaults = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options");
     g_hKnifeRounds = CreateConVar("sm_pugsetup_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config to execute when the game goes live");
     g_hMapList = CreateConVar("sm_pugsetup_maplist", "standard.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the System2 extension installed.");

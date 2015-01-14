@@ -7,23 +7,28 @@
         SetMenuTitle(menu, "%t", "SetupMenuTitle");
         SetMenuExitButton(menu, true);
 
+        int style = ITEMDRAW_DEFAULT;
+        if (g_hForceDefaults.IntValue != 0 && !IsPugAdmin(client)) {
+            style = ITEMDRAW_DISABLED;
+        }
+
         char buffer[256];
 
         // 1. team type
         char teamType[128];
         GetTeamString(teamType, sizeof(teamType), g_TeamType, lang);
         Format(buffer, sizeof(buffer), "%T: %s", "TeamTypeOption", lang, teamType);
-        AddMenuItem(menu, "teamtype", buffer);
+        AddMenuItem(menu, "teamtype", buffer, style);
 
         // 2. team size
         Format(buffer, sizeof(buffer), "%T: %d", "TeamSizeOption", lang, g_PlayersPerTeam);
-        AddMenuItem(menu, "teamsize", buffer);
+        AddMenuItem(menu, "teamsize", buffer, style);
 
         // 3. map type
         char mapType[128];
         GetMapString(mapType, sizeof(mapType), g_MapType, lang);
         Format(buffer, sizeof(buffer), "%T: %s", "MapTypeOption", lang, mapType);
-        AddMenuItem(menu, "maptype", buffer);
+        AddMenuItem(menu, "maptype", buffer, style);
 
         // 4. demo option
         char demoString[128];
@@ -33,7 +38,7 @@
             Format(demoString, sizeof(demoString), "%T", "No", lang);
 
         Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", lang, demoString);
-        AddMenuItem(menu, "demo", buffer);
+        AddMenuItem(menu, "demo", buffer, style);
 
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
