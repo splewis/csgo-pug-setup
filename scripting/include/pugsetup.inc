@@ -5,7 +5,6 @@
 
 // Different ways teams can be selected.
 enum TeamType {
-    TeamType_Unspecified = -1,
     TeamType_Manual = 0,
     TeamType_Random = 1,
     TeamType_Captains = 2
@@ -13,7 +12,6 @@ enum TeamType {
 
 // Different ways the map can be selected.
 enum MapType {
-    MapType_Unspecified = -1,
     MapType_Current = 0,
     MapType_Vote = 1,
     MapType_Veto = 2
@@ -28,10 +26,18 @@ enum Permissions {
 };
 
 /**
- * Called when the game types are read and added each map.
- * @noreturn
+ * Called when a setup menu is opened.
+ *
+ * @param client Client that did the setup menu (e.g. the leader).
+ * @param menu The menu being given to the client.
  */
-forward void OnGameTypesAdded();
+forward void OnSetupMenuOpen(int client, Menu menu);
+
+/**
+ * Called when a setup menu option is selected.
+ * You should call GiveSetupMenu to the calling client at the end of this function.
+ */
+forward void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int param2);
 
 /**
  * Called when a setup menu is finished.
@@ -104,26 +110,7 @@ forward void OnReadyToStartCheck(int readyPlayers, int totalPlayers);
 forward void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow);
 
 // Sets a game up with the given settings.
-native void SetupGame(int gameTypeIndex, TeamType teamType, MapType mapType, int playersPerTeam);
-
-// Clears all game types.
-native void ClearGameTypes();
-
-// Returns the index of a game type, or -1 if it hasn't been registered.
-native int FindGameType(const char[] name);
-
-// Adds a game type to the game type list. These are fully reset every map.
-// The choices "teamSize", "teamType", and "mapType" only affect what is shown
-// to a client going through the setup menu.
-// Note: the data in mapList will be copied, so you should close the handle to array when finished with it.
-// Returns the index of the game type.
-native int AddGameType(const char[] name,
-                       const char[] liveCfg,
-                       Handle mapList,
-                       bool showInMenu=true,
-                       int teamSize=-1,
-                       TeamType teamType=TeamType_Unspecified,
-                       MapType mapType=MapType_Unspecified);
+native void SetupGame(TeamType teamType, MapType mapType, int playersPerTeam);
 
 // Readies up a player.
 native void ReadyPlayer(int client);
@@ -192,6 +179,10 @@ native void SetRandomCaptains();
 // Adds a chat alias for a command. For example: .setup as a chat trigger for sm_setup
 native void AddChatAlias(const char[] alias, const char[] command);
 
+// Give a client the root setup menu again.
+// This is intended to be called in the OnSetupMenuSelect forward.
+native void GiveSetupMenu(int client);
+
 public SharedPlugin:__pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
@@ -205,9 +196,6 @@ public SharedPlugin:__pl_pugsetup = {
 #if !defined REQUIRE_PLUGIN
 public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetupGame");
-    MarkNativeAsOptional("ClearGameTypes");
-    MarkNativeAsOptional("AddGameType");
-    MarkNativeAsOptional("FindGameType");
     MarkNativeAsOptional("ReadyPlayer");
     MarkNativeAsOptional("UnreadyPlayer");
     MarkNativeAsOptional("IsReady");
@@ -228,13 +216,13 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("HasPermissions");
     MarkNativeAsOptional("SetRandomCaptains");
     MarkNativeAsOptional("AddChatAlias");
+    MarkNativeAsOptional("GiveSetupMenu");
 }
 #endif
 
 stock TeamType TeamTypeFromString(const char[] teamTypeString,
                                   TeamType fallback=TeamType_Captains,
-                                  bool logError=true,
-                                  bool allowUnspec=false) {
+                                  bool logError=true) {
 
     if (StrEqual(teamTypeString, "captains") || StrEqual(teamTypeString, "captain"))
         return TeamType_Captains;
@@ -242,8 +230,6 @@ stock TeamType TeamTypeFromString(const char[] teamTypeString,
         return TeamType_Manual;
     else if (StrEqual(teamTypeString, "random"))
         return TeamType_Random;
-    else if (StrEqual(teamTypeString, "unspecified") && allowUnspec)
-        return TeamType_Unspecified;
     else if (logError)
         LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\"", teamTypeString);
 
@@ -261,8 +247,6 @@ stock MapType MapTypeFromString(const char[] mapTypeString,
         return MapType_Vote;
     else if (StrEqual(mapTypeString, "veto"))
         return MapType_Veto;
-    else if (StrEqual(mapTypeString, "unspecified") && allowUnspec)
-        return MapType_Unspecified;
     else if (logError)
         LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
 

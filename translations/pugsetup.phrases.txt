@@ -4,10 +4,6 @@
 	{
 		"en"		"Setup options"
 	}
-	"GameTypeOption"
-	{
-		"en"		"Game type"
-	}
 	"MapTypeOption"
 	{
 		"en"		"Map type"
@@ -19,6 +15,10 @@
 	"TeamSizeOption"
 	{
 		"en"		"Team size"
+	}
+	"DemoOption"
+	{
+		"en"		"Record demo"
 	}
 	"VetoMessage"
 	{
@@ -78,11 +78,6 @@
 		"#format"	"{1:N}"
 		"en"		"The game has been setup by {GREEN}{1}"
 	}
-	"GameType"
-	{
-		"#format"	"{1:s}"
-		"en"		"Game type: {GREEN}{1}"
-	}
 	"TeamType"
 	{
 		"#format"	"{1:d},{2:d},{3:s}"
@@ -102,10 +97,6 @@
 	{
 		"#format"		"{1:d},{2:s}"
 		"en"		"Captain {1} will be {2}"
-	}
-	"GameTypeTitle"
-	{
-		"en"		"What game type should be used?"
 	}
 	"TeamSetupMenuTitle"
 	{
@@ -169,11 +160,11 @@
 	}
 	"Yes"
 	{
-		"en"		"Yes"
+		"en"		"yes"
 	}
 	"No"
 	{
-		"en"		"No"
+		"en"		"no"
 	}
 	"Enabled"
 	{
@@ -303,5 +294,9 @@
 	{
 		"#format"	"{1:s},{2:s},{3:s}"
 		"en"		"The {1} team won the knife round. Waiting for them to type {GREEN}{2} {NORMAL}or {GREEN}{3}"
+	}
+	"TVDisabled"
+	{
+		"en"		"GOTV is disabled, so demoes can not be recorded. Set {GREEN}tv_enable 1{NORMAL} to enable GOTV."
 	}
 }

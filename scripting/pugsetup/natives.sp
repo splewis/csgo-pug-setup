@@ -6,9 +6,6 @@
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
     CreateNative("SetupGame", Native_SetupGame);
-    CreateNative("ClearGameTypes", Native_ClearGameTypes);
-    CreateNative("FindGameType", Native_FindGameType);
-    CreateNative("AddGameType", Native_AddGameType);
     CreateNative("ReadyPlayer", Native_ReadyPlayer);
     CreateNative("UnreadyPlayer", Native_UnreadyPlayer);
     CreateNative("IsReady", Native_IsReady);
@@ -29,65 +26,16 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("HasPermissions", Native_HasPermissions);
     CreateNative("SetRandomCaptains", Native_SetRandomCaptains);
     CreateNative("AddChatAlias", Native_AddChatAlias);
+    CreateNative("GiveSetupMenu", Native_GiveSetupMenu);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
 
 public int Native_SetupGame(Handle plugin, int numParams) {
-    g_GameTypeIndex = GetNativeCell(1);
-    g_TeamType = TeamType:GetNativeCell(2);
-    g_MapType = MapType:GetNativeCell(3);
-    g_PlayersPerTeam = GetNativeCell(4);
+    g_TeamType = TeamType:GetNativeCell(1);
+    g_MapType = MapType:GetNativeCell(2);
+    g_PlayersPerTeam = GetNativeCell(3);
     SetupFinished();
-}
-
-public int Native_ClearGameTypes(Handle plugin, int numParams) {
-    ClearArray(g_GameTypes);
-    ClearArray(g_GameConfigFiles);
-    CloseNestedArray(g_GameMapLists, false);
-}
-
-public int Native_FindGameType(Handle plugin, int numParams) {
-    char name[CONFIG_STRING_LENGTH];
-    GetNativeString(1, name, sizeof(name));
-    for (int i = 0; i < g_GameTypes.Length; i++) {
-        char buffer[CONFIG_STRING_LENGTH];
-        g_GameTypes.GetString(i, buffer, sizeof(buffer));
-        if (StrEqual(name, buffer, false)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-public int Native_AddGameType(Handle plugin, int numParams) {
-    char name[CONFIG_STRING_LENGTH];
-    char liveCfg[CONFIG_STRING_LENGTH];
-
-    GetNativeString(1, name, sizeof(name));
-    GetNativeString(2, liveCfg, sizeof(liveCfg));
-    Handle mapList = CloneArray(Handle:GetNativeCell(3));
-    bool showInMenu = GetNativeCell(4);
-    int teamSize = GetNativeCell(5);
-    TeamType teamType = TeamType:GetNativeCell(6);
-    MapType mapType = MapType:GetNativeCell(7);
-
-    // Check for existence of live cfg
-    char path[PLATFORM_MAX_PATH];
-    Format(path, sizeof(path), "cfg/%s", liveCfg);
-    if (!FileExists(path)) {
-        LogError("Gametype \"%s\" uses non-existent live cfg: \"%s\"", name, liveCfg);
-    }
-
-    g_GameTypes.PushString(name);
-    g_GameConfigFiles.PushString(liveCfg);
-    g_GameMapLists.Push(mapList);
-    g_GameTypeHidden.Push(!showInMenu);
-    g_GameTypeTeamSize.Push(teamSize);
-    g_GameTypeTeamTypes.Push(teamType);
-    g_GameTypeMapTypes.Push(mapType);
-
-    return g_GameTypes.Length - 1;
 }
 
 public int Native_ReadyPlayer(Handle plugin, int numParams) {
@@ -354,4 +302,10 @@ public int Native_AddChatAlias(Handle plugin, int numParams) {
         g_ChatAliases.PushString(alias);
         g_ChatAliasesCommands.PushString(command);
     }
+}
+
+public int Native_GiveSetupMenu(Handle plugin, int numParams) {
+    int client = GetNativeCell(1);
+    CHECK_CLIENT(client);
+    SetupMenu(client);
 }

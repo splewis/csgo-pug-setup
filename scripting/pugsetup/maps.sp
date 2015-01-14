@@ -1,30 +1,30 @@
 public void ChangeMap() {
     char map[PLATFORM_MAX_PATH];
-    GetArrayString(GetCurrentMapList(), g_ChosenMap, map, sizeof(map));
+    GetArrayString(g_MapList, g_ChosenMap, map, sizeof(map));
     PugSetupMessageToAll("Changing map to {GREEN}%s{NORMAL}...", map);
     CreateTimer(3.0, Timer_DelayedChangeMap);
 }
 
 public Action Timer_DelayedChangeMap(Handle timer) {
     char map[PLATFORM_MAX_PATH];
-    GetArrayString(GetCurrentMapList(), g_ChosenMap, map, sizeof(map));
+    GetArrayString(g_MapList, g_ChosenMap, map, sizeof(map));
     g_mapSet = true;
     ServerCommand("changelevel %s", map);
     return Plugin_Handled;
 }
 
-public void AddBackupMaps(ArrayList array) {
-    AddMap("de_cache", array);
-    AddMap("de_dust2", array);
-    AddMap("de_inferno", array);
-    AddMap("de_mirage", array);
-    AddMap("de_nuke", array);
-    AddMap("de_overpass", array);
-    AddMap("de_season", array);
-    AddMap("de_train", array);
+public void AddBackupMaps() {
+    AddMap("de_cache");
+    AddMap("de_dust2");
+    AddMap("de_inferno");
+    AddMap("de_mirage");
+    AddMap("de_nuke");
+    AddMap("de_overpass");
+    AddMap("de_season");
+    AddMap("de_train");
 }
 
-public void GetMapList(const char[] fileName, ArrayList array) {
+public void GetMapList(const char[] fileName) {
     char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", fileName);
 
@@ -35,20 +35,20 @@ public void GetMapList(const char[] fileName, ArrayList array) {
         char mapName[PLATFORM_MAX_PATH];
         while (!file.EndOfFile() && file.ReadLine(mapName, sizeof(mapName))) {
             TrimString(mapName);
-            AddMap(mapName, array);
+            AddMap(mapName);
         }
         delete file;
     }
 }
 
-public void AddMap(const char[] mapName, ArrayList array) {
+public void AddMap(const char[] mapName) {
     bool isComment = strlen(mapName) >= 2 && mapName[0] == '/' && mapName[1] == '/';
     if (strlen(mapName) <= 2 || isComment) {
         return;
     }
 
     // only add valid maps and non-duplicate maps
-    if (IsMapValid(mapName) && array.FindString(mapName) == -1) {
-        array.PushString(mapName);
+    if (IsMapValid(mapName) && g_MapList.FindString(mapName) == -1) {
+        g_MapList.PushString(mapName);
     }
 }

@@ -15,22 +15,17 @@
 /*
  * Sends an API call for steam to fetch the maps inside a collection.
  */
-stock void UpdateWorkshopCache(const char[] collectionID, int gameTypeIndex) {
+stock void UpdateWorkshopCache(int collectionID) {
     // Build URL
     char request[MAX_URL_LEN];
     char data[MAX_POST_LEN];
 
     Format(request, MAX_URL_LEN, "%s",
         "http://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/");
-    Format(data, MAX_POST_LEN, "collectioncount=1&publishedfileids%%5B0%%5D=%s&format=vdf", collectionID);
-
-    // Attach ID to keep track of response
-    Handle pack = CreateDataPack();
-    WritePackString(pack, collectionID);
-    WritePackCell(pack, gameTypeIndex);
+    Format(data, MAX_POST_LEN, "collectioncount=1&publishedfileids%%5B0%%5D=%d&format=vdf", collectionID);
 
     if (SYSTEM2_AVAILABLE()) {
-        System2_GetPage(OnGetPageComplete, request, data, WAPI_USERAGENT, pack);
+        System2_GetPage(OnGetPageComplete, request, data, WAPI_USERAGENT, collectionID);
     } else {
         LogError("You have the system2 extension installed to use workshop collections.");
     }
@@ -39,33 +34,23 @@ stock void UpdateWorkshopCache(const char[] collectionID, int gameTypeIndex) {
 /*
  * Gets called when response is received.
  */
-public OnGetPageComplete(const char[] output, const int size, CMDReturn status, any:data) {
-    // Get associated ID
-    char id[MAX_ID_LEN];
-    ResetPack(data);
-    ReadPackString(data, id, sizeof(id));
-    int gameTypeIndex = ReadPackCell(data);
-
+public OnGetPageComplete(const char[] output, const int size, CMDReturn status, int collectionID) {
     // Handle error condition
     if (status == CMD_ERROR) {
-        PrintToServer("Steam API error: couldn't fetch data for collection ID %s", id);
-        CloseHandle(data);
-        AddWorkshopMapsToList(id, gameTypeIndex);
+        PrintToServer("Steam API error: couldn't fetch data for collection ID %d", collectionID);
+        AddWorkshopMapsToList(collectionID);
         return;
     }
 
-    char filePath[PLATFORM_MAX_PATH];
-    Format(filePath, sizeof(filePath), "%s/%s.txt", g_DataDir, id);
 
     // Interpret response status
     switch (status) {
         case CMD_SUCCESS:
         {
-            PrintToServer("Successfully received file details for ID %s", id);
-
+            PrintToServer("Successfully received file details for ID %d", collectionID);
             KeyValues kv = new KeyValues("response");
             if (kv.ImportFromString(output)) {
-                WriteCollectionInfo(kv, id);
+                WriteCollectionInfo(kv, collectionID);
             } else {
                 LogError("failed import kv response:\n%s", output);
             }
@@ -73,11 +58,10 @@ public OnGetPageComplete(const char[] output, const int size, CMDReturn status, 
         }
     }
 
-    CloseHandle(data);
-    AddWorkshopMapsToList(id, gameTypeIndex);
+    AddWorkshopMapsToList(collectionID);
 }
 
-stock void WriteCollectionInfo(KeyValues kv, const char[] collectionId) {
+stock void WriteCollectionInfo(KeyValues kv, int collectionID) {
     if (kv.JumpToKey("collectiondetails") && kv.JumpToKey("0") && kv.JumpToKey("children")) {
         kv.GotoFirstSubKey();
 
@@ -87,16 +71,19 @@ stock void WriteCollectionInfo(KeyValues kv, const char[] collectionId) {
             char mapId[64];
             kv.GetString("publishedfileid", mapId, sizeof(mapId));
 
+            char strID[128];
+            Format(strID, sizeof(strID), "%d", collectionID);
+
             if (!StrEqual(mapId, "")) {
                 g_WorkshopCache.Rewind();
                 g_WorkshopCache.JumpToKey("collections", true);
-                g_WorkshopCache.JumpToKey(collectionId, true);
+                g_WorkshopCache.JumpToKey(strID, true);
                 g_WorkshopCache.SetString(mapId, "x");
                 g_WorkshopCache.Rewind();
                 AddMapByID(mapId);
 
             } else {
-                LogError("Failed to add map %d to collection %s inside the workshop cache", mapId, collectionId);
+                LogError("Failed to add map %d to collection %d inside the workshop cache", mapId, collectionID);
             }
 
         } while (kv.GotoNextKey());
@@ -152,13 +139,16 @@ static void AddMapByID(const char[] mapId) {
     }
 }
 
-static void AddWorkshopMapsToList(const char[] collectionId, int gameTypeIndex) {
+static void AddWorkshopMapsToList(int collectionID) {
     // first get all the map ids for this colelction into a list
     ArrayList mapIds = CreateArray(64);
 
+    char strID[128];
+    Format(strID, sizeof(strID), "%d", collectionID);
+
     g_WorkshopCache.Rewind();
     g_WorkshopCache.JumpToKey("collections", true);
-    g_WorkshopCache.JumpToKey(collectionId, true);
+    g_WorkshopCache.JumpToKey(strID, true);
     g_WorkshopCache.GotoFirstSubKey(false);
 
     char mapId[64];
@@ -177,8 +167,7 @@ static void AddWorkshopMapsToList(const char[] collectionId, int gameTypeIndex) 
     for (int i = 0; i < mapIds.Length; i++) {
         mapIds.GetString(i, mapId, sizeof(mapId));
         g_WorkshopCache.GetString(mapId, mapName, sizeof(mapName));
-        ArrayList maps = ArrayList:GetArrayCell(g_GameMapLists, gameTypeIndex);
-        AddMap(mapName, maps);
+        AddMap(mapName);
     }
 
     g_WorkshopCache.Rewind();
