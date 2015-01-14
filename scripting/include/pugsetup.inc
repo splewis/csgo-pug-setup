@@ -5,7 +5,6 @@
 
 // Different ways teams can be selected.
 enum TeamType {
-    TeamType_Unspecified = -1,
     TeamType_Manual = 0,
     TeamType_Random = 1,
     TeamType_Captains = 2
@@ -13,7 +12,6 @@ enum TeamType {
 
 // Different ways the map can be selected.
 enum MapType {
-    MapType_Unspecified = -1,
     MapType_Current = 0,
     MapType_Vote = 1,
     MapType_Veto = 2
@@ -224,8 +222,7 @@ public __pl_pugsetup_SetNTVOptional() {
 
 stock TeamType TeamTypeFromString(const char[] teamTypeString,
                                   TeamType fallback=TeamType_Captains,
-                                  bool logError=true,
-                                  bool allowUnspec=false) {
+                                  bool logError=true) {
 
     if (StrEqual(teamTypeString, "captains") || StrEqual(teamTypeString, "captain"))
         return TeamType_Captains;
@@ -233,8 +230,6 @@ stock TeamType TeamTypeFromString(const char[] teamTypeString,
         return TeamType_Manual;
     else if (StrEqual(teamTypeString, "random"))
         return TeamType_Random;
-    else if (StrEqual(teamTypeString, "unspecified") && allowUnspec)
-        return TeamType_Unspecified;
     else if (logError)
         LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\"", teamTypeString);
 
@@ -252,8 +247,6 @@ stock MapType MapTypeFromString(const char[] mapTypeString,
         return MapType_Vote;
     else if (StrEqual(mapTypeString, "veto"))
         return MapType_Veto;
-    else if (StrEqual(mapTypeString, "unspecified") && allowUnspec)
-        return MapType_Unspecified;
     else if (logError)
         LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
 
