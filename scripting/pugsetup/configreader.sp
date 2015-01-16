@@ -34,4 +34,6 @@ public void SetConfigDefaults() {
     g_RecordGameOption = (g_hDefaultRecord.IntValue != 0);
 
     g_PlayersPerTeam = g_hDefaultTeamSize.IntValue;
+
+    g_DoKnifeRound = (g_hDefaultKnifeRounds.IntValue != 0);
 }

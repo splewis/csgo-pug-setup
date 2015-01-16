@@ -32,13 +32,15 @@
 
         // 4. demo option
         char demoString[128];
-        if (g_RecordGameOption)
-            Format(demoString, sizeof(demoString), "%T", "Yes", lang);
-        else
-            Format(demoString, sizeof(demoString), "%T", "No", lang);
-
+        GetEnabledString(demoString, sizeof(demoString), g_RecordGameOption, lang);
         Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", lang, demoString);
         AddMenuItem(menu, "demo", buffer, style);
+
+        // 5. knife round option
+        char knifeString[128];
+        GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, lang);
+        Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", lang, knifeString);
+        AddMenuItem(menu, "knife", buffer, style);
 
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
@@ -56,12 +58,19 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         if (StrEqual(buffer, "maptype")) {
             MapTypeMenu(client);
+
         } else if (StrEqual(buffer, "teamtype")) {
             TeamTypeMenu(client);
+
         } else if (StrEqual(buffer, "teamsize")) {
             TeamSizeMenu(client);
+
         } else if (StrEqual(buffer, "demo")) {
             DemoHandler(client);
+
+        } else if (StrEqual(buffer, "knife")) {
+            g_DoKnifeRound = !g_DoKnifeRound;
+            SetupMenu(client);
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);

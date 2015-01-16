@@ -32,6 +32,7 @@ ConVar g_hAutoRandomizeCaptains;
 ConVar g_hAutoSetup;
 ConVar g_hAutoUpdate;
 ConVar g_hCvarVersion;
+ConVar g_hDefaultKnifeRounds;
 ConVar g_hDefaultMapType;
 ConVar g_hDefaultRecord;
 ConVar g_hDefaultTeamSize;
@@ -41,7 +42,6 @@ ConVar g_hDemoTimeFormat;
 ConVar g_hExcludeSpectators;
 ConVar g_hExecDefaultConfig;
 ConVar g_hForceDefaults;
-ConVar g_hKnifeRounds;
 ConVar g_hLiveCfg;
 ConVar g_hMapList;
 ConVar g_hMapVoteTime;
@@ -64,6 +64,7 @@ int g_PlayersPerTeam = 5;
 TeamType g_TeamType;
 MapType g_MapType;
 bool g_RecordGameOption;
+bool g_DoKnifeRound;
 bool g_SetDefaultConfig = false;
 
 // Other important variables about the state of the game
@@ -160,6 +161,7 @@ public void OnPluginStart() {
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not");
     g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
+    g_hDefaultKnifeRounds = CreateConVar("sm_pugsetup_default_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
     g_hDefaultMapType = CreateConVar("sm_pugsetup_default_maptype", "vote", "Default team type to use. Allowed values: \"vote\", \"veto\", \"current\"");
     g_hDefaultRecord = CreateConVar("sm_pugsetup_autorecord", "0", "Default value for recording demoes each game, requries tv_enable 1 to work");
     g_hDefaultTeamSize = CreateConVar("sm_pugsetup_default_teamsize", "5", "Default number of players per team, can be changed in the .setup menu");
@@ -169,7 +171,6 @@ public void OnPluginStart() {
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains, as well.");
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_hForceDefaults = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options");
-    g_hKnifeRounds = CreateConVar("sm_pugsetup_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/standard.cfg", "Config to execute when the game goes live");
     g_hMapList = CreateConVar("sm_pugsetup_maplist", "standard.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the System2 extension installed.");
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
@@ -888,12 +889,13 @@ public void PrintSetupInfo(int client) {
     if (IsPlayer(GetLeader()))
         PugSetupMessage(client, "%t", "SetupBy", GetLeader());
 
+    int lang = GetClientLanguage(client);
     char buffer[128];
 
-    GetTeamString(buffer, sizeof(buffer), g_TeamType, GetClientLanguage(client));
+    GetTeamString(buffer, sizeof(buffer), g_TeamType, lang);
     PugSetupMessage(client, "%t", "TeamType", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
 
-    GetMapString(buffer, sizeof(buffer), g_MapType, GetClientLanguage(client));
+    GetMapString(buffer, sizeof(buffer), g_MapType, lang);
     PugSetupMessage(client, "%t", "MapType", buffer);
 }
 
@@ -971,7 +973,7 @@ public void StartGame() {
         ServerCommand("mp_scrambleteams");
     }
 
-    if (g_hKnifeRounds.IntValue != 0) {
+    if (g_DoKnifeRound) {
         ExecGameConfigs();
         CreateTimer(3.0, StartKnifeRound, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {

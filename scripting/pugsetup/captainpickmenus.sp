@@ -3,7 +3,7 @@
 int g_PickCounter = 0;
 
 public void InitialChoiceMenu(int client) {
-    if (GetConVarInt(g_hKnifeRounds) == 0) {
+    if (!g_DoKnifeRound) {
         // if no knife rounds, they get to choose between side/1st pick
         g_PickingPlayers = true;
         Menu menu = new Menu(InitialChoiceHandler);
