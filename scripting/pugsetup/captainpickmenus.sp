@@ -114,9 +114,9 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
 public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        int selected = GetMenuInt(menu, param2);
+        int selected = GetClientFromSerial(GetMenuInt(menu, param2));
 
-        if (selected > 0) {
+        if (IsPlayer(selected)) {
             g_Teams[selected] = g_Teams[client];
             SwitchPlayerTeam(selected, g_Teams[client]);
 
@@ -193,7 +193,7 @@ static int AddPlayersToMenu(Menu menu) {
     for (int client = 1; client <= MaxClients; client++) {
         if (IsValidClient(client) && !IsFakeClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && g_Ready[client]) {
             GetClientName(client, name, sizeof(name));
-            AddMenuInt(menu, client, name);
+            AddMenuInt(menu, GetClientSerial(client), name);
             count++;
         }
     }
