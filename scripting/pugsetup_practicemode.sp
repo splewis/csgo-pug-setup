@@ -55,6 +55,10 @@ public bool OnSetupMenuOpen(int client, Menu menu) {
     }
 }
 
+public void OnReadyToStart() {
+    DisablePracticeMode();
+}
+
 public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int param2) {
     int client = param1;
     char buffer[64];
@@ -62,6 +66,9 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
     if (StrEqual(buffer, "launch_practice")) {
         g_InPracticeMode = !g_InPracticeMode;
         if (g_InPracticeMode) {
+            // TODO: I'm not sure if it's possible to force
+            // set cheat-protected cvars without this,
+            // it'd be nice if it was so this isn't needed.
             SetCvar("sv_cheats", 1);
 
             if (g_Respawning)
@@ -130,13 +137,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
         APPLY_TOGGLE("Show bullet impacts", g_ShowImpacts, EnableShowImpacts, DisableShowImpacts)
 
         if (StrEqual(buffer, "end_menu")) {
-            DisableRespawns();
-            DisableInfAmmo();
-            DisableRoundEndBlock();
-            DisableBuyAnywhere();
-            DisableShowImpacts();
-            SetCvar("sv_cheats", 0);
-            g_InPracticeMode = false;
+            DisablePracticeMode();
             GiveSetupMenu(client);
         }
 
@@ -145,6 +146,16 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
     }
 
     return 0;
+}
+
+public void DisablePracticeMode() {
+    DisableRespawns();
+    DisableInfAmmo();
+    DisableRoundEndBlock();
+    DisableBuyAnywhere();
+    DisableShowImpacts();
+    SetCvar("sv_cheats", 0);
+    g_InPracticeMode = false;
 }
 
 static void SetCvar(const char[] name, int value) {

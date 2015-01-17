@@ -121,6 +121,7 @@ Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnNotPicked = INVALID_HANDLE;
 Handle g_hOnPermissionCheck = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
+Handle g_hOnReadyToStart = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnSetupMenuOpen = INVALID_HANDLE;
 Handle g_hOnSetupMenuSelect = INVALID_HANDLE;
@@ -230,6 +231,7 @@ public void OnPluginStart() {
     HookEvent("round_end", Event_RoundEnd);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
+    g_hOnReadyToStart = CreateGlobalForward("OnReadyToStart", ET_Ignore);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
     g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
@@ -917,6 +919,9 @@ public void PrintSetupInfo(int client) {
 
 public void ReadyToStart() {
     g_InStartPhase = true;
+    Call_StartForward(g_hOnReadyToStart);
+    Call_Finish();
+
     g_CountDownTicks = g_hStartDelay.IntValue;
     CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }

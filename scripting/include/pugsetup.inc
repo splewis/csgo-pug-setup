@@ -68,6 +68,12 @@ forward void OnReady(int client);
 forward void OnUnready(int client);
 
 /**
+ * Called when the match is ready to begin, for example
+ * when all players are ready and the captains are now picking players.
+ */
+forward void OnReadyToStart();
+
+/**
  * Called when the going-live process begins, before the lo3.
  */
 forward void OnGoingLive();
