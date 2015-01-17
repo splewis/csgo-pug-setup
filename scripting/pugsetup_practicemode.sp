@@ -45,6 +45,10 @@ public void OnPluginStart() {
     g_InPracticeMode = false;
 }
 
+public void OnMapEnd() {
+    DisablePracticeMode();
+}
+
 public bool OnSetupMenuOpen(int client, Menu menu) {
     if (g_InPracticeMode) {
         GivePracticeMenu(client);
