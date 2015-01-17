@@ -30,8 +30,9 @@ enum Permissions {
  *
  * @param client Client that did the setup menu (e.g. the leader).
  * @param menu The menu being given to the client.
+ * @return Whether to display the menu to the client or not.
  */
-forward void OnSetupMenuOpen(int client, Menu menu);
+forward bool OnSetupMenuOpen(int client, Menu menu);
 
 /**
  * Called when a setup menu option is selected.

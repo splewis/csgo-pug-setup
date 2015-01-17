@@ -42,12 +42,21 @@
         Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", lang, knifeString);
         AddMenuItem(menu, "knife", buffer, style);
 
+        char finishSetupStr[128];
+        Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", lang);
+        AddMenuItem(menu, "finish_setup", finishSetupStr);
+
+        bool showMenu = true;
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
         Call_PushCell(menu);
-        Call_Finish();
+        Call_Finish(showMenu);
 
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+        if (showMenu) {
+            DisplayMenu(menu, client, MENU_TIME_FOREVER);
+        } else {
+            CloseHandle(menu);
+        }
 }
 
 public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
@@ -71,6 +80,9 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         } else if (StrEqual(buffer, "knife")) {
             g_DoKnifeRound = !g_DoKnifeRound;
             SetupMenu(client);
+
+        } else if (StrEqual(buffer, "finish_setup")) {
+            SetupFinished();
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);
@@ -82,9 +94,6 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
-        if (!g_Setup && param1 == MenuEnd_Exit) {
-            SetupFinished();
-        }
     }
 }
 
