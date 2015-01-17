@@ -32,6 +32,8 @@ public void SetConfigDefaults() {
     g_TeamType = TeamTypeFromString(buffer);
 
     g_RecordGameOption = (g_hDefaultRecord.IntValue != 0);
+    if (!IsTVEnabled())
+        g_RecordGameOption = false;
 
     g_PlayersPerTeam = g_hDefaultTeamSize.IntValue;
 

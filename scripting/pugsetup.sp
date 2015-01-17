@@ -47,6 +47,11 @@ ConVar g_hMapList;
 ConVar g_hMapVoteTime;
 ConVar g_hMessagePrefix;
 ConVar g_hMutualUnpause;
+ConVar g_hOptionKnifeRounds;
+ConVar g_hOptionMapType;
+ConVar g_hOptionRecord;
+ConVar g_hOptionTeamSize;
+ConVar g_hOptionTeamType;
 ConVar g_hQuickRestarts;
 ConVar g_hRandomizeMapOrder;
 ConVar g_hRequireAdminToSetup;
@@ -161,11 +166,14 @@ public void OnPluginStart() {
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not");
     g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
+
+    // Setup options defaults
     g_hDefaultKnifeRounds = CreateConVar("sm_pugsetup_default_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
     g_hDefaultMapType = CreateConVar("sm_pugsetup_default_maptype", "vote", "Default team type to use. Allowed values: \"vote\", \"veto\", \"current\"");
     g_hDefaultRecord = CreateConVar("sm_pugsetup_autorecord", "0", "Default value for recording demoes each game, requries tv_enable 1 to work");
     g_hDefaultTeamSize = CreateConVar("sm_pugsetup_default_teamsize", "5", "Default number of players per team, can be changed in the .setup menu");
     g_hDefaultTeamType = CreateConVar("sm_pugsetup_default_teamtype", "captains", "What team type to use. Allowed values: \"captains\", \"manual\", and \"random\"");
+
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains, as well.");
@@ -176,6 +184,14 @@ public void OnPluginStart() {
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you should use an single space \" \" to ensure colors work correctly");
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this cvar will let anybody use the !unpause command.");
+
+    // Whether setup options are shown
+    g_hOptionKnifeRounds = CreateConVar("sm_pugsetup_knife_rounds_option", "1", "Whether the knife round option is displayed in the setup menu or the default is always used");
+    g_hOptionMapType = CreateConVar("sm_pugsetup_maptype_option", "1", "Whether the map type option is displayed in the setup menu or the default is always used");
+    g_hOptionRecord = CreateConVar("sm_pugsetup_autorecord_option", "0", "Whether the record demooption is displayed in the setup menu or the default is always used");
+    g_hOptionTeamSize = CreateConVar("sm_pugsetup_teamsize_option", "1", "Whether the teamsize option is displayed in the setup menu or the default is always used");
+    g_hOptionTeamType = CreateConVar("sm_pugsetup_teamtype_option", "1", "Whether the teamtype option is displayed in the setup menu or the default is always used");
+
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the sm_pugsetup_admin_flag flag to use the .setup command.");

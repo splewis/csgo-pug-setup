@@ -15,32 +15,42 @@
         char buffer[256];
 
         // 1. team type
-        char teamType[128];
-        GetTeamString(teamType, sizeof(teamType), g_TeamType, lang);
-        Format(buffer, sizeof(buffer), "%T: %s", "TeamTypeOption", lang, teamType);
-        AddMenuItem(menu, "teamtype", buffer, style);
+        if (g_hOptionTeamType.IntValue != 0) {
+            char teamType[128];
+            GetTeamString(teamType, sizeof(teamType), g_TeamType, lang);
+            Format(buffer, sizeof(buffer), "%T: %s", "TeamTypeOption", lang, teamType);
+            AddMenuItem(menu, "teamtype", buffer, style);
+        }
 
         // 2. team size
-        Format(buffer, sizeof(buffer), "%T: %d", "TeamSizeOption", lang, g_PlayersPerTeam);
-        AddMenuItem(menu, "teamsize", buffer, style);
+        if (g_hOptionTeamSize.IntValue != 0) {
+            Format(buffer, sizeof(buffer), "%T: %d", "TeamSizeOption", lang, g_PlayersPerTeam);
+            AddMenuItem(menu, "teamsize", buffer, style);
+        }
 
         // 3. map type
-        char mapType[128];
-        GetMapString(mapType, sizeof(mapType), g_MapType, lang);
-        Format(buffer, sizeof(buffer), "%T: %s", "MapTypeOption", lang, mapType);
-        AddMenuItem(menu, "maptype", buffer, style);
+        if (g_hOptionMapType.IntValue != 0) {
+            char mapType[128];
+            GetMapString(mapType, sizeof(mapType), g_MapType, lang);
+            Format(buffer, sizeof(buffer), "%T: %s", "MapTypeOption", lang, mapType);
+            AddMenuItem(menu, "maptype", buffer, style);
+        }
 
         // 4. demo option
-        char demoString[128];
-        GetEnabledString(demoString, sizeof(demoString), g_RecordGameOption, lang);
-        Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", lang, demoString);
-        AddMenuItem(menu, "demo", buffer, style);
+        if (g_hOptionRecord.IntValue != 0) {
+            char demoString[128];
+            GetEnabledString(demoString, sizeof(demoString), g_RecordGameOption, lang);
+            Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", lang, demoString);
+            AddMenuItem(menu, "demo", buffer, style);
+        }
 
         // 5. knife round option
-        char knifeString[128];
-        GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, lang);
-        Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", lang, knifeString);
-        AddMenuItem(menu, "knife", buffer, style);
+        if (g_hOptionKnifeRounds.IntValue != 0) {
+            char knifeString[128];
+            GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, lang);
+            Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", lang, knifeString);
+            AddMenuItem(menu, "knife", buffer, style);
+        }
 
         char finishSetupStr[128];
         Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", lang);
