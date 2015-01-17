@@ -32,7 +32,18 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_InPracticeMode = false;
     AddChatAlias(".noclip", "noclip");
+}
 
+public void OnMapStart() {
+    ReadPracticeSettings();
+}
+
+public void OnMapEnd() {
+    DisablePracticeMode();
+    ClearPracticeSettings();
+}
+
+public void ReadPracticeSettings() {
     g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
     g_BinaryOptionEnabled = new ArrayList();
     g_BinaryOptionEnabledCvars = new ArrayList();
@@ -40,10 +51,6 @@ public void OnPluginStart() {
     g_BinaryOptionDisabledCvars = new ArrayList();
     g_BinaryOptionDisabledValues = new ArrayList();
 
-    ReadPracticeSettings();
-}
-
-public void ReadPracticeSettings() {
     char filePath[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, filePath, sizeof(filePath), "configs/pugsetup/practicemode.cfg");
 
@@ -120,8 +127,20 @@ public void ReadPracticeSettings() {
     delete kv;
 }
 
-public void OnMapEnd() {
-    DisablePracticeMode();
+public void ClearPracticeSettings() {
+    CloseHandle(g_BinaryOptionNames);
+    CloseNestedArray(g_BinaryOptionEnabled);
+    CloseNestedArray(g_BinaryOptionEnabledCvars);
+    CloseNestedArray(g_BinaryOptionEnabledValues);
+    CloseNestedArray(g_BinaryOptionDisabledCvars);
+    CloseNestedArray(g_BinaryOptionDisabledValues);
+
+    g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
+    g_BinaryOptionEnabled = new ArrayList();
+    g_BinaryOptionEnabledCvars = new ArrayList();
+    g_BinaryOptionEnabledValues = new ArrayList();
+    g_BinaryOptionDisabledCvars = new ArrayList();
+    g_BinaryOptionDisabledValues = new ArrayList();
 }
 
 public bool OnSetupMenuOpen(int client, Menu menu) {
