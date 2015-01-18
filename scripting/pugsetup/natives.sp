@@ -307,5 +307,6 @@ public int Native_AddChatAlias(Handle plugin, int numParams) {
 public int Native_GiveSetupMenu(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
-    SetupMenu(client);
+    bool displayOnly = GetNativeCell(2);
+    SetupMenu(client, displayOnly);
 }

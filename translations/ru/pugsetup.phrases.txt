@@ -52,14 +52,6 @@
 	{
 		"ru"		"Параметры матча установил {GREEN}{1}"
 	}
-	"TeamType"
-	{
-		"ru"		"Команды: ({GREEN}{1} vs {2}) {GREEN}{3}"
-	}
-	"MapType"
-	{
-		"ru"		"Карта: {GREEN}{1}"
-	}
 	"NewLeader"
 	{
 		"ru"		"Новый лидер матча: {GREEN}{1}"

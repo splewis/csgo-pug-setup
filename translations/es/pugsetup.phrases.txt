@@ -52,14 +52,6 @@
 	{
 		"es"		"{GREEN}{1}{NORMAL} ha configurado el juego"
 	}
-	"TeamType"
-	{
-		"es"		"Equipos: ({GREEN}{1} vs {2}) {GREEN}{3}"
-	}
-	"MapType"
-	{
-		"es"		"Mapa: {GREEN}{1}"
-	}
 	"NewLeader"
 	{
 		"es"		"El nuevo lider es {GREEN}{1}"

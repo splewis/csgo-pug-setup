@@ -498,7 +498,7 @@ public Action Command_Setup(int client, int args) {
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
-    SetupMenu(client);
+    GiveSetupMenu(client);
     return Plugin_Handled;
 }
 
@@ -907,14 +907,7 @@ public void PrintSetupInfo(int client) {
     if (IsPlayer(GetLeader()))
         PugSetupMessage(client, "%t", "SetupBy", GetLeader());
 
-    int lang = GetClientLanguage(client);
-    char buffer[128];
-
-    GetTeamString(buffer, sizeof(buffer), g_TeamType, lang);
-    PugSetupMessage(client, "%t", "TeamType", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
-
-    GetMapString(buffer, sizeof(buffer), g_MapType, lang);
-    PugSetupMessage(client, "%t", "MapType", buffer);
+    GiveSetupMenu(client, true);
 }
 
 public void ReadyToStart() {

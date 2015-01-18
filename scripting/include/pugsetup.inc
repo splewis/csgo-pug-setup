@@ -188,7 +188,7 @@ native void AddChatAlias(const char[] alias, const char[] command);
 
 // Give a client the root setup menu again.
 // This is intended to be called in the OnSetupMenuSelect forward.
-native void GiveSetupMenu(int client);
+native void GiveSetupMenu(int client, bool displayOnly=false);
 
 public SharedPlugin:__pl_pugsetup = {
     name = "pugsetup",

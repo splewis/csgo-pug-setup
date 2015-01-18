@@ -78,16 +78,6 @@
 		"#format"	"{1:N}"
 		"en"		"The game has been setup by {GREEN}{1}"
 	}
-	"TeamType"
-	{
-		"#format"	"{1:d},{2:d},{3:s}"
-		"en"		"Teams: ({GREEN}{1} vs {2}) {GREEN}{3}"
-	}
-	"MapType"
-	{
-		"#format"	"{1:s}"
-		"en"		"Map: {GREEN}{1}"
-	}
 	"NewLeader"
 	{
 		"#format"		"{1:N}"
@@ -306,5 +296,9 @@
 	"FinishSetup"
 	{
 		"en"		"Finish setup"
+	}
+	"CancelSetup"
+	{
+		"en"		"Cancel setup"
 	}
 }

@@ -1,14 +1,14 @@
 /**
  * Main .setup menu
  */
- public void SetupMenu(int client) {
+ public void SetupMenu(int client, bool displayOnly) {
         int lang = GetClientLanguage(client);
         Menu menu = new Menu(SetupMenuHandler);
         SetMenuTitle(menu, "%t", "SetupMenuTitle");
         SetMenuExitButton(menu, true);
 
         int style = ITEMDRAW_DEFAULT;
-        if (g_hForceDefaults.IntValue != 0 && !IsPugAdmin(client)) {
+        if ((g_hForceDefaults.IntValue != 0 && !IsPugAdmin(client)) || displayOnly) {
             style = ITEMDRAW_DISABLED;
         }
 
@@ -52,9 +52,15 @@
             AddMenuItem(menu, "knife", buffer, style);
         }
 
-        char finishSetupStr[128];
-        Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", lang);
-        AddMenuItem(menu, "finish_setup", finishSetupStr);
+        if (!g_Setup) {
+            char finishSetupStr[128];
+            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", lang);
+            AddMenuItem(menu, "finish_setup", finishSetupStr);
+        } else  {
+            char finishSetupStr[128];
+            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "CancelSetup", lang);
+            AddMenuItem(menu, "cancel_setup", finishSetupStr);
+        }
 
         bool showMenu = true;
         Call_StartForward(g_hOnSetupMenuOpen);
@@ -89,10 +95,13 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "knife")) {
             g_DoKnifeRound = !g_DoKnifeRound;
-            SetupMenu(client);
+            GiveSetupMenu(client);
 
         } else if (StrEqual(buffer, "finish_setup")) {
             SetupFinished();
+
+        } else if (StrEqual(buffer, "cancel_setup")) {
+            EndMatch(true);
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);
@@ -122,7 +131,7 @@ public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int par
     if (action == MenuAction_Select) {
         int client = param1;
         g_TeamType = TeamType:GetMenuInt(menu, param2);
-        SetupMenu(client);
+        GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -143,7 +152,7 @@ public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2)
     if (action == MenuAction_Select) {
         int client = param1;
         g_PlayersPerTeam = GetMenuInt(menu, param2);
-        SetupMenu(client);
+        GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -174,7 +183,7 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
             default: LogError("unknown maptype=%d", g_MapType);
         }
 
-        SetupMenu(client);
+        GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -186,7 +195,7 @@ public int DemoHandler(int client) {
         PugSetupMessage(client, "%t", "TVDisabled");
         g_RecordGameOption = false;
     }
-    SetupMenu(client);
+    GiveSetupMenu(client);
 }
 
 /**
@@ -197,8 +206,9 @@ public void SetupFinished() {
     g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
 
+    int leader = GetLeader();
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i)) {
+        if (IsPlayer(i) && i != leader) {
             UnreadyPlayer(i);
             PrintSetupInfo(i);
         }
