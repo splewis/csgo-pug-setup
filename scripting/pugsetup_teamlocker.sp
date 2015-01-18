@@ -29,9 +29,15 @@ public Action Command_TeamJoin(int client, const char[] command, argc) {
     if (!IsValidClient(client))
         return Plugin_Handled;
 
-    bool live = IsMatchLive() || IsPendingStart();
+    if (g_hLockTeamsEnabled.IntValue == 0)
+        return Plugin_Continue;
 
-    if (g_hLockTeamsEnabled.IntValue == 0 || !live)
+    // blocks changes during team-selection/lo3-process
+    if (IsPendingStart())
+        return Plugin_Handled;
+
+    // don't do anything if not live/not in startup phase
+    if (!IsMatchLive())
         return Plugin_Continue;
 
     char arg[4];
