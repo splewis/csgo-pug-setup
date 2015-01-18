@@ -68,6 +68,7 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 - ``pugsetup_hostname``: adds some tags to the server hostname depending on the pug status, examples: "[LIVE]" and "[NEED 3]"
 - ``pugsetup_rwsbalancer``: implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual/random teams
 - ``pugsetup_chatmoney``: prints out the team members' money to chat on round starts
+- ``pugsetup_practicemode``: adds an option to the .setup menu to launch a practice mode with cheats/infinite ammo/respawning/etc.
 
 All of these are in the ``plugins/disabled`` directory and they are all independent of each other. To enable one, move it from the `plugins/disabled` directory to the `plugins` directory.
 

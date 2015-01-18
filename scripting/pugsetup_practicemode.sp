@@ -134,13 +134,6 @@ public void ClearPracticeSettings() {
     CloseNestedArray(g_BinaryOptionEnabledValues);
     CloseNestedArray(g_BinaryOptionDisabledCvars);
     CloseNestedArray(g_BinaryOptionDisabledValues);
-
-    g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
-    g_BinaryOptionEnabled = new ArrayList();
-    g_BinaryOptionEnabledCvars = new ArrayList();
-    g_BinaryOptionEnabledValues = new ArrayList();
-    g_BinaryOptionDisabledCvars = new ArrayList();
-    g_BinaryOptionDisabledValues = new ArrayList();
 }
 
 public bool OnSetupMenuOpen(int client, Menu menu) {
