@@ -90,6 +90,7 @@ char g_CacheFile[PLATFORM_MAX_PATH]; // filename of the keyvalue cache file
 KeyValues g_WorkshopCache; // keyvalue struct for the cache
 
 /** Chat aliases loaded from the config file **/
+bool g_ChatAliasInit = false;
 ArrayList g_ChatAliases;
 ArrayList g_ChatAliasesCommands;
 
@@ -247,8 +248,6 @@ public void OnPluginStart() {
     g_LiveTimerRunning = false;
 
     /** Chat aliases **/
-    g_ChatAliases = CreateArray(64);
-    g_ChatAliasesCommands = CreateArray(64);
     LoadChatAliases();
 
     /** Updater support **/
@@ -583,6 +582,11 @@ public Action Command_Capt(int client, int args) {
 }
 
 public void LoadChatAliases() {
+    if (!g_ChatAliasInit)
+        return;
+
+    g_ChatAliases = CreateArray(64);
+    g_ChatAliasesCommands = CreateArray(64);
     AddChatAlias(".setup", "sm_setup");
     AddChatAlias(".10man", "sm_10man");
     AddChatAlias(".endgame", "sm_endmatch");
@@ -622,6 +626,7 @@ public void LoadChatAliases() {
     }
     delete kv;
 
+    g_ChatAliasInit = true;
 }
 
 public void FindChatCommand(const char[] command, char[] buffer, int len) {

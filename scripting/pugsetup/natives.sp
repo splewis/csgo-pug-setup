@@ -292,6 +292,10 @@ public int Native_SetRandomCaptains(Handle plugin, int numParams) {
 }
 
 public int Native_AddChatAlias(Handle plugin, int numParams) {
+    if (!g_ChatAliasInit) {
+        LoadChatAliases();
+    }
+
     char alias[64];
     char command[64];
     GetNativeString(1, alias, sizeof(alias));
