@@ -1,5 +1,25 @@
 "Phrases"
 {
+	"SetupMenuTitle"
+	{
+		"ru"		"Настройка параметров"
+	}
+	"MapTypeOption"
+	{
+		"ru"		"Тип карты"
+	}
+	"TeamTypeOption"
+	{
+		"ru"		"Тип команды"
+	}
+	"TeamSizeOption"
+	{
+		"ru"		"Размер команды"
+	}
+	"DemoOption"
+	{
+		"ru"		"Запись DEMO"
+	}
 	"VetoMessage"
 	{
 		"ru"		"Голосование методом исключения начнется через несколько секунд."
@@ -244,8 +264,24 @@
 	{
 		"ru"		"НОЖЕВОЙ РАУНД!"
 	}
+	"KnifeRoundOption"
+	{
+		"ru"		"Ножевой раунд"
+	}
 	"KnifeRoundWinner"
 	{
 		"ru"		"Команда {1} выиграла ножевой раунд. Ждем их пока напишут {GREEN}{2} {NORMAL}или {GREEN}{3}"
+	}
+	"TVDisabled"
+	{
+		"ru"		"GOTV выключен, поэтому Демки не могут быть записаны. Установите {GREEN}tv_enable 1{NORMAL} для включения GOTV."
+	}
+	"FinishSetup"
+	{
+		"ru"		"Параметры матча установлены"
+	}
+	"CancelSetup"
+	{
+		"ru"		"Параметры матча отменены"
 	}
 }
