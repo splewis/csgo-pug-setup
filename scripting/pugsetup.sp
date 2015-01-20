@@ -248,6 +248,7 @@ public void OnPluginStart() {
     g_LiveTimerRunning = false;
 
     /** Chat aliases **/
+    g_ChatAliasInit = false;
     LoadChatAliases();
 
     /** Updater support **/
@@ -582,7 +583,7 @@ public Action Command_Capt(int client, int args) {
 }
 
 public void LoadChatAliases() {
-    if (!g_ChatAliasInit)
+    if (g_ChatAliasInit)
         return;
 
     g_ChatAliases = CreateArray(64);
