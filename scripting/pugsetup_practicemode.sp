@@ -129,7 +129,7 @@ public void ReadPracticeSettings() {
 
 public void ClearPracticeSettings() {
     CloseHandle(g_BinaryOptionNames);
-    CloseNestedArray(g_BinaryOptionEnabled);
+    CloseHandle(g_BinaryOptionEnabled);
     CloseNestedArray(g_BinaryOptionEnabledCvars);
     CloseNestedArray(g_BinaryOptionEnabledValues);
     CloseNestedArray(g_BinaryOptionDisabledCvars);
