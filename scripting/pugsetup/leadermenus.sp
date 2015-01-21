@@ -57,7 +57,7 @@ static int AddPotentialCaptains(Menu menu, int otherCaptain) {
  */
  public void LeaderMenu(int client) {
     Menu menu = new Menu(LeaderMenuHandler);
-    SetMenuTitle(menu, "Chose the game leader:");
+    SetMenuTitle(menu, "Choose the game leader:");
     if (AddAllPlayers(menu) >= 1)
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
     else
@@ -74,5 +74,14 @@ public int LeaderMenuHandler(Menu menu, MenuAction action, int param1, int param
 }
 
 static int AddAllPlayers(Menu menu) {
-    return AddPotentialCaptains(menu, -1); // adds everyone (excludes client -1)
+    int count = 0;
+    for (int client = 1; client <= MaxClients; client++) {
+        if (IsPlayer(client)) {
+            char name[MAX_NAME_LENGTH];
+            GetClientName(client, name, sizeof(name));
+            AddMenuInt(menu, client, name);
+            count++;
+        }
+    }
+    return count;
 }
