@@ -172,8 +172,11 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
                 ChangeSetting(i, enabled);
             }
 
-            ExecPracticeConfig();
+            ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
             GivePracticeMenu(client, ITEMDRAW_DEFAULT);
+            PugSetupMessageToAll("Practice mode is now enabled");
+        } else {
+            ServerCommand("exec sourcemod/pugsetup/practice_end.cfg");
         }
     }
 }
@@ -190,10 +193,6 @@ static void ChangeSetting(int index, bool enabled) {
         values.GetString(i, value, sizeof(value));
         ServerCommand("%s %s", cvar, value);
     }
-}
-
-static void ExecPracticeConfig() {
-    ServerCommand("exec sourcemod/pugsetup/practice.cfg");
 }
 
 public void GivePracticeMenu(int client, int style) {
