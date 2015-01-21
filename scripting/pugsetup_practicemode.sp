@@ -136,12 +136,17 @@ public void ClearPracticeSettings() {
     CloseNestedArray(g_BinaryOptionDisabledValues);
 }
 
-public bool OnSetupMenuOpen(int client, Menu menu) {
+public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
+    int style = ITEMDRAW_DEFAULT;
+    if (!IsPugAdmin(client) || displayOnly) {
+        style = ITEMDRAW_DISABLED;
+    }
+
     if (g_InPracticeMode) {
-        GivePracticeMenu(client);
+        GivePracticeMenu(client, style);
         return false;
     } else {
-        AddMenuItem(menu, "launch_practice", "Launch practice mode");
+        AddMenuItem(menu, "launch_practice", "Launch practice mode", style);
         return true;
     }
 }
@@ -168,7 +173,7 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
             }
 
             ExecPracticeConfig();
-            GivePracticeMenu(client);
+            GivePracticeMenu(client, ITEMDRAW_DEFAULT);
         }
     }
 }
@@ -191,7 +196,7 @@ static void ExecPracticeConfig() {
     ServerCommand("exec sourcemod/pugsetup/practice.cfg");
 }
 
-public void GivePracticeMenu(int client) {
+public void GivePracticeMenu(int client, int style) {
     Menu menu = new Menu(PracticeMenuHandler);
     SetMenuTitle(menu, "Practice Settings");
     SetMenuExitButton(menu, true);
@@ -206,10 +211,10 @@ public void GivePracticeMenu(int client) {
 
         char buffer[128];
         Format(buffer, sizeof(buffer), "%s: %s", name, enabled);
-        AddMenuItem(menu, name, buffer);
+        AddMenuItem(menu, name, buffer, style);
     }
 
-    AddMenuItem(menu, "end_menu", "Exit practice mode");
+    AddMenuItem(menu, "end_menu", "Exit practice mode", style);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -226,7 +231,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
                 bool setting = !g_BinaryOptionEnabled.Get(i);
                 g_BinaryOptionEnabled.Set(i, setting);
                 ChangeSetting(i, setting);
-                GivePracticeMenu(client);
+                GivePracticeMenu(client, ITEMDRAW_DEFAULT);
                 return 0;
             }
         }
