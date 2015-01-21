@@ -32,7 +32,7 @@ enum Permissions {
  * @param menu The menu being given to the client.
  * @return Whether to display the menu to the client or not.
  */
-forward bool OnSetupMenuOpen(int client, Menu menu);
+forward bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly);
 
 /**
  * Called when a setup menu option is selected.

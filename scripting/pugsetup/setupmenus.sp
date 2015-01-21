@@ -66,6 +66,7 @@
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
         Call_PushCell(menu);
+        Call_PushCell(displayOnly);
         Call_Finish(showMenu);
 
         if (showMenu) {
