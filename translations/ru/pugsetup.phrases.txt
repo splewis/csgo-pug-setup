@@ -274,7 +274,7 @@
 	}
 	"TVDisabled"
 	{
-		"ru"		"GOTV выключен, поэтому Демки не могут быть записаны. Установите {GREEN}tv_enable 1{NORMAL} для включения GOTV."
+		"ru"		"Запись DEMO невозможна, так как выключен GOTV. Установите {GREEN}tv_enable 1{NORMAL} для включения GOTV."
 	}
 	"FinishSetup"
 	{
