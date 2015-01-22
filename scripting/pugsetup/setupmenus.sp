@@ -255,10 +255,3 @@ public void GetMapString(char[] buffer, int length, MapType type, int lang) {
         default: LogError("unknown maptype=%d", type);
     }
 }
-
-public void GetEnabledString(char[] buffer, int length, bool variable, int lang) {
-    if (variable)
-        Format(buffer, length, "%T", "Enabled", lang);
-    else
-        Format(buffer, length, "%T", "Disabled", lang);
-}

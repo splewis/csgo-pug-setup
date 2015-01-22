@@ -193,6 +193,14 @@ static void ChangeSetting(int index, bool enabled) {
         values.GetString(i, value, sizeof(value));
         ServerCommand("%s %s", cvar, value);
     }
+
+    char name[OPTION_NAME_LENGTH];
+    g_BinaryOptionNames.GetString(index, name, sizeof(name));
+
+    char enabledString[32];
+    GetEnabledString(enabledString, sizeof(enabledString), enabled);
+
+    PugSetupMessageToAll("%s is now %s", name, enabledString);
 }
 
 public void GivePracticeMenu(int client, int style) {
