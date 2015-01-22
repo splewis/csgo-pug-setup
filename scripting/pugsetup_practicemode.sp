@@ -13,8 +13,11 @@ bool g_InPracticeMode = false;
 
 // These data structures maintain a list of settings for a toggle-able option:
 // the name, the cvar/value for the enabled option, and the cvar/value for the disabled option.
+// Note: the first set of values for these data structures is the overall-practice mode cvars,
+// which aren't toggle-able or named.
 ArrayList g_BinaryOptionNames;
 ArrayList g_BinaryOptionEnabled;
+ArrayList g_BinaryOptionChangeable;
 ArrayList g_BinaryOptionEnabledCvars;
 ArrayList g_BinaryOptionEnabledValues;
 ArrayList g_BinaryOptionDisabledCvars;
@@ -32,6 +35,7 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_InPracticeMode = false;
     AddChatAlias(".noclip", "noclip");
+    AddChatAlias(".god", "god");
 }
 
 public void OnMapStart() {
@@ -46,6 +50,7 @@ public void OnMapEnd() {
 public void ReadPracticeSettings() {
     g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
     g_BinaryOptionEnabled = new ArrayList();
+    g_BinaryOptionChangeable = new ArrayList();
     g_BinaryOptionEnabledCvars = new ArrayList();
     g_BinaryOptionEnabledValues = new ArrayList();
     g_BinaryOptionDisabledCvars = new ArrayList();
@@ -75,6 +80,8 @@ public void ReadPracticeSettings() {
                 char enabledString[64];
                 kv.GetString("default", enabledString, sizeof(enabledString), "enabled");
                 bool enabled = StrEqual(enabledString, "enabled", false);
+
+                bool changeable = (kv.GetNum("changeable", 1) != 0);
 
                 char cvarName[CVAR_NAME_LENGTH];
                 char cvarValue[CVAR_NAME_LENGTH];
@@ -113,6 +120,7 @@ public void ReadPracticeSettings() {
 
                 g_BinaryOptionNames.PushString(name);
                 g_BinaryOptionEnabled.Push(enabled);
+                g_BinaryOptionChangeable.Push(changeable);
                 g_BinaryOptionEnabledCvars.Push(enabledCvars);
                 g_BinaryOptionEnabledValues.Push(enabledValues);
                 g_BinaryOptionDisabledCvars.Push(disabledCvars);
@@ -130,6 +138,7 @@ public void ReadPracticeSettings() {
 public void ClearPracticeSettings() {
     CloseHandle(g_BinaryOptionNames);
     CloseHandle(g_BinaryOptionEnabled);
+    CloseHandle(g_BinaryOptionChangeable);
     CloseNestedArray(g_BinaryOptionEnabledCvars);
     CloseNestedArray(g_BinaryOptionEnabledValues);
     CloseNestedArray(g_BinaryOptionDisabledCvars);
@@ -200,7 +209,9 @@ static void ChangeSetting(int index, bool enabled) {
     char enabledString[32];
     GetEnabledString(enabledString, sizeof(enabledString), enabled);
 
-    PugSetupMessageToAll("%s is now %s", name, enabledString);
+    // don't display empty names
+    if (!StrEqual(name, ""))
+        PugSetupMessageToAll("%s is now %s", name, enabledString);
 }
 
 public void GivePracticeMenu(int client, int style) {
@@ -209,6 +220,9 @@ public void GivePracticeMenu(int client, int style) {
     SetMenuExitButton(menu, true);
 
     for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
+        if (!g_BinaryOptionChangeable.Get(i))
+            continue;
+
         char name[OPTION_NAME_LENGTH];
         g_BinaryOptionNames.GetString(i, name, sizeof(name));
 
