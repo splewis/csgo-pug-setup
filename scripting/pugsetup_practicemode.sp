@@ -285,7 +285,7 @@ public void DisablePracticeMode() {
             SetEntityMoveType(i, MOVETYPE_WALK);
     }
 
-    PugSetupMessageToAll("Practice mode is now disabled");
+    PugSetupMessageToAll("Practice mode is now disabled.");
 }
 
 public void SetCvar(const char[] name, int value) {

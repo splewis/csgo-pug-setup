@@ -123,13 +123,17 @@ public void TeamTypeMenu(int client) {
     AddMenuInt(menu, _:TeamType_Captains, "%T", "TeamSetupMenuCaptains", client);
     AddMenuInt(menu, _:TeamType_Random, "%T", "TeamSetupMenuRandom", client);
     AddMenuInt(menu, _:TeamType_Manual, "%T", "TeamSetupMenuManual", client);
+    AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        g_TeamType = TeamType:GetMenuInt(menu, param2);
+        int choice = GetMenuInt(menu, param2);
+        if (choice != -1) {
+            g_TeamType = TeamType:GetMenuInt(menu, param2);
+        }
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -140,16 +144,21 @@ public void TeamSizeMenu(int client) {
     Menu menu = new Menu(TeamSizeHandler);
     SetMenuTitle(menu, "%T", "HowManyPlayers", client);
     SetMenuExitButton(menu, false);
-    int choices[] = {1, 2, 3, 4, 5, 6};
-    for (int i = 0; i < sizeof(choices); i++)
-        AddMenuInt(menu, choices[i], "");
+
+    for (int i = 1; i <= g_hMaxTeamSize.IntValue; i++)
+        AddMenuInt(menu, i, "");
+
+    AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        g_PlayersPerTeam = GetMenuInt(menu, param2);
+        int choice = GetMenuInt(menu, param2);
+        if (choice > 0) {
+            g_PlayersPerTeam = choice;
+        }
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -166,14 +175,18 @@ public void MapTypeMenu(int client) {
     AddMenuInt(menu, _:MapType_Current, "%T", "MapChoiceCurrent", client);
     AddMenuInt(menu, _:MapType_Vote, "%T", "MapChoiceVote", client);
     AddMenuInt(menu, _:MapType_Veto, "%T", "MapChoiceVeto", client);
+    AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        g_MapType = MapType:GetMenuInt(menu, param2);
-        UpdateMapStatus();
+        int choice = GetMenuInt(menu, param2);
+        if (choice != -1) {
+            g_MapType = MapType:choice;
+            UpdateMapStatus();
+        }
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);

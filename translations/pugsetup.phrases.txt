@@ -301,4 +301,8 @@
 	{
 		"en"		"Cancel setup"
 	}
+	"Back"
+	{
+		"en"		"Back"
+	}
 }
