@@ -76,7 +76,7 @@
 	"SetupBy"
 	{
 		"#format"	"{1:N}"
-		"en"		"The game has been setup by {GREEN}{1}"
+		"en"		"Pug leader: {GREEN}{1}"
 	}
 	"NewLeader"
 	{

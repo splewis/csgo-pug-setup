@@ -201,7 +201,6 @@ public void SetupFinished() {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && i != leader) {
             UnreadyPlayer(i);
-            PrintSetupInfo(i);
         }
     }
 
