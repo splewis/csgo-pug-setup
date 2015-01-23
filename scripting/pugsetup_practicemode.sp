@@ -190,7 +190,7 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
     }
 }
 
-static void ChangeSetting(int index, bool enabled) {
+static void ChangeSetting(int index, bool enabled, bool print=true) {
     ArrayList cvars = (enabled) ? g_BinaryOptionEnabledCvars.Get(index) : g_BinaryOptionDisabledCvars.Get(index);
     ArrayList values = (enabled) ? g_BinaryOptionEnabledValues.Get(index) : g_BinaryOptionDisabledValues.Get(index);
 
@@ -206,12 +206,14 @@ static void ChangeSetting(int index, bool enabled) {
     char name[OPTION_NAME_LENGTH];
     g_BinaryOptionNames.GetString(index, name, sizeof(name));
 
-    char enabledString[32];
-    GetEnabledString(enabledString, sizeof(enabledString), enabled);
+    if (print) {
+        char enabledString[32];
+        GetEnabledString(enabledString, sizeof(enabledString), enabled);
 
-    // don't display empty names
-    if (!StrEqual(name, ""))
-        PugSetupMessageToAll("%s is now %s", name, enabledString);
+        // don't display empty names
+        if (!StrEqual(name, ""))
+            PugSetupMessageToAll("%s is now %s", name, enabledString);
+    }
 }
 
 public void GivePracticeMenu(int client, int style) {
@@ -271,7 +273,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
 
 public void DisablePracticeMode() {
     for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
-        ChangeSetting(i, false);
+        ChangeSetting(i, false, false);
     }
 
     SetCvar("sv_cheats", 0);
