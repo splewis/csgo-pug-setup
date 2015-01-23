@@ -179,7 +179,6 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
             case MapType_Veto: g_mapSet = false;
             default: LogError("unknown maptype=%d", g_MapType);
         }
-
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
