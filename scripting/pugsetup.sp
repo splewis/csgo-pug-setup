@@ -484,7 +484,7 @@ public Action Command_Setup(int client, int args) {
     }
 
     if (g_Setup && client != GetLeader()) {
-        PrintSetupInfo(client);
+        GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
 
@@ -514,7 +514,7 @@ public Action Command_10man(int client, int args) {
     }
 
     if (g_Setup && client != GetLeader()) {
-        PrintSetupInfo(client);
+        GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
 
@@ -911,7 +911,32 @@ public void PrintSetupInfo(int client) {
     if (IsPlayer(GetLeader()))
         PugSetupMessage(client, "%t", "SetupBy", GetLeader());
 
-    GiveSetupMenu(client, true);
+    // print each setup option avaliable
+
+    if (g_hOptionMapType.IntValue != 0) {
+        char mapType[256];
+        GetMapString(mapType, sizeof(mapType), g_MapType, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "MapTypeOption", mapType);
+    }
+
+    if (g_hOptionTeamType.IntValue != 0 && g_hOptionTeamSize.IntValue != 0) {
+        char teamType[256];
+        GetTeamString(teamType, sizeof(teamType), g_TeamType, client);
+        PugSetupMessage(client, "%t: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s",
+                        "TeamTypeOption", g_PlayersPerTeam, g_PlayersPerTeam, teamType);
+    }
+
+    if (g_hOptionRecord.IntValue != 0) {
+        char demo[256];
+        GetEnabledString(demo, sizeof(demo), g_RecordGameOption, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "DemoOption", demo);
+    }
+
+    if (g_hOptionKnifeRounds.IntValue != 0) {
+        char knife[256];
+        GetEnabledString(knife, sizeof(knife), g_DoKnifeRound, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "KnifeRoundOption", knife);
+    }
 }
 
 public void ReadyToStart() {

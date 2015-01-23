@@ -210,9 +210,9 @@ public void SetupFinished() {
     g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
 
-    int leader = GetLeader();
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && i != leader) {
+        if (IsPlayer(i)) {
+            PrintSetupInfo(i);
             UnreadyPlayer(i);
         }
     }
