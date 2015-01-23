@@ -178,7 +178,7 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
 
             for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
                 bool enabled = bool:g_BinaryOptionEnabled.Get(i);
-                ChangeSetting(i, enabled);
+                ChangeSetting(i, enabled, false);
             }
 
             ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
@@ -284,6 +284,8 @@ public void DisablePracticeMode() {
         if (IsValidClient(i))
             SetEntityMoveType(i, MOVETYPE_WALK);
     }
+
+    PugSetupMessageToAll("Practice mode is now disabled");
 }
 
 public void SetCvar(const char[] name, int value) {
