@@ -34,9 +34,9 @@ You may also download the [latest development build](http://ci.splewis.net/job/c
 There is a notion of the the pug/game "leader". This is the player that writes .setup first and goes through the setup menu. The leader has elevated permissions and can use some extra commands (e.g. pause). To prevent some abuse there is also an admin command sm_leader to manually change the leader.
 
 Generally, here is what happens:
-- A player joins and types .setup and goes through the menu to select how the teams and map will be chosen
-- Other players join and all type ``!ready``
-- If the leader setup for a map vote, the map vote will occur and the map will change, then all players will type ``!ready`` on the new map
+- A player joins and types ``.setup`` and goes through the menu to select how the teams and map will be chosen
+- Other players join and all type ``.ready``
+- If the leader setup for a map vote, the map vote will occur and the map will change, then all players will type ``.ready`` on the new map
 - If the leader setup for a captain-style team selection, the game will wait for when 2 captains are selected, then the captains will be given menus to chose players
 - Then the game will initiate a live-on-3 restart and go
 
