@@ -27,7 +27,6 @@ public void SetConfigDefaults() {
 
     g_hDefaultMapType.GetString(buffer, sizeof(buffer));
     g_MapType = MapTypeFromString(buffer);
-    g_mapSet = (g_MapType == MapType_Current);
 
     g_hDefaultTeamType.GetString(buffer, sizeof(buffer));
     g_TeamType = TeamTypeFromString(buffer);

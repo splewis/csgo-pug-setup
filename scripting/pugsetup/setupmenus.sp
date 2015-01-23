@@ -173,12 +173,7 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
     if (action == MenuAction_Select) {
         int client = param1;
         g_MapType = MapType:GetMenuInt(menu, param2);
-        switch (g_MapType) {
-            case MapType_Current: g_mapSet = true;
-            case MapType_Vote: g_mapSet = false;
-            case MapType_Veto: g_mapSet = false;
-            default: LogError("unknown maptype=%d", g_MapType);
-        }
+        UpdateMapStatus();
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -222,6 +217,8 @@ public void SetupFinished() {
         SetRandomCaptains();
     }
 
+    UpdateMapStatus();
+
     Call_StartForward(g_hOnSetup);
     Call_PushCell(GetLeader());
     Call_PushCell(g_TeamType);
@@ -254,5 +251,14 @@ stock void GetMapString(char[] buffer, int length, MapType type, int client=0) {
         case MapType_Vote: Format(buffer, length, "%T", "MapChoiceVoteShort", client);
         case MapType_Veto: Format(buffer, length, "%T", "MapChoiceVetoShort", client);
         default: LogError("unknown maptype=%d", type);
+    }
+}
+
+static void UpdateMapStatus() {
+    switch (g_MapType) {
+        case MapType_Current: g_mapSet = true;
+        case MapType_Vote: g_mapSet = false;
+        case MapType_Veto: g_mapSet = false;
+        default: LogError("unknown maptype=%d", g_MapType);
     }
 }
