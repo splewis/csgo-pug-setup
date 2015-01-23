@@ -420,29 +420,35 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
     if (!g_mapSet && g_MapType != MapType_Veto) {
         char rdyCommand[32];
         FindChatCommand("sm_ready", rdyCommand, sizeof(rdyCommand));
-        PrintHintTextToAll("%T", "ReadyStatus", LANG_SERVER, readyPlayers, totalPlayers, rdyCommand);
+        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
-            char cap1[64];
-            char cap2[64];
-            if (IsPlayer(g_capt1))
-                Format(cap1, sizeof(cap1), "%N", g_capt1);
-            else
-                Format(cap1, sizeof(cap1), "%T", "CaptainNotSelected", LANG_SERVER);
-
-            if (IsPlayer(g_capt2))
-                Format(cap2, sizeof(cap2), "%N", g_capt2);
-            else
-                Format(cap2, sizeof(cap2), "%T", "CaptainNotSelected", LANG_SERVER);
-
-            PrintHintTextToAll("%T", "ReadyStatusCaptains", LANG_SERVER, readyPlayers, totalPlayers, cap1, cap2);
+            for (int i = 1; i <= MaxClients; i++) {
+                if (IsPlayer(i))
+                    GiveCaptainHint(i, readyPlayers, totalPlayers);
+            }
         } else {
-            PrintHintTextToAll("%T", "ReadyStatus", LANG_SERVER, readyPlayers, totalPlayers);
+            PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers);
         }
 
     }
 }
 
+static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
+        char cap1[64];
+        char cap2[64];
+        if (IsPlayer(g_capt1))
+            Format(cap1, sizeof(cap1), "%N", g_capt1);
+        else
+            Format(cap1, sizeof(cap1), "%T", "CaptainNotSelected", client);
+
+        if (IsPlayer(g_capt2))
+            Format(cap2, sizeof(cap2), "%N", g_capt2);
+        else
+            Format(cap2, sizeof(cap2), "%T", "CaptainNotSelected", client);
+
+        PrintHintTextToAll("%t", "ReadyStatusCaptains", readyPlayers, totalPlayers, cap1, cap2);
+}
 
 
 /***********************
@@ -681,15 +687,15 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 public Action Command_EndGame(int client, int args) {
     if (!g_Setup) {
         PugSetupMessage(client, "%t", "NotLiveYet");
+        PrintToChat(client, "%t", "NotLiveYet");
     } else {
         PermissionCheck(Permission_Leader)
 
         Menu menu = new Menu(MatchEndHandler);
-        int lang = GetClientLanguage(client);
-        SetMenuTitle(menu, "%T", "EndMatchMenuTitle", lang);
+        SetMenuTitle(menu, "%T", "EndMatchMenuTitle", client);
         SetMenuExitButton(menu, true);
-        AddMenuBool(menu, false, "%T", "ContinueMatch", lang);
-        AddMenuBool(menu, true, "%T", "EndMatch", lang);
+        AddMenuBool(menu, false, "%T", "ContinueMatch", client);
+        AddMenuBool(menu, true, "%T", "EndMatch", client);
         DisplayMenu(menu, client, 20);
     }
     return Plugin_Handled;

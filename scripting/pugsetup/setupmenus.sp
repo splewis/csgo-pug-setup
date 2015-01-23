@@ -2,7 +2,6 @@
  * Main .setup menu
  */
  public void SetupMenu(int client, bool displayOnly) {
-        int lang = GetClientLanguage(client);
         Menu menu = new Menu(SetupMenuHandler);
         SetMenuTitle(menu, "%t", "SetupMenuTitle");
         SetMenuExitButton(menu, true);
@@ -17,48 +16,48 @@
         // 1. team type
         if (g_hOptionTeamType.IntValue != 0) {
             char teamType[128];
-            GetTeamString(teamType, sizeof(teamType), g_TeamType, lang);
-            Format(buffer, sizeof(buffer), "%T: %s", "TeamTypeOption", lang, teamType);
+            GetTeamString(teamType, sizeof(teamType), g_TeamType, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "TeamTypeOption", client, teamType);
             AddMenuItem(menu, "teamtype", buffer, style);
         }
 
         // 2. team size
         if (g_hOptionTeamSize.IntValue != 0) {
-            Format(buffer, sizeof(buffer), "%T: %d", "TeamSizeOption", lang, g_PlayersPerTeam);
+            Format(buffer, sizeof(buffer), "%T: %d", "TeamSizeOption", client, g_PlayersPerTeam);
             AddMenuItem(menu, "teamsize", buffer, style);
         }
 
         // 3. map type
         if (g_hOptionMapType.IntValue != 0) {
             char mapType[128];
-            GetMapString(mapType, sizeof(mapType), g_MapType, lang);
-            Format(buffer, sizeof(buffer), "%T: %s", "MapTypeOption", lang, mapType);
+            GetMapString(mapType, sizeof(mapType), g_MapType, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "MapTypeOption", client, mapType);
             AddMenuItem(menu, "maptype", buffer, style);
         }
 
         // 4. demo option
         if (g_hOptionRecord.IntValue != 0) {
             char demoString[128];
-            GetEnabledString(demoString, sizeof(demoString), g_RecordGameOption, lang);
-            Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", lang, demoString);
+            GetEnabledString(demoString, sizeof(demoString), g_RecordGameOption, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", client, demoString);
             AddMenuItem(menu, "demo", buffer, style);
         }
 
         // 5. knife round option
         if (g_hOptionKnifeRounds.IntValue != 0) {
             char knifeString[128];
-            GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, lang);
-            Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", lang, knifeString);
+            GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", client, knifeString);
             AddMenuItem(menu, "knife", buffer, style);
         }
 
         if (!g_Setup) {
             char finishSetupStr[128];
-            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", lang);
+            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", client);
             AddMenuItem(menu, "finish_setup", finishSetupStr);
         } else  {
             char finishSetupStr[128];
-            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "CancelSetup", lang);
+            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "CancelSetup", client);
             AddMenuItem(menu, "cancel_setup", finishSetupStr);
         }
 
@@ -119,12 +118,11 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
 public void TeamTypeMenu(int client) {
     Menu menu = new Menu(TeamTypeMenuHandler);
-    int lang = GetClientLanguage(client);
-    SetMenuTitle(menu, "%T", "TeamSetupMenuTitle", lang);
+    SetMenuTitle(menu, "%T", "TeamSetupMenuTitle", client);
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:TeamType_Captains, "%T", "TeamSetupMenuCaptains", lang);
-    AddMenuInt(menu, _:TeamType_Random, "%T", "TeamSetupMenuRandom", lang);
-    AddMenuInt(menu, _:TeamType_Manual, "%T", "TeamSetupMenuManual", lang);
+    AddMenuInt(menu, _:TeamType_Captains, "%T", "TeamSetupMenuCaptains", client);
+    AddMenuInt(menu, _:TeamType_Random, "%T", "TeamSetupMenuRandom", client);
+    AddMenuInt(menu, _:TeamType_Manual, "%T", "TeamSetupMenuManual", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -140,8 +138,7 @@ public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int par
 
 public void TeamSizeMenu(int client) {
     Menu menu = new Menu(TeamSizeHandler);
-    int lang = GetClientLanguage(client);
-    SetMenuTitle(menu, "%T", "HowManyPlayers", lang);
+    SetMenuTitle(menu, "%T", "HowManyPlayers", client);
     SetMenuExitButton(menu, false);
     int choices[] = {1, 2, 3, 4, 5, 6};
     for (int i = 0; i < sizeof(choices); i++)
@@ -164,12 +161,11 @@ public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2)
  */
 public void MapTypeMenu(int client) {
     Menu menu = new Menu(MapTypeHandler);
-    int lang = GetClientLanguage(client);
-    SetMenuTitle(menu, "%T", "MapChoiceMenuTitle", lang);
+    SetMenuTitle(menu, "%T", "MapChoiceMenuTitle", client);
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:MapType_Current, "%T", "MapChoiceCurrent", lang);
-    AddMenuInt(menu, _:MapType_Vote, "%T", "MapChoiceVote", lang);
-    AddMenuInt(menu, _:MapType_Veto, "%T", "MapChoiceVeto", lang);
+    AddMenuInt(menu, _:MapType_Current, "%T", "MapChoiceCurrent", client);
+    AddMenuInt(menu, _:MapType_Vote, "%T", "MapChoiceVote", client);
+    AddMenuInt(menu, _:MapType_Veto, "%T", "MapChoiceVeto", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -238,20 +234,20 @@ public void SetupFinished() {
 /**
  * Converts enum choice types to strings to show to players.
  */
-public void GetTeamString(char[] buffer, int length, TeamType type, int lang) {
+stock void GetTeamString(char[] buffer, int length, TeamType type, int client=0) {
     switch (type) {
-        case TeamType_Manual: Format(buffer, length, "%T", "TeamSetupManualShort", lang);
-        case TeamType_Random: Format(buffer, length, "%T", "TeamSetupRandomShort", lang);
-        case TeamType_Captains: Format(buffer, length, "%T", "TeamSetupCaptainsShort", lang);
+        case TeamType_Manual: Format(buffer, length, "%T", "TeamSetupManualShort", client);
+        case TeamType_Random: Format(buffer, length, "%T", "TeamSetupRandomShort", client);
+        case TeamType_Captains: Format(buffer, length, "%T", "TeamSetupCaptainsShort", client);
         default: LogError("unknown teamtype=%d", type);
     }
 }
 
-public void GetMapString(char[] buffer, int length, MapType type, int lang) {
+stock void GetMapString(char[] buffer, int length, MapType type, int client=0) {
     switch (type) {
-        case MapType_Current: Format(buffer, length, "%T", "MapChoiceCurrentShort", lang);
-        case MapType_Vote: Format(buffer, length, "%T", "MapChoiceVoteShort", lang);
-        case MapType_Veto: Format(buffer, length, "%T", "MapChoiceVetoShort", lang);
+        case MapType_Current: Format(buffer, length, "%T", "MapChoiceCurrentShort", client);
+        case MapType_Vote: Format(buffer, length, "%T", "MapChoiceVoteShort", client);
+        case MapType_Veto: Format(buffer, length, "%T", "MapChoiceVetoShort", client);
         default: LogError("unknown maptype=%d", type);
     }
 }

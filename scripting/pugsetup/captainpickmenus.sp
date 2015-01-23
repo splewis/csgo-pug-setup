@@ -7,10 +7,10 @@ public void InitialChoiceMenu(int client) {
         // if no knife rounds, they get to choose between side/1st pick
         g_PickingPlayers = true;
         Menu menu = new Menu(InitialChoiceHandler);
-        SetMenuTitle(menu, "%t", "InitialPickTitle");
+        SetMenuTitle(menu, "%T", "InitialPickTitle", client);
         SetMenuExitButton(menu, false);
-        AddMenuInt(menu, _:InitialPick_Side, "%t", "InitialPickSides");
-        AddMenuInt(menu, _:InitialPick_Player, "%t", "InitialPickPlayer");
+        AddMenuInt(menu, _:InitialPick_Side, "%T", "InitialPickSides", client);
+        AddMenuInt(menu, _:InitialPick_Player, "%T", "InitialPickPlayer", client);
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
     } else {
         // if using knife rounds, they just always get the 1st pick
@@ -30,10 +30,10 @@ public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int pa
         FormatPlayerName(g_capt1, g_capt1, captString);
 
         if (choice == InitialPick_Player) {
-            PugSetupMessageToAll("%t", "InitialPickPlayerChoice", captString);
+            PugSetupMessageToAll("%T", "InitialPickPlayerChoice", client, captString);
             SideMenu(g_capt2);
         } else if (choice == InitialPick_Side) {
-            PugSetupMessageToAll("%t", "InitialPickSideChoice", captString);
+            PugSetupMessageToAll("%T", "InitialPickSideChoice", client, captString);
             SideMenu(g_capt1);
         } else {
             LogError("[InitialChoiceHandler] unknown intial choice=%d", choice);
@@ -45,7 +45,7 @@ public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int pa
 
 public void SideMenu(int client) {
     Menu menu = new Menu(SideMenuHandler);
-    SetMenuTitle(menu, "%t", "SideChoiceTitle");
+    SetMenuTitle(menu, "%T", "SideChoiceTitle", client);
     SetMenuExitButton(menu, false);
     AddMenuInt(menu, CS_TEAM_CT, "CT");
     AddMenuInt(menu, CS_TEAM_T, "T");
@@ -95,7 +95,7 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
     } else {
         if (IsValidClient(client)) {
             Menu menu = new Menu(PlayerMenuHandler);
-            SetMenuTitle(menu, "%t", "PlayerPickTitle");
+            SetMenuTitle(menu, "%T", "PlayerPickTitle", client);
             SetMenuExitButton(menu, false);
             if (AddPlayersToMenu(menu) > 0) {
                 DisplayMenu(menu, client, MENU_TIME_FOREVER);
