@@ -284,12 +284,15 @@ public void OnClientDisconnect(int client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
     g_PlayerAtStart[client] = false;
+}
+
+public void OnClientDisconnect_Post(int client) {
     int numPlayers = 0;
     for (int i = 1; i <= MaxClients; i++)
         if (IsPlayer(i))
             numPlayers++;
 
-    if (numPlayers == 0 && (g_MapType != MapType_Vote || g_MapType != MapType_Veto || !g_mapSet || g_MatchLive)) {
+    if (numPlayers == 0 && (g_mapSet || g_MatchLive)) {
         EndMatch(true);
     }
 }
