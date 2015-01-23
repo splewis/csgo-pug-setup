@@ -417,9 +417,9 @@ public Action Timer_CheckReady(Handle timer) {
 }
 
 public void StatusHint(int readyPlayers, int totalPlayers) {
+    char rdyCommand[32];
+    FindChatCommand("sm_ready", rdyCommand, sizeof(rdyCommand));
     if (!g_mapSet && g_MapType != MapType_Veto) {
-        char rdyCommand[32];
-        FindChatCommand("sm_ready", rdyCommand, sizeof(rdyCommand));
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
@@ -428,7 +428,7 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
                     GiveCaptainHint(i, readyPlayers, totalPlayers);
             }
         } else {
-            PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers);
+            PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
         }
 
     }
