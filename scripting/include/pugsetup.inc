@@ -230,7 +230,6 @@ public __pl_pugsetup_SetNTVOptional() {
 stock TeamType TeamTypeFromString(const char[] teamTypeString,
                                   TeamType fallback=TeamType_Captains,
                                   bool logError=true) {
-
     if (StrEqual(teamTypeString, "captains") || StrEqual(teamTypeString, "captain"))
         return TeamType_Captains;
     else if (StrEqual(teamTypeString, "manual"))
@@ -245,9 +244,7 @@ stock TeamType TeamTypeFromString(const char[] teamTypeString,
 
 stock MapType MapTypeFromString(const char[] mapTypeString,
                                 MapType fallback=MapType_Vote,
-                                bool logError=true,
-                                bool allowUnspec=false) {
-
+                                bool logError=true) {
     if (StrEqual(mapTypeString, "current"))
         return MapType_Current;
     else if (StrEqual(mapTypeString, "vote"))
