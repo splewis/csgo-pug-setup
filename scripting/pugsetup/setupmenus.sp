@@ -54,11 +54,11 @@
         if (!g_Setup) {
             char finishSetupStr[128];
             Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", client);
-            AddMenuItem(menu, "finish_setup", finishSetupStr);
+            AddMenuItem(menu, "finish_setup", finishSetupStr, style);
         } else  {
             char finishSetupStr[128];
             Format(finishSetupStr, sizeof(finishSetupStr), "%T", "CancelSetup", client);
-            AddMenuItem(menu, "cancel_setup", finishSetupStr);
+            AddMenuItem(menu, "cancel_setup", finishSetupStr, style);
         }
 
         bool showMenu = true;
