@@ -689,7 +689,6 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 public Action Command_EndGame(int client, int args) {
     if (!g_Setup) {
         PugSetupMessage(client, "%t", "NotLiveYet");
-        PrintToChat(client, "%t", "NotLiveYet");
     } else {
         PermissionCheck(Permission_Leader)
 
