@@ -171,7 +171,7 @@ public void OnPluginStart() {
     // Setup options defaults
     g_hDefaultKnifeRounds = CreateConVar("sm_pugsetup_default_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
     g_hDefaultMapType = CreateConVar("sm_pugsetup_default_maptype", "vote", "Default team type to use. Allowed values: \"vote\", \"veto\", \"current\"");
-    g_hDefaultRecord = CreateConVar("sm_pugsetup_autorecord", "0", "Default value for recording demoes each game, requries tv_enable 1 to work");
+    g_hDefaultRecord = CreateConVar("sm_pugsetup_default_record", "0", "Default value for recording demoes each game, requries tv_enable 1 to work");
     g_hDefaultTeamSize = CreateConVar("sm_pugsetup_default_teamsize", "5", "Default number of players per team, can be changed in the .setup menu");
     g_hDefaultTeamType = CreateConVar("sm_pugsetup_default_teamtype", "captains", "What team type to use. Allowed values: \"captains\", \"manual\", and \"random\"");
 
@@ -189,7 +189,7 @@ public void OnPluginStart() {
     // Whether setup options are shown
     g_hOptionKnifeRounds = CreateConVar("sm_pugsetup_knife_rounds_option", "1", "Whether the knife round option is displayed in the setup menu or the default is always used");
     g_hOptionMapType = CreateConVar("sm_pugsetup_maptype_option", "1", "Whether the map type option is displayed in the setup menu or the default is always used");
-    g_hOptionRecord = CreateConVar("sm_pugsetup_autorecord_option", "0", "Whether the record demooption is displayed in the setup menu or the default is always used");
+    g_hOptionRecord = CreateConVar("sm_pugsetup_record_option", "1", "Whether the record demooption is displayed in the setup menu or the default is always used");
     g_hOptionTeamSize = CreateConVar("sm_pugsetup_teamsize_option", "1", "Whether the teamsize option is displayed in the setup menu or the default is always used");
     g_hOptionTeamType = CreateConVar("sm_pugsetup_teamtype_option", "1", "Whether the teamtype option is displayed in the setup menu or the default is always used");
 
