@@ -1015,7 +1015,7 @@ public void StartGame() {
 
     if (g_TeamType == TeamType_Random) {
         PugSetupMessageToAll("%t", "Scrambling");
-        ServerCommand("mp_scrambleteams");
+        ScrambleTeams();
     }
 
     if (g_DoKnifeRound) {
@@ -1026,6 +1026,43 @@ public void StartGame() {
         CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
     }
 
+}
+
+public void ScrambleTeams() {
+    int tCount = 0;
+    int ctCount = 0;
+
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i)) {
+            if (tCount < g_PlayersPerTeam && ctCount < g_PlayersPerTeam) {
+                bool ct = (GetRandomInt(0, 1) == 0);
+                if (ct) {
+                    SwitchPlayerTeam(i, CS_TEAM_CT);
+                    ctCount++;
+                } else {
+                    SwitchPlayerTeam(i, CS_TEAM_T);
+                    tCount++;
+                }
+
+            } else if (tCount < g_PlayersPerTeam && ctCount >= g_PlayersPerTeam) {
+                // CT is full
+                SwitchPlayerTeam(i, CS_TEAM_T);
+                tCount++;
+
+            } else if (ctCount < g_PlayersPerTeam && tCount >= g_PlayersPerTeam) {
+                // T is full
+                SwitchPlayerTeam(i, CS_TEAM_CT);
+                ctCount++;
+
+            } else {
+                // both teams full
+                SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
+                Call_StartForward(g_hOnNotPicked);
+                Call_PushCell(i);
+                Call_Finish();
+            }
+        }
+    }
 }
 
 public void ExecGameConfigs() {
