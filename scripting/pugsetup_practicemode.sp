@@ -221,6 +221,8 @@ public void GivePracticeMenu(int client, int style) {
     SetMenuTitle(menu, "Practice Settings");
     SetMenuExitButton(menu, true);
 
+    AddMenuItem(menu, "end_menu", "Exit practice mode", style);
+
     for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
         if (!g_BinaryOptionChangeable.Get(i))
             continue;
@@ -236,7 +238,6 @@ public void GivePracticeMenu(int client, int style) {
         AddMenuItem(menu, name, buffer, style);
     }
 
-    AddMenuItem(menu, "end_menu", "Exit practice mode", style);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
