@@ -228,9 +228,8 @@ public void GivePracticeMenu(int client, int style) {
         char name[OPTION_NAME_LENGTH];
         g_BinaryOptionNames.GetString(i, name, sizeof(name));
 
-        char enabled[32] = "enabled";
-        if (!g_BinaryOptionEnabled.Get(i))
-            enabled = "disabled";
+        char enabled[32];
+        GetEnabledString(enabled, sizeof(enabled), g_BinaryOptionEnabled.Get(i), client);
 
         char buffer[128];
         Format(buffer, sizeof(buffer), "%s: %s", name, enabled);
