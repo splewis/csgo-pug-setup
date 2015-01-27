@@ -307,7 +307,7 @@
 	}
 	"sm_capt_alias"
 	{
-		"en"		".notready"
+		"en"		".capt"
 	}
 	"sm_endgame_alias"
 	{
