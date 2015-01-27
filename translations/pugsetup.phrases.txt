@@ -305,4 +305,40 @@
 	{
 		"en"		"Back"
 	}
+	"sm_capt_alias"
+	{
+		"en"		".notready"
+	}
+	"sm_endgame_alias"
+	{
+		"en"		".endgame"
+	}
+	"sm_notready_alias"
+	{
+		"en"		".notready"
+	}
+	"sm_pause_alias"
+	{
+		"en"		".pause"
+	}
+	"sm_ready_alias"
+	{
+		"en"		".ready"
+	}
+	"sm_setup_alias"
+	{
+		"en"		".setup"
+	}
+	"sm_stay_alias"
+	{
+		"en"		".stay"
+	}
+	"sm_swap_alias"
+	{
+		"en"		".swap"
+	}
+	"sm_unpause_alias"
+	{
+		"en"		".unpause"
+	}
 }

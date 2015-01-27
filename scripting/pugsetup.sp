@@ -614,6 +614,18 @@ public void LoadChatAliases() {
     AddChatAlias(".stay", "sm_stay");
     AddChatAlias(".swap", "sm_swap");
 
+    // For each of these sm_x commands, we need the
+    // translation phrase sm_x_alias to be present.
+    AddTranslatedAlias("sm_capt");
+    AddTranslatedAlias("sm_endgame");
+    AddTranslatedAlias("sm_notready");
+    AddTranslatedAlias("sm_pause");
+    AddTranslatedAlias("sm_ready");
+    AddTranslatedAlias("sm_setup");
+    AddTranslatedAlias("sm_stay");
+    AddTranslatedAlias("sm_swap");
+    AddTranslatedAlias("sm_unpause");
+
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/chataliases.cfg");
     KeyValues kv = new KeyValues("ChatAliases");
@@ -629,6 +641,16 @@ public void LoadChatAliases() {
         }
     }
     delete kv;
+}
+
+static void AddTranslatedAlias(const char[] command, int lang=LANG_SERVER) {
+    char translationName[64];
+    Format(translationName, sizeof(translationName), "%s_alias", command);
+
+    char alias[64];
+    Format(alias, sizeof(alias), "%T", translationName, lang);
+
+    AddChatAlias(alias, command);
 }
 
 public void FindChatCommand(const char[] command, char[] buffer, int len) {
