@@ -41,8 +41,6 @@ ConVar g_MoveTeams;
 ConVar g_RecordRWS;
 ConVar g_SetCaptainsByRWS;
 
-TeamType g_TeamType;
-
 
 public Plugin:myinfo = {
     name = "CS:GO PugSetup: RWS balancer",
@@ -87,16 +85,12 @@ public OnClientConnected(int client) {
     g_RoundPoints[client] = 0;
 }
 
-public void OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam) {
-    g_TeamType = teamType;
-}
-
 /**
  * Here the teams are actually set to use the rws stuff.
  */
 public void OnGoingLive() {
     // only do balancing if we didn' do captains
-    if (g_TeamType == TeamType_Captains || g_MoveTeams.IntValue == 0)
+    if (GetTeamType() == TeamType_Captains || g_MoveTeams.IntValue == 0)
         return;
 
     Handle pq = PQ_Init();
@@ -250,7 +244,7 @@ public int rwsSortFunction(index1, index2, Handle array, Handle hndl) {
 }
 
 public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
-    if (g_SetCaptainsByRWS.IntValue != 0 && totalPlayers >= GetPugMaxPlayers() && g_TeamType == TeamType_Captains) {
+    if (g_SetCaptainsByRWS.IntValue != 0 && totalPlayers >= GetPugMaxPlayers() && GetTeamType() == TeamType_Captains) {
 
         // The idea is to set the captains to the 2 highest rws players,
         // so they are thrown into an array and sorted by rws,
