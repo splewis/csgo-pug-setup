@@ -120,9 +120,9 @@ public void TeamTypeMenu(int client) {
     Menu menu = new Menu(TeamTypeMenuHandler);
     SetMenuTitle(menu, "%T", "TeamSetupMenuTitle", client);
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:TeamType_Captains, "%T", "TeamSetupMenuCaptains", client);
-    AddMenuInt(menu, _:TeamType_Random, "%T", "TeamSetupMenuRandom", client);
-    AddMenuInt(menu, _:TeamType_Manual, "%T", "TeamSetupMenuManual", client);
+    AddMenuInt(menu, view_as<int>(TeamType_Captains), "%T", "TeamSetupMenuCaptains", client);
+    AddMenuInt(menu, view_as<int>(TeamType_Random), "%T", "TeamSetupMenuRandom", client);
+    AddMenuInt(menu, view_as<int>(TeamType_Manual), "%T", "TeamSetupMenuManual", client);
     AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
@@ -132,7 +132,7 @@ public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int par
         int client = param1;
         int choice = GetMenuInt(menu, param2);
         if (choice != -1) {
-            g_TeamType = TeamType:GetMenuInt(menu, param2);
+            g_TeamType = view_as<TeamType>(GetMenuInt(menu, param2));
         }
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
@@ -172,9 +172,9 @@ public void MapTypeMenu(int client) {
     Menu menu = new Menu(MapTypeHandler);
     SetMenuTitle(menu, "%T", "MapChoiceMenuTitle", client);
     SetMenuExitButton(menu, false);
-    AddMenuInt(menu, _:MapType_Current, "%T", "MapChoiceCurrent", client);
-    AddMenuInt(menu, _:MapType_Vote, "%T", "MapChoiceVote", client);
-    AddMenuInt(menu, _:MapType_Veto, "%T", "MapChoiceVeto", client);
+    AddMenuInt(menu, view_as<int>(MapType_Current), "%T", "MapChoiceCurrent", client);
+    AddMenuInt(menu, view_as<int>(MapType_Vote), "%T", "MapChoiceVote", client);
+    AddMenuInt(menu, view_as<int>(MapType_Veto), "%T", "MapChoiceVeto", client);
     AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
@@ -184,7 +184,7 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
         int client = param1;
         int choice = GetMenuInt(menu, param2);
         if (choice != -1) {
-            g_MapType = MapType:choice;
+            g_MapType = view_as<MapType>(choice);
             UpdateMapStatus();
         }
         GiveSetupMenu(client);

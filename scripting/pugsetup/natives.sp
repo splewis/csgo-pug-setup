@@ -35,8 +35,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 }
 
 public int Native_SetupGame(Handle plugin, int numParams) {
-    g_TeamType = TeamType:GetNativeCell(1);
-    g_MapType = MapType:GetNativeCell(2);
+    g_TeamType = view_as<TeamType>(GetNativeCell(1));
+    g_MapType = view_as<MapType>(GetNativeCell(2));
     g_PlayersPerTeam = GetNativeCell(3);
     SetupFinished();
 }
@@ -88,11 +88,11 @@ public int Native_IsSetup(Handle plugin, int numParams) {
 }
 
 public int Native_GetMapType(Handle plugin, int numParams) {
-    return _:g_MapType;
+    return view_as<int>(g_MapType);
 }
 
 public int Native_GetTeamType(Handle plugin, int numParams) {
-    return _:g_TeamType;
+    return view_as<int>(g_TeamType);
 }
 
 public int Native_IsMatchLive(Handle plugin, int numParams) {
@@ -256,7 +256,7 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
 
     CHECK_CLIENT(client);
 
-    Permissions p = Permissions:GetNativeCell(2);
+    Permissions p = view_as<Permissions>(GetNativeCell(2));
     bool isAdmin = IsPugAdmin(client);
     bool isLeader = GetLeader() == client;
     bool isCapt = (client == g_capt1) || (client == g_capt2);

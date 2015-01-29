@@ -1,4 +1,3 @@
-#pragma semicolon 1
 #include <cstrike>
 #include <sourcemod>
 #include <sdktools>
@@ -11,18 +10,14 @@
 #include "include/updater.inc"
 #define UPDATE_URL "https://dl.dropboxusercontent.com/u/76035852/csgo-pug-setup/csgo-pug-setup.txt"
 
+#pragma semicolon 1
+#pragma newdecls required
 
 /***********************
  *                     *
  *   Global variables  *
  *                     *
  ***********************/
-
-/** Initial menu data (where captain 1 picks between side pick or 1st player pick) **/
-enum InitialPick {
-    InitialPick_Side,
-    InitialPick_Player
-};
 
 /** ConVar handles **/
 ConVar g_hAdminFlag;
@@ -151,7 +146,7 @@ Handle g_hOnWarmupCfg = INVALID_HANDLE;
  *                     *
  ***********************/
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup",
     author = "splewis",
     description = "Tools for setting up pugs/10mans",

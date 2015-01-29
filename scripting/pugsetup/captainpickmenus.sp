@@ -9,8 +9,8 @@ public void InitialChoiceMenu(int client) {
         Menu menu = new Menu(InitialChoiceHandler);
         SetMenuTitle(menu, "%T", "InitialPickTitle", client);
         SetMenuExitButton(menu, false);
-        AddMenuInt(menu, _:InitialPick_Side, "%T", "InitialPickSides", client);
-        AddMenuInt(menu, _:InitialPick_Player, "%T", "InitialPickPlayer", client);
+        AddMenuOption(menu, "side", "%T", "InitialPickSides", client);
+        AddMenuOption(menu, "player", "%T", "InitialPickPlayer", client);
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
     } else {
         // if using knife rounds, they just always get the 1st pick
@@ -25,18 +25,20 @@ public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int pa
         if (client != g_capt1)
             LogError("[InitialChoiceHandler] only the first captain should have gotten the intial menu!");
 
-        InitialPick choice = InitialPick:GetMenuInt(menu, param2);
+        char choice[64];
+        menu.GetItem(param2, choice, sizeof(choice));
+
         char captString[64];
         FormatPlayerName(g_capt1, g_capt1, captString);
 
-        if (choice == InitialPick_Player) {
+        if (StrEqual(choice, "player")) {
             PugSetupMessageToAll("%T", "InitialPickPlayerChoice", client, captString);
             SideMenu(g_capt2);
-        } else if (choice == InitialPick_Side) {
+        } else if (StrEqual(choice, "side")) {
             PugSetupMessageToAll("%T", "InitialPickSideChoice", client, captString);
             SideMenu(g_capt1);
         } else {
-            LogError("[InitialChoiceHandler] unknown intial choice=%d", choice);
+            LogError("[InitialChoiceHandler] unknown intial choice=%s", choice);
         }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);

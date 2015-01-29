@@ -200,7 +200,7 @@ native void AddChatAlias(const char[] alias, const char[] command);
 // This is intended to be called in the OnSetupMenuSelect forward.
 native void GiveSetupMenu(int client, bool displayOnly=false);
 
-public SharedPlugin:__pl_pugsetup = {
+public SharedPlugin __pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
 #if defined REQUIRE_PLUGIN

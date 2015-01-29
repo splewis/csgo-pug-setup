@@ -34,7 +34,7 @@ stock void UpdateWorkshopCache(int collectionID) {
 /*
  * Gets called when response is received.
  */
-public OnGetPageComplete(const char[] output, const int size, CMDReturn status, int collectionID) {
+public int OnGetPageComplete(const char[] output, const int size, CMDReturn status, int collectionID) {
     // Handle error condition
     if (status == CMD_ERROR) {
         PrintToServer("Steam API error: couldn't fetch data for collection ID %d", collectionID);

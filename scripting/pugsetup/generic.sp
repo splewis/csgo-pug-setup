@@ -9,6 +9,13 @@
 char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
 char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
 
+stock void AddMenuOption(Menu menu, const char[] info, const char[] display, any:...) {
+    char formattedDisplay[128];
+    VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
+    menu.AddItem(info, formattedDisplay);
+}
+
+
 /**
  * Adds an integer to a menu as a string choice.
  */
@@ -195,7 +202,7 @@ stock void Record(const char[] demoName) {
 }
 
 stock bool IsPaused() {
-    return bool:GameRules_GetProp("m_bMatchWaitingForResume");
+    return GameRules_GetProp("m_bMatchWaitingForResume") != 0;
 }
 
 stock int GetCookieInt(int client, Handle cookie) {
