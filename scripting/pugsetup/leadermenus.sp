@@ -3,7 +3,9 @@
  */
 public void Captain1Menu(int client) {
     Menu menu = new Menu(Captain1MenuHandler);
-    SetMenuTitle(menu, "Chose captain 1:");
+    char title[128];
+    Format(title, sizeof(title), "%T", "ChooseCaptainTitle", client, 1);
+    SetMenuTitle(menu, title);
     if (AddPotentialCaptains(menu, g_capt2) >= 1)
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
     else
@@ -23,7 +25,9 @@ public int Captain1MenuHandler(Menu menu, MenuAction action, int param1, int par
 
 public void Captain2Menu(int client) {
     Menu menu = new Menu(Captain2MenuHandler);
-    SetMenuTitle(menu, "Chose captain 2:");
+    char title[128];
+    Format(title, sizeof(title), "%T", "ChooseCaptainTitle", client, 2);
+    SetMenuTitle(menu, title);
     if (AddPotentialCaptains(menu, g_capt1) >= 1)
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
     else

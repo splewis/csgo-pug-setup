@@ -341,4 +341,9 @@
 	{
 		"en"		".unpause"
 	}
+	"ChooseCaptainTitle"
+	{
+		"#format"	"{1:d}"
+		"en"		"Choose captain {1}:"
+	}
 }
