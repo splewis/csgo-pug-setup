@@ -117,6 +117,7 @@ int g_KnifeWinner = -1;
 Handle g_hOnForceEnd = INVALID_HANDLE;
 Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnLive = INVALID_HANDLE;
+Handle g_hOnLiveCfg = INVALID_HANDLE;
 Handle g_hOnLiveCheck = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnNotPicked = INVALID_HANDLE;
@@ -127,6 +128,7 @@ Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnSetupMenuOpen = INVALID_HANDLE;
 Handle g_hOnSetupMenuSelect = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
+Handle g_hOnWarmupCfg = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configreader.sp"
@@ -233,18 +235,20 @@ public void OnPluginStart() {
     HookEvent("round_end", Event_RoundEnd);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
-    g_hOnReadyToStart = CreateGlobalForward("OnReadyToStart", ET_Ignore);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
+    g_hOnLiveCfg = CreateGlobalForward("OnLiveCfgExecuted", ET_Ignore);
     g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
     g_hOnNotPicked = CreateGlobalForward("OnNotPicked", ET_Ignore, Param_Cell);
     g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
+    g_hOnReadyToStart = CreateGlobalForward("OnReadyToStart", ET_Ignore);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnSetupMenuOpen = CreateGlobalForward("OnSetupMenuOpen", ET_Single, Param_Cell, Param_Cell, Param_Cell);
     g_hOnSetupMenuSelect = CreateGlobalForward("OnSetupMenuSelect", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
+    g_hOnWarmupCfg = CreateGlobalForward("OnWarmupCfgExecuted", ET_Ignore);
 
     g_LiveTimerRunning = false;
 
@@ -1204,4 +1208,19 @@ public void CheckAutoSetup() {
     if (g_hAutoSetup.IntValue != 0 && !g_Setup && !g_ForceEnded && !g_InStartPhase && !g_MatchLive) {
         SetupFinished();
     }
+}
+
+public void ExecCfg(ConVar cvar) {
+    char cfg[PLATFORM_MAX_PATH];
+    cvar.GetString(cfg, sizeof(cfg));
+    ServerCommand("exec \"%s\"", cfg);
+
+    if (cvar == g_hLiveCfg) {
+        Call_StartForward(g_hOnLiveCfg);
+        Call_Finish();
+    } else if (cvar == g_hWarmupCfg) {
+        Call_StartForward(g_hOnWarmupCfg);
+        Call_Finish();
+    }
+
 }

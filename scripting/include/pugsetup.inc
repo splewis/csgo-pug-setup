@@ -84,6 +84,16 @@ forward void OnGoingLive();
 forward void OnLive();
 
 /**
+ * Called after the warmup config is executed.
+ */
+forward void OnWarmupCfgExecuted();
+
+/**
+ * Called after the live config is executed.
+ */
+forward void OnLiveCfgExecuted();
+
+/**
  * Called when the match is over.
  * If you plan on using the result of the demo file,
  * I'd suggest adding a slight delay from when this is called

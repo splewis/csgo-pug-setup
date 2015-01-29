@@ -10,15 +10,6 @@ char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW
 char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
 
 /**
- * Executes a config file named by a convar.
- */
-stock void ExecCfg(ConVar ConVarName) {
-    char cfg[PLATFORM_MAX_PATH];
-    ConVarName.GetString(cfg, sizeof(cfg));
-    ServerCommand("exec \"%s\"", cfg);
-}
-
-/**
  * Adds an integer to a menu as a string choice.
  */
 stock void AddMenuInt(Menu menu, int value, const char[] display, any:...) {
