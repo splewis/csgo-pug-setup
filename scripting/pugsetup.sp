@@ -1213,7 +1213,18 @@ public void CheckAutoSetup() {
 public void ExecCfg(ConVar cvar) {
     char cfg[PLATFORM_MAX_PATH];
     cvar.GetString(cfg, sizeof(cfg));
-    ServerCommand("exec \"%s\"", cfg);
+
+    // for files that start with configs/pugsetup/* we just
+    // read the file and execute each command individually,
+    // otherwise we assume the file is in the cfg/ directory and
+    // just use the game's exec command.
+    if (StrContains(cfg, "configs/pugsetup") == 0) {
+        char formattedPath[PLATFORM_MAX_PATH];
+        BuildPath(Path_SM, formattedPath, sizeof(formattedPath), cfg);
+        ExecFromFile(formattedPath);
+    } else {
+        ServerCommand("exec \"%s\"", cfg);
+    }
 
     if (cvar == g_hLiveCfg) {
         Call_StartForward(g_hOnLiveCfg);
@@ -1222,5 +1233,17 @@ public void ExecCfg(ConVar cvar) {
         Call_StartForward(g_hOnWarmupCfg);
         Call_Finish();
     }
+}
 
+public void ExecFromFile(const char[] path) {
+    if (FileExists(path)) {
+        File file = OpenFile(path, "r");
+        char buffer[256];
+        while (!file.EndOfFile() && file.ReadLine(buffer, sizeof(buffer))) {
+            ServerCommand(buffer);
+        }
+        delete file;
+    } else {
+        LogError("Config file does not exist: %s", path);
+    }
 }
