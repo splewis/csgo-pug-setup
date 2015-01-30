@@ -80,6 +80,8 @@ public Action Command_ListNames(int client, args) {
     }
     if (count == 0)
         ReplyToCommand(client, "Nobody has a team name/flag set.");
+
+    return Plugin_Handled;
 }
 
 public Action Command_Name(int client, args) {
