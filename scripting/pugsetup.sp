@@ -628,16 +628,14 @@ public void LoadChatAliases() {
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/chataliases.cfg");
     KeyValues kv = new KeyValues("ChatAliases");
-    if (kv.ImportFromFile(configFile) && kv.GotoFirstSubKey()) {
-        if (kv.JumpToKey("maps") && kv.GotoFirstSubKey(false)) {
-            do {
-                char alias[64];
-                char command[64];
-                kv.GetSectionName(alias, sizeof(alias));
-                kv.GetString(alias, command, sizeof(command));
-                AddChatAlias(alias, command);
-            } while (kv.GotoNextKey(false));
-        }
+    if (kv.ImportFromFile(configFile) && kv.GotoFirstSubKey(false)) {
+        do {
+            char alias[64];
+            char command[64];
+            kv.GetSectionName(alias, sizeof(alias));
+            kv.GetString(NULL_STRING, command, sizeof(command));
+            AddChatAlias(alias, command);
+        } while (kv.GotoNextKey(false));
     }
     delete kv;
 }
