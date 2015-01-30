@@ -43,7 +43,9 @@ public void OnMapStart() {
 }
 
 public void OnMapEnd() {
-    DisablePracticeMode();
+    if (g_InPracticeMode)
+        DisablePracticeMode();
+
     ClearPracticeSettings();
 }
 
@@ -161,7 +163,8 @@ public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
 }
 
 public void OnReadyToStart() {
-    DisablePracticeMode();
+    if (g_InPracticeMode)
+        DisablePracticeMode();
 }
 
 public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int param2) {
