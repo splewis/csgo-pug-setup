@@ -110,7 +110,7 @@ public void OnGoingLive() {
         if (IsPlayer(p1))
             SwitchPlayerTeam(p1, CS_TEAM_CT);
         if (IsPlayer(p2))
-            SwitchPlayerTeam(p1, CS_TEAM_T);
+            SwitchPlayerTeam(p2, CS_TEAM_T);
 
         count += 2;
     }
