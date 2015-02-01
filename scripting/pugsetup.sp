@@ -1122,6 +1122,9 @@ public void EndMatch(bool execConfigs) {
 }
 
 public ArrayList GetCurrentMapList() {
+    char maplist[64];
+    g_hMapList.GetString(maplist, sizeof(maplist));
+    GetMapList(maplist);
     if (g_MapList.Length == 0) {
         AddBackupMaps();
     }
