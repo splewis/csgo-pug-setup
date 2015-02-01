@@ -70,7 +70,8 @@ bool g_SetDefaultConfig = false;
 
 // Other important variables about the state of the game
 bool g_Setup = false;
-bool g_mapSet = false;
+bool g_MapSet = false; // whether we're on the map that is going to be used
+bool g_SwitchingMaps = false; // if we're in the middle of a map change
 bool g_Recording = true;
 char g_DemoFileName[PLATFORM_MAX_PATH];
 bool g_LiveTimerRunning = false;
@@ -291,12 +292,17 @@ public void OnClientDisconnect_Post(int client) {
         if (IsPlayer(i))
             numPlayers++;
 
-    if (numPlayers == 0 && (g_mapSet || g_MatchLive)) {
+    if (numPlayers == 0 && !g_SwitchingMaps) {
         EndMatch(true);
     }
 }
 
 public void OnMapStart() {
+    if (g_SwitchingMaps) {
+        g_MapSet = true;
+    }
+    g_SwitchingMaps = false;
+
     g_MapList = CreateArray(PLATFORM_MAX_PATH);
     g_ForceEnded = false;
     Config_MapStart();
@@ -313,7 +319,7 @@ public void OnMapStart() {
         g_Teams[i] = -1;
     }
 
-    if (g_mapSet || g_Setup) {
+    if (g_MapSet || g_Setup) {
         ExecCfg(g_hWarmupCfg);
         g_Setup = true;
         if (!g_LiveTimerRunning) {
@@ -360,7 +366,7 @@ public Action Timer_CheckReady(Handle timer) {
 
     // beware: scary spaghetti code ahead
     if (readyPlayers == totalPlayers && readyPlayers >= 2 * g_PlayersPerTeam) {
-        if (g_mapSet) {
+        if (g_MapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -423,7 +429,7 @@ public Action Timer_CheckReady(Handle timer) {
 public void StatusHint(int readyPlayers, int totalPlayers) {
     char rdyCommand[32];
     FindChatCommand("sm_ready", rdyCommand, sizeof(rdyCommand));
-    if (!g_mapSet && g_MapType != MapType_Veto) {
+    if (!g_MapSet && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
@@ -872,7 +878,7 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
 
     // Always make these false, in case the players didn't use the plugin's lo3/start functionality
     // and manually rcon'd the commands.
-    g_mapSet = false;
+    g_MapSet = false;
     g_Setup = false;
     g_MatchLive = false;
     g_WaitingForKnifeDecision = false;
@@ -1109,7 +1115,7 @@ public void EndMatch(bool execConfigs) {
     g_Leader = -1;
     g_capt1 = -1;
     g_capt2 = -1;
-    g_mapSet = false;
+    g_MapSet = false;
     g_Setup = false;
     g_MatchLive = false;
     g_WaitingForKnifeWinner = false;

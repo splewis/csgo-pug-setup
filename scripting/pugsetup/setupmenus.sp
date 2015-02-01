@@ -13,6 +13,16 @@
 
         char buffer[256];
 
+        if (!g_Setup) {
+            char finishSetupStr[128];
+            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", client);
+            AddMenuItem(menu, "finish_setup", finishSetupStr, style);
+        } else  {
+            char finishSetupStr[128];
+            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "CancelSetup", client);
+            AddMenuItem(menu, "cancel_setup", finishSetupStr, style);
+        }
+
         // 1. team type
         if (g_hOptionTeamType.IntValue != 0) {
             char teamType[128];
@@ -49,16 +59,6 @@
             GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, client);
             Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", client, knifeString);
             AddMenuItem(menu, "knife", buffer, style);
-        }
-
-        if (!g_Setup) {
-            char finishSetupStr[128];
-            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", client);
-            AddMenuItem(menu, "finish_setup", finishSetupStr, style);
-        } else  {
-            char finishSetupStr[128];
-            Format(finishSetupStr, sizeof(finishSetupStr), "%T", "CancelSetup", client);
-            AddMenuItem(menu, "cancel_setup", finishSetupStr, style);
         }
 
         bool showMenu = true;
@@ -268,9 +268,9 @@ stock void GetMapString(char[] buffer, int length, MapType type, int client=0) {
 
 static void UpdateMapStatus() {
     switch (g_MapType) {
-        case MapType_Current: g_mapSet = true;
-        case MapType_Vote: g_mapSet = false;
-        case MapType_Veto: g_mapSet = false;
+        case MapType_Current: g_MapSet = true;
+        case MapType_Vote: g_MapSet = false;
+        case MapType_Veto: g_MapSet = false;
         default: LogError("unknown maptype=%d", g_MapType);
     }
 }
