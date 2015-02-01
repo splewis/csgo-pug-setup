@@ -88,7 +88,7 @@ public OnClientConnected(int client) {
 /**
  * Here the teams are actually set to use the rws stuff.
  */
-public void OnGoingLive() {
+public void OnReadyToStart() {
     // only do balancing if we didn' do captains
     if (GetTeamType() == TeamType_Captains || g_MoveTeams.IntValue == 0)
         return;
