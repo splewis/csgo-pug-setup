@@ -1,25 +1,25 @@
 public void Config_MapStart() {
-
     char maplist[PLATFORM_MAX_PATH];
     g_hMapList.GetString(maplist, sizeof(maplist));
+
     int collectionID = StringToInt(maplist);
 
     if (collectionID == 0) {
-        return;
+        // it's a regular map list
+        GetMapList(maplist);
+    } else {
+        // it's a workshop collection id, setup the workshop cache
+        BuildPath(Path_SM, g_DataDir, sizeof(g_DataDir), "data/pugsetup");
+
+        if (!DirExists(g_DataDir)) {
+            CreateDirectory(g_DataDir, 511);
+        }
+
+        Format(g_CacheFile, sizeof(g_CacheFile), "%s/cache.cfg", g_DataDir);
+        g_WorkshopCache = new KeyValues("Workshop");
+        g_WorkshopCache.ImportFromFile(g_CacheFile);
+        UpdateWorkshopCache(collectionID);
     }
-
-    // setup any workshop cache information
-    BuildPath(Path_SM, g_DataDir, sizeof(g_DataDir), "data/pugsetup");
-
-    if (!DirExists(g_DataDir)) {
-        CreateDirectory(g_DataDir, 511);
-    }
-
-    Format(g_CacheFile, sizeof(g_CacheFile), "%s/cache.cfg", g_DataDir);
-
-    g_WorkshopCache = new KeyValues("Workshop");
-    g_WorkshopCache.ImportFromFile(g_CacheFile);
-    UpdateWorkshopCache(collectionID);
 }
 
 public void SetConfigDefaults() {
