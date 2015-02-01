@@ -4,3 +4,7 @@ Package(name='pugsetup',
         plugins=Plugins('pugsetup*'),
         disabled_plugins=Plugins('pugsetup_*'),
 )
+
+Package(name='pugsetup_base',
+        plugins=['pugsetup'],
+)
