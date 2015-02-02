@@ -66,7 +66,7 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 - ``pugsetup_teamnames``: sets team names/flag according to the players on the team, see more detail at the end of the readme
 - ``pugsetup_teamlocker``: blocks players from joining full teams when a game is live
 - ``pugsetup_hostname``: adds some tags to the server hostname depending on the pug status, examples: "[LIVE]" and "[NEED 3]"
-- ``pugsetup_rwsbalancer``: implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual/random teams
+- ``pugsetup_rwsbalancer``: implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual teams (or assigns captains to the highest 2 rws players when using captains)
 - ``pugsetup_chatmoney``: prints out the team members' money to chat on round starts
 - ``pugsetup_practicemode``: adds an option to the .setup menu to launch a practice mode with cheats/infinite ammo/respawning/etc.
 
