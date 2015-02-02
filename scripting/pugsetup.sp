@@ -985,15 +985,16 @@ public Action Timer_CountDown(Handle timer)  {
         return Plugin_Stop;
     }
 
-    g_CountDownTicks--;
-
     if (g_CountDownTicks == 0) {
         StartGame();
         return Plugin_Stop;
-    } else if (g_hAnnounceCountdown.IntValue != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
-        PugSetupMessageToAll("%t", "Countdown", g_CountDownTicks);
-        return Plugin_Continue;
     }
+
+    if (g_hAnnounceCountdown.IntValue != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
+        PugSetupMessageToAll("%t", "Countdown", g_CountDownTicks);
+    }
+
+    g_CountDownTicks--;
 
     return Plugin_Continue;
 }
