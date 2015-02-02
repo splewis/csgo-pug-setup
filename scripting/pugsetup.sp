@@ -1063,7 +1063,7 @@ public void ScrambleTeams() {
     int ctCount = 0;
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i)) {
+        if (IsPlayer(i) && (g_hExcludeSpectators.IntValue == 0 || GetClientTeam(i) != CS_TEAM_SPECTATOR)) {
             if (tCount < g_PlayersPerTeam && ctCount < g_PlayersPerTeam) {
                 bool ct = (GetRandomInt(0, 1) == 0);
                 if (ct) {
