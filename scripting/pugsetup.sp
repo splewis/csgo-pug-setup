@@ -10,6 +10,9 @@
 #include "include/updater.inc"
 #define UPDATE_URL "https://dl.dropboxusercontent.com/u/76035852/csgo-pug-setup/csgo-pug-setup.txt"
 
+#define ALIAS_LENGTH 64
+#define COMMAND_LENGTH 64
+
 #pragma semicolon 1
 #pragma newdecls required
 
@@ -470,7 +473,7 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
 // PermissionCheck(Permissions:permissions)
 #define PermissionCheck(%1) { \
     bool _perm = HasPermissions(client, %1); \
-    char _cmd[64]; \
+    char _cmd[COMMAND_LENGTH]; \
     GetCmdArg(0, _cmd, sizeof(_cmd)); \
     Call_StartForward(g_hOnPermissionCheck); \
     Call_PushCell(client); \
@@ -636,8 +639,8 @@ public void LoadChatAliases() {
     KeyValues kv = new KeyValues("ChatAliases");
     if (kv.ImportFromFile(configFile) && kv.GotoFirstSubKey(false)) {
         do {
-            char alias[64];
-            char command[64];
+            char alias[ALIAS_LENGTH];
+            char command[COMMAND_LENGTH];
             kv.GetSectionName(alias, sizeof(alias));
             kv.GetString(NULL_STRING, command, sizeof(command));
             AddChatAlias(alias, command);
@@ -650,7 +653,7 @@ static void AddTranslatedAlias(const char[] command, int lang=LANG_SERVER) {
     char translationName[64];
     Format(translationName, sizeof(translationName), "%s_alias", command);
 
-    char alias[64];
+    char alias[ALIAS_LENGTH];
     Format(alias, sizeof(alias), "%T", translationName, lang);
 
     AddChatAlias(alias, command);
@@ -691,8 +694,8 @@ static bool CheckChatAlias(const char[] alias, const char[] command, const char[
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs) {
     for (int i = 0; i < GetArraySize(g_ChatAliases); i++) {
-        char alias[64];
-        char cmd[64];
+        char alias[ALIAS_LENGTH];
+        char cmd[COMMAND_LENGTH];
         GetArrayString(g_ChatAliases, i, alias, sizeof(alias));
         GetArrayString(g_ChatAliasesCommands, i, cmd, sizeof(cmd));
 

@@ -5,8 +5,8 @@
 
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
-    g_ChatAliases = CreateArray(64);
-    g_ChatAliasesCommands = CreateArray(64);
+    g_ChatAliases = CreateArray(ALIAS_LENGTH);
+    g_ChatAliasesCommands = CreateArray(COMMAND_LENGTH);
 
     CreateNative("SetupGame", Native_SetupGame);
     CreateNative("ReadyPlayer", Native_ReadyPlayer);
@@ -295,8 +295,8 @@ public int Native_SetRandomCaptains(Handle plugin, int numParams) {
 }
 
 public int Native_AddChatAlias(Handle plugin, int numParams) {
-    char alias[64];
-    char command[64];
+    char alias[ALIAS_LENGTH];
+    char command[COMMAND_LENGTH];
     GetNativeString(1, alias, sizeof(alias));
     GetNativeString(2, command, sizeof(command));
 
