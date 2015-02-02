@@ -20,7 +20,7 @@ public void GiveVetoMenu(int client) {
 
     Menu menu = new Menu(VetoHandler);
     menu.ExitButton = false;
-    menu.SetTitle("%t", "VetoMenuTitle");
+    menu.SetTitle("%T", "VetoMenuTitle", client);
 
     for (int i = 0; i < mapList.Length; i++) {
         if (!g_MapVetoed.Get(i)) {
@@ -90,7 +90,7 @@ static void VetoStatusDisplay(int client) {
 
     Menu menu = new Menu(VetoStatusHandler);
     SetMenuExitButton(menu, true);
-    SetMenuTitle(menu, "%t", "MapsLeft");
+    SetMenuTitle(menu, "%T", "MapsLeft", client);
     for (int i = 0; i < mapList.Length; i++) {
         if (!g_MapVetoed.Get(i)) {
             char map[PLATFORM_MAX_PATH];
