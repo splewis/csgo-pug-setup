@@ -1,8 +1,13 @@
-#pragma semicolon 1
 #include <clientprefs>
 #include <cstrike>
 #include <geoip>
 #include <sourcemod>
+#include "include/pugsetup.inc"
+#include "pugsetup/generic.sp"
+
+#pragma semicolon 1
+#pragma newdecls required
+
 
 /** Client cookie handles **/
 Handle g_teamNameCookie = INVALID_HANDLE;
@@ -10,11 +15,7 @@ Handle g_teamFlagCookie = INVALID_HANDLE;
 #define TEAM_NAME_LENGTH 128
 #define TEAM_FLAG_LENGTH 4
 
-#include "include/pugsetup.inc"
-#include "pugsetup/generic.sp"
-
-
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup: team names setter",
     author = "splewis",
     description = "Sets team names/flags on game going live",
@@ -22,7 +23,7 @@ public Plugin:myinfo = {
     url = "https://github.com/splewis/csgo-pug-setup"
 };
 
-public OnPluginStart() {
+public void OnPluginStart() {
     LoadTranslations("common.phrases");
     LoadTranslations("pugsetup.phrases");
     RegAdminCmd("sm_name", Command_Name, ADMFLAG_CHANGEMAP, "Sets a team name/flag to go with a player: sm_name <player> <teamname> <teamflag>, use quotes for the team name if it includes a space!");
@@ -31,7 +32,7 @@ public OnPluginStart() {
     g_teamFlagCookie = RegClientCookie("pugsetup_teamflag", "Pugsetup team flag (2-letter country code)", CookieAccess_Protected);
 }
 
-public OnGoingLive() {
+public void OnGoingLive() {
     ArrayList ctNames = new ArrayList(TEAM_NAME_LENGTH);
     ArrayList ctFlags = new ArrayList(TEAM_FLAG_LENGTH);
     ArrayList tNames = new ArrayList(TEAM_NAME_LENGTH);
@@ -64,7 +65,7 @@ public OnGoingLive() {
     delete tFlags;
 }
 
-public Action Command_ListNames(int client, args) {
+public Action Command_ListNames(int client, int args) {
     int count = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && AreClientCookiesCached(i)) {
@@ -84,7 +85,7 @@ public Action Command_ListNames(int client, args) {
     return Plugin_Handled;
 }
 
-public Action Command_Name(int client, args) {
+public Action Command_Name(int client, int args) {
     char arg1[128];
     char arg2[128];
 

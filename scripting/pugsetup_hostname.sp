@@ -1,9 +1,10 @@
-#pragma semicolon 1
 #include <cstrike>
 #include <sourcemod>
-
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
+
+#pragma semicolon 1
+#pragma newdecls required
 
 #define MAX_HOST_LENGTH 256
 
@@ -13,7 +14,7 @@ ConVar g_HostnameCvar;
 bool g_GotHostName = false;  // keep track of it, so we only fetch it once
 char g_HostName[MAX_HOST_LENGTH];  // stores the original hostname
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup: hostname setter",
     author = "splewis",
     description = "Tweaks the server hostname according to the pug status",

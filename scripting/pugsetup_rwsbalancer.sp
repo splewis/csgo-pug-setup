@@ -1,11 +1,12 @@
-#pragma semicolon 1
 #include <clientprefs>
 #include <cstrike>
 #include <sourcemod>
-
 #include "include/priorityqueue.inc"
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
+
+#pragma semicolon 1
+#pragma newdecls required
 
 /*
  * This isn't meant to be a comprehensive stats system, it's meant to be a simple
@@ -42,7 +43,7 @@ ConVar g_RecordRWS;
 ConVar g_SetCaptainsByRWS;
 
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup: RWS balancer",
     author = "splewis",
     description = "Sets player teams based on historical RWS ratings stored via clientprefs cookies",
@@ -50,7 +51,7 @@ public Plugin:myinfo = {
     url = "https://github.com/splewis/csgo-pug-setup"
 };
 
-public OnPluginStart() {
+public void OnPluginStart() {
     LoadTranslations("common.phrases");
 
     HookEvent("bomb_defused", Event_Bomb);
@@ -71,7 +72,7 @@ public OnPluginStart() {
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 }
 
-public OnClientCookiesCached(int client) {
+public int OnClientCookiesCached(int client) {
     if (IsFakeClient(client))
         return;
 
@@ -79,7 +80,7 @@ public OnClientCookiesCached(int client) {
     g_PlayerRounds[client] = GetCookieInt(client, g_RoundsPlayedCookie);
 }
 
-public OnClientConnected(int client) {
+public void OnClientConnected(int client) {
     g_PlayerRWS[client] = 0.0;
     g_PlayerRounds[client] = 0;
     g_RoundPoints[client] = 0;
@@ -127,7 +128,7 @@ public void OnReadyToStart() {
 /**
  * These events update player "rounds points" for computing rws at the end of each round.
  */
-public Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive())
         return;
 
@@ -142,7 +143,7 @@ public Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast) {
     }
 }
 
-public Event_Bomb(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_Bomb(Handle event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive())
         return;
 
@@ -177,7 +178,7 @@ public bool HelpfulAttack(int attacker, int victim) {
 /**
  * Round end event, updates rws values for everyone.
  */
-public Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive() || g_RecordRWS.IntValue == 0)
         return;
 
@@ -199,7 +200,7 @@ static void RWSUpdate(int client, bool winner) {
     if (winner) {
         int playerCount = 0;
         int sum = 0;
-        for (new i = 1; i <= MaxClients; i++) {
+        for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
                 if (GetClientTeam(i) == GetClientTeam(client)) {
                     sum += g_RoundPoints[i];
@@ -237,7 +238,7 @@ static float GetAlphaFactor(int client) {
     }
 }
 
-public int rwsSortFunction(index1, index2, Handle array, Handle hndl) {
+public int rwsSortFunction(int index1, int index2, Handle array, Handle hndl) {
     int client1 = GetArrayCell(array, index1);
     int client2 = GetArrayCell(array, index2);
     return g_PlayerRWS[client1] < g_PlayerRWS[client2];

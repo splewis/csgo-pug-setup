@@ -1,8 +1,10 @@
-#pragma semicolon 1
 #include <cstrike>
 #include <sourcemod>
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
+
+#pragma semicolon 1
+#pragma newdecls required
 
 ConVar g_hAutoKickerEnabled;
 ConVar g_hKickMessage;
@@ -10,7 +12,7 @@ ConVar g_hKickNotPicked;
 ConVar g_hKickWhenLive;
 ConVar g_hUseAdminImmunity;
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup: autokicker",
     author = "splewis",
     description = "Adds cvars to automatically kick players when they aren't part of the current pug",

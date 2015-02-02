@@ -1,12 +1,12 @@
-#pragma semicolon 1
 #include <cstrike>
 #include <sourcemod>
-
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
-bool g_InPracticeMode = false;
+#pragma semicolon 1
+#pragma newdecls required
 
+bool g_InPracticeMode = false;
 
 #define OPTION_NAME_LENGTH 128 // length of a setting name
 #define CVAR_NAME_LENGTH 64 // length of a cvar
@@ -23,7 +23,7 @@ ArrayList g_BinaryOptionEnabledValues;
 ArrayList g_BinaryOptionDisabledCvars;
 ArrayList g_BinaryOptionDisabledValues;
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup: practice mode",
     author = "splewis",
     description = "A relatively simple practice mode that can be laucnehd through the setup menu",
@@ -180,7 +180,7 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
             SetCvar("sv_cheats", 1);
 
             for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
-                bool enabled = bool:g_BinaryOptionEnabled.Get(i);
+                bool enabled = view_as<bool>(g_BinaryOptionEnabled.Get(i));
                 ChangeSetting(i, enabled, false);
             }
 

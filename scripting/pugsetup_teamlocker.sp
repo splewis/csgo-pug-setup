@@ -1,12 +1,14 @@
-#pragma semicolon 1
 #include <cstrike>
 #include <sourcemod>
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
+#pragma semicolon 1
+#pragma newdecls required
+
 ConVar g_hLockTeamsEnabled;
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup: team locker",
     author = "splewis",
     description = "Blocks team join events to full teams",
@@ -14,7 +16,7 @@ public Plugin:myinfo = {
     url = "https://github.com/splewis/csgo-pug-setup"
 };
 
-public OnPluginStart() {
+public void OnPluginStart() {
     g_hLockTeamsEnabled = CreateConVar("sm_pugsetup_teamlocker_enabled", "1", "Whether teams are locked when matches are live.");
     AutoExecConfig(true, "pugsetup_teamlocker", "sourcemod/pugsetup");
     AddCommandListener(Command_TeamJoin, "jointeam");
@@ -25,7 +27,7 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
     return Plugin_Continue;
 }
 
-public Action Command_TeamJoin(int client, const char[] command, argc) {
+public Action Command_TeamJoin(int client, const char[] command, int argc) {
     if (!IsValidClient(client))
         return Plugin_Handled;
 

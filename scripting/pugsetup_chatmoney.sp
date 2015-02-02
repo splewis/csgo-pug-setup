@@ -1,13 +1,14 @@
-#pragma semicolon 1
 #include <cstrike>
 #include <sourcemod>
-
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
+#pragma semicolon 1
+#pragma newdecls required
+
 ConVar g_hEnabled;
 
-public Plugin:myinfo = {
+public Plugin myinfo = {
     name = "CS:GO PugSetup: write team money to chat",
     author = "Versatile_BFG/jkroepke",
     description = "Write the team members' money to the chat (like WarMod)",
@@ -22,7 +23,7 @@ public void OnPluginStart() {
     HookEvent("round_start", Event_Round_Start);
 }
 
-public Event_Round_Start(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_Round_Start(Handle event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive() || g_hEnabled.IntValue == 0)
         return;
 
