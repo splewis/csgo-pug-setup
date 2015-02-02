@@ -22,7 +22,7 @@ public OnPluginStart() {
 }
 
 public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
-    return Plugin_Changed;
+    return Plugin_Continue;
 }
 
 public Action Command_TeamJoin(int client, const char[] command, argc) {
