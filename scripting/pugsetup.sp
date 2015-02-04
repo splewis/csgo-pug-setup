@@ -429,7 +429,7 @@ public Action Timer_CheckReady(Handle timer) {
 }
 
 public void StatusHint(int readyPlayers, int totalPlayers) {
-    char rdyCommand[COMMAND_LENGTH];
+    char rdyCommand[ALIAS_LENGTH];
     FindChatCommand("sm_ready", rdyCommand);
     if (!g_MapSet && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
@@ -658,7 +658,7 @@ static void AddTranslatedAlias(const char[] command, int lang=LANG_SERVER) {
     AddChatAlias(alias, command);
 }
 
-public void FindChatCommand(const char[] command, char buffer[COMMAND_LENGTH]) {
+public void FindChatCommand(const char[] command, char alias[ALIAS_LENGTH]) {
     int n = g_ChatAliases.Length;
     char tmpCommand[COMMAND_LENGTH];
 
@@ -670,7 +670,7 @@ public void FindChatCommand(const char[] command, char buffer[COMMAND_LENGTH]) {
         g_ChatAliasesCommands.GetString(i, tmpCommand, sizeof(tmpCommand));
 
         if (StrEqual(command, tmpCommand)) {
-            g_ChatAliases.GetString(i, buffer, sizeof(buffer));
+            g_ChatAliases.GetString(i, alias, sizeof(alias));
             return;
         }
     }
@@ -678,7 +678,7 @@ public void FindChatCommand(const char[] command, char buffer[COMMAND_LENGTH]) {
     // If we never found one, just use !<command> (without the sm_ prefix)
     // TODO: The use of "!" is actually a sourcemod option, so this should probably
     // detect that cvar's value instead of assuming it's always !
-    Format(buffer, sizeof(buffer), "!%s", command[2]);
+    Format(alias, sizeof(alias), "!%s", command[2]);
 }
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] sArgs, int client) {
@@ -797,7 +797,7 @@ public Action Command_Unpause(int client, int args) {
     if (!g_Setup || !g_MatchLive || !IsPaused())
         return Plugin_Handled;
 
-    char unpauseCmd[COMMAND_LENGTH];
+    char unpauseCmd[ALIAS_LENGTH];
     FindChatCommand("sm_unpause", unpauseCmd);
 
     if (g_hMutualUnpause.IntValue == 0) {
@@ -908,8 +908,8 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
         else
             teamString = "T";
 
-        char stayCmd[COMMAND_LENGTH];
-        char swapCmd[COMMAND_LENGTH];
+        char stayCmd[ALIAS_LENGTH];
+        char swapCmd[ALIAS_LENGTH];
         FindChatCommand("sm_stay", stayCmd);
         FindChatCommand("sm_swap", swapCmd);
 
