@@ -205,6 +205,14 @@ stock bool IsPaused() {
     return GameRules_GetProp("m_bMatchWaitingForResume") != 0;
 }
 
+stock void Pause() {
+    ServerCommand("mp_pause_match");
+}
+
+stock void Unpause() {
+    ServerCommand("mp_unpause_match");
+}
+
 stock int GetCookieInt(int client, Handle cookie) {
     char buffer[32];
     GetClientCookie(client, cookie, buffer, sizeof(buffer));

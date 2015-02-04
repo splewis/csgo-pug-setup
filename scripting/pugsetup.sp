@@ -429,8 +429,8 @@ public Action Timer_CheckReady(Handle timer) {
 }
 
 public void StatusHint(int readyPlayers, int totalPlayers) {
-    char rdyCommand[32];
-    FindChatCommand("sm_ready", rdyCommand, sizeof(rdyCommand));
+    char rdyCommand[COMMAND_LENGTH];
+    FindChatCommand("sm_ready", rdyCommand);
     if (!g_MapSet && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
@@ -658,9 +658,9 @@ static void AddTranslatedAlias(const char[] command, int lang=LANG_SERVER) {
     AddChatAlias(alias, command);
 }
 
-public void FindChatCommand(const char[] command, char[] buffer, int len) {
+public void FindChatCommand(const char[] command, char buffer[COMMAND_LENGTH]) {
     int n = g_ChatAliases.Length;
-    char tmpCommand[64];
+    char tmpCommand[COMMAND_LENGTH];
 
     // This loop is done backwards since users are generally more likely
     // to add chat aliases to the end of the chataliases.cfg file, and
@@ -670,7 +670,7 @@ public void FindChatCommand(const char[] command, char[] buffer, int len) {
         g_ChatAliasesCommands.GetString(i, tmpCommand, sizeof(tmpCommand));
 
         if (StrEqual(command, tmpCommand)) {
-            g_ChatAliases.GetString(i, buffer, len);
+            g_ChatAliases.GetString(i, buffer, sizeof(buffer));
             return;
         }
     }
@@ -678,7 +678,7 @@ public void FindChatCommand(const char[] command, char[] buffer, int len) {
     // If we never found one, just use !<command> (without the sm_ prefix)
     // TODO: The use of "!" is actually a sourcemod option, so this should probably
     // detect that cvar's value instead of assuming it's always !
-    Format(buffer, len, "!%s", command[2]);
+    Format(buffer, sizeof(buffer), "!%s", command[2]);
 }
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] sArgs, int client) {
@@ -785,7 +785,7 @@ public Action Command_Pause(int client, int args) {
 
     g_ctUnpaused = false;
     g_tUnpaused = false;
-    ServerCommand("mp_pause_match");
+    Pause();
     if (IsPlayer(client)) {
         PugSetupMessageToAll("%t", "Pause", client);
     }
@@ -797,21 +797,21 @@ public Action Command_Unpause(int client, int args) {
     if (!g_Setup || !g_MatchLive || !IsPaused())
         return Plugin_Handled;
 
-    char unpauseCmd[32];
-    FindChatCommand("sm_unpause", unpauseCmd, sizeof(unpauseCmd));
+    char unpauseCmd[COMMAND_LENGTH];
+    FindChatCommand("sm_unpause", unpauseCmd);
 
     if (g_hMutualUnpause.IntValue == 0) {
         if (g_hAnyCanPause.IntValue != 0)
             PermissionCheck(Permission_Captains)
 
-        ServerCommand("mp_unpause_match");
+        Unpause();
         if (IsPlayer(client)) {
             PugSetupMessageToAll("%t", "Unpause", client);
         }
     } else {
         // Let console force unpause
         if (!IsPlayer(client)) {
-            ServerCommand("mp_unpause_match");
+            Unpause();
         } else {
             int team = GetClientTeam(client);
             if (team == CS_TEAM_T)
@@ -820,7 +820,7 @@ public Action Command_Unpause(int client, int args) {
                 g_ctUnpaused = true;
 
             if (g_tUnpaused && g_ctUnpaused)  {
-                ServerCommand("mp_unpause_match");
+                Unpause();
                 if (IsPlayer(client)) {
                     PugSetupMessageToAll("%t", "Unpause", client);
                 }
@@ -908,10 +908,10 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
         else
             teamString = "T";
 
-        char stayCmd[32];
-        char swapCmd[32];
-        FindChatCommand("sm_stay", stayCmd, sizeof(stayCmd));
-        FindChatCommand("sm_swap", swapCmd, sizeof(swapCmd));
+        char stayCmd[COMMAND_LENGTH];
+        char swapCmd[COMMAND_LENGTH];
+        FindChatCommand("sm_stay", stayCmd);
+        FindChatCommand("sm_swap", swapCmd);
 
         PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
     }
