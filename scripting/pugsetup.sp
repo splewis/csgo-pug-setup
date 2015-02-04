@@ -230,7 +230,6 @@ public void OnPluginStart() {
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
-    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
     HookEvent("round_end", Event_RoundEnd);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
@@ -894,18 +893,6 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
 public Action Timer_EndMatch(Handle timer) {
     EndMatch(false);
-}
-
-/**
- * Called when a player joins a team, silences team join events during player selection.
- */
-public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast)  {
-    if (g_Setup && !g_MatchLive) {
-        dontBroadcast = true;
-        return Plugin_Changed;
-    } else {
-        return Plugin_Continue;
-    }
 }
 
 public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
