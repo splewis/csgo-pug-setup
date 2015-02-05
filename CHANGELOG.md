@@ -1,4 +1,4 @@
-1.3.0-dev:
+1.3.0:
  - sourcemod 1.7 is now required
  - instead of a choice "auto-lo3", there is now a cvar for the length of a countdown timer (``sm_pugsetup_start_delay``)
  - the top .setup menu has be rewritten to be simpler and use toggle options rather than a series of pages
@@ -11,7 +11,6 @@
  - add forwards/natives for other plugins to add custom behavior, see [pugsetup.inc](scripting/include/pugsetup.inc).
  - added optional plugin ``pugsetup_autokicker``, which kicks players that join when the game is already live, and players not selected by captains when using  captain-player selection
  - added optional plugin ``pugsetup_teamnames``, which sets team names/flag according to the players on the team, see more detail at the end of the readme
- - added optional plugin ``pugsetup_teamlocker``, which blocks players from joining full teams when a game is live
  - added optional plugin ``pugsetup_hostname``, which adds some tags to the server hostname depending on the pug status, examples: "[LIVE]" and "[NEED 3]"
  - added optional plugin ``pugsetup_rwsbalancer``, which implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual /random teams
  - added optional plugin ``pugsetup_chatmoney``, which prints out the team members' money to chat on round starts

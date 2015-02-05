@@ -3,7 +3,7 @@
 
 #tryinclude "../include/pugsetup_version.inc"
 #if !defined PLUGIN_VERSION
-#define PLUGIN_VERSION "1.3.0-dev"
+#define PLUGIN_VERSION "1.3.0"
 #endif
 
 char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
