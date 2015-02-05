@@ -23,6 +23,8 @@ ArrayList g_BinaryOptionEnabledValues;
 ArrayList g_BinaryOptionDisabledCvars;
 ArrayList g_BinaryOptionDisabledValues;
 
+bool g_InfiniteMoney = false;
+
 public Plugin myinfo = {
     name = "CS:GO PugSetup: practice mode",
     author = "splewis",
@@ -217,6 +219,14 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
         if (!StrEqual(name, ""))
             PugSetupMessageToAll("%s is now %s", name, enabledString);
     }
+
+    if (StrEqual(name, "Infinite money")) {
+        // only create the time if it isn't already running
+        if (enabled && !g_InfiniteMoney)
+            CreateTimer(1.0, Timer_GivePlayersMoney, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+
+        g_InfiniteMoney = enabled;
+    }
 }
 
 public void GivePracticeMenu(int client, int style) {
@@ -298,4 +308,18 @@ public void SetCvar(const char[] name, int value) {
     } else {
         SetConVarInt(cvar, value);
     }
+}
+
+public Action Timer_GivePlayersMoney(Handle timer) {
+    if (!g_InfiniteMoney || !g_InPracticeMode) {
+        return Plugin_Handled;
+    }
+
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsValidClient(i) && !IsFakeClient(i)) {
+            SetEntProp(i, Prop_Send, "m_iAccount", 16000);
+        }
+    }
+
+    return Plugin_Continue;
 }
