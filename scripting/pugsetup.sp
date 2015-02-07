@@ -171,11 +171,11 @@ public void OnPluginStart() {
     g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
 
     // Setup options defaults
-    g_hDefaultKnifeRounds = CreateConVar("sm_pugsetup_default_knife_rounds", "0", "Whether to use knife rounds to select starting sides");
-    g_hDefaultMapType = CreateConVar("sm_pugsetup_default_maptype", "vote", "Default team type to use. Allowed values: \"vote\", \"veto\", \"current\"");
-    g_hDefaultRecord = CreateConVar("sm_pugsetup_default_record", "0", "Default value for recording demoes each game, requries tv_enable 1 to work");
+    g_hDefaultKnifeRounds = CreateConVar("sm_pugsetup_default_knife_rounds", "0", "Default knife round setting.");
+    g_hDefaultMapType = CreateConVar("sm_pugsetup_default_maptype", "vote", "Default map type to use. Allowed values: \"vote\", \"veto\", \"current\"");
+    g_hDefaultRecord = CreateConVar("sm_pugsetup_default_record", "0", "Default value for whether to record demoes, requries tv_enable 1 to work");
     g_hDefaultTeamSize = CreateConVar("sm_pugsetup_default_teamsize", "5", "Default number of players per team, can be changed in the .setup menu");
-    g_hDefaultTeamType = CreateConVar("sm_pugsetup_default_teamtype", "captains", "What team type to use. Allowed values: \"captains\", \"manual\", and \"random\"");
+    g_hDefaultTeamType = CreateConVar("sm_pugsetup_default_teamtype", "captains", "Default team type to use.  Allowed values: \"captains\", \"manual\", and \"random\"");
 
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
