@@ -38,6 +38,7 @@ public void OnPluginStart() {
     g_InPracticeMode = false;
     AddChatAlias(".noclip", "noclip");
     AddChatAlias(".god", "god");
+    AddCommandListener(Command_TeamJoin, "jointeam");
 }
 
 public void OnMapStart() {
@@ -49,6 +50,21 @@ public void OnMapEnd() {
         DisablePracticeMode();
 
     ClearPracticeSettings();
+}
+
+public Action Command_TeamJoin(int client, const char[] command, int argc) {
+    if (!IsValidClient(client) || argc < 1)
+        return Plugin_Handled;
+
+    if (g_InPracticeMode) {
+        char arg[4];
+        GetCmdArg(1, arg, sizeof(arg));
+        int team = StringToInt(arg);
+        ChangeClientTeam(client, team);
+        return Plugin_Handled;
+    }
+
+    return Plugin_Continue;
 }
 
 public void ReadPracticeSettings() {
