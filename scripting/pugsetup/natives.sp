@@ -38,6 +38,17 @@ public int Native_SetupGame(Handle plugin, int numParams) {
     g_TeamType = view_as<TeamType>(GetNativeCell(1));
     g_MapType = view_as<MapType>(GetNativeCell(2));
     g_PlayersPerTeam = GetNativeCell(3);
+
+    // optional parameters added, checking is they were
+    // passed for backwards compatibility
+    if (numParams >= 4) {
+        g_RecordGameOption = GetNativeCell(4);
+    }
+
+    if (numParams >= 5) {
+        g_DoKnifeRound = GetNativeCell(5);
+    }
+
     SetupFinished();
 }
 
