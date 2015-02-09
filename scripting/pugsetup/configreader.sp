@@ -1,4 +1,6 @@
 public void Config_MapStart() {
+    ClearArray(g_MapList);
+
     char maplist[PLATFORM_MAX_PATH];
     g_hMapList.GetString(maplist, sizeof(maplist));
 
