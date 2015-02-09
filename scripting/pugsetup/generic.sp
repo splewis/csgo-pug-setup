@@ -245,7 +245,7 @@ stock void SetConVarStringSafe(const char[] name, const char[] value) {
     }
 }
 
-stock void SetTeamInfo(int team, const char[] name, const char[] flag) {
+stock void SetTeamInfo(int team, const char[] name, const char[] flag="") {
     int team_int = (team == CS_TEAM_CT) ? 1 : 2;
 
     char teamCvarName[32];

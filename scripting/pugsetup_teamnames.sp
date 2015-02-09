@@ -149,3 +149,9 @@ public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
         }
     }
 }
+
+/** Clear the names/flags when the game is over **/
+public void OnMatchOver(bool hasDemo, const char[] demoFileName) {
+    SetTeamInfo(CS_TEAM_T, "", "");
+    SetTeamInfo(CS_TEAM_CT, "", "");
+}
