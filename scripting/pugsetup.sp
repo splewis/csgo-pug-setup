@@ -602,8 +602,8 @@ public Action Command_ForceStart(int client, int args) {
         return Plugin_Handled;
 
     PermissionCheck(Permission_Admin)
-
     g_ForceStartSignal = true;
+    return Plugin_Handled;
 }
 
 public void LoadChatAliases() {
@@ -996,7 +996,9 @@ public Action Timer_CountDown(Handle timer)  {
 }
 
 public void StartGame() {
-    if (g_RecordGameOption) {
+    if (g_RecordGameOption && !IsTVEnabled()) {
+        LogError("GOTV demo could not be recorded since tv_enable is not set to 1");
+    } else if (g_RecordGameOption && IsTVEnabled()) {
         // get the map, with any workshop stuff before removed
         // this is {MAP} in the format string
         char mapName[128];
