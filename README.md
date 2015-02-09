@@ -17,9 +17,9 @@ The goal is to make setup easier for people, not provide a comprehensive pug pla
 Also see the [AlliedModders thread](https://forums.alliedmods.net/showthread.php?t=244114).
 
 #### Some alternatives
-- [Goonpug](https://github.com/goonpug/goonpug) (very similar to this plugin, but with more features - and more dependencies)
+- [Goonpug](https://github.com/goonpug/goonpug) (very similar to this plugin, but with some more features - and more dependencies)
 - [PUG Mod](https://forums.alliedmods.net/showthread.php?p=1742753) (relatively plain - but no captain selection)
-- [WarMod](https://forums.alliedmods.net/showthread.php?t=225474) (does pretty much everything - can be difficult to configure, heavyweight)
+- [WarMod](https://forums.alliedmods.net/showthread.php?t=225474) (does pretty much everything, but generally intended for matches, more complex)
 
 
 ## Download
@@ -133,6 +133,7 @@ You can also type .ready instead of !ready, or .capt instead of !capt, etc.
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
 - sm_10man (sets up a 5v5 game using captains and a map vote)
 - sm_forceend (force ends the game with no confirmation menu)
+- sm_forcestart (force starts the match)
 
 
 ## ConVars
