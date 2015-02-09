@@ -79,6 +79,7 @@ bool g_Recording = true;
 char g_DemoFileName[PLATFORM_MAX_PATH];
 bool g_LiveTimerRunning = false;
 int g_CountDownTicks = 0;
+bool g_ForceStartSignal = false;
 
 // Pause information
 bool g_ctUnpaused = false;
@@ -227,6 +228,7 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_captain", Command_Capt, "Gives the client a menu to pick captains");
     RegConsoleCmd("sm_stay", Command_Stay, "Elects to stay on the current team after winning a knife round");
     RegConsoleCmd("sm_swap", Command_Swap, "Elects to swap the current teams after winning a knife round");
+    RegConsoleCmd("sm_forcestart", Command_ForceStart, "Force starts the game");
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -304,8 +306,6 @@ public void OnMapStart() {
         g_MapSet = true;
     }
     g_SwitchingMaps = false;
-
-    g_MapList = CreateArray(PLATFORM_MAX_PATH);
     g_ForceEnded = false;
     Config_MapStart();
     g_MapVetoed = new ArrayList();
@@ -315,6 +315,7 @@ public void OnMapStart() {
     g_WaitingForKnifeWinner = false;
     g_WaitingForKnifeDecision = false;
     g_InStartPhase = false;
+    g_ForceStartSignal = false;
 
     for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -342,7 +343,6 @@ public void OnMapStart() {
 
 public void OnMapEnd() {
     CloseHandle(g_MapVetoed);
-    CloseHandle(g_MapList);
 }
 
 public Action Timer_CheckReady(Handle timer) {
@@ -367,7 +367,7 @@ public Action Timer_CheckReady(Handle timer) {
     }
 
     // beware: scary spaghetti code ahead
-    if (readyPlayers == totalPlayers && readyPlayers >= 2 * g_PlayersPerTeam) {
+    if ((readyPlayers == totalPlayers && readyPlayers >= 2 * g_PlayersPerTeam) || g_ForceStartSignal)  {
         if (g_MapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
@@ -595,6 +595,15 @@ public Action Command_Capt(int client, int args) {
         Captain1Menu(client);
     }
     return Plugin_Handled;
+}
+
+public Action Command_ForceStart(int client, int args) {
+    if (!g_Setup || g_MatchLive || g_InStartPhase)
+        return Plugin_Handled;
+
+    PermissionCheck(Permission_Admin)
+
+    g_ForceStartSignal = true;
 }
 
 public void LoadChatAliases() {
