@@ -53,3 +53,15 @@ public void AddMap(const char[] mapName) {
         g_MapList.PushString(mapName);
     }
 }
+
+public void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex) {
+    char map[PLATFORM_MAX_PATH];
+    mapList.GetString(mapIndex, map, sizeof(map));
+
+    // explode map by '/' so we can remove any directory prefixes (e.g. workshop stuff)
+    char buffers[4][PLATFORM_MAX_PATH];
+    int numSplits = ExplodeString(map, "/", buffers, sizeof(buffers), PLATFORM_MAX_PATH);
+    int mapStringIndex = (numSplits > 0) ? (numSplits - 1) : (0);
+
+    AddMenuInt(menu, mapIndex, buffers[mapStringIndex]);
+}

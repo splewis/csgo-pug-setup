@@ -21,9 +21,7 @@ static void ShowMapVote() {
     Format(buffer, sizeof(buffer), "%T", "Random", LANG_SERVER);
     AddMenuItem(menu, RANDOM_MAP_VOTE, buffer);
     for (int i = 0; i < GetArraySize(mapList); i++) {
-        char mapName[PLATFORM_MAX_PATH];
-        GetArrayString(mapList, i, mapName, sizeof(mapName));
-        AddMenuInt(menu, i, mapName);
+        AddMapIndexToMenu(menu, mapList, i);
     }
     VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
 }

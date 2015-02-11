@@ -24,9 +24,7 @@ public void GiveVetoMenu(int client) {
 
     for (int i = 0; i < mapList.Length; i++) {
         if (!g_MapVetoed.Get(i)) {
-            char map[PLATFORM_MAX_PATH];
-            mapList.GetString(i, map, sizeof(map));
-            AddMenuInt(menu, i, map);
+            AddMapIndexToMenu(menu, mapList, i);
         }
     }
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
