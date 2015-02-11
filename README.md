@@ -25,7 +25,7 @@ Also see the [AlliedModders thread](https://forums.alliedmods.net/showthread.php
 ## Download
 You should be able to get the most recent download from https://github.com/splewis/csgo-pug-setup/releases.
 
-This plugin optionally supports the [Updater](https://forums.alliedmods.net/showthread.php?t=169095) plugin, which will automatically update to backwards compatible releases.
+This plugin optionally supports the [Updater](https://forums.alliedmods.net/showthread.php?t=169095) plugin, which will automatically update to backwards compatible releases. This will only update the base plugin and any change that required breakage will not auto-update, so you should still check here for newer versions.
 
 You may also download the [latest development build](http://ci.splewis.net/job/csgo-pug-setup/lastSuccessfulBuild/) if you wish. If you report any bugs from these, make sure to include the build number (when typing ``sm plugins list`` into the server console, the build number will be displayed with the plugin version).
 
