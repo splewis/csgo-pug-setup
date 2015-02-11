@@ -8,6 +8,9 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#define KV_DATA_LOCATION "data/pugsetup/rws.cfg"
+KeyValues g_RwsKV;
+
 /*
  * This isn't meant to be a comprehensive stats system, it's meant to be a simple
  * way to balance teams to replace manual stuff.
@@ -26,6 +29,11 @@
 #define ALPHA_FINAL 0.003
 #define ROUNDS_FINAL 250.0
 
+enum StorageMethod {
+    Storage_ClientPrefs = 0,
+    Storage_KeyValues = 1,
+};
+
 /** Client cookie handles **/
 Handle g_RWSCookie = INVALID_HANDLE;
 Handle g_RoundsPlayedCookie = INVALID_HANDLE;
@@ -41,6 +49,7 @@ int g_RoundPoints[MAXPLAYERS+1];
 ConVar g_MoveTeams;
 ConVar g_RecordRWS;
 ConVar g_SetCaptainsByRWS;
+ConVar g_StorageMethod;
 
 
 public Plugin myinfo = {
@@ -52,6 +61,7 @@ public Plugin myinfo = {
 };
 
 public void OnPluginStart() {
+    LoadTranslations("pugsetup.phrases");
     LoadTranslations("common.phrases");
 
     HookEvent("bomb_defused", Event_Bomb);
@@ -60,20 +70,46 @@ public void OnPluginStart() {
     HookEvent("player_hurt", Event_DamageDealt);
     HookEvent("round_end", Event_RoundEnd);
 
-    RegAdminCmd("sm_showrws", Command_ShowRWS, ADMFLAG_KICK, "");
-
-    g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
-    g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
+    RegAdminCmd("sm_showrws", Command_ShowRWS, ADMFLAG_KICK, "Show player historical rws and rounds played");
 
     g_MoveTeams = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
     g_RecordRWS = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior cannot be overwritten by the pug-leader or admins.");
+    g_StorageMethod = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk");
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
+
+    // for keyvalues storage
+    g_RwsKV = new KeyValues("RWSBalancerStats");
+
+    // for clientprefs storage
+    g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
+    g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
+
+}
+
+public StorageMethod GetStorageMethod() {
+    return view_as<StorageMethod>(g_StorageMethod.IntValue);
+}
+
+public void OnMapStart() {
+    if (GetStorageMethod() == Storage_KeyValues) {
+        char path[PLATFORM_MAX_PATH];
+        BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
+        g_RwsKV.ImportFromFile(path);
+    }
+}
+
+public void OnMapEnd() {
+    if (GetStorageMethod() == Storage_KeyValues) {
+        char path[PLATFORM_MAX_PATH];
+        BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
+        g_RwsKV.ExportToFile(path);
+    }
 }
 
 public int OnClientCookiesCached(int client) {
-    if (IsFakeClient(client))
+    if (IsFakeClient(client) || GetStorageMethod() != Storage_ClientPrefs)
         return;
 
     g_PlayerRWS[client] = GetCookieFloat(client, g_RWSCookie);
@@ -86,11 +122,47 @@ public void OnClientConnected(int client) {
     g_RoundPoints[client] = 0;
 }
 
+public void OnClientAuthorized(int client, const char[] auth) {
+    if (GetStorageMethod() == Storage_KeyValues) {
+        g_RwsKV.JumpToKey(auth, true);
+        g_PlayerRWS[client] = g_RwsKV.GetFloat("rws", 0.0);
+        g_PlayerRounds[client] = g_RwsKV.GetNum("roundsplayed", 0);
+        g_RwsKV.GoBack();
+    }
+}
+
+public bool HasStats(int client) {
+    StorageMethod method = GetStorageMethod();
+    if (method == Storage_ClientPrefs) {
+        return AreClientCookiesCached(client);
+    } else if (method == Storage_KeyValues) {
+        return true;
+    }
+
+    return false;
+}
+
+public void WriteStats(int client) {
+    StorageMethod method = GetStorageMethod();
+    if (method == Storage_ClientPrefs) {
+        SetCookieInt(client, g_RoundsPlayedCookie, g_PlayerRounds[client]);
+        SetCookieFloat(client, g_RWSCookie, g_PlayerRWS[client]);
+
+    } else if (method == Storage_KeyValues) {
+        char auth[64];
+        GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+        g_RwsKV.JumpToKey(auth, true);
+        g_RwsKV.SetFloat("rws", g_PlayerRWS[client]);
+        g_RwsKV.SetNum("roundsplayed", g_PlayerRounds[client]);
+        g_RwsKV.GoBack();
+    }
+}
+
 /**
  * Here the teams are actually set to use the rws stuff.
  */
 public void OnReadyToStart() {
-    // only do balancing if we didn' do captains
+    // only do balancing if we didn't do captains
     if (GetTeamType() == TeamType_Captains || g_MoveTeams.IntValue == 0)
         return;
 
@@ -184,7 +256,7 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
 
     int winner = GetEventInt(event, "winner");
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && AreClientCookiesCached(i)) {
+        if (IsPlayer(i) && HasStats(i)) {
             int team = GetClientTeam(i);
             if (team == CS_TEAM_CT || team == CS_TEAM_T)
                 RWSUpdate(i, team == winner);
@@ -224,9 +296,6 @@ static void RWSUpdate(int client, bool winner) {
     float alpha = GetAlphaFactor(client);
     g_PlayerRWS[client] = (1.0 - alpha) * g_PlayerRWS[client] + alpha * rws;
     g_PlayerRounds[client]++;
-
-    SetCookieInt(client, g_RoundsPlayedCookie, g_PlayerRounds[client]);
-    SetCookieFloat(client, g_RWSCookie, g_PlayerRWS[client]);
 }
 
 static float GetAlphaFactor(int client) {
@@ -272,7 +341,7 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
 
 public Action Command_ShowRWS(int client, int args) {
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && AreClientCookiesCached(i)) {
+        if (IsPlayer(i) && HasStats(i)) {
             ReplyToCommand(client, "%L has RWS=%f, roundsplayed=%d", i, g_PlayerRWS[i], g_PlayerRounds[i]);
         }
     }
