@@ -28,7 +28,6 @@ ConVar g_hAnnounceCountdown;
 ConVar g_hAnyCanPause;
 ConVar g_hAutoRandomizeCaptains;
 ConVar g_hAutoSetup;
-ConVar g_hAutoUpdate;
 ConVar g_hCvarVersion;
 ConVar g_hDefaultKnifeRounds;
 ConVar g_hDefaultMapType;
@@ -57,6 +56,10 @@ ConVar g_hRequireAdminToSetup;
 ConVar g_hSnakeCaptains;
 ConVar g_hStartDelay;
 ConVar g_hWarmupCfg;
+
+#if defined _updater_included
+ConVar g_hAutoUpdate;
+#endif
 
 /** Setup info **/
 int g_Leader = -1;
@@ -169,7 +172,10 @@ public void OnPluginStart() {
     g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "1", "Whether everyone can pause, or just captains/leader. Note: if sm_pugsetup_mutual_unpausing is set to 1, this cvar is ignored");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not");
+
+    #if defined _updater_included
     g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
+    #endif
 
     // Setup options defaults
     g_hDefaultKnifeRounds = CreateConVar("sm_pugsetup_default_knife_rounds", "0", "Default knife round setting.");
