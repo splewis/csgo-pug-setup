@@ -174,7 +174,7 @@ public void OnPluginStart() {
     g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not");
 
     #if defined _updater_included
-    g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
+    g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "0", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update");
     #endif
 
     // Setup options defaults
