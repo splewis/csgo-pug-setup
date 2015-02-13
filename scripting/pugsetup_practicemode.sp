@@ -15,6 +15,7 @@ bool g_InPracticeMode = false;
 // the name, the cvar/value for the enabled option, and the cvar/value for the disabled option.
 // Note: the first set of values for these data structures is the overall-practice mode cvars,
 // which aren't toggle-able or named.
+ArrayList g_BinaryOptionIds;
 ArrayList g_BinaryOptionNames;
 ArrayList g_BinaryOptionEnabled;
 ArrayList g_BinaryOptionChangeable;
@@ -68,6 +69,7 @@ public Action Command_TeamJoin(int client, const char[] command, int argc) {
 }
 
 public void ReadPracticeSettings() {
+    g_BinaryOptionIds = new ArrayList(OPTION_NAME_LENGTH);
     g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
     g_BinaryOptionEnabled = new ArrayList();
     g_BinaryOptionChangeable = new ArrayList();
@@ -91,8 +93,8 @@ public void ReadPracticeSettings() {
         if (kv.GotoFirstSubKey()) {
             // read each option
             do {
-                char buffer[128];
-                kv.GetSectionName(buffer, sizeof(buffer));
+                char id[128];
+                kv.GetSectionName(id, sizeof(id));
 
                 char name[OPTION_NAME_LENGTH];
                 kv.GetString("name", name, sizeof(name));
@@ -138,6 +140,7 @@ public void ReadPracticeSettings() {
                     kv.GoBack();
                 }
 
+                g_BinaryOptionIds.PushString(id);
                 g_BinaryOptionNames.PushString(name);
                 g_BinaryOptionEnabled.Push(enabled);
                 g_BinaryOptionChangeable.Push(changeable);
@@ -224,7 +227,9 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
         ServerCommand("%s %s", cvar, value);
     }
 
+    char id[OPTION_NAME_LENGTH];
     char name[OPTION_NAME_LENGTH];
+    g_BinaryOptionIds.GetString(index, id, sizeof(id));
     g_BinaryOptionNames.GetString(index, name, sizeof(name));
 
     if (print) {
@@ -236,7 +241,7 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
             PugSetupMessageToAll("%s is now %s", name, enabledString);
     }
 
-    if (StrEqual(name, "Infinite money")) {
+    if (StrEqual(id, "infinitemoney")) {
         // only create the time if it isn't already running
         if (enabled && !g_InfiniteMoney)
             CreateTimer(1.0, Timer_GivePlayersMoney, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
