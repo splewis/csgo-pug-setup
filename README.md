@@ -87,7 +87,7 @@ sm_stay
 sm_swap
 ```
 
-By default the plugin uses the ``cfg/sourcemod/pugsetup/standard.cfg`` config when going live. You are free to change this file all you want (or change which file is used via the ``sm_pugsetup_live_cfg`` cvar).
+By default the plugin uses the ``cfg/sourcemod/pugsetup/standard.cfg`` config when going live. You are free to change this file all you want (or change which file is used via the ``sm_pugsetup_live_cfg`` cvar). (Note: if you use knife rounds, make sure ``mp_give_player_c4 1`` is in this file!)
 
 ## For developers
 There is some extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
