@@ -46,6 +46,10 @@ public Action Command_TeamJoin(int client, const char[] command, int argc) {
     GetCmdArg(1, arg, sizeof(arg));
     int team_to = StringToInt(arg);
 
+    // don't let someone change to a "none" team (e.g. using auto-select)
+    if (team_to == CS_TEAM_NONE)
+        return Plugin_Handled;
+
     int playerCount = 0;
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && GetClientTeam(i) == team_to) {
