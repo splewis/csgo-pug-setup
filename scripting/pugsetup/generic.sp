@@ -312,3 +312,20 @@ stock void GetEnabledString(char[] buffer, int length, bool variable, int client
     else
         Format(buffer, length, "%T", "Disabled", client);
 }
+
+stock void SQL_CreateTable(Handle db_connection, const char[] table_name, const char[][] fields, int num_fields) {
+    char buffer[1024];
+    Format(buffer, sizeof(buffer), "CREATE TABLE IF NOT EXISTS %s (", table_name);
+    for (int i = 0; i < num_fields; i++) {
+        StrCat(buffer, sizeof(buffer), fields[i]);
+        if (i != num_fields - 1)
+            StrCat(buffer, sizeof(buffer), ", ");
+    }
+    StrCat(buffer, sizeof(buffer), ")");
+
+    if (!SQL_FastQuery(db_connection, buffer)) {
+        char err[255];
+        SQL_GetError(db_connection, err, sizeof(err));
+        LogError(err);
+    }
+}

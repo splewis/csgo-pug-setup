@@ -29,9 +29,18 @@ KeyValues g_RwsKV;
 #define ALPHA_FINAL 0.003
 #define ROUNDS_FINAL 250.0
 
+#define TABLE_NAME "pugsetup_rwsbalancer"
+char g_TableFormat[][] = {
+    "auth varchar(72) NOT NULL default ''",
+    "roundsplayed INT NOT NULL default 0",
+    "rws FLOAT NOT NULL default 0.0",
+    "PRIMARY KEY (auth)",
+};
+
 enum StorageMethod {
     Storage_ClientPrefs = 0,
     Storage_KeyValues = 1,
+    Storage_MySQL = 2,
 };
 
 /** Client cookie handles **/
@@ -41,6 +50,7 @@ Handle g_RoundsPlayedCookie = INVALID_HANDLE;
 /** Client stats **/
 float g_PlayerRWS[MAXPLAYERS+1];
 int g_PlayerRounds[MAXPLAYERS+1];
+bool g_PlayerHasStats[MAXPLAYERS+1];
 
 /** Rounds stats **/
 int g_RoundPoints[MAXPLAYERS+1];
@@ -50,6 +60,8 @@ ConVar g_MoveTeams;
 ConVar g_RecordRWS;
 ConVar g_SetCaptainsByRWS;
 ConVar g_StorageMethod;
+
+Handle g_Database = INVALID_HANDLE;
 
 
 public Plugin myinfo = {
@@ -75,7 +87,7 @@ public void OnPluginStart() {
     g_MoveTeams = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
     g_RecordRWS = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior cannot be overwritten by the pug-leader or admins.");
-    g_StorageMethod = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk");
+    g_StorageMethod = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 
@@ -93,15 +105,29 @@ public StorageMethod GetStorageMethod() {
 }
 
 public void OnMapStart() {
-    if (GetStorageMethod() == Storage_KeyValues) {
+    StorageMethod m = GetStorageMethod();
+
+    if (m == Storage_KeyValues) {
         char path[PLATFORM_MAX_PATH];
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ImportFromFile(path);
+    } else if (m == Storage_MySQL && g_Database == INVALID_HANDLE) {
+        char error[255];
+        g_Database = SQL_Connect("pugsetup", true, error, sizeof(error));
+        if (g_Database == INVALID_HANDLE) {
+            LogError("Could not connect: %s", error);
+        } else {
+            SQL_LockDatabase(g_Database);
+            SQL_CreateTable(g_Database, TABLE_NAME, g_TableFormat, sizeof(g_TableFormat));
+            SQL_UnlockDatabase(g_Database);
+        }
     }
 }
 
 public void OnMapEnd() {
-    if (GetStorageMethod() == Storage_KeyValues) {
+    StorageMethod m = GetStorageMethod();
+
+    if (m == Storage_KeyValues) {
         char path[PLATFORM_MAX_PATH];
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ExportToFile(path);
@@ -114,12 +140,14 @@ public int OnClientCookiesCached(int client) {
 
     g_PlayerRWS[client] = GetCookieFloat(client, g_RWSCookie);
     g_PlayerRounds[client] = GetCookieInt(client, g_RoundsPlayedCookie);
+    g_PlayerHasStats[client] = true;
 }
 
 public void OnClientConnected(int client) {
     g_PlayerRWS[client] = 0.0;
     g_PlayerRounds[client] = 0;
     g_RoundPoints[client] = 0;
+    g_PlayerHasStats[client] = false;
 }
 
 public void OnClientDisconnect(int client) {
@@ -130,23 +158,61 @@ public void OnClientAuthorized(int client, const char[] auth) {
     if (StrEqual(auth, "bot", false))
         return;
 
-    if (GetStorageMethod() == Storage_KeyValues) {
+    StorageMethod m = GetStorageMethod();
+    if (m == Storage_KeyValues) {
         g_RwsKV.JumpToKey(auth, true);
         g_PlayerRWS[client] = g_RwsKV.GetFloat("rws", 0.0);
         g_PlayerRounds[client] = g_RwsKV.GetNum("roundsplayed", 0);
         g_RwsKV.GoBack();
+        g_PlayerHasStats[client] = true;
+
+    } else if (m == Storage_MySQL && g_Database != INVALID_HANDLE) {
+        char query[2048];
+        Format(query, sizeof(query),
+               "INSERT IGNORE INTO %s (auth,rws,roundsplayed) VALUES ('%s', 0.0, 0)",
+               TABLE_NAME, auth);
+        SQL_TQuery(g_Database, Callback_Insert, query, GetClientSerial(client));
+    }
+}
+
+public void Callback_Insert(Handle owner, Handle hndl, const char[] error, int serial) {
+    int client = GetClientFromSerial(serial);
+    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client])
+        return;
+
+    char auth[64];
+    GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+
+    char query[2048];
+    Format(query, sizeof(query),
+            "SELECT rws, roundsplayed FROM %s WHERE auth = '%s'",
+            TABLE_NAME, auth);
+    SQL_TQuery(g_Database, Callback_FetchStats, query, GetClientSerial(client));
+}
+
+public void Callback_FetchStats(Handle owner, Handle hndl, const char[] error, int serial) {
+    int client = GetClientFromSerial(serial);
+    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client])
+        return;
+
+    g_PlayerHasStats[client] = false;
+    if (hndl == INVALID_HANDLE) {
+        LogError("Query failed: (error: %s)", error);
+    } else if (SQL_FetchRow(hndl)) {
+        g_PlayerRWS[client] = SQL_FetchFloat(hndl, 0);
+        g_PlayerRounds[client] = SQL_FetchInt(hndl, 1);
+        g_PlayerHasStats[client] = true;
+    }
+}
+
+public void Callback_CheckError(Handle owner, Handle hndl, const char[] error, int data) {
+    if (!StrEqual("", error)) {
+        LogError("Last SQL Error: %s", error);
     }
 }
 
 public bool HasStats(int client) {
-    StorageMethod method = GetStorageMethod();
-    if (method == Storage_ClientPrefs) {
-        return AreClientCookiesCached(client);
-    } else if (method == Storage_KeyValues) {
-        return true;
-    }
-
-    return false;
+    return g_PlayerHasStats[client];
 }
 
 public void WriteStats(int client) {
@@ -162,7 +228,16 @@ public void WriteStats(int client) {
         g_RwsKV.SetFloat("rws", g_PlayerRWS[client]);
         g_RwsKV.SetNum("roundsplayed", g_PlayerRounds[client]);
         g_RwsKV.GoBack();
+
+    } else if (method == Storage_MySQL && g_Database != INVALID_HANDLE) {
+        char auth[64];
+        GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+        char query[1024];
+        Format(query, sizeof(query), "UPDATE %s SET roundsplayed = %d, rws = %f where auth = '%s'",
+               TABLE_NAME, g_PlayerRounds[client], g_PlayerRWS[client], auth);
+        SQL_TQuery(g_Database, Callback_CheckError, query);
     }
+
 }
 
 /**
