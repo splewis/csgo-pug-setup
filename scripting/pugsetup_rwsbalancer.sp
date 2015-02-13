@@ -122,7 +122,14 @@ public void OnClientConnected(int client) {
     g_RoundPoints[client] = 0;
 }
 
+public void OnClientDisconnect(int client) {
+    WriteStats(client);
+}
+
 public void OnClientAuthorized(int client, const char[] auth) {
+    if (StrEqual(auth, "bot", false))
+        return;
+
     if (GetStorageMethod() == Storage_KeyValues) {
         g_RwsKV.JumpToKey(auth, true);
         g_PlayerRWS[client] = g_RwsKV.GetFloat("rws", 0.0);
