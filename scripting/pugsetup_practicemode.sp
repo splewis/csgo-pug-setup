@@ -250,7 +250,7 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
     }
 }
 
-public void GivePracticeMenu(int client, int style) {
+static void GivePracticeMenu(int client, int style, int pos=-1) {
     Menu menu = new Menu(PracticeMenuHandler);
     SetMenuTitle(menu, "Practice Settings");
     SetMenuExitButton(menu, true);
@@ -272,13 +272,17 @@ public void GivePracticeMenu(int client, int style) {
         AddMenuItem(menu, name, buffer, style);
     }
 
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    if (pos == -1)
+        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    else
+        DisplayMenuAtItem(menu, client, pos, MENU_TIME_FOREVER);
 }
 
 public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
         char buffer[OPTION_NAME_LENGTH];
+        int pos = GetMenuSelectionPosition();
         menu.GetItem(param2, buffer, sizeof(buffer));
 
         for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
@@ -288,7 +292,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
                 bool setting = !g_BinaryOptionEnabled.Get(i);
                 g_BinaryOptionEnabled.Set(i, setting);
                 ChangeSetting(i, setting);
-                GivePracticeMenu(client, ITEMDRAW_DEFAULT);
+                GivePracticeMenu(client, ITEMDRAW_DEFAULT, pos);
                 return 0;
             }
         }
