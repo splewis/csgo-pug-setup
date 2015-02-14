@@ -164,7 +164,7 @@ native int GetLeader();
 
 // Sets who is a captain.
 // A captain number is either 1 or 2.
-native void SetCaptain(int captainNumber, int client);
+native void SetCaptain(int captainNumber, int client, bool printIfSame=false);
 
 // Returns captain 1, or -1 if not set.
 // A captain number is either 1 or 2.

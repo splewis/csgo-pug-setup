@@ -153,6 +153,12 @@ public int Native_SetCaptain(Handle plugin, int numParams) {
     int client = GetNativeCell(2);
     CHECK_CLIENT(client);
 
+    bool printIfSame = false;
+    // backwards compatability
+    if (numParams >= 3) {
+        printIfSame = GetNativeCell(3);
+    }
+
     if (IsPlayer(client)) {
         int originalCaptain = -1;
         if (captainNumber == 1) {
@@ -164,7 +170,7 @@ public int Native_SetCaptain(Handle plugin, int numParams) {
         }
 
         // Only printout if it's a different captain
-        if (client != originalCaptain) {
+        if (printIfSame || client != originalCaptain) {
             char buffer[64];
             FormatPlayerName(client, client, buffer);
             PugSetupMessageToAll("%t", "CaptMessage", captainNumber, buffer);
@@ -300,10 +306,10 @@ public int Native_SetRandomCaptains(Handle plugin, int numParams) {
     }
 
     if (IsPlayer(c1))
-        SetCaptain(1, c1);
+        SetCaptain(1, c1, true);
 
     if (IsPlayer(c2))
-        SetCaptain(2, c2);
+        SetCaptain(2, c2, true);
 }
 
 public int Native_AddChatAlias(Handle plugin, int numParams) {
