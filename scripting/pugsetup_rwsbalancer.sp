@@ -89,6 +89,8 @@ public void OnPluginStart() {
     g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior cannot be overwritten by the pug-leader or admins.");
     g_StorageMethod = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
 
+    HookConVarChange(g_StorageMethod, OnCvarChanged);
+
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 
     // for keyvalues storage
@@ -98,6 +100,15 @@ public void OnPluginStart() {
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
 
+}
+
+public int OnCvarChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    if (cvar == g_StorageMethod) {
+        StorageMethod m = view_as<StorageMethod>(StringToInt(newValue));
+        if (m == Storage_MySQL) {
+            InitSqlConnection();
+        }
+    }
 }
 
 public StorageMethod GetStorageMethod() {
@@ -112,15 +123,24 @@ public void OnMapStart() {
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ImportFromFile(path);
     } else if (m == Storage_MySQL && g_Database == INVALID_HANDLE) {
-        char error[255];
-        g_Database = SQL_Connect("pugsetup", true, error, sizeof(error));
-        if (g_Database == INVALID_HANDLE) {
-            LogError("Could not connect: %s", error);
-        } else {
-            SQL_LockDatabase(g_Database);
-            SQL_CreateTable(g_Database, TABLE_NAME, g_TableFormat, sizeof(g_TableFormat));
-            SQL_UnlockDatabase(g_Database);
-        }
+        InitSqlConnection();
+    }
+}
+
+public void InitSqlConnection() {
+    // check if already connected
+    if (g_Database != INVALID_HANDLE) {
+        return;
+    }
+
+    char error[255];
+    g_Database = SQL_Connect("pugsetup", true, error, sizeof(error));
+    if (g_Database == INVALID_HANDLE) {
+        LogError("Could not connect: %s", error);
+    } else {
+        SQL_LockDatabase(g_Database);
+        SQL_CreateTable(g_Database, TABLE_NAME, g_TableFormat, sizeof(g_TableFormat));
+        SQL_UnlockDatabase(g_Database);
     }
 }
 
