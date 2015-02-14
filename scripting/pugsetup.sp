@@ -793,8 +793,18 @@ public Action Command_ForceReady(int client, int args) {
     return Plugin_Handled;
 }
 
+static bool Pauseable() {
+    if (!g_Setup)
+        return false;
+
+    if (!g_MatchLive && !g_WaitingForKnifeWinner)
+        return false;
+
+    return true;
+}
+
 public Action Command_Pause(int client, int args) {
-    if (!g_Setup || !g_MatchLive || IsPaused())
+    if (!Pauseable() || IsPaused())
         return Plugin_Handled;
 
     if (g_hAnyCanPause.IntValue != 0)
@@ -813,7 +823,7 @@ public Action Command_Pause(int client, int args) {
 }
 
 public Action Command_Unpause(int client, int args) {
-    if (!g_Setup || !g_MatchLive || !IsPaused())
+    if (!Pauseable() || !IsPaused())
         return Plugin_Handled;
 
     char unpauseCmd[ALIAS_LENGTH];
