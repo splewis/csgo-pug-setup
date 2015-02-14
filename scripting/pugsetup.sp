@@ -68,11 +68,10 @@ bool g_ForceEnded = false;
 
 // Specific choices made when setting up
 int g_PlayersPerTeam = 5;
-TeamType g_TeamType;
-MapType g_MapType;
-bool g_RecordGameOption;
-bool g_DoKnifeRound;
-bool g_SetDefaultConfig = false;
+TeamType g_TeamType = TeamType_Captains;
+MapType g_MapType = MapType_Vote;
+bool g_RecordGameOption = false;
+bool g_DoKnifeRound = false;
 
 // Other important variables about the state of the game
 bool g_Setup = false;
@@ -264,8 +263,11 @@ public void OnPluginStart() {
     if (GetConVarInt(g_hAutoUpdate) != 0) {
         AddUpdater();
     }
+}
 
-    g_SetDefaultConfig = false;
+public void OnConfigsExecuted() {
+    InitMapSettings();
+    SetConfigDefaults();
 }
 
 public void OnLibraryAdded(const char[] name) {
@@ -313,7 +315,6 @@ public void OnMapStart() {
     }
     g_SwitchingMaps = false;
     g_ForceEnded = false;
-    Config_MapStart();
     g_MapVetoed = new ArrayList();
     g_Recording = false;
     g_MatchLive = false;
@@ -322,6 +323,8 @@ public void OnMapStart() {
     g_WaitingForKnifeDecision = false;
     g_InStartPhase = false;
     g_ForceStartSignal = false;
+
+    InitMapSettings();
 
     for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -339,11 +342,6 @@ public void OnMapStart() {
         g_capt1 = -1;
         g_capt2 = -1;
         g_Leader = -1;
-    }
-
-    if (!g_Setup && !g_SetDefaultConfig) {
-        SetConfigDefaults();
-        g_SetDefaultConfig = true;
     }
 }
 
@@ -648,19 +646,7 @@ public void LoadChatAliases() {
     AddTranslatedAlias("sm_swap");
     AddTranslatedAlias("sm_unpause");
 
-    char configFile[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/chataliases.cfg");
-    KeyValues kv = new KeyValues("ChatAliases");
-    if (kv.ImportFromFile(configFile) && kv.GotoFirstSubKey(false)) {
-        do {
-            char alias[ALIAS_LENGTH];
-            char command[COMMAND_LENGTH];
-            kv.GetSectionName(alias, sizeof(alias));
-            kv.GetString(NULL_STRING, command, sizeof(command));
-            AddChatAlias(alias, command);
-        } while (kv.GotoNextKey(false));
-    }
-    delete kv;
+    ReadChatConfig();
 }
 
 static void AddTranslatedAlias(const char[] command, int lang=LANG_SERVER) {

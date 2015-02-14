@@ -164,6 +164,7 @@ static void AddWorkshopMapsToList(int collectionID) {
     char mapName[PLATFORM_MAX_PATH];
     g_WorkshopCache.JumpToKey("maps", true);
 
+    g_MapList.Clear();
     for (int i = 0; i < mapIds.Length; i++) {
         mapIds.GetString(i, mapId, sizeof(mapId));
         g_WorkshopCache.GetString(mapId, mapName, sizeof(mapName));
