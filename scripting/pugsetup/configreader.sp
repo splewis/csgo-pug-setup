@@ -60,4 +60,3 @@ public void ReadChatConfig() {
     }
     delete kv;
 }
-

@@ -560,7 +560,7 @@ public Action Command_Rand(int client, int args) {
         return Plugin_Handled;
     }
 
-    PermissionCheck(Permission_Captains)
+    PermissionCheck(Permission_Leader)
     SetRandomCaptains();
     return Plugin_Handled;
 }
@@ -783,6 +783,8 @@ public Action Command_Pause(int client, int args) {
 
     if (g_hAnyCanPause.IntValue != 0)
         PermissionCheck(Permission_Captains)
+    else
+        PermissionCheck(Permission_All)
 
     g_ctUnpaused = false;
     g_tUnpaused = false;
@@ -804,12 +806,15 @@ public Action Command_Unpause(int client, int args) {
     if (g_hMutualUnpause.IntValue == 0) {
         if (g_hAnyCanPause.IntValue != 0)
             PermissionCheck(Permission_Captains)
+        else
+            PermissionCheck(Permission_All)
 
         Unpause();
         if (IsPlayer(client)) {
             PugSetupMessageToAll("%t", "Unpause", client);
         }
     } else {
+        PermissionCheck(Permission_All)
         // Let console force unpause
         if (!IsPlayer(client)) {
             Unpause();
