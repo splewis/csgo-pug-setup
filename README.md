@@ -116,8 +116,9 @@ Of course, you can tweak the values.
 
 ## Commands
 
-Some commands that are important are:
+Some commands that are important are (all of these are actually sm_ commands for console, but most people use the ! chat command):
 - **!setup**, begins the setup phase and sets the pug leader
+- **!10man**, an alias of setup with 5v5, captains, and a mapvote
 - **!ready**
 - **!unready**
 - **!pause**
@@ -131,9 +132,9 @@ Some commands that are important are:
 You can also type .ready instead of !ready, or .capt instead of !capt, etc.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
-- sm_10man (sets up a 5v5 game using captains and a map vote)
 - sm_forceend (force ends the game with no confirmation menu)
 - sm_forcestart (force starts the match)
+- sm_listpugmaps (list the maps currently in the maplist)
 
 
 ## ConVars

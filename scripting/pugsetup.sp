@@ -234,6 +234,7 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_stay", Command_Stay, "Elects to stay on the current team after winning a knife round");
     RegConsoleCmd("sm_swap", Command_Swap, "Elects to swap the current teams after winning a knife round");
     RegConsoleCmd("sm_forcestart", Command_ForceStart, "Force starts the game");
+    RegConsoleCmd("sm_listpugmaps", Command_ListPugMaps, "Lists the current maplist");
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -607,6 +608,21 @@ public Action Command_ForceStart(int client, int args) {
 
     PermissionCheck(Permission_Admin)
     g_ForceStartSignal = true;
+    return Plugin_Handled;
+}
+
+public Action Command_ListPugMaps(int client, int args) {
+    int n = g_MapList.Length;
+    if (n == 0) {
+        ReplyToCommand(client, "No maps are in the maplist");
+    } else {
+        char buffer[PLATFORM_MAX_PATH];
+        for (int i = 0; i < n; i++) {
+            g_MapList.GetString(i, buffer, sizeof(buffer));
+            ReplyToCommand(client, "Map %d: %s", i + 1, buffer);
+        }
+    }
+
     return Plugin_Handled;
 }
 
