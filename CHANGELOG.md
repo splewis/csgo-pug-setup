@@ -1,3 +1,10 @@
+1.3.1:
+- several bug fixes when using default setting cvars
+- pausing now works during knife rounds
+- new command: sm_forcestart to force a match to proceed forward even if everyone isn't ready
+- add forward OnStartRecording
+- the rwsbalancer plugin can store data in any of: clientprefs, a flat keyvalues file on disk, or a MySQL database now (set by the ``sm_pugsetup_rws_storage_method`` cvar)
+
 1.3.0:
  - sourcemod 1.7 is now required
  - instead of a choice "auto-lo3", there is now a cvar for the length of a countdown timer (``sm_pugsetup_start_delay``)
