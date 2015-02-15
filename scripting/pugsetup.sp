@@ -129,6 +129,7 @@ Handle g_hOnReadyToStart = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnSetupMenuOpen = INVALID_HANDLE;
 Handle g_hOnSetupMenuSelect = INVALID_HANDLE;
+Handle g_hOnStartRecording = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 Handle g_hOnWarmupCfg = INVALID_HANDLE;
 
@@ -253,6 +254,7 @@ public void OnPluginStart() {
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnSetupMenuOpen = CreateGlobalForward("OnSetupMenuOpen", ET_Single, Param_Cell, Param_Cell, Param_Cell);
     g_hOnSetupMenuSelect = CreateGlobalForward("OnSetupMenuSelect", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnStartRecording = CreateGlobalForward("OnStartRecording", ET_Ignore, Param_String);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
     g_hOnWarmupCfg = CreateGlobalForward("OnWarmupCfgExecuted", ET_Ignore);
 
@@ -1045,12 +1047,16 @@ public void StartGame() {
         IntToString(g_PlayersPerTeam, playerCount, sizeof(playerCount));
 
         // create the actual demo name to use
-        char demoName[256];
+        char demoName[PLATFORM_MAX_PATH];
         g_hDemoNameFormat.GetString(demoName, sizeof(demoName));
 
         ReplaceString(demoName, sizeof(demoName), "{MAP}", mapName[last_slash], false);
         ReplaceString(demoName, sizeof(demoName), "{TEAMSIZE}", playerCount, false);
         ReplaceString(demoName, sizeof(demoName), "{TIME}", formattedTime, false);
+
+        Call_StartForward(g_hOnStartRecording);
+        Call_PushString(demoName);
+        Call_Finish();
 
         Record(demoName);
 
