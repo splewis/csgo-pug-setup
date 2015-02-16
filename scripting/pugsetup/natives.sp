@@ -5,9 +5,9 @@
 
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
-    g_ChatAliases = CreateArray(ALIAS_LENGTH);
-    g_ChatAliasesCommands = CreateArray(COMMAND_LENGTH);
-    g_MapList = CreateArray(PLATFORM_MAX_PATH);
+    g_ChatAliases = new ArrayList(ALIAS_LENGTH);
+    g_ChatAliasesCommands = new ArrayList(COMMAND_LENGTH);
+    g_MapList = new ArrayList(PLATFORM_MAX_PATH);
 
     CreateNative("SetupGame", Native_SetupGame);
     CreateNative("ReadyPlayer", Native_ReadyPlayer);

@@ -1,4 +1,3 @@
-
 /**
  * Map vetoing functions
  */

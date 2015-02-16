@@ -100,7 +100,7 @@ KeyValues g_WorkshopCache; // keyvalue struct for the cache
 ArrayList g_ChatAliases;
 ArrayList g_ChatAliasesCommands;
 
-/** Map-voting variables **/
+/** Map-choosing variables **/
 ArrayList g_MapVetoed;
 int g_ChosenMap = -1;
 
