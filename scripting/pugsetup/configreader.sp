@@ -43,6 +43,8 @@ public void SetConfigDefaults() {
     g_PlayersPerTeam = g_hDefaultTeamSize.IntValue;
 
     g_DoKnifeRound = (g_hDefaultKnifeRounds.IntValue != 0);
+
+    g_AutoLive = (g_hDefaultAutoLive.IntValue != 0);
 }
 
 public void ReadChatConfig() {

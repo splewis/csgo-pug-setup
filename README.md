@@ -38,7 +38,9 @@ Generally, here is what happens:
 - Other players join and all type ``.ready``
 - If the leader setup for a map vote, the map vote will occur and the map will change, then all players will type ``.ready`` on the new map
 - If the leader setup for a captain-style team selection, the game will wait for when 2 captains are selected, then the captains will be given menus to chose players
-- Then the game will initiate a live-on-3 restart and go
+- Then the game will initiate a live-on-3 restart and go (you can setup the match to wait for the pug leader to type .start so players can switch channels in mumble/teamspeak/etc. instead of immediately doing the lo3 by disabling autolive)
+
+
 
 
 ## Installation
@@ -66,7 +68,13 @@ Sometimes it's easier to add features in a separate plugin than the core plugin.
 
 ## Configuration
 
-After installing the plugin, start the server and check ``cfg/sourcemod/pugsetup``. There will be a file called ``pugsetup.cfg`` that you can edit to change the cvars the plugin uses.
+After installing the plugin, start the server and check ``cfg/sourcemod/pugsetup``. There will be a file called ``pugsetup.cfg`` that you can edit to change the cvars the plugin uses. I recommend skimming this file at least to see if there's anything you want to change.
+
+Common cvars to change are the default and option settings for the setup menu options: you can set a default for each option and whether the option is even displayed on the setup menu. For example, you can set it to always use knife rounds rather than ask on the setup menu by setting:
+```
+sm_pugsetup_default_knife_rounds 1
+sm_pugsetup_knife_rounds_option 0
+```
 
 You can also add more chat alias commands in [addons/sourcemod/configs/pugsetup/chataliases.cfg](configs/pugsetup/chataliases.cfg) if you wish. If players are not comfortable with english, I'd
 strongly recommend adding chat aliases, since those will be read by the plugin and used in chat messages when referencing commands.
@@ -85,6 +93,7 @@ sm_leader
 sm_captain
 sm_stay
 sm_swap
+sm_start
 ```
 
 By default the plugin uses the ``cfg/sourcemod/pugsetup/standard.cfg`` config when going live. You are free to change this file all you want (or change which file is used via the ``sm_pugsetup_live_cfg`` cvar). (Note: if you use knife rounds, make sure ``mp_give_player_c4 1`` is in this file!)
@@ -123,6 +132,7 @@ Some commands that are important are (all of these are actually sm_ commands for
 - **!unready**
 - **!pause**
 - **!unpause**
+- **!start**
 - **!capt** gives the pug leader a menu to select captains
 - **!rand** selects random captains
 - **!leader** gives a menu to change the game leader

@@ -20,6 +20,10 @@
 	{
 		"en"		"Record demo"
 	}
+	"AutoLiveOption"
+	{
+		"en"		"Autolive"
+	}
 	"VetoMessage"
 	{
 		"en"		"The map veto process will begin in a few seconds."
@@ -341,9 +345,18 @@
 	{
 		"en"		".unpause"
 	}
+	"sm_start_alias"
+	{
+		"en"		".start"
+	}
 	"ChooseCaptainTitle"
 	{
 		"#format"	"{1:d}"
 		"en"		"Choose captain {1}:"
+	}
+	"WaitingForStart"
+	{
+		"#format"		"{1:N},{2:s}"
+		"en"		"All players are ready, waiting for {GREEN}{1} {NORMAL}to type {GREEN}{2}"
 	}
 }

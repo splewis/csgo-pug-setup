@@ -29,6 +29,7 @@ ConVar g_hAnyCanPause;
 ConVar g_hAutoRandomizeCaptains;
 ConVar g_hAutoSetup;
 ConVar g_hCvarVersion;
+ConVar g_hDefaultAutoLive;
 ConVar g_hDefaultKnifeRounds;
 ConVar g_hDefaultMapType;
 ConVar g_hDefaultRecord;
@@ -45,6 +46,7 @@ ConVar g_hMapVoteTime;
 ConVar g_hMaxTeamSize;
 ConVar g_hMessagePrefix;
 ConVar g_hMutualUnpause;
+ConVar g_hOptionAutoLive;
 ConVar g_hOptionKnifeRounds;
 ConVar g_hOptionMapType;
 ConVar g_hOptionRecord;
@@ -72,6 +74,7 @@ TeamType g_TeamType = TeamType_Captains;
 MapType g_MapType = MapType_Vote;
 bool g_RecordGameOption = false;
 bool g_DoKnifeRound = false;
+bool g_AutoLive = true;
 
 // Other important variables about the state of the game
 bool g_Setup = false;
@@ -82,6 +85,7 @@ char g_DemoFileName[PLATFORM_MAX_PATH];
 bool g_LiveTimerRunning = false;
 int g_CountDownTicks = 0;
 bool g_ForceStartSignal = false;
+bool g_WaitingForStartCommand = false;
 
 // Pause information
 bool g_ctUnpaused = false;
@@ -178,6 +182,7 @@ public void OnPluginStart() {
     #endif
 
     // Setup options defaults
+    g_hDefaultAutoLive = CreateConVar("sm_pugsetup_default_autolive", "1", "Whether the immediately start a match when ready, or whether to wait for the pug leader to type .start");
     g_hDefaultKnifeRounds = CreateConVar("sm_pugsetup_default_knife_rounds", "0", "Default knife round setting.");
     g_hDefaultMapType = CreateConVar("sm_pugsetup_default_maptype", "vote", "Default map type to use. Allowed values: \"vote\", \"veto\", \"current\"");
     g_hDefaultRecord = CreateConVar("sm_pugsetup_default_record", "0", "Default value for whether to record demoes, requries tv_enable 1 to work");
@@ -197,6 +202,7 @@ public void OnPluginStart() {
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this cvar will let anybody use the !unpause command.");
 
     // Whether setup options are shown
+    g_hOptionAutoLive = CreateConVar("sm_pugsetup_autolive_option", "1", "Whether the autolive option is displayed in the setup menu or the default is always used");
     g_hOptionKnifeRounds = CreateConVar("sm_pugsetup_knife_rounds_option", "1", "Whether the knife round option is displayed in the setup menu or the default is always used");
     g_hOptionMapType = CreateConVar("sm_pugsetup_maptype_option", "1", "Whether the map type option is displayed in the setup menu or the default is always used");
     g_hOptionRecord = CreateConVar("sm_pugsetup_record_option", "1", "Whether the record demooption is displayed in the setup menu or the default is always used");
@@ -236,6 +242,7 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_swap", Command_Swap, "Elects to swap the current teams after winning a knife round");
     RegConsoleCmd("sm_forcestart", Command_ForceStart, "Force starts the game");
     RegConsoleCmd("sm_listpugmaps", Command_ListPugMaps, "Lists the current maplist");
+    RegConsoleCmd("sm_start", Command_Start, "Lists the current maplist");
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
@@ -326,6 +333,7 @@ public void OnMapStart() {
     g_WaitingForKnifeDecision = false;
     g_InStartPhase = false;
     g_ForceStartSignal = false;
+    g_WaitingForStartCommand = false;
 
     InitMapSettings();
 
@@ -628,29 +636,31 @@ public Action Command_ListPugMaps(int client, int args) {
     return Plugin_Handled;
 }
 
+public Action Command_Start(int client, int args) {
+    if (!g_Setup || !g_WaitingForStartCommand || g_MatchLive)
+        return Plugin_Handled;
+
+    PermissionCheck(Permission_Leader)
+
+    CreateCountDown();
+    g_WaitingForStartCommand = false;
+    return Plugin_Handled;
+}
+
 public void LoadChatAliases() {
-    AddChatAlias(".setup", "sm_setup");
     AddChatAlias(".10man", "sm_10man");
-    AddChatAlias(".endgame", "sm_endmatch");
     AddChatAlias(".endmatch", "sm_endmatch");
     AddChatAlias(".forceend", "sm_forceend");
     AddChatAlias(".cancel", "sm_endmatch");
-    AddChatAlias(".capt", "sm_capt");
     AddChatAlias(".captain", "sm_capt");
     AddChatAlias(".leader", "sm_leader");
     AddChatAlias(".rand", "sm_rand");
     AddChatAlias(".gaben", "sm_ready");
     AddChatAlias(".gs4lyfe", "sm_ready");
     AddChatAlias(".splewis", "sm_ready");
-    AddChatAlias(".ready", "sm_ready");
     AddChatAlias(".notready", "sm_unready");
-    AddChatAlias(".unready", "sm_unready");
     AddChatAlias(".paws", "sm_pause");
     AddChatAlias(".unpaws", "sm_unpause");
-    AddChatAlias(".pause", "sm_pause");
-    AddChatAlias(".unpause", "sm_unpause");
-    AddChatAlias(".stay", "sm_stay");
-    AddChatAlias(".swap", "sm_swap");
 
     // For each of these sm_x commands, we need the
     // translation phrase sm_x_alias to be present.
@@ -663,6 +673,7 @@ public void LoadChatAliases() {
     AddTranslatedAlias("sm_stay");
     AddTranslatedAlias("sm_swap");
     AddTranslatedAlias("sm_unpause");
+    AddTranslatedAlias("sm_start");
 
     ReadChatConfig();
 }
@@ -995,6 +1006,18 @@ public void ReadyToStart() {
     Call_StartForward(g_hOnReadyToStart);
     Call_Finish();
 
+    if (g_AutoLive) {
+        CreateCountDown();
+    } else {
+        g_WaitingForStartCommand = true;
+
+        char startCmd[ALIAS_LENGTH];
+        FindChatCommand("sm_start", startCmd);
+        PugSetupMessageToAll("%t", "WaitingForStart", GetLeader(), startCmd);
+    }
+}
+
+static void CreateCountDown() {
     g_CountDownTicks = g_hStartDelay.IntValue;
     CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }

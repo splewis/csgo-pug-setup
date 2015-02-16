@@ -61,6 +61,14 @@
             AddMenuItem(menu, "knife", buffer, style);
         }
 
+        // 6. autolive option
+        if (g_hOptionAutoLive.IntValue != 0) {
+            char liveString[128];
+            GetEnabledString(liveString, sizeof(liveString), g_AutoLive, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "AutoLiveOption", client, liveString);
+            AddMenuItem(menu, "autolive", buffer, style);
+        }
+
         bool showMenu = true;
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
@@ -95,6 +103,10 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "knife")) {
             g_DoKnifeRound = !g_DoKnifeRound;
+            GiveSetupMenu(client);
+
+        } else if (StrEqual(buffer, "autolive")) {
+            g_AutoLive = !g_AutoLive;
             GiveSetupMenu(client);
 
         } else if (StrEqual(buffer, "finish_setup")) {
@@ -206,8 +218,6 @@ public int DemoHandler(int client) {
  * Called when the setup phase is over and the ready-up period should begin.
  */
 public void SetupFinished() {
-    g_capt1 = -1;
-    g_capt2 = -1;
     ExecCfg(g_hWarmupCfg);
 
     for (int i = 1; i <= MaxClients; i++) {
@@ -218,8 +228,13 @@ public void SetupFinished() {
     }
 
     g_Setup = true;
+
+    // reset match state variables
+    g_capt1 = -1;
+    g_capt2 = -1;
     g_WaitingForKnifeWinner = false;
     g_WaitingForKnifeDecision = false;
+    g_WaitingForStartCommand = false;
 
     if (!g_LiveTimerRunning)
         CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);

@@ -130,7 +130,7 @@ forward void OnPermissionCheck(int client, const char[] command, Permissions p, 
 forward void OnStartRecording(char[] demoName);
 
 // Sets a game up with the given settings.
-native void SetupGame(TeamType teamType, MapType mapType=MapType_Vote, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false);
+native void SetupGame(TeamType teamType, MapType mapType=MapType_Vote, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);
 
 // Readies up a player.
 native void ReadyPlayer(int client);

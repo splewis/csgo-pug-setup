@@ -50,6 +50,10 @@ public int Native_SetupGame(Handle plugin, int numParams) {
         g_DoKnifeRound = GetNativeCell(5);
     }
 
+    if (numParams >= 6) {
+        g_AutoLive = GetNativeCell(6);
+    }
+
     SetupFinished();
 }
 
