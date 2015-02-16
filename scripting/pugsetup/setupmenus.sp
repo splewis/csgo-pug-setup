@@ -3,7 +3,7 @@
  */
  public void SetupMenu(int client, bool displayOnly, int menuPosition) {
         Menu menu = new Menu(SetupMenuHandler);
-        SetMenuTitle(menu, "%t", "SetupMenuTitle");
+        SetMenuTitle(menu, "%T", "SetupMenuTitle", client);
         SetMenuExitButton(menu, true);
 
         int style = ITEMDRAW_DEFAULT;
