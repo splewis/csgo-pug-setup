@@ -360,6 +360,10 @@ public void OnMapEnd() {
     CloseHandle(g_MapVetoed);
 }
 
+public bool UsingCaptains() {
+    return g_TeamType == TeamType_Captains || g_MapType == MapType_Veto;
+}
+
 public Action Timer_CheckReady(Handle timer) {
     if (!g_Setup || g_MatchLive || !g_LiveTimerRunning) {
         g_LiveTimerRunning = false;
