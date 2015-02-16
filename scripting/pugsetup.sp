@@ -1003,6 +1003,12 @@ public void PrintSetupInfo(int client) {
         GetEnabledString(knife, sizeof(knife), g_DoKnifeRound, client);
         PugSetupMessage(client, "%t: {GREEN}%s", "KnifeRoundOption", knife);
     }
+
+    if (g_hOptionAutoLive.IntValue != 0) {
+        char autolive[256];
+        GetEnabledString(autolive, sizeof(autolive), g_AutoLive, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "AutoLiveOption", autolive);
+    }
 }
 
 public void ReadyToStart() {
