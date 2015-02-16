@@ -333,5 +333,12 @@ public int Native_GiveSetupMenu(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
     bool displayOnly = GetNativeCell(2);
-    SetupMenu(client, displayOnly);
+
+    // backwards compatability
+    int menuPosition = -1;
+    if (numParams >= 3) {
+        menuPosition = GetNativeCell(3);
+    }
+
+    SetupMenu(client, displayOnly, menuPosition);
 }

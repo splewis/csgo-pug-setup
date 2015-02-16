@@ -1,7 +1,7 @@
 /**
  * Main .setup menu
  */
- public void SetupMenu(int client, bool displayOnly) {
+ public void SetupMenu(int client, bool displayOnly, int menuPosition) {
         Menu menu = new Menu(SetupMenuHandler);
         SetMenuTitle(menu, "%t", "SetupMenuTitle");
         SetMenuExitButton(menu, true);
@@ -77,7 +77,12 @@
         Call_Finish(showMenu);
 
         if (showMenu) {
-            DisplayMenu(menu, client, MENU_TIME_FOREVER);
+            if (menuPosition == -1) {
+                DisplayMenu(menu, client, MENU_TIME_FOREVER);
+            } else {
+                DisplayMenuAtItem(menu, client, menuPosition, MENU_TIME_FOREVER);
+            }
+
         } else {
             CloseHandle(menu);
         }
