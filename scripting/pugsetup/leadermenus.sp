@@ -18,7 +18,7 @@ public int Captain1MenuHandler(Menu menu, MenuAction action, int param1, int par
         int client = param1;
         int choice = GetMenuInt(menu, param2);
         if (choice == -1)
-            SetRandomCaptain(1);
+            SetCaptain(1, RandomPlayer(), false);
         else if (IsPlayer(choice))
             SetCaptain(1, choice);
         Captain2Menu(client);
@@ -43,7 +43,7 @@ public int Captain2MenuHandler(Menu menu, MenuAction action, int param1, int par
     if (action == MenuAction_Select) {
         int choice = GetMenuInt(menu, param2);
         if (choice == -1)
-            SetRandomCaptain(2);
+            SetCaptain(2, RandomPlayer(), false);
         else if (IsPlayer(choice))
             SetCaptain(2, choice);
     } else if (action == MenuAction_End) {
@@ -96,11 +96,4 @@ static int AddAllPlayers(Menu menu) {
         }
     }
     return count;
-}
-
-static void SetRandomCaptain(int captainNumber) {
-    if (captainNumber == 1)
-        g_capt1 = RandomPlayer();
-    else
-        g_capt2 = RandomPlayer();
 }

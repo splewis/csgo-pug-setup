@@ -23,6 +23,11 @@
             AddMenuItem(menu, "cancel_setup", finishSetupStr, style);
         }
 
+        if (g_Setup && g_WaitingForStartCommand) {
+            Format(buffer, sizeof(buffer), "%T", "StartMatchMenuOption", client);
+            AddMenuItem(menu, "start_match", buffer, style);
+        }
+
         // 1. team type
         if (g_hOptionTeamType.IntValue != 0) {
             char teamType[128];
@@ -69,6 +74,12 @@
             AddMenuItem(menu, "autolive", buffer, style);
         }
 
+        // 7. set captains
+        if (g_Setup && UsingCaptains()) {
+            Format(buffer, sizeof(buffer), "%T", "SetCaptainsMenuOption", client);
+            AddMenuItem(menu, "set_captains", buffer, style);
+        }
+
         bool showMenu = true;
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
@@ -94,10 +105,13 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         char buffer[64];
         menu.GetItem(param2, buffer, sizeof(buffer));
 
-        if (StrEqual(buffer, "maptype")) {
+        if (StrEqual(buffer, "start_match")) {
+            FakeClientCommand(client, "sm_start");
+
+        } else if (StrEqual(buffer, "maptype")) {
             MapTypeMenu(client);
 
-        } else if (StrEqual(buffer, "teamtype")) {
+        }else if (StrEqual(buffer, "teamtype")) {
             TeamTypeMenu(client);
 
         } else if (StrEqual(buffer, "teamsize")) {
@@ -113,6 +127,9 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         } else if (StrEqual(buffer, "autolive")) {
             g_AutoLive = !g_AutoLive;
             GiveSetupMenu(client);
+
+        } else if (StrEqual(buffer, "set_captains")) {
+            Captain1Menu(client);
 
         } else if (StrEqual(buffer, "finish_setup")) {
             SetupFinished();

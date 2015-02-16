@@ -359,4 +359,13 @@
 		"#format"		"{1:N},{2:s}"
 		"en"		"All players are ready, waiting for {GREEN}{1} {NORMAL}to type {GREEN}{2}"
 	}
+	"StartMatchMenuOption"
+	{
+		"en"		"Start the match"
+	}
+	"SetCaptainsMenuOption"
+	{
+		"en"		"Set captains"
+	}
+
 }
