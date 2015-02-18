@@ -1133,8 +1133,7 @@ public void StartGame() {
     }
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i))
-            g_PlayerAtStart[i] = IsPlayer(i);
+        g_PlayerAtStart[i] = IsPlayer(i);
     }
 
     if (g_TeamType == TeamType_Random) {
