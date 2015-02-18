@@ -62,6 +62,7 @@ ConVar g_SetCaptainsByRWS;
 ConVar g_StorageMethod;
 
 Handle g_Database = INVALID_HANDLE;
+bool g_ManuallySetCaptains = false;
 
 
 public Plugin myinfo = {
@@ -86,7 +87,7 @@ public void OnPluginStart() {
 
     g_MoveTeams = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
     g_RecordRWS = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
-    g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior cannot be overwritten by the pug-leader or admins.");
+    g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
     g_StorageMethod = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
 
     HookConVarChange(g_StorageMethod, OnCvarChanged);
@@ -116,6 +117,7 @@ public StorageMethod GetStorageMethod() {
 }
 
 public void OnMapStart() {
+    g_ManuallySetCaptains = false;
     StorageMethod m = GetStorageMethod();
 
     if (m == Storage_KeyValues) {
@@ -151,6 +153,12 @@ public void OnMapEnd() {
         char path[PLATFORM_MAX_PATH];
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ExportToFile(path);
+    }
+}
+
+public void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow) {
+    if (StrEqual(command, "sm_capt", false) || StrEqual(command, "sm_captain", false)) {
+        g_ManuallySetCaptains = true;
     }
 }
 
@@ -416,7 +424,8 @@ public int rwsSortFunction(int index1, int index2, Handle array, Handle hndl) {
 }
 
 public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
-    if (g_SetCaptainsByRWS.IntValue != 0 && totalPlayers >= GetPugMaxPlayers() && GetTeamType() == TeamType_Captains) {
+    if (!g_ManuallySetCaptains && g_SetCaptainsByRWS.IntValue != 0 &&
+        totalPlayers >= GetPugMaxPlayers() && GetTeamType() == TeamType_Captains) {
 
         // The idea is to set the captains to the 2 highest rws players,
         // so they are thrown into an array and sorted by rws,
