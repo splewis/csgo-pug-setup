@@ -68,12 +68,14 @@ public void OnGoingLive() {
 }
 
 public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast) {
-    if (g_hEnabled.IntValue == 0)
-        return;
+    if (g_hEnabled.IntValue == 0 || !IsMatchLive())
+        return Plugin_Continue;
 
     char hostname[MAX_HOST_LENGTH];
     Format(hostname, sizeof(hostname), "%s [LIVE %d-%d]", g_HostName, CS_GetTeamScore(CS_TEAM_CT), CS_GetTeamScore(CS_TEAM_T));
     g_HostnameCvar.SetString(hostname);
+
+    return Plugin_Continue;
 }
 
 public void OnMatchOver() {
