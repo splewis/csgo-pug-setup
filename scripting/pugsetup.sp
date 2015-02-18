@@ -902,11 +902,13 @@ public Action Command_Unpause(int client, int args) {
 }
 
 public Action Command_Ready(int client, int args) {
+    PermissionCheck(Permission_All)
     ReadyPlayer(client);
     return Plugin_Handled;
 }
 
 public Action Command_Unready(int client, int args) {
+    PermissionCheck(Permission_All)
     UnreadyPlayer(client);
     return Plugin_Handled;
 }
