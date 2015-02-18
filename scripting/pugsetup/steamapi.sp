@@ -8,6 +8,7 @@
 #define MAX_URL_LEN         256
 #define MAX_POST_LEN        256
 #define WAPI_USERAGENT      "Valve/Steam HTTP Client 1.0"
+#define WORKSHOP_ID_LENGTH 64
 
 // Feature checks
 #define SYSTEM2_AVAILABLE()        (GetFeatureStatus(FeatureType_Native, "System2_GetPage") == FeatureStatus_Available)
@@ -68,17 +69,17 @@ stock void WriteCollectionInfo(KeyValues kv, int collectionID) {
         char buffer[64];
         do {
             kv.GetSectionName(buffer, sizeof(buffer));
-            char mapId[64];
+            char mapId[WORKSHOP_ID_LENGTH];
             kv.GetString("publishedfileid", mapId, sizeof(mapId));
 
-            char strID[128];
-            Format(strID, sizeof(strID), "%d", collectionID);
+            char strID[WORKSHOP_ID_LENGTH];
+            IntToString(collectionID, strID, sizeof(strID));
 
             if (!StrEqual(mapId, "")) {
                 g_WorkshopCache.Rewind();
                 g_WorkshopCache.JumpToKey("collections", true);
                 g_WorkshopCache.JumpToKey(strID, true);
-                g_WorkshopCache.SetString(mapId, "x");
+                g_WorkshopCache.SetString(mapId, "x"); // appearently empty string values don't work
                 g_WorkshopCache.Rewind();
                 AddMapByID(mapId);
 
@@ -132,7 +133,7 @@ static void AddMapByID(const char[] mapId) {
         g_WorkshopCache.Rewind();
         ReplaceString(mapName, sizeof(mapName), ".bsp", ""); // remove the .bsp extension
         g_WorkshopCache.JumpToKey("maps", true);
-        char value[256];
+        char value[PLATFORM_MAX_PATH];
         Format(value, sizeof(value), "workshop/%s/%s", mapId, mapName);
         g_WorkshopCache.SetString(mapId, value);
         g_WorkshopCache.Rewind();
@@ -141,17 +142,17 @@ static void AddMapByID(const char[] mapId) {
 
 static void AddWorkshopMapsToList(int collectionID) {
     // first get all the map ids for this colelction into a list
-    ArrayList mapIds = CreateArray(64);
+    ArrayList mapIds = CreateArray(WORKSHOP_ID_LENGTH);
 
-    char strID[128];
-    Format(strID, sizeof(strID), "%d", collectionID);
+    char strID[WORKSHOP_ID_LENGTH];
+    IntToString(collectionID, strID, sizeof(strID));
 
     g_WorkshopCache.Rewind();
     g_WorkshopCache.JumpToKey("collections", true);
     g_WorkshopCache.JumpToKey(strID, true);
     g_WorkshopCache.GotoFirstSubKey(false);
 
-    char mapId[64];
+    char mapId[WORKSHOP_ID_LENGTH];
     do {
         g_WorkshopCache.GetSectionName(mapId, sizeof(mapId));
         mapIds.PushString(mapId);
