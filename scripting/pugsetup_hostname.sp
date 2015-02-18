@@ -31,6 +31,8 @@ public void OnPluginStart() {
 
     if (g_HostnameCvar == INVALID_HANDLE)
         SetFailState("Failed to find cvar \"hostname\"");
+
+    HookEvent("round_start", Event_RoundStart);
 }
 
 public void OnConfigsExecuted() {
@@ -62,6 +64,15 @@ public void OnGoingLive() {
 
     char hostname[MAX_HOST_LENGTH];
     Format(hostname, sizeof(hostname), "%s [LIVE]", g_HostName);
+    g_HostnameCvar.SetString(hostname);
+}
+
+public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast) {
+    if (g_hEnabled.IntValue == 0)
+        return;
+
+    char hostname[MAX_HOST_LENGTH];
+    Format(hostname, sizeof(hostname), "%s [LIVE %d-%d]", g_HostName, CS_GetTeamScore(CS_TEAM_CT), CS_GetTeamScore(CS_TEAM_T));
     g_HostnameCvar.SetString(hostname);
 }
 

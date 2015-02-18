@@ -172,7 +172,7 @@ This plugin sets team names/flag according to the players on the team. Here's ho
 This plugin blocks players from joining full teams when a game is live.
 
 #### pugsetup_hostname
-This plugin adds some tags to the server hostname depending on the pug status, examples: "[LIVE]" and "[NEED 3]".
+This plugin adds some tags to the server hostname depending on the pug status, examples: "[LIVE 11-5]" and "[NEED 3]".
 
 #### pugsetup_rwsbalancer
 This plugin implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual teams (or assigns captains to the highest 2 rws players when using captains). You can tweak its behavior by editing ``cfg/sourcemod/pugsetup_rwsbalancer.cfg``.
