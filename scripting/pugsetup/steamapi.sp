@@ -174,5 +174,11 @@ static void AddWorkshopMapsToList(int collectionID) {
 
     g_WorkshopCache.Rewind();
 
+    Call_StartForward(g_hOnMapListRead);
+    Call_PushString(strID);
+    Call_PushCell(g_MapList);
+    Call_PushCell(true);
+    Call_Finish();
+
     delete mapIds;
 }

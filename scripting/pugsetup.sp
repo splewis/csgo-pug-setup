@@ -129,6 +129,7 @@ Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnLive = INVALID_HANDLE;
 Handle g_hOnLiveCfg = INVALID_HANDLE;
 Handle g_hOnLiveCheck = INVALID_HANDLE;
+Handle g_hOnMapListRead = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnNotPicked = INVALID_HANDLE;
 Handle g_hOnPermissionCheck = INVALID_HANDLE;
@@ -257,6 +258,7 @@ public void OnPluginStart() {
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
     g_hOnLiveCfg = CreateGlobalForward("OnLiveCfgExecuted", ET_Ignore);
     g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
+    g_hOnMapListRead = CreateGlobalForward("OnMapListRead", ET_Ignore, Param_String, Param_Cell, Param_Cell);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
     g_hOnNotPicked = CreateGlobalForward("OnNotPicked", ET_Ignore, Param_Cell);
     g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);

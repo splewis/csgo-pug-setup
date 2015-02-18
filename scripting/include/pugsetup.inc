@@ -126,8 +126,19 @@ forward void OnReadyToStartCheck(int readyPlayers, int totalPlayers);
  */
 forward void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow);
 
-// Called when a tv_record command is about to be sent.
+/**
+ * Called when a tv_record command is about to be sent.
+ */
 forward void OnStartRecording(char[] demoName);
+
+/**
+ * Called after a maplist is read.
+ *
+ * @param maplist The maplist file or workshop collection id
+ * @param maps The ArrayList of maps fetched
+ * @param workshopCollection Whether the maplist was a workshop collection or a regular maplist file
+ */
+forward void OnMapListRead(const char[] maplist, ArrayList maps, bool workshopCollection);
 
 // Sets a game up with the given settings.
 native void SetupGame(TeamType teamType, MapType mapType=MapType_Vote, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);

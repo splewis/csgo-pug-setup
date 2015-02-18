@@ -26,6 +26,7 @@ public void AddBackupMaps() {
 }
 
 public void GetMapList(const char[] fileName) {
+    g_MapList.Clear();
     char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", fileName);
 
@@ -40,6 +41,12 @@ public void GetMapList(const char[] fileName) {
         }
         delete file;
     }
+
+    Call_StartForward(g_hOnMapListRead);
+    Call_PushString(fileName);
+    Call_PushCell(g_MapList);
+    Call_PushCell(false);
+    Call_Finish();
 }
 
 public void AddMap(const char[] mapName) {
