@@ -50,6 +50,11 @@
 	{
 		"en"		"not selected"
 	}
+	"SetCaptainsHint"
+	{
+		"#format"		"{1:N},{2:s}"
+		"en"		"Waiting for {GREEN}{1} {NORMAL}to type {GREEN}{2} {NORMAL}to select captains."
+	}
 	"NoPermission"
 	{
 		"en"		"You don't have permission to do that."

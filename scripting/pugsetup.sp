@@ -87,6 +87,10 @@ int g_CountDownTicks = 0;
 bool g_ForceStartSignal = false;
 bool g_WaitingForStartCommand = false;
 
+#define CAPTAIN_COMMAND_HINT_TIME 15
+#define START_COMMAND_HINT_TIME 15
+int g_LastCaptainHintTime = 0;
+
 // Pause information
 bool g_ctUnpaused = false;
 bool g_tUnpaused = false;
@@ -466,19 +470,32 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
 }
 
 static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
-        char cap1[64];
-        char cap2[64];
-        if (IsPlayer(g_capt1))
-            Format(cap1, sizeof(cap1), "%N", g_capt1);
-        else
-            Format(cap1, sizeof(cap1), "%T", "CaptainNotSelected", client);
+    char cap1[64];
+    char cap2[64];
+    if (IsPlayer(g_capt1))
+        Format(cap1, sizeof(cap1), "%N", g_capt1);
+    else
+        Format(cap1, sizeof(cap1), "%T", "CaptainNotSelected", client);
 
-        if (IsPlayer(g_capt2))
-            Format(cap2, sizeof(cap2), "%N", g_capt2);
-        else
-            Format(cap2, sizeof(cap2), "%T", "CaptainNotSelected", client);
+    if (IsPlayer(g_capt2))
+        Format(cap2, sizeof(cap2), "%N", g_capt2);
+    else
+        Format(cap2, sizeof(cap2), "%T", "CaptainNotSelected", client);
 
-        PrintHintTextToAll("%t", "ReadyStatusCaptains", readyPlayers, totalPlayers, cap1, cap2);
+    PrintHintTextToAll("%t", "ReadyStatusCaptains", readyPlayers, totalPlayers, cap1, cap2);
+
+    // if there aren't any captains and we full players, print the hint telling the leader how to set captains
+    if (!IsPlayer(g_capt1) && !IsPlayer(g_capt2) && totalPlayers >= GetPugMaxPlayers()) {
+        // but only do it at most every CAPTAIN_COMMAND_HINT_TIME seconds so it doesn't get spammed
+        int time = GetTime();
+        int dt = time - g_LastCaptainHintTime;
+        if (dt >= CAPTAIN_COMMAND_HINT_TIME) {
+            g_LastCaptainHintTime = time;
+            char cmd[ALIAS_LENGTH];
+            FindChatCommand("sm_capt", cmd);
+            PugSetupMessageToAll("%t", "SetCaptainsHint", GetLeader(), cmd);
+        }
+    }
 }
 
 
@@ -1013,6 +1030,7 @@ public void PrintSetupInfo(int client) {
 
 public void ReadyToStart() {
     g_InStartPhase = true;
+    g_ForceStartSignal = false;
     Call_StartForward(g_hOnReadyToStart);
     Call_Finish();
 
@@ -1020,11 +1038,23 @@ public void ReadyToStart() {
         CreateCountDown();
     } else {
         g_WaitingForStartCommand = true;
-
-        char startCmd[ALIAS_LENGTH];
-        FindChatCommand("sm_start", startCmd);
-        PugSetupMessageToAll("%t", "WaitingForStart", GetLeader(), startCmd);
+        CreateTimer(float(START_COMMAND_HINT_TIME), Timer_StartCommandHint);
+        GiveStartCommandHint();
     }
+}
+
+static void GiveStartCommandHint() {
+    char startCmd[ALIAS_LENGTH];
+    FindChatCommand("sm_start", startCmd);
+    PugSetupMessageToAll("%t", "WaitingForStart", GetLeader(), startCmd);
+}
+
+public Action Timer_StartCommandHint(Handle timer) {
+    if (!g_Setup || !g_WaitingForStartCommand || g_MatchLive) {
+        return Plugin_Handled;
+    }
+    GiveStartCommandHint();
+    return Plugin_Continue;
 }
 
 static void CreateCountDown() {
