@@ -1,3 +1,10 @@
+1.3.2:
+- the auto-live-on-3 (named autolive) setting can now be turned off again, cvars ``sm_pugsetup_default_autolive`` and ``sm_pugsetup_autolive_option`` control the default setting and whether the setting is avaliable in the setup menu
+- captains can now be set by selecting a "select captains" option in the .setup menu after a game is setup
+- the pugsetup_hostname addon now displays scores in the name (e.g. [LIVE 11-8])
+- the pugsetup_rwsbalancer addon will not respect users that try to override the captains the plugin set (it sets captains as the 2 highest rated players)
+- fix the PugSetupMessageToAll native not checking for clients being in game and causing errors
+
 1.3.1:
 - several bug fixes when using default setting cvars
 - pausing now works during knife rounds
