@@ -303,10 +303,7 @@ stock void CloseNestedArray(Handle array, bool clearOuterArray=true) {
         CloseHandle(array);
 }
 
-stock void GetEnabledString(char[] buffer, int length, bool variable, int client=0) {
-    if (client == 0)
-        client = LANG_SERVER;
-
+stock void GetEnabledString(char[] buffer, int length, bool variable, int client=LANG_SERVER) {
     if (variable)
         Format(buffer, length, "%T", "Enabled", client);
     else

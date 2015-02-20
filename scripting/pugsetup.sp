@@ -701,12 +701,12 @@ public void LoadChatAliases() {
     ReadChatConfig();
 }
 
-static void AddTranslatedAlias(const char[] command, int lang=LANG_SERVER) {
+static void AddTranslatedAlias(const char[] command) {
     char translationName[64];
     Format(translationName, sizeof(translationName), "%s_alias", command);
 
     char alias[ALIAS_LENGTH];
-    Format(alias, sizeof(alias), "%T", translationName, lang);
+    Format(alias, sizeof(alias), "%T", translationName, LANG_SERVER);
 
     AddChatAlias(alias, command);
 }
