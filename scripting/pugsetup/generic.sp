@@ -326,3 +326,18 @@ stock void SQL_CreateTable(Handle db_connection, const char[] table_name, const 
         LogError(err);
     }
 }
+
+stock void GetDefaults(TeamType& teamType, MapType& mapType, int& teamSize, bool& record, bool& knifeRound, bool& autoLive) {
+    char teamTypeString[64];
+    g_hDefaultTeamType.GetString(teamTypeString, sizeof(teamTypeString));
+    teamType = TeamTypeFromString(teamTypeString, TeamType_Captains, false);
+
+    char mapTypeString[64];
+    g_hDefaultMapType.GetString(mapTypeString, sizeof(mapTypeString));
+    mapType = MapTypeFromString(mapTypeString, MapType_Vote, false);
+
+    teamSize = g_hDefaultTeamSize.IntValue;
+    record = (g_hDefaultRecord.IntValue != 0);
+    knifeRound = (g_hDefaultKnifeRounds.IntValue != 0);
+    autoLive = (g_hDefaultAutoLive.IntValue != 0);
+}

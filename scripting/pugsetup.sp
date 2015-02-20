@@ -285,7 +285,7 @@ public void OnPluginStart() {
 
 public void OnConfigsExecuted() {
     InitMapSettings();
-    SetConfigDefaults();
+    GetDefaults(g_TeamType, g_MapType, g_PlayersPerTeam, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
 }
 
 public void OnLibraryAdded(const char[] name) {
@@ -553,7 +553,21 @@ public Action Command_Setup(int client, int args) {
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
-    GiveSetupMenu(client);
+    if (client == 0) {
+        // if we do sm_setup from the console just use the default settings
+        TeamType teamType;
+        MapType mapType;
+        int teamSize;
+        bool record;
+        bool knifeRound;
+        bool autoLive;
+
+        GetDefaults(teamType, mapType, teamSize, record, knifeRound, autoLive);
+        SetupGame(teamType, mapType, teamSize, record, knifeRound, autoLive);
+    } else {
+        GiveSetupMenu(client);
+    }
+
     return Plugin_Handled;
 }
 
@@ -777,12 +791,26 @@ public Action Command_EndGame(int client, int args) {
     } else {
         PermissionCheck(Permission_Leader)
 
-        Menu menu = new Menu(MatchEndHandler);
-        SetMenuTitle(menu, "%T", "EndMatchMenuTitle", client);
-        SetMenuExitButton(menu, true);
-        AddMenuBool(menu, false, "%T", "ContinueMatch", client);
-        AddMenuBool(menu, true, "%T", "EndMatch", client);
-        DisplayMenu(menu, client, 20);
+        // bypass the menu if console does it
+        if (client == 0) {
+            Call_StartForward(g_hOnForceEnd);
+            Call_PushCell(client);
+            Call_Finish();
+
+            PugSetupMessageToAll("%t", "ForceEnd", client);
+            EndMatch(true);
+            g_ForceEnded = true;
+
+        } else {
+            Menu menu = new Menu(MatchEndHandler);
+            SetMenuTitle(menu, "%T", "EndMatchMenuTitle", client);
+            SetMenuExitButton(menu, true);
+            AddMenuBool(menu, false, "%T", "ContinueMatch", client);
+            AddMenuBool(menu, true, "%T", "EndMatch", client);
+            DisplayMenu(menu, client, 20);
+
+        }
+
     }
     return Plugin_Handled;
 }

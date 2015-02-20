@@ -27,21 +27,6 @@ public void InitMapSettings() {
     }
 }
 
-public void SetConfigDefaults() {
-    char buffer[128];
-
-    g_hDefaultMapType.GetString(buffer, sizeof(buffer));
-    g_MapType = MapTypeFromString(buffer);
-
-    g_hDefaultTeamType.GetString(buffer, sizeof(buffer));
-    g_TeamType = TeamTypeFromString(buffer);
-
-    g_RecordGameOption = (g_hDefaultRecord.IntValue != 0);
-    g_PlayersPerTeam = g_hDefaultTeamSize.IntValue;
-    g_DoKnifeRound = (g_hDefaultKnifeRounds.IntValue != 0);
-    g_AutoLive = (g_hDefaultAutoLive.IntValue != 0);
-}
-
 public void ReadChatConfig() {
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/chataliases.cfg");
