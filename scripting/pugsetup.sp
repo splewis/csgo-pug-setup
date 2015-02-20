@@ -41,6 +41,7 @@ ConVar g_hExcludeSpectators;
 ConVar g_hExecDefaultConfig;
 ConVar g_hForceDefaults;
 ConVar g_hLiveCfg;
+ConVar g_hMapChangeOption;
 ConVar g_hMapList;
 ConVar g_hMapVoteTime;
 ConVar g_hMaxTeamSize;
@@ -213,6 +214,7 @@ public void OnPluginStart() {
     g_hOptionRecord = CreateConVar("sm_pugsetup_record_option", "1", "Whether the record demooption is displayed in the setup menu or the default is always used");
     g_hOptionTeamSize = CreateConVar("sm_pugsetup_teamsize_option", "1", "Whether the teamsize option is displayed in the setup menu or the default is always used");
     g_hOptionTeamType = CreateConVar("sm_pugsetup_teamtype_option", "1", "Whether the teamtype option is displayed in the setup menu or the default is always used");
+    g_hMapChangeOption = CreateConVar("sm_pugsetup_mapchange_option", "0", "Whether an option for changing the map in the setup menu appears");
 
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, should their order be randomized?");
@@ -348,7 +350,7 @@ public void OnMapStart() {
         g_Teams[i] = -1;
     }
 
-    if (g_MapSet || g_Setup) {
+    if (g_Setup) {
         ExecCfg(g_hWarmupCfg);
         g_Setup = true;
         if (!g_LiveTimerRunning) {

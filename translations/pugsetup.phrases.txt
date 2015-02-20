@@ -372,5 +372,12 @@
 	{
 		"en"		"Set captains"
 	}
-
+	"ChangeMapMenuOption"
+	{
+		"en"		"Change map"
+	}
+	"ChangeMapMenuTitle"
+	{
+		"en"		"Select the map"
+	}
 }

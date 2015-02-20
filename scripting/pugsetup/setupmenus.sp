@@ -80,6 +80,12 @@
             AddMenuItem(menu, "set_captains", buffer, style);
         }
 
+        // 8. change map
+        if (g_hMapChangeOption.IntValue != 0) {
+            Format(buffer, sizeof(buffer), "%T", "ChangeMapMenuOption", client);
+            AddMenuItem(menu, "change_map", buffer, style);
+        }
+
         bool showMenu = true;
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
@@ -130,6 +136,9 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "set_captains")) {
             Captain1Menu(client);
+
+        } else if (StrEqual(buffer, "change_map")) {
+            ChangeMapMenu(client);
 
         } else if (StrEqual(buffer, "finish_setup")) {
             SetupFinished();
@@ -309,5 +318,36 @@ static void UpdateMapStatus() {
         case MapType_Vote: g_MapSet = false;
         case MapType_Veto: g_MapSet = false;
         default: LogError("unknown maptype=%d", g_MapType);
+    }
+}
+
+public void ChangeMapMenu(int client) {
+    ArrayList mapList = GetCurrentMapList();
+
+    Menu menu = new Menu(ChangeMapHandler);
+    menu.ExitButton = true;
+    menu.SetTitle("%T", "ChangeMapMenuTitle", client);
+
+    for (int i = 0; i < mapList.Length; i++) {
+        AddMapIndexToMenu(menu, mapList, i);
+    }
+
+    AddMenuInt(menu, -1, "%T", "Back", client);
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+}
+
+public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2) {
+    if (action == MenuAction_Select) {
+        int client = param1;
+        int choice = GetMenuInt(menu, param2);
+
+        if (choice == -1) {
+            GiveSetupMenu(client);
+        } else {
+            g_ChosenMap = GetMenuInt(menu, param2);
+            ChangeMap();
+        }
+    } else if (action == MenuAction_End) {
+        CloseHandle(menu);
     }
 }
