@@ -353,7 +353,7 @@ public void OnMapStart() {
 
     for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
-        g_Teams[i] = -1;
+        g_Teams[i] = CS_TEAM_NONE;
     }
 
     if (g_Setup) {
@@ -1306,7 +1306,7 @@ public Action StartPicking(Handle timer) {
 public Action FinishPicking(Handle timer) {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
-            if (g_Teams[i] == CS_TEAM_NONE) {
+            if (g_Teams[i] == CS_TEAM_NONE || g_Teams[i] == CS_TEAM_SPECTATOR) {
                 SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
                 Call_StartForward(g_hOnNotPicked);
                 Call_PushCell(i);
