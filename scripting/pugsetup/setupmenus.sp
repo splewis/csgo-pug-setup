@@ -288,10 +288,7 @@ public void SetupFinished() {
 /**
  * Converts enum choice types to strings to show to players.
  */
-stock void GetTeamString(char[] buffer, int length, TeamType type, int client=0) {
-    if (client == 0)
-        client = LANG_SERVER;
-
+stock void GetTeamString(char[] buffer, int length, TeamType type, int client=LANG_SERVER) {
     switch (type) {
         case TeamType_Manual: Format(buffer, length, "%T", "TeamSetupManualShort", client);
         case TeamType_Random: Format(buffer, length, "%T", "TeamSetupRandomShort", client);
@@ -300,10 +297,7 @@ stock void GetTeamString(char[] buffer, int length, TeamType type, int client=0)
     }
 }
 
-stock void GetMapString(char[] buffer, int length, MapType type, int client=0) {
-    if (client == 0)
-        client = LANG_SERVER;
-
+stock void GetMapString(char[] buffer, int length, MapType type, int client=LANG_SERVER) {
     switch (type) {
         case MapType_Current: Format(buffer, length, "%T", "MapChoiceCurrentShort", client);
         case MapType_Vote: Format(buffer, length, "%T", "MapChoiceVoteShort", client);
