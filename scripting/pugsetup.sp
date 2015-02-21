@@ -87,6 +87,7 @@ bool g_LiveTimerRunning = false;
 int g_CountDownTicks = 0;
 bool g_ForceStartSignal = false;
 bool g_WaitingForStartCommand = false;
+bool g_ReadDefaultCvars = false;
 
 #define CAPTAIN_COMMAND_HINT_TIME 15
 #define START_COMMAND_HINT_TIME 15
@@ -274,6 +275,7 @@ public void OnPluginStart() {
     g_hOnWarmupCfg = CreateGlobalForward("OnWarmupCfgExecuted", ET_Ignore);
 
     g_LiveTimerRunning = false;
+    g_ReadDefaultCvars = false;
 
     LoadChatAliases();
 
@@ -285,7 +287,11 @@ public void OnPluginStart() {
 
 public void OnConfigsExecuted() {
     InitMapSettings();
-    GetDefaults(g_TeamType, g_MapType, g_PlayersPerTeam, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
+
+    if (!g_ReadDefaultCvars) {
+        GetDefaults(g_TeamType, g_MapType, g_PlayersPerTeam, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
+        g_ReadDefaultCvars = true;
+    }
 }
 
 public void OnLibraryAdded(const char[] name) {
@@ -863,7 +869,7 @@ static bool Pauseable() {
     if (!g_Setup)
         return false;
 
-    if (!g_MatchLive && !g_WaitingForKnifeWinner)
+    if (!g_MatchLive && !g_WaitingForKnifeWinner && !g_InStartPhase)
         return false;
 
     return true;
