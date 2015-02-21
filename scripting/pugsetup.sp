@@ -879,7 +879,7 @@ public Action Command_Pause(int client, int args) {
     if (!Pauseable() || IsPaused())
         return Plugin_Handled;
 
-    if (g_hAnyCanPause.IntValue != 0)
+    if (g_hAnyCanPause.IntValue == 0)
         PermissionCheck(Permission_Captains)
     else
         PermissionCheck(Permission_All)
@@ -902,7 +902,7 @@ public Action Command_Unpause(int client, int args) {
     FindChatCommand("sm_unpause", unpauseCmd);
 
     if (g_hMutualUnpause.IntValue == 0) {
-        if (g_hAnyCanPause.IntValue != 0)
+        if (g_hAnyCanPause.IntValue == 0)
             PermissionCheck(Permission_Captains)
         else
             PermissionCheck(Permission_All)
