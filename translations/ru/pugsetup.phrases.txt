@@ -292,4 +292,24 @@
 	{
 		"ru"		"Выберите капитана {1}:"
 	}
+	"WaitingForStart"
+	{
+		"ru"		"Все игроки готовы, ждем {GREEN}{1} {NORMAL}пока напишет {GREEN}{2}"
+	}
+	"StartMatchMenuOption"
+	{
+		"ru"		"Начать матч"
+	}
+	"SetCaptainsMenuOption"
+	{
+		"ru"		"Выбор капитанов"
+	}
+	"ChangeMapMenuOption"
+	{
+		"ru"		"Смена карты"
+	}
+	"ChangeMapMenuTitle"
+	{
+		"ru"		"Выберите карту"
+	}
 }
