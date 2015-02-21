@@ -1339,6 +1339,7 @@ public Action Timer_CheckAutoSetup(Handle timer) {
 
 public void CheckAutoSetup() {
     if (g_hAutoSetup.IntValue != 0 && !g_Setup && !g_ForceEnded && !g_InStartPhase && !g_MatchLive) {
+        GetDefaults(g_TeamType, g_MapType, g_PlayersPerTeam, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
         SetupFinished();
     }
 }
