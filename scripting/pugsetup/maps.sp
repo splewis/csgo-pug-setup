@@ -34,12 +34,16 @@ public void GetMapList(const char[] fileName) {
         LogError("Missing map file: %s", mapFile);
     } else {
         File file = OpenFile(mapFile, "r");
-        char mapName[PLATFORM_MAX_PATH];
-        while (!file.EndOfFile() && file.ReadLine(mapName, sizeof(mapName))) {
-            TrimString(mapName);
-            AddMap(mapName);
+        if (file == null) {
+            char mapName[PLATFORM_MAX_PATH];
+            while (!file.EndOfFile() && file.ReadLine(mapName, sizeof(mapName))) {
+                TrimString(mapName);
+                AddMap(mapName);
+            }
+            delete file;
+        } else {
+            LogError("Failed to open maplist for reading: %s", mapFile);
         }
-        delete file;
     }
 
     Call_StartForward(g_hOnMapListRead);
