@@ -34,7 +34,7 @@ public void GetMapList(const char[] fileName) {
         LogError("Missing map file: %s", mapFile);
     } else {
         File file = OpenFile(mapFile, "r");
-        if (file == null) {
+        if (file != null) {
             char mapName[PLATFORM_MAX_PATH];
             while (!file.EndOfFile() && file.ReadLine(mapName, sizeof(mapName))) {
                 TrimString(mapName);
