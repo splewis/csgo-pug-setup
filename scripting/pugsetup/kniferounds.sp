@@ -37,6 +37,9 @@ public void EndKnifeRound() {
 }
 
 static bool AwaitingDecision(int client) {
+    if (!g_InStartPhase)
+        return false;
+
     if (!g_WaitingForKnifeDecision)
         return false;
 
@@ -69,4 +72,24 @@ public Action Command_Swap(int client, int args) {
         }
         EndKnifeRound();
     }
+}
+
+public Action Command_Ct(int client, int args) {
+    if (IsPlayer(client)) {
+        if (GetClientTeam(client) == CS_TEAM_CT)
+            FakeClientCommand(client, "sm_stay");
+        else if (GetClientTeam(client) == CS_TEAM_T)
+            FakeClientCommand(client, "sm_swap");
+    }
+    return Plugin_Handled;
+}
+
+public Action Command_T(int client, int args) {
+    if (IsPlayer(client)) {
+        if (GetClientTeam(client) == CS_TEAM_T)
+            FakeClientCommand(client, "sm_stay");
+        else if (GetClientTeam(client) == CS_TEAM_CT)
+            FakeClientCommand(client, "sm_swap");
+    }
+    return Plugin_Handled;
 }

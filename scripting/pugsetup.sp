@@ -248,6 +248,8 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_captain", Command_Capt, "Gives the client a menu to pick captains");
     RegConsoleCmd("sm_stay", Command_Stay, "Elects to stay on the current team after winning a knife round");
     RegConsoleCmd("sm_swap", Command_Swap, "Elects to swap the current teams after winning a knife round");
+    RegConsoleCmd("sm_t", Command_T, "Elects to start on T side after winning a knife round");
+    RegConsoleCmd("sm_ct", Command_Ct, "Elects to start on CT side after winning a knife round");
     RegConsoleCmd("sm_forcestart", Command_ForceStart, "Force starts the game");
     RegConsoleCmd("sm_listpugmaps", Command_ListPugMaps, "Lists the current maplist");
     RegConsoleCmd("sm_start", Command_Start, "Lists the current maplist");
@@ -706,6 +708,8 @@ public void LoadChatAliases() {
     AddChatAlias(".notready", "sm_unready");
     AddChatAlias(".paws", "sm_pause");
     AddChatAlias(".unpaws", "sm_unpause");
+    AddChatAlias(".ct", "sm_ct");
+    AddChatAlias(".t", "sm_t");
 
     // For each of these sm_x commands, we need the
     // translation phrase sm_x_alias to be present.
