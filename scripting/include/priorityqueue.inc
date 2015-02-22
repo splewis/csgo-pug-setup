@@ -16,7 +16,7 @@ stock Handle PQ_Init() {
  * Adds a player and a value to the queue.
  * If the player is already in the queue, their score is updated in place.
  */
-stock void PQ_Enqueue(Handle queueHandle, int client, any:value) {
+stock void PQ_Enqueue(Handle queueHandle, int client, float value) {
     int index = PQ_FindClient(queueHandle, client);
 
     // if they're not already in, put them at the end
@@ -36,11 +36,11 @@ stock void PQ_Enqueue(Handle queueHandle, int client, any:value) {
 stock int PQ_Dequeue(Handle queueHandle) {
     int maxIndex = -1;
     int maxClient = -1;
-    new any:maxScore;
+    float maxScore;
 
     for (int i = 0; i < GetArraySize(queueHandle); i++) {
         int client = GetArrayCell(queueHandle, i, 0);
-        new any:score = GetArrayCell(queueHandle, i, 1);
+        float score = GetArrayCell(queueHandle, i, 1);
         if (maxIndex == -1 || score > maxScore) {
             maxIndex = i;
             maxClient = client;
@@ -91,6 +91,6 @@ stock bool PQ_IsEmpty(Handle queueHandle) {
 /**
  * Clears the Handle for a queue.
  */
-stock PQ_Destroy(Handle queueHandle) {
+stock void PQ_Destroy(Handle queueHandle) {
     CloseHandle(queueHandle);
 }
