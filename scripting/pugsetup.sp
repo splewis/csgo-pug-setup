@@ -1376,11 +1376,15 @@ public void ExecCfg(ConVar cvar) {
 public void ExecFromFile(const char[] path) {
     if (FileExists(path)) {
         File file = OpenFile(path, "r");
-        char buffer[256];
-        while (!file.EndOfFile() && file.ReadLine(buffer, sizeof(buffer))) {
-            ServerCommand(buffer);
+        if (file != null) {
+            char buffer[256];
+            while (!file.EndOfFile() && file.ReadLine(buffer, sizeof(buffer))) {
+                ServerCommand(buffer);
+            }
+            delete file;
+        } else {
+            LogError("Failed to open config file for eading: %s", path);
         }
-        delete file;
     } else {
         LogError("Config file does not exist: %s", path);
     }
