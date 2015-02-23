@@ -9,13 +9,8 @@
 ConVar g_hEnabled;
 ConVar g_hAllowDmgCommand;
 
-// Technically we don't actually need 2 separate arrays for damage taken/done
-// but things are simpler this way and it doesn't take up too much space.
 int g_DamageDone[MAXPLAYERS+1][MAXPLAYERS+1];
 int g_DamageDoneHits[MAXPLAYERS+1][MAXPLAYERS+1];
-int g_DamageTaken[MAXPLAYERS+1][MAXPLAYERS+1];
-int g_DamageTakenHits[MAXPLAYERS+1][MAXPLAYERS+1];
-
 
 public Plugin myinfo = {
     name = "CS:GO PugSetup: damage printer",
@@ -53,7 +48,7 @@ static void PrintDamageInfo(int client) {
             int health = IsPlayerAlive(i) ? GetClientHealth(i) : 0;
             PrintToChat(client, "--> (%d dmg / %d hits) to (%d dmg / %d hits) from %N (%d HP)",
                         g_DamageDone[client][i], g_DamageDoneHits[client][i],
-                        g_DamageTaken[i][client], g_DamageTakenHits[i][client],
+                        g_DamageDone[i][client], g_DamageDoneHits[i][client],
                         i, health);
         }
     }
@@ -63,8 +58,9 @@ public Action Command_Damage(int client, int args) {
     if (!IsMatchLive() || g_hEnabled.IntValue == 0 || g_hAllowDmgCommand.IntValue == 0)
         return Plugin_Handled;
 
-    if (!IsPlayerAlive(client)) {
+    if (IsPlayerAlive(client)) {
         PugSetupMessage(client, "You cannot use that command when alive.");
+        return Plugin_Handled;
     }
 
     PrintDamageInfo(client);
@@ -87,8 +83,6 @@ public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadca
         for (int j = 1; j <= MaxClients; j++) {
             g_DamageDone[i][j] = 0;
             g_DamageDoneHits[i][j] = 0;
-            g_DamageTaken[i][j] = 0;
-            g_DamageTakenHits[i][j] = 0;
         }
     }
 }
@@ -113,7 +107,5 @@ public Action Event_DamageDealt(Handle event, const char[] name, bool dontBroadc
 
         g_DamageDone[attacker][victim] += damage;
         g_DamageDoneHits[attacker][victim]++;
-        g_DamageTaken[victim][attacker] += damage;
-        g_DamageTakenHits[victim][attacker]++;
     }
 }
