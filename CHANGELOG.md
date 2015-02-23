@@ -1,3 +1,10 @@
+1.3.3:
+- fix the rwsbalancer being totally broken with team balancing
+- bugfixes with the use of default setup options overriding the actual setup options used
+- fix ``sm_pugsetup_any_can_pause`` not having the correct effect
+- add pugsetup_damageprint plugin to replicate ESEA damage printing options (experimental)
+- add commands sm_t, sm_ct for picking sides after winning a knife round in addition to sm_stay and sm_swap
+
 1.3.2:
 - the auto-live-on-3 (named autolive) setting can now be turned off again, cvars ``sm_pugsetup_default_autolive`` and ``sm_pugsetup_autolive_option`` control the default setting and whether the setting is avaliable in the setup menu
 - captains can now be set by selecting a "select captains" option in the .setup menu after a game is setup
