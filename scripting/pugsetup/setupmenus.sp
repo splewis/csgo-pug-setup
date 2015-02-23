@@ -135,7 +135,7 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
             GiveSetupMenu(client);
 
         } else if (StrEqual(buffer, "set_captains")) {
-            Captain1Menu(client);
+            FakeClientCommand(client, "sm_capt");
 
         } else if (StrEqual(buffer, "change_map")) {
             ChangeMapMenu(client);
