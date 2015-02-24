@@ -711,6 +711,9 @@ public void LoadChatAliases() {
     AddChatAlias(".ct", "sm_ct");
     AddChatAlias(".t", "sm_t");
 
+    // Read custom user aliases
+    ReadChatConfig();
+
     // For each of these sm_x commands, we need the
     // translation phrase sm_x_alias to be present.
     AddTranslatedAlias("sm_capt");
@@ -724,7 +727,6 @@ public void LoadChatAliases() {
     AddTranslatedAlias("sm_unpause");
     AddTranslatedAlias("sm_start");
 
-    ReadChatConfig();
 }
 
 static void AddTranslatedAlias(const char[] command) {
