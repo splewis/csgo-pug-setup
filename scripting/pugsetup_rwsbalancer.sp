@@ -13,7 +13,7 @@ KeyValues g_RwsKV;
 
 /*
  * This isn't meant to be a comprehensive stats system, it's meant to be a simple
- * way to balance teams to replace manual stuff.
+ * way to balance teams to replace manual stuff using a (exponentially) weighted moving average.
  * The update takes place every round, following this equation
  *
  * R' = (1-a) * R_prev + alpha * R
@@ -60,6 +60,7 @@ ConVar g_MoveTeams;
 ConVar g_RecordRWS;
 ConVar g_SetCaptainsByRWS;
 ConVar g_StorageMethod;
+ConVar g_ShowRWSOnMenu;
 
 Handle g_Database = INVALID_HANDLE;
 bool g_ManuallySetCaptains = false;
@@ -89,6 +90,7 @@ public void OnPluginStart() {
     g_RecordRWS = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
     g_StorageMethod = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
+    g_ShowRWSOnMenu = CreateConVar("sm_pugsetup_rws_display_on_menu", "1", "Whether rws stats are to be displayed on captain-player selection menus");
 
     HookConVarChange(g_StorageMethod, OnCvarChanged);
 
@@ -458,4 +460,10 @@ public Action Command_ShowRWS(int client, int args) {
     }
 
     return Plugin_Handled;
+}
+
+public void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length) {
+    if (g_ShowRWSOnMenu.IntValue != 0 && HasStats(client)) {
+        Format(menuString, length, "%N [%.1f RWS]", client, g_PlayerRWS[client]);
+    }
 }
