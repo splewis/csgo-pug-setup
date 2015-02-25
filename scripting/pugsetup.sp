@@ -1387,7 +1387,7 @@ public void ExecFromFile(const char[] path) {
             }
             delete file;
         } else {
-            LogError("Failed to open config file for eading: %s", path);
+            LogError("Failed to open config file for reading: %s", path);
         }
     } else {
         LogError("Config file does not exist: %s", path);
