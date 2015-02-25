@@ -341,3 +341,9 @@ stock void GetDefaults(TeamType& teamType, MapType& mapType, int& teamSize, bool
     knifeRound = (g_hDefaultKnifeRounds.IntValue != 0);
     autoLive = (g_hDefaultAutoLive.IntValue != 0);
 }
+
+stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace, int value, bool caseSensitive=true) {
+    char intString[16];
+    IntToString(value, intString, sizeof(intString));
+    ReplaceString(buffer, len, replace, intString, caseSensitive);
+}

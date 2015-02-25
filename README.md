@@ -183,7 +183,5 @@ This plugin prints out the team members' money to chat on round starts, you can 
 #### pugsetup_practicemode
 This plugin adds an option to the .setup menu to launch a practice mode with cheats/infinite ammo/respawning/etc. You can edit the ``addons/sourcemod/configs/pugsetup/practicemode.cfg`` file to add new enable/disable options and the cvars associated with the options.
 
-
 #### pugsetup_damageprinter
 This plugin adds a simple .dmg command that also prints damage done/taken from players on round ends, similar to what ESEA does.
-
