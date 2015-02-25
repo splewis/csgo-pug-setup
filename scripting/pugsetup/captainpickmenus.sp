@@ -190,12 +190,20 @@ public int OtherCaptain(int captain) {
 }
 
 static int AddPlayersToMenu(Menu menu) {
-    char name[MAX_NAME_LENGTH];
+    char displayString[128];
     int count = 0;
     for (int client = 1; client <= MaxClients; client++) {
         if (IsValidClient(client) && !IsFakeClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && g_Ready[client]) {
-            GetClientName(client, name, sizeof(name));
-            AddMenuInt(menu, GetClientSerial(client), name);
+            GetClientName(client, displayString, sizeof(displayString));
+
+            Call_StartForward(g_hOnPlayerAddedToCaptainMenu);
+            Call_PushCell(menu);
+            Call_PushCell(client);
+            Call_PushString(displayString);
+            Call_PushCell(sizeof(displayString));
+            Call_Finish();
+
+            AddMenuInt(menu, GetClientSerial(client), displayString);
             count++;
         }
     }

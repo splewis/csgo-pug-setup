@@ -128,6 +128,8 @@ forward void OnPermissionCheck(int client, const char[] command, Permissions p, 
 
 /**
  * Called when a tv_record command is about to be sent.
+ *
+ * @param demoName The name given when the tv_record command was used (no .dem file extension)
  */
 forward void OnStartRecording(char[] demoName);
 
@@ -139,6 +141,16 @@ forward void OnStartRecording(char[] demoName);
  * @param workshopCollection Whether the maplist was a workshop collection or a regular maplist file
  */
 forward void OnMapListRead(const char[] maplist, ArrayList maps, bool workshopCollection);
+
+/**
+ * Called before a player gets added to a captain selection menu.
+ *
+ * @param menu The Menu players are being added to
+ * @param client The client being added to the menu
+ * @param menuString The menu display string being added for the client
+ * @param length Length of the menuString
+ */
+forward void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length);
 
 // Sets a game up with the given settings.
 native void SetupGame(TeamType teamType, MapType mapType=MapType_Vote, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);
