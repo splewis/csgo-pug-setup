@@ -765,9 +765,9 @@ public void FindChatCommand(const char[] command, char alias[ALIAS_LENGTH]) {
 }
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] sArgs, int client) {
-    if (IsPrefix(sArgs, alias)) {
+    if (IsPrefix(sArgs, alias, false)) {
         char text[255];
-        SplitStringRight(sArgs, alias, text, sizeof(text));
+        SplitStringRight(sArgs, alias, text, sizeof(text), false);
         FakeClientCommand(client, "%s %s", command, text);
         return true;
     }

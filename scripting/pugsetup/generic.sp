@@ -163,8 +163,8 @@ stock void RandomizeArray(ArrayList array) {
 }
 
 // Thanks to KissLick https://forums.alliedmods.net/member.php?u=210752
-stock bool SplitStringRight(const char[] source, const char[] split, char[] part, int partLen) {
-    int index = StrContains(source, split);
+stock bool SplitStringRight(const char[] source, const char[] split, char[] part, int partLen, bool caseSensitive=true) {
+    int index = StrContains(source, split, caseSensitive);
     if (index == -1)
         return false;
 
@@ -173,8 +173,8 @@ stock bool SplitStringRight(const char[] source, const char[] split, char[] part
     return true;
 }
 
-stock bool IsPrefix(const char[] str, const char[] prefix) {
-    return StrContains(str, prefix, false) == 0;
+stock bool IsPrefix(const char[] str, const char[] prefix, bool caseSensitive=true) {
+    return StrContains(str, prefix, caseSensitive) == 0;
 }
 
 stock bool IsTVEnabled() {
