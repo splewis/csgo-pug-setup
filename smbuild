@@ -3,6 +3,9 @@ GlobPlugins('scripting/*.sp')
 Package(name='pugsetup',
         plugins=Plugins('pugsetup*'),
         disabled_plugins=Plugins('pugsetup_*'),
+        filegroups={
+            '.': ['LICENSE' , 'CHANGELOG.md', 'README.md'],
+        },
 )
 
 Package(name='pugsetup_base',
