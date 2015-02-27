@@ -359,6 +359,10 @@
 		"#format"	"{1:d}"
 		"en"		"Choose captain {1}:"
 	}
+	"ChooseLeaderTitle"
+	{
+		"en"		"Choose the game leader:""
+	}
 	"WaitingForStart"
 	{
 		"#format"		"{1:N},{2:s}"

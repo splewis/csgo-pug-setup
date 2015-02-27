@@ -69,7 +69,7 @@ static int AddPotentialCaptains(Menu menu, int otherCaptain) {
  */
  public void LeaderMenu(int client) {
     Menu menu = new Menu(LeaderMenuHandler);
-    SetMenuTitle(menu, "Choose the game leader:");
+    SetMenuTitle(menu, "%T", "ChooseLeaderTitle", client);
     if (AddAllPlayers(menu) >= 1)
         DisplayMenu(menu, client, MENU_TIME_FOREVER);
     else
