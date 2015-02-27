@@ -292,6 +292,10 @@
 	{
 		"ru"		"Выберите капитана {1}:"
 	}
++	"ChooseLeaderTitle"
++	{
++		"ru"		"Выберите лидера матча:"
++	}
 	"WaitingForStart"
 	{
 		"ru"		"Все игроки готовы, ждем {GREEN}{1} {NORMAL}пока напишет {GREEN}{2}"
@@ -306,7 +310,7 @@
 	}
 	"ChangeMapMenuOption"
 	{
-		"ru"		"Смена карты"
+		"ru"		"Сменить карту"
 	}
 	"ChangeMapMenuTitle"
 	{
