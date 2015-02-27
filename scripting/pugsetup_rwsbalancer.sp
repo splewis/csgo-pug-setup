@@ -96,9 +96,6 @@ public void OnPluginStart() {
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 
-    // for keyvalues storage
-    g_RwsKV = new KeyValues("RWSBalancerStats");
-
     // for clientprefs storage
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
@@ -121,6 +118,7 @@ public StorageMethod GetStorageMethod() {
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
     StorageMethod m = GetStorageMethod();
+    g_RwsKV = new KeyValues("RWSBalancerStats");
 
     if (m == Storage_KeyValues) {
         char path[PLATFORM_MAX_PATH];
@@ -156,6 +154,8 @@ public void OnMapEnd() {
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ExportToFile(path);
     }
+
+    delete g_RwsKV;
 }
 
 public void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow) {
@@ -257,6 +257,8 @@ public void WriteStats(int client) {
     } else if (method == Storage_KeyValues) {
         char auth[64];
         GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+
+        g_RwsKV.DeleteKey(auth);
         g_RwsKV.JumpToKey(auth, true);
         g_RwsKV.SetFloat("rws", g_PlayerRWS[client]);
         g_RwsKV.SetNum("roundsplayed", g_PlayerRounds[client]);
