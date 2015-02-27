@@ -246,6 +246,9 @@ public bool HasStats(int client) {
 }
 
 public void WriteStats(int client) {
+    if (!IsValidClient(client) || IsFakeClient(client))
+        return;
+
     StorageMethod method = GetStorageMethod();
     if (method == Storage_ClientPrefs) {
         SetCookieInt(client, g_RoundsPlayedCookie, g_PlayerRounds[client]);
@@ -266,6 +269,9 @@ public void WriteStats(int client) {
         Format(query, sizeof(query), "UPDATE %s SET roundsplayed = %d, rws = %f where auth = '%s'",
                TABLE_NAME, g_PlayerRounds[client], g_PlayerRWS[client], auth);
         SQL_TQuery(g_Database, Callback_CheckError, query);
+
+    } else {
+        LogError("[WriteStats(%L)] unknown storage method or invalid database connection, m=%d", g_StorageMethod.IntValue);
     }
 
 }
