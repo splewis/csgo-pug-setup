@@ -642,14 +642,14 @@ public Action Command_Capt(int client, int args) {
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
-            SetCaptain(1, target);
+            SetCaptain(1, target, true);
 
         if (GetCmdArgs() >= 2) {
             GetCmdArg(2, buffer, sizeof(buffer));
             target = FindTarget(client, buffer, true, false);
 
             if (IsPlayer(target))
-                SetCaptain(2, target);
+                SetCaptain(2, target, true);
 
         } else {
             Captain2Menu(client);
