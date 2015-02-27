@@ -361,7 +361,7 @@
 	}
 	"ChooseLeaderTitle"
 	{
-		"en"		"Choose the game leader:""
+		"en"		"Choose the game leader:"
 	}
 	"WaitingForStart"
 	{
