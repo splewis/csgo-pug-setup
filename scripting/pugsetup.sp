@@ -1,6 +1,7 @@
 #include <cstrike>
 #include <sourcemod>
 #include <sdktools>
+#include "include/logdebug.inc"
 #include "include/pugsetup.inc"
 
 #undef REQUIRE_EXTENSIONS
@@ -287,6 +288,8 @@ public void OnPluginStart() {
     if (GetConVarInt(g_hAutoUpdate) != 0) {
         AddUpdater();
     }
+
+    InitDebugLog(DEBUG_CVAR, "pugsetup");
 }
 
 public void OnConfigsExecuted() {
