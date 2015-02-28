@@ -231,12 +231,13 @@ public void Callback_FetchStats(Handle owner, Handle hndl, const char[] error, i
     if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client])
         return;
 
-    g_PlayerHasStats[client] = false;
     if (hndl == INVALID_HANDLE) {
         LogError("Query failed: (error: %s)", error);
     } else if (SQL_FetchRow(hndl)) {
         g_PlayerRWS[client] = SQL_FetchFloat(hndl, 0);
         g_PlayerRounds[client] = SQL_FetchInt(hndl, 1);
+        g_PlayerHasStats[client] = true;
+    } else {
         g_PlayerHasStats[client] = true;
     }
 }
@@ -252,7 +253,7 @@ public bool HasStats(int client) {
 }
 
 public void WriteStats(int client) {
-    if (!IsValidClient(client) || IsFakeClient(client))
+    if (!IsValidClient(client) || IsFakeClient(client) || !g_PlayerHasStats[client])
         return;
 
     LogDebug("Writing player stats(%L), rws=%f, roundsplayed=%d", client, g_PlayerRWS[client], g_PlayerRounds[client]);
