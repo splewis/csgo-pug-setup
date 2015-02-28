@@ -1,5 +1,6 @@
 #include <cstrike>
 #include <sourcemod>
+#include "include/logdebug.inc"
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
@@ -28,6 +29,7 @@ public void OnPluginStart() {
     g_hKickWhenLive = CreateConVar("sm_pugsetup_autokicker_kick_when_live", "1", "Whether the autokicker kicks newly connecting clients during live matches when there are already full teams");
     g_hUseAdminImmunity = CreateConVar("sm_pugsetup_autokicker_admin_immunity", "1", "Whether admins (defined by pugsetup's admin flag cvar) are immune to kicks");
     AutoExecConfig(true, "pugsetup_autokicker", "sourcemod/pugsetup");
+    InitDebugLog(DEBUG_CVAR, "autokicker");
 }
 
 public void OnClientPostAdminCheck(int client) {
@@ -45,6 +47,7 @@ public void OnClientPostAdminCheck(int client) {
             }
         }
 
+        LogDebug("%L connected, count of players = %d", client, count);
         if (count >= GetPugMaxPlayers()) {
             Kick(client);
         }
@@ -59,10 +62,12 @@ public void OnNotPicked(int client) {
 
 static void Kick(int client) {
     if (g_hUseAdminImmunity.IntValue != 0 && IsPugAdmin(client)) {
+        LogDebug("Blocking kick of %L since he is an admin", client);
         return;
     }
 
     char msg[1024];
     GetConVarString(g_hKickMessage, msg, sizeof(msg));
     KickClient(client, msg);
+    LogDebug("Kicking %L with message %s", client, msg);
 }

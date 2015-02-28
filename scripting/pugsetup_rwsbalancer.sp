@@ -1,6 +1,7 @@
 #include <clientprefs>
 #include <cstrike>
 #include <sourcemod>
+#include "include/logdebug.inc"
 #include "include/priorityqueue.inc"
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
@@ -100,6 +101,13 @@ public void OnPluginStart() {
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
 
+    // for keyvalue storage
+    g_RwsKV = new KeyValues("RWSBalancerStats");
+    char path[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
+    g_RwsKV.ImportFromFile(path);
+
+    InitDebugLog(DEBUG_CVAR, "rwsbalance");
 }
 
 public int OnCvarChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
@@ -118,13 +126,7 @@ public StorageMethod GetStorageMethod() {
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
     StorageMethod m = GetStorageMethod();
-    g_RwsKV = new KeyValues("RWSBalancerStats");
-
-    if (m == Storage_KeyValues) {
-        char path[PLATFORM_MAX_PATH];
-        BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
-        g_RwsKV.ImportFromFile(path);
-    } else if (m == Storage_MySQL && g_Database == INVALID_HANDLE) {
+    if (m == Storage_MySQL && g_Database == INVALID_HANDLE) {
         InitSqlConnection();
     }
 }
@@ -135,6 +137,7 @@ public void InitSqlConnection() {
         return;
     }
 
+    LogDebug("Connecting to database");
     char error[255];
     g_Database = SQL_Connect("pugsetup", true, error, sizeof(error));
     if (g_Database == INVALID_HANDLE) {
@@ -143,6 +146,7 @@ public void InitSqlConnection() {
         SQL_LockDatabase(g_Database);
         SQL_CreateTable(g_Database, TABLE_NAME, g_TableFormat, sizeof(g_TableFormat));
         SQL_UnlockDatabase(g_Database);
+        LogDebug("Succesfully connected to database");
     }
 }
 
@@ -154,8 +158,6 @@ public void OnMapEnd() {
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ExportToFile(path);
     }
-
-    delete g_RwsKV;
 }
 
 public void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow) {
@@ -201,6 +203,7 @@ public void OnClientAuthorized(int client, const char[] auth) {
         Format(query, sizeof(query),
                "INSERT IGNORE INTO %s (auth,rws,roundsplayed) VALUES ('%s', 0.0, 0)",
                TABLE_NAME, auth);
+        LogDebug("Inserting player, query: %s", query);
         SQL_TQuery(g_Database, Callback_Insert, query, GetClientSerial(client));
     }
 }
@@ -217,6 +220,7 @@ public void Callback_Insert(Handle owner, Handle hndl, const char[] error, int s
     Format(query, sizeof(query),
             "SELECT rws, roundsplayed FROM %s WHERE auth = '%s'",
             TABLE_NAME, auth);
+    LogDebug("Fetching rws stats, query=%s", query);
     SQL_TQuery(g_Database, Callback_FetchStats, query, GetClientSerial(client));
 }
 
@@ -249,6 +253,8 @@ public void WriteStats(int client) {
     if (!IsValidClient(client) || IsFakeClient(client))
         return;
 
+    LogDebug("Writing player stats(%L), rws=%f, roundsplayed=%d", client, g_PlayerRWS[client], g_PlayerRounds[client]);
+
     StorageMethod method = GetStorageMethod();
     if (method == Storage_ClientPrefs) {
         SetCookieInt(client, g_RoundsPlayedCookie, g_PlayerRounds[client]);
@@ -270,6 +276,7 @@ public void WriteStats(int client) {
         char query[1024];
         Format(query, sizeof(query), "UPDATE %s SET roundsplayed = %d, rws = %f where auth = '%s'",
                TABLE_NAME, g_PlayerRounds[client], g_PlayerRWS[client], auth);
+        LogDebug("Updating sql stats, query=%s", query);
         SQL_TQuery(g_Database, Callback_CheckError, query);
 
     } else {
@@ -291,6 +298,7 @@ public void OnReadyToStart() {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && PlayerAtStart(i)) {
             PQ_Enqueue(pq, i, g_PlayerRWS[i]);
+            LogDebug("PQ_Enqueue(%L, %f)", i, g_PlayerRWS[i]);
         }
     }
 
@@ -300,10 +308,15 @@ public void OnReadyToStart() {
         int p1 = PQ_Dequeue(pq);
         int p2 = PQ_Dequeue(pq);
 
-        if (IsPlayer(p1))
+        if (IsPlayer(p1)) {
             SwitchPlayerTeam(p1, CS_TEAM_CT);
-        if (IsPlayer(p2))
+            LogDebug("CT: PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
+        }
+
+        if (IsPlayer(p2)) {
             SwitchPlayerTeam(p2, CS_TEAM_T);
+            LogDebug("T : PQ_Dequeue() = %L, rws=%f", p2, g_PlayerRWS[p2]);
+        }
 
         count += 2;
     }
@@ -416,6 +429,7 @@ static void RWSUpdate(int client, bool winner) {
     float alpha = GetAlphaFactor(client);
     g_PlayerRWS[client] = (1.0 - alpha) * g_PlayerRWS[client] + alpha * rws;
     g_PlayerRounds[client]++;
+    LogDebug("RoundUpdate(%L), alpha=%f, round_rws=%f, new_rws=%f", client, alpha, rws, g_PlayerRWS[client]);
 }
 
 static float GetAlphaFactor(int client) {

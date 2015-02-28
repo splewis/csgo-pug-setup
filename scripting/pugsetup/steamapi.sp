@@ -114,6 +114,8 @@ static void AddMapByID(const char[] mapId) {
     char buffer[PLATFORM_MAX_PATH];
     FileType fileType;
 
+    LogDebug("Finding map name for mapid=%s", mapId);
+
     while (listing.GetNext(buffer, sizeof(buffer), fileType)) {
         if (fileType != FileType_File || StrContains(buffer, ".bsp") == -1)
             continue;
@@ -128,6 +130,8 @@ static void AddMapByID(const char[] mapId) {
         }
     }
     CloseHandle(listing);
+
+    LogDebug("Got mapfile for mapid %s = %s", mapId, mapName);
 
     if (newestTimestamp > 0) {
         g_WorkshopCache.Rewind();

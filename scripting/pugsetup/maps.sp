@@ -54,6 +54,8 @@ public void GetMapList(const char[] fileName) {
 }
 
 public void AddMap(const char[] mapName) {
+    LogDebug("AddMap(%s)", mapName);
+
     bool isComment = strlen(mapName) >= 2 && mapName[0] == '/' && mapName[1] == '/';
     if (strlen(mapName) <= 2 || isComment) {
         return;
@@ -61,6 +63,7 @@ public void AddMap(const char[] mapName) {
 
     // only add valid maps and non-duplicate maps
     if (IsMapValid(mapName) && g_MapList.FindString(mapName) == -1) {
+        LogDebug("succesfully added map %s to maplist", mapName);
         g_MapList.PushString(mapName);
     }
 }
