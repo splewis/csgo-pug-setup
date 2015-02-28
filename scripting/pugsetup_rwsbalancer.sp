@@ -101,12 +101,6 @@ public void OnPluginStart() {
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
 
-    // for keyvalue storage
-    g_RwsKV = new KeyValues("RWSBalancerStats");
-    char path[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
-    g_RwsKV.ImportFromFile(path);
-
     InitDebugLog(DEBUG_CVAR, "rwsbalance");
 }
 
@@ -126,7 +120,13 @@ public StorageMethod GetStorageMethod() {
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
     StorageMethod m = GetStorageMethod();
-    if (m == Storage_MySQL && g_Database == INVALID_HANDLE) {
+    g_RwsKV = new KeyValues("RWSBalancerStats");
+
+    if (m == Storage_KeyValues) {
+        char path[PLATFORM_MAX_PATH];
+        BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
+        g_RwsKV.ImportFromFile(path);
+    } else if (m == Storage_MySQL && g_Database == INVALID_HANDLE) {
         InitSqlConnection();
     }
 }
@@ -158,6 +158,8 @@ public void OnMapEnd() {
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ExportToFile(path);
     }
+
+    delete g_RwsKV;
 }
 
 public void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow) {
