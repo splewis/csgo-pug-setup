@@ -206,6 +206,10 @@ stock bool IsPaused() {
     return GameRules_GetProp("m_bMatchWaitingForResume") != 0;
 }
 
+stock bool InWarmup() {
+    return GameRules_GetProp("m_bWarmupPeriod") != 0;
+}
+
 stock void Pause() {
     ServerCommand("mp_pause_match");
 }
@@ -349,3 +353,4 @@ stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace, in
     IntToString(value, intString, sizeof(intString));
     ReplaceString(buffer, len, replace, intString, caseSensitive);
 }
+

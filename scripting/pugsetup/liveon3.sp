@@ -6,6 +6,11 @@ public Action BeginLO3(Handle timer) {
     Call_StartForward(g_hOnGoingLive);
     Call_Finish();
 
+    // force kill the warmup if we need to
+    if (InWarmup()) {
+        ServerCommand("mp_warmup_end");
+    }
+
     // reset player tags
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
