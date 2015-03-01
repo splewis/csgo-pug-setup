@@ -34,7 +34,7 @@ public void OnPluginStart() {
 
     HookEvent("round_start", Event_RoundStart);
     HookEvent("player_hurt", Event_DamageDealt, EventHookMode_Pre);
-    HookEvent("round_end", Event_RoundEnd);
+    HookEvent("round_end", Event_RoundEnd, EventHookMode_Post);
 }
 
 static void PrintDamageInfo(int client) {
