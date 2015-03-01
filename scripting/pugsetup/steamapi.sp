@@ -25,6 +25,8 @@ stock void UpdateWorkshopCache(int collectionID) {
         "http://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/");
     Format(data, MAX_POST_LEN, "collectioncount=1&publishedfileids%%5B0%%5D=%d&format=vdf", collectionID);
 
+    LogDebug("Sending steam API POST with url=%s and data=%s", request, data);
+
     if (SYSTEM2_AVAILABLE()) {
         System2_GetPage(OnGetPageComplete, request, data, WAPI_USERAGENT, collectionID);
     } else {
@@ -38,17 +40,16 @@ stock void UpdateWorkshopCache(int collectionID) {
 public int OnGetPageComplete(const char[] output, const int size, CMDReturn status, int collectionID) {
     // Handle error condition
     if (status == CMD_ERROR) {
-        PrintToServer("Steam API error: couldn't fetch data for collection ID %d", collectionID);
-        AddWorkshopMapsToList(collectionID);
+        LogDebug("Steam API error: couldn't fetch data for collection ID %d", collectionID);
+        AddWorkshopMapsToList(collectionID); // add anything we might already have (e.g. still in the workshop cache)
         return;
     }
 
 
     // Interpret response status
     switch (status) {
-        case CMD_SUCCESS:
-        {
-            PrintToServer("Successfully received file details for ID %d", collectionID);
+        case CMD_SUCCESS: {
+            LogDebug("Successfully received file details for ID %d", collectionID);
             KeyValues kv = new KeyValues("response");
             if (kv.ImportFromString(output)) {
                 WriteCollectionInfo(kv, collectionID);
@@ -74,6 +75,8 @@ stock void WriteCollectionInfo(KeyValues kv, int collectionID) {
 
             char strID[WORKSHOP_ID_LENGTH];
             IntToString(collectionID, strID, sizeof(strID));
+
+            LogDebug("Read map id=%s inside collection id=%d", mapId, collectionID);
 
             if (!StrEqual(mapId, "")) {
                 g_WorkshopCache.Rewind();
