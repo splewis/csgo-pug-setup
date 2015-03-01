@@ -144,7 +144,7 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
             SetupFinished();
 
         } else if (StrEqual(buffer, "cancel_setup")) {
-            EndMatch(true);
+            FakeClientCommand(client, "sm_endgame");
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);
