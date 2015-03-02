@@ -75,6 +75,8 @@ sm_pugsetup_default_knife_rounds 1
 sm_pugsetup_knife_rounds_option 0
 ```
 
+(A side note: when a knife round occurs the command ``exec sourcemod/pugsetup/knife`` is sent to the server - so you can edit the file ``cfg/sourcemod/pugsetup/knife.cfg`` if you wish. For example, you uncomment the last 2 lines in that file to do taser+knife rounds)
+
 You can also add more chat alias commands in [addons/sourcemod/configs/pugsetup/chataliases.cfg](configs/pugsetup/chataliases.cfg) if you wish. If players are not comfortable with english, I'd
 strongly recommend adding chat aliases, since those will be read by the plugin and used in chat messages when referencing commands.
 
@@ -128,15 +130,19 @@ Some commands that are important are (all of these are actually sm_ commands for
 - **!setup**, begins the setup phase and sets the pug leader
 - **!10man**, an alias of setup with 5v5, captains, and a mapvote
 - **!ready**
-- **!unready**
-- **!pause**
-- **!unpause**
-- **!start**
+- **!notready**
+- **!pause** requests a pause (which takes effect next freezetime)
+- **!unpause** request an unpause
+- **!start**  stats the game if auto-live has been disabled
 - **!capt** gives the pug leader a menu to select captains
 - **!rand** selects random captains
 - **!leader** gives a menu to change the game leader
 - **!endgame** force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
 - **!forceend** force ends the game without a confirmation menu
+- **!stay** chooses to stay after winning a knife round
+- **!swap** chooses to swap after winning a knife round
+- **!ct** chooses to start on ct after winning a knife round
+- **!t** chooses to start on ct after winning a knife round
 
 You can also type .ready instead of !ready, or .capt instead of !capt, etc.
 
@@ -183,4 +189,4 @@ This plugin prints out the team members' money to chat on round starts, you can 
 This plugin adds an option to the .setup menu to launch a practice mode with cheats/infinite ammo/respawning/etc. You can edit the ``addons/sourcemod/configs/pugsetup/practicemode.cfg`` file to add new enable/disable options and the cvars associated with the options.
 
 #### pugsetup_damageprinter
-This plugin adds a simple .dmg command that also prints damage done/taken from players on round ends, similar to what ESEA does.
+This plugin adds a .dmg command that also prints damage done/taken from players on round ends. You can disable the usage of the .dmg command with ``sm_pugsetup_damageprint_allow_dmg_command 0`` and change the format of the messages with ``sm_pugsetup_damageprint_format`` by editing ``cfg/sourcemod/pugsetup_damageprint.cfg``.
