@@ -85,7 +85,8 @@ public void OnPluginStart() {
     HookEvent("player_hurt", Event_DamageDealt);
     HookEvent("round_end", Event_RoundEnd);
 
-    RegAdminCmd("sm_showrws", Command_ShowRWS, ADMFLAG_KICK, "Show player historical rws and rounds played");
+    RegAdminCmd("sm_showrws", Command_DumpRWS, ADMFLAG_KICK, "Dumps all player historical rws and rounds played");
+    RegConsoleCmd("sm_rws", Command_RWS, "Show player's historical rws");
 
     g_MoveTeams = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
     g_RecordRWS = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
@@ -477,10 +478,26 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
     }
 }
 
-public Action Command_ShowRWS(int client, int args) {
+public Action Command_DumpRWS(int client, int args) {
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && HasStats(i)) {
             ReplyToCommand(client, "%L has RWS=%f, roundsplayed=%d", i, g_PlayerRWS[i], g_PlayerRounds[i]);
+        }
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_RWS(int client, int args) {
+    char arg1[32];
+    if (args >= 1 && GetCmdArg(1, arg1, sizeof(arg1))) {
+        int target = FindTarget(client, arg1, true, false);
+        if (target != -1) {
+            if (HasStats(target))
+                ReplyToCommand(client, "%N has a RWS of %.1f with %d rounds played",
+                              target, g_PlayerRWS[target], g_PlayerRounds[target]);
+            else
+                ReplyToCommand(client, "%N does not currently have stats stored", target);
         }
     }
 
