@@ -29,6 +29,7 @@ KeyValues g_RwsKV;
 #define ALPHA_INIT 0.1
 #define ALPHA_FINAL 0.003
 #define ROUNDS_FINAL 250.0
+#define AUTH_METHOD AuthId_Steam2
 
 #define TABLE_NAME "pugsetup_rwsbalancer"
 char g_TableFormat[][] = {
@@ -189,9 +190,16 @@ public void OnClientDisconnect(int client) {
     WriteStats(client);
 }
 
-public void OnClientAuthorized(int client, const char[] auth) {
-    if (StrEqual(auth, "bot", false))
+public void OnClientAuthorized(int client, const char[] engineAuth) {
+    if (StrEqual(engineAuth, "bot", false))
         return;
+
+    // To ensure consistency the auth is refetched here so we don't rely
+    // on which auth types is passed to OnClientAuthorized.
+    char auth[64];
+    GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
+
+    LogDebug("OnClientAuthorized with engineAuth = %s, auth = %s", engineAuth, auth);
 
     StorageMethod m = GetStorageMethod();
     if (m == Storage_KeyValues) {
@@ -217,7 +225,7 @@ public void Callback_Insert(Handle owner, Handle hndl, const char[] error, int s
         return;
 
     char auth[64];
-    GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+    GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
 
     char query[2048];
     Format(query, sizeof(query),
@@ -266,7 +274,7 @@ public void WriteStats(int client) {
 
     } else if (method == Storage_KeyValues) {
         char auth[64];
-        GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+        GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
 
         g_RwsKV.DeleteKey(auth);
         g_RwsKV.JumpToKey(auth, true);
@@ -276,7 +284,7 @@ public void WriteStats(int client) {
 
     } else if (method == Storage_MySQL && g_Database != INVALID_HANDLE) {
         char auth[64];
-        GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+        GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
         char query[1024];
         Format(query, sizeof(query), "UPDATE %s SET roundsplayed = %d, rws = %f where auth = '%s'",
                TABLE_NAME, g_PlayerRounds[client], g_PlayerRWS[client], auth);
@@ -494,10 +502,10 @@ public Action Command_RWS(int client, int args) {
         int target = FindTarget(client, arg1, true, false);
         if (target != -1) {
             if (HasStats(target))
-                ReplyToCommand(client, "%N has a RWS of %.1f with %d rounds played",
+                PugSetupMessage(client, "%N has a RWS of %.1f with %d rounds played",
                               target, g_PlayerRWS[target], g_PlayerRounds[target]);
             else
-                ReplyToCommand(client, "%N does not currently have stats stored", target);
+                PugSetupMessage(client, "%N does not currently have stats stored", target);
         }
     }
 
