@@ -17,7 +17,6 @@ The goal is to make setup easier for people, not provide a comprehensive pug pla
 Also see the [AlliedModders thread](https://forums.alliedmods.net/showthread.php?t=244114).
 
 #### Some alternatives
-- [Goonpug](https://github.com/goonpug/goonpug) (very similar to this plugin, but with some more features - and more dependencies)
 - [PUG Mod](https://forums.alliedmods.net/showthread.php?p=1742753) (relatively plain - but no captain selection)
 - [WarMod](https://forums.alliedmods.net/showthread.php?t=225474) (does pretty much everything, but generally intended for matches, more complex)
 
