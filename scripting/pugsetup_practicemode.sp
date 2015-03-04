@@ -169,8 +169,13 @@ public void ClearPracticeSettings() {
 }
 
 public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
+    int leader = GetLeader();
+    if (!IsPlayer(leader)) {
+        SetLeader(client);
+    }
+
     int style = ITEMDRAW_DEFAULT;
-    if (!IsPugAdmin(client) || displayOnly) {
+    if (!HasPermissions(client, Permission_Leader) || displayOnly) {
         style = ITEMDRAW_DISABLED;
     }
 
