@@ -536,7 +536,7 @@ public Action Command_Setup(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (g_Setup && client != GetLeader()) {
+    if (g_Setup && client != GetLeader() && client != 0) {
         GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
