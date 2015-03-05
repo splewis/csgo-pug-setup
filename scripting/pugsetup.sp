@@ -436,7 +436,7 @@ public Action Timer_CheckReady(Handle timer) {
         StatusHint(readyPlayers, totalPlayers);
     }
 
-    if (g_TeamType == TeamType_Captains && g_hAutoRandomizeCaptains.IntValue != 0) {
+    if (g_TeamType == TeamType_Captains && g_hAutoRandomizeCaptains.IntValue != 0 && totalPlayers >= GetPugMaxPlayers()) {
         // re-randomize captains if they aren't set yet
         if (!IsPlayer(g_capt1)) {
             g_capt1 = RandomPlayer();
