@@ -8,15 +8,14 @@
 
 #define DEBUG_CVAR "sm_pugsetup_debug"
 
-char g_ColorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
-char g_ColorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
+static char _colorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
+static char _colorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
 
 stock void AddMenuOption(Menu menu, const char[] info, const char[] display, any:...) {
     char formattedDisplay[128];
     VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
     menu.AddItem(info, formattedDisplay);
 }
-
 
 /**
  * Adds an integer to a menu as a string choice.
@@ -151,8 +150,8 @@ stock int GetArrayCellRandom(ArrayList array) {
 }
 
 stock void Colorize(char[] msg, int size) {
-    for (int i = 0; i < sizeof(g_ColorNames); i ++) {
-        ReplaceString(msg, size, g_ColorNames[i], g_ColorCodes[i]);
+    for (int i = 0; i < sizeof(_colorNames); i ++) {
+        ReplaceString(msg, size, _colorNames[i], _colorCodes[i]);
     }
 }
 
@@ -164,21 +163,6 @@ stock void RandomizeArray(ArrayList array) {
     }
 }
 
-// Thanks to KissLick https://forums.alliedmods.net/member.php?u=210752
-stock bool SplitStringRight(const char[] source, const char[] split, char[] part, int partLen, bool caseSensitive=true) {
-    int index = StrContains(source, split, caseSensitive);
-    if (index == -1)
-        return false;
-
-    index += strlen(split);
-    strcopy(part, partLen, source[index]);
-    return true;
-}
-
-stock bool IsPrefix(const char[] str, const char[] prefix, bool caseSensitive=true) {
-    return StrContains(str, prefix, caseSensitive) == 0;
-}
-
 stock bool IsTVEnabled() {
     Handle tvEnabledCvar = FindConVar("tv_enable");
     if (tvEnabledCvar == INVALID_HANDLE) {
@@ -188,18 +172,18 @@ stock bool IsTVEnabled() {
     return GetConVarInt(tvEnabledCvar) != 0;
 }
 
-stock void Record(const char[] demoName) {
+stock bool Record(const char[] demoName) {
     char szDemoName[256];
     strcopy(szDemoName, sizeof(szDemoName), demoName);
     ReplaceString(szDemoName, sizeof(szDemoName), "\"", "\\\"");
     ServerCommand("tv_record \"%s\"", szDemoName);
 
-    Handle tvEnabledCvar = FindConVar("tv_enable");
-    if (tvEnabledCvar == INVALID_HANDLE) {
-        LogError("Failed to get tv_enable cvar");
-    } else if (GetConVarInt(tvEnabledCvar) == 0) {
+    if (!IsTVEnabled()) {
         LogError("Autorecording will not work with current cvar \"tv_enable\"=0. Set \"tv_enable 1\" in server.cfg (or another config file) to fix this.");
+        return false;
     }
+
+    return true;
 }
 
 stock bool IsPaused() {
@@ -208,6 +192,10 @@ stock bool IsPaused() {
 
 stock bool InWarmup() {
     return GameRules_GetProp("m_bWarmupPeriod") != 0;
+}
+
+stock void EndWarmup() {
+    ServerCommand("mp_warmup_end");
 }
 
 stock void Pause() {
@@ -263,30 +251,6 @@ stock void SetTeamInfo(int team, const char[] name, const char[] flag="") {
     SetConVarStringSafe(flagCvarName, flag);
 }
 
-stock void UpdateClanTag(int client, bool strip=false) {
-    if (IsPlayer(client)) {
-
-        // don't bother with crazy things when the plugin isn't active
-        if (g_MatchLive || !g_Setup || strip) {
-            CS_SetClientClanTag(client, "");
-            return;
-        }
-
-        int team = GetClientTeam(client);
-        if (g_hExcludeSpectators.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
-            char tag[32];
-            if (g_Ready[client]) {
-                Format(tag, sizeof(tag), "%T", "Ready", LANG_SERVER);
-            } else {
-                Format(tag, sizeof(tag), "%T", "NotReady", LANG_SERVER);
-            }
-            CS_SetClientClanTag(client, tag);
-        } else {
-            CS_SetClientClanTag(client, "");
-        }
-    }
-}
-
 stock bool OnActiveTeam(int client) {
     if (!IsPlayer(client))
         return false;
@@ -298,15 +262,25 @@ stock bool OnActiveTeam(int client) {
 /**
  * Closes a nested adt-array.
  */
-stock void CloseNestedArray(Handle array, bool clearOuterArray=true) {
+stock void CloseNestedArray(Handle array, bool closeOuterArray=true) {
     int n = GetArraySize(array);
     for (int i = 0; i < n; i++) {
         Handle h = GetArrayCell(array, i);
         CloseHandle(h);
     }
 
-    if (clearOuterArray)
+    if (closeOuterArray)
         CloseHandle(array);
+}
+
+stock void ClearNestedArray(Handle array) {
+    int n = GetArraySize(array);
+    for (int i = 0; i < n; i++) {
+        Handle h = GetArrayCell(array, i);
+        CloseHandle(h);
+    }
+
+    ClearArray(array);
 }
 
 stock void GetEnabledString(char[] buffer, int length, bool variable, int client=LANG_SERVER) {
@@ -333,24 +307,8 @@ stock void SQL_CreateTable(Handle db_connection, const char[] table_name, const 
     }
 }
 
-stock void GetDefaults(TeamType& teamType, MapType& mapType, int& teamSize, bool& record, bool& knifeRound, bool& autoLive) {
-    char teamTypeString[64];
-    g_hDefaultTeamType.GetString(teamTypeString, sizeof(teamTypeString));
-    teamType = TeamTypeFromString(teamTypeString, TeamType_Captains, false);
-
-    char mapTypeString[64];
-    g_hDefaultMapType.GetString(mapTypeString, sizeof(mapTypeString));
-    mapType = MapTypeFromString(mapTypeString, MapType_Vote, false);
-
-    teamSize = g_hDefaultTeamSize.IntValue;
-    record = (g_hDefaultRecord.IntValue != 0);
-    knifeRound = (g_hDefaultKnifeRounds.IntValue != 0);
-    autoLive = (g_hDefaultAutoLive.IntValue != 0);
-}
-
 stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace, int value, bool caseSensitive=true) {
     char intString[16];
     IntToString(value, intString, sizeof(intString));
     ReplaceString(buffer, len, replace, intString, caseSensitive);
 }
-

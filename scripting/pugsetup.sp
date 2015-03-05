@@ -100,7 +100,7 @@ char g_DataDir[PLATFORM_MAX_PATH]; // directory to leave cache files in
 char g_CacheFile[PLATFORM_MAX_PATH]; // filename of the keyvalue cache file
 KeyValues g_WorkshopCache; // keyvalue struct for the cache
 
-/** Chat aliases loaded from the config file **/
+/** Chat aliases loaded **/
 ArrayList g_ChatAliases;
 ArrayList g_ChatAliasesCommands;
 
@@ -472,7 +472,6 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
         } else {
             PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
         }
-
     }
 }
 
@@ -512,20 +511,20 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
  *                     *
  ***********************/
 
-// PermissionCheck(Permissions:permissions)
-#define PermissionCheck(%1) { \
-    bool _perm = HasPermissions(client, %1); \
+// PermissionCheck(int client, Permissions permissions)
+#define PermissionCheck(%1,%2) { \
+    bool _perm = HasPermissions(%1, %2); \
     char _cmd[COMMAND_LENGTH]; \
     GetCmdArg(0, _cmd, sizeof(_cmd)); \
     Call_StartForward(g_hOnPermissionCheck); \
-    Call_PushCell(client); \
-    Call_PushString(_cmd); \
     Call_PushCell(%1); \
+    Call_PushString(_cmd); \
+    Call_PushCell(%2); \
     Call_PushCellRef(_perm); \
     Call_Finish(); \
     if (!_perm) { \
-        if (IsValidClient(client)) \
-            PugSetupMessage(client, "%t", "NoPermission"); \
+        if (IsValidClient(%1)) \
+            PugSetupMessage(%1, "%t", "NoPermission"); \
         return Plugin_Handled; \
     } \
 }
@@ -542,9 +541,9 @@ public Action Command_Setup(int client, int args) {
     }
 
     if (g_hRequireAdminToSetup.IntValue != 0) {
-        PermissionCheck(Permission_Admin)
+        PermissionCheck(client, Permission_Admin)
     } else {
-        PermissionCheck(Permission_All)
+        PermissionCheck(client, Permission_All)
     }
 
     g_PickingPlayers = false;
@@ -586,9 +585,9 @@ public Action Command_10man(int client, int args) {
     }
 
     if (g_hRequireAdminToSetup.IntValue != 0) {
-        PermissionCheck(Permission_Admin)
+        PermissionCheck(client, Permission_Admin)
     } else {
-        PermissionCheck(Permission_All)
+        PermissionCheck(client, Permission_All)
     }
 
     g_PickingPlayers = false;
@@ -613,7 +612,7 @@ public Action Command_Rand(int client, int args) {
         return Plugin_Handled;
     }
 
-    PermissionCheck(Permission_Leader)
+    PermissionCheck(client, Permission_Leader)
     SetRandomCaptains();
     return Plugin_Handled;
 }
@@ -627,7 +626,7 @@ public Action Command_Capt(int client, int args) {
         return Plugin_Handled;
     }
 
-    PermissionCheck(Permission_Leader)
+    PermissionCheck(client, Permission_Leader)
 
     char buffer[64];
     if (args != 0 && GetCmdArgs() >= 1) {
@@ -658,7 +657,7 @@ public Action Command_ForceStart(int client, int args) {
     if (!g_Setup || g_MatchLive || g_InStartPhase)
         return Plugin_Handled;
 
-    PermissionCheck(Permission_Admin)
+    PermissionCheck(client, Permission_Admin)
     g_ForceStartSignal = true;
     return Plugin_Handled;
 }
@@ -682,7 +681,7 @@ public Action Command_Start(int client, int args) {
     if (!g_Setup || !g_WaitingForStartCommand || g_MatchLive)
         return Plugin_Handled;
 
-    PermissionCheck(Permission_Leader)
+    PermissionCheck(client, Permission_Leader)
 
     CreateCountDown();
     g_WaitingForStartCommand = false;
@@ -807,7 +806,7 @@ public Action Command_EndGame(int client, int args) {
     if (!g_Setup) {
         PugSetupMessage(client, "%t", "NotLiveYet");
     } else {
-        PermissionCheck(Permission_Leader)
+        PermissionCheck(client, Permission_Leader)
 
         // bypass the menu if console does it
         if (client == 0) {
@@ -852,7 +851,7 @@ public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2)
 }
 
 public Action Command_ForceEnd(int client, int args) {
-    PermissionCheck(Permission_Admin)
+    PermissionCheck(client, Permission_Admin)
 
     Call_StartForward(g_hOnForceEnd);
     Call_PushCell(client);
@@ -865,7 +864,7 @@ public Action Command_ForceEnd(int client, int args) {
 }
 
 public Action Command_ForceReady(int client, int args) {
-    PermissionCheck(Permission_Admin)
+    PermissionCheck(client, Permission_Admin)
 
     char buffer[64];
     if (args >= 1 && GetCmdArg(1, buffer, sizeof(buffer))) {
@@ -892,9 +891,9 @@ public Action Command_Pause(int client, int args) {
         return Plugin_Handled;
 
     if (g_hAnyCanPause.IntValue == 0 && g_hMutualUnpause.IntValue == 0)
-        PermissionCheck(Permission_Captains)
+        PermissionCheck(client, Permission_Captains)
     else
-        PermissionCheck(Permission_All)
+        PermissionCheck(client, Permission_All)
 
     g_ctUnpaused = false;
     g_tUnpaused = false;
@@ -915,16 +914,16 @@ public Action Command_Unpause(int client, int args) {
 
     if (g_hMutualUnpause.IntValue == 0) {
         if (g_hAnyCanPause.IntValue == 0)
-            PermissionCheck(Permission_Captains)
+            PermissionCheck(client, Permission_Captains)
         else
-            PermissionCheck(Permission_All)
+            PermissionCheck(client, Permission_All)
 
         Unpause();
         if (IsPlayer(client)) {
             PugSetupMessageToAll("%t", "Unpause", client);
         }
     } else {
-        PermissionCheck(Permission_All)
+        PermissionCheck(client, Permission_All)
         // Let console force unpause
         if (!IsPlayer(client)) {
             Unpause();
@@ -952,13 +951,13 @@ public Action Command_Unpause(int client, int args) {
 }
 
 public Action Command_Ready(int client, int args) {
-    PermissionCheck(Permission_All)
+    PermissionCheck(client, Permission_All)
     ReadyPlayer(client);
     return Plugin_Handled;
 }
 
 public Action Command_Unready(int client, int args) {
-    PermissionCheck(Permission_All)
+    PermissionCheck(client, Permission_All)
     UnreadyPlayer(client);
     return Plugin_Handled;
 }
@@ -967,7 +966,7 @@ public Action Command_Leader(int client, int args) {
     if (!g_Setup)
         return Plugin_Handled;
 
-    PermissionCheck(Permission_Leader)
+    PermissionCheck(client, Permission_Leader)
 
     char buffer[64];
     if (args != 0 && GetCmdArgs() >= 1) {
@@ -1173,11 +1172,11 @@ public void StartGame() {
         Call_PushString(demoName);
         Call_Finish();
 
-        Record(demoName);
-
-        LogMessage("Recording to %s", demoName);
-        Format(g_DemoFileName, sizeof(g_DemoFileName), "%s.dem", demoName);
-        g_Recording = true;
+        if (Record(demoName)) {
+            LogMessage("Recording to %s", demoName);
+            Format(g_DemoFileName, sizeof(g_DemoFileName), "%s.dem", demoName);
+            g_Recording = true;
+        }
     }
 
     for (int i = 1; i <= MaxClients; i++) {
@@ -1396,4 +1395,43 @@ public void ExecFromFile(const char[] path) {
     } else {
         LogError("Config file does not exist: %s", path);
     }
+}
+
+stock void UpdateClanTag(int client, bool strip=false) {
+    if (IsPlayer(client)) {
+
+        // don't bother with crazy things when the plugin isn't active
+        if (g_MatchLive || !g_Setup || strip) {
+            CS_SetClientClanTag(client, "");
+            return;
+        }
+
+        int team = GetClientTeam(client);
+        if (g_hExcludeSpectators.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+            char tag[32];
+            if (g_Ready[client]) {
+                Format(tag, sizeof(tag), "%T", "Ready", LANG_SERVER);
+            } else {
+                Format(tag, sizeof(tag), "%T", "NotReady", LANG_SERVER);
+            }
+            CS_SetClientClanTag(client, tag);
+        } else {
+            CS_SetClientClanTag(client, "");
+        }
+    }
+}
+
+stock void GetDefaults(TeamType& teamType, MapType& mapType, int& teamSize, bool& record, bool& knifeRound, bool& autoLive) {
+    char teamTypeString[64];
+    g_hDefaultTeamType.GetString(teamTypeString, sizeof(teamTypeString));
+    teamType = TeamTypeFromString(teamTypeString, TeamType_Captains, false);
+
+    char mapTypeString[64];
+    g_hDefaultMapType.GetString(mapTypeString, sizeof(mapTypeString));
+    mapType = MapTypeFromString(mapTypeString, MapType_Vote, false);
+
+    teamSize = g_hDefaultTeamSize.IntValue;
+    record = (g_hDefaultRecord.IntValue != 0);
+    knifeRound = (g_hDefaultKnifeRounds.IntValue != 0);
+    autoLive = (g_hDefaultAutoLive.IntValue != 0);
 }

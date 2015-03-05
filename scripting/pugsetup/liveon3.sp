@@ -8,7 +8,7 @@ public Action BeginLO3(Handle timer) {
 
     // force kill the warmup if we need to
     if (InWarmup()) {
-        ServerCommand("mp_warmup_end");
+        EndWarmup();
     }
 
     // reset player tags

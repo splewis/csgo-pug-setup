@@ -40,6 +40,17 @@ public void OnPluginStart() {
     AddChatAlias(".noclip", "noclip");
     AddChatAlias(".god", "god");
     AddCommandListener(Command_TeamJoin, "jointeam");
+
+    // Init data structures to be read from the config file
+    g_BinaryOptionIds = new ArrayList(OPTION_NAME_LENGTH);
+    g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
+    g_BinaryOptionEnabled = new ArrayList();
+    g_BinaryOptionChangeable = new ArrayList();
+    g_BinaryOptionEnabledCvars = new ArrayList();
+    g_BinaryOptionEnabledValues = new ArrayList();
+    g_BinaryOptionDisabledCvars = new ArrayList();
+    g_BinaryOptionDisabledValues = new ArrayList();
+    ReadPracticeSettings();
 }
 
 public void OnMapStart() {
@@ -49,8 +60,6 @@ public void OnMapStart() {
 public void OnMapEnd() {
     if (g_InPracticeMode)
         DisablePracticeMode();
-
-    ClearPracticeSettings();
 }
 
 public Action Command_TeamJoin(int client, const char[] command, int argc) {
@@ -69,14 +78,13 @@ public Action Command_TeamJoin(int client, const char[] command, int argc) {
 }
 
 public void ReadPracticeSettings() {
-    g_BinaryOptionIds = new ArrayList(OPTION_NAME_LENGTH);
-    g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
-    g_BinaryOptionEnabled = new ArrayList();
-    g_BinaryOptionChangeable = new ArrayList();
-    g_BinaryOptionEnabledCvars = new ArrayList();
-    g_BinaryOptionEnabledValues = new ArrayList();
-    g_BinaryOptionDisabledCvars = new ArrayList();
-    g_BinaryOptionDisabledValues = new ArrayList();
+    ClearArray(g_BinaryOptionNames);
+    ClearArray(g_BinaryOptionEnabled);
+    ClearArray(g_BinaryOptionChangeable);
+    ClearNestedArray(g_BinaryOptionEnabledCvars);
+    ClearNestedArray(g_BinaryOptionEnabledValues);
+    ClearNestedArray(g_BinaryOptionDisabledCvars);
+    ClearNestedArray(g_BinaryOptionDisabledValues);
 
     char filePath[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, filePath, sizeof(filePath), "configs/pugsetup/practicemode.cfg");
@@ -156,16 +164,6 @@ public void ReadPracticeSettings() {
     kv.Rewind();
 
     delete kv;
-}
-
-public void ClearPracticeSettings() {
-    CloseHandle(g_BinaryOptionNames);
-    CloseHandle(g_BinaryOptionEnabled);
-    CloseHandle(g_BinaryOptionChangeable);
-    CloseNestedArray(g_BinaryOptionEnabledCvars);
-    CloseNestedArray(g_BinaryOptionEnabledValues);
-    CloseNestedArray(g_BinaryOptionDisabledCvars);
-    CloseNestedArray(g_BinaryOptionDisabledValues);
 }
 
 public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
