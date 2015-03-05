@@ -24,7 +24,7 @@ public Plugin myinfo = {
 public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_hAutoKickerEnabled = CreateConVar("sm_pugsetup_autokicker_enabled", "1", "Whether the autokicker is enabled or not");
-    g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full.", "Message to show to clients when they are kicked");
+    g_hKickMessage = CreateConVar("sm_pugsetup_autokicker_message", "Sorry, this pug is full", "Message to show to clients when they are kicked");
     g_hKickNotPicked = CreateConVar("sm_pugsetup_autokicker_kick_not_picked", "1", "Whether to kick players not selected by captains in a captain-style game");
     g_hKickWhenLive = CreateConVar("sm_pugsetup_autokicker_kick_when_live", "1", "Whether the autokicker kicks newly connecting clients during live matches when there are already full teams");
     g_hUseAdminImmunity = CreateConVar("sm_pugsetup_autokicker_admin_immunity", "1", "Whether admins (defined by pugsetup's admin flag cvar) are immune to kicks");
