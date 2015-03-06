@@ -3,7 +3,7 @@
 
 #tryinclude "../include/pugsetup_version.inc"
 #if !defined PLUGIN_VERSION
-#define PLUGIN_VERSION "1.3.4-dev"
+#define PLUGIN_VERSION "1.4.0-dev"
 #endif
 
 #define DEBUG_CVAR "sm_pugsetup_debug"

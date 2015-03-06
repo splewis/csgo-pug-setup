@@ -83,7 +83,7 @@ strongly recommend adding chat aliases, since those will be read by the plugin a
 Below is a list of commands you may want to alias:
 ```
 sm_ready
-sm_unready
+sm_notready
 sm_setup
 sm_rand
 sm_pause
@@ -91,7 +91,7 @@ sm_unpause
 sm_endgame
 sm_forceend
 sm_leader
-sm_captain
+sm_capt
 sm_stay
 sm_swap
 sm_start
@@ -127,24 +127,24 @@ Of course, you can tweak the values.
 ## Commands
 
 Some commands that are important are (all of these are actually sm_ commands for console, but most people use the ! chat command):
-- **!setup**, begins the setup phase and sets the pug leader
-- **!10man**, an alias of setup with 5v5, captains, and a mapvote
-- **!ready**
-- **!notready**
-- **!pause** requests a pause (which takes effect next freezetime)
-- **!unpause** request an unpause
-- **!start**  stats the game if auto-live has been disabled
-- **!capt** gives the pug leader a menu to select captains
-- **!rand** selects random captains
-- **!leader** gives a menu to change the game leader
-- **!endgame** force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
-- **!forceend** force ends the game without a confirmation menu
-- **!stay** chooses to stay after winning a knife round
-- **!swap** chooses to swap after winning a knife round
-- **!ct** chooses to start on ct after winning a knife round
-- **!t** chooses to start on ct after winning a knife round
+- **.setup**, begins the setup phase and sets the pug leader
+- **.10man**, an alias of setup with 5v5, captains, and a mapvote
+- **.ready**
+- **.notready**
+- **.pause** requests a pause (which takes effect next freezetime)
+- **.unpause** request an unpause
+- **.start**  stats the game if auto-live has been disabled
+- **.capt** gives the pug leader a menu to select captains
+- **.rand** selects random captains
+- **.leader** gives a menu to change the game leader
+- **.endgame** force ends the game safely (only the leader can do this, note that this **resets the leader** to nobody)
+- **.forceend** force ends the game without a confirmation menu
+- **.stay** chooses to stay after winning a knife round
+- **.swap** chooses to swap after winning a knife round
+- **.ct** chooses to start on ct after winning a knife round
+- **.t** chooses to start on ct after winning a knife round
 
-You can also type .ready instead of !ready, or .capt instead of !capt, etc.
+You can also type !ready instead of .ready, or !capt instead of .capt, etc.
 
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
 - sm_forceend (force ends the game with no confirmation menu)

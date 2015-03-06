@@ -123,6 +123,7 @@ forward void OnReadyToStartCheck(int readyPlayers, int totalPlayers);
  * @param command The command that was issued
  * @param p Default permissions the plugin checked against
  * @param allow Result of the check
+ * @note permissions-checking is only relevent for pugsetup commands.
  */
 forward void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow);
 
@@ -226,6 +227,14 @@ native void AddChatAlias(const char[] alias, const char[] command);
 // This is intended to be called in the OnSetupMenuSelect forward.
 native void GiveSetupMenu(int client, bool displayOnly=false, int menuPosition=-1);
 
+// Gets the permissions for a command, or throws an error on invalid command.
+// Note: permissions-checking is only relevent for pugsetup commands.
+native Permissions GetPermissions(const char[] command);
+
+// Sets the permissions for a command, returning whether the command already had permissions set.
+// Note: permissions-checking is only relevent for pugsetup commands.
+native bool SetPermissions(const char[] command, Permissions p);
+
 public SharedPlugin __pl_pugsetup = {
     name = "pugsetup",
     file = "pugsetup.smx",
@@ -260,6 +269,8 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetRandomCaptains");
     MarkNativeAsOptional("AddChatAlias");
     MarkNativeAsOptional("GiveSetupMenu");
+    MarkNativeAsOptional("GetPermissions");
+    MarkNativeAsOptional("SetPermissions");
 }
 #endif
 

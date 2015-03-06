@@ -29,7 +29,7 @@
         }
 
         // 1. team type
-        if (g_hOptionTeamType.IntValue != 0) {
+        if (g_DisplayTeamType) {
             char teamType[128];
             GetTeamString(teamType, sizeof(teamType), g_TeamType, client);
             Format(buffer, sizeof(buffer), "%T: %s", "TeamTypeOption", client, teamType);
@@ -37,13 +37,13 @@
         }
 
         // 2. team size
-        if (g_hOptionTeamSize.IntValue != 0) {
+        if (g_DisplayTeamSize) {
             Format(buffer, sizeof(buffer), "%T: %d", "TeamSizeOption", client, g_PlayersPerTeam);
             AddMenuItem(menu, "teamsize", buffer, style);
         }
 
         // 3. map type
-        if (g_hOptionMapType.IntValue != 0) {
+        if (g_DisplayMapType) {
             char mapType[128];
             GetMapString(mapType, sizeof(mapType), g_MapType, client);
             Format(buffer, sizeof(buffer), "%T: %s", "MapTypeOption", client, mapType);
@@ -51,7 +51,7 @@
         }
 
         // 4. demo option
-        if (g_hOptionRecord.IntValue != 0) {
+        if (g_DisplayRecordDemo) {
             char demoString[128];
             GetEnabledString(demoString, sizeof(demoString), g_RecordGameOption, client);
             Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", client, demoString);
@@ -59,7 +59,7 @@
         }
 
         // 5. knife round option
-        if (g_hOptionKnifeRounds.IntValue != 0) {
+        if (g_DisplayKnifeRound) {
             char knifeString[128];
             GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, client);
             Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", client, knifeString);
@@ -67,7 +67,7 @@
         }
 
         // 6. autolive option
-        if (g_hOptionAutoLive.IntValue != 0) {
+        if (g_DisplayAutoLive) {
             char liveString[128];
             GetEnabledString(liveString, sizeof(liveString), g_AutoLive, client);
             Format(buffer, sizeof(buffer), "%T: %s", "AutoLiveOption", client, liveString);
@@ -81,7 +81,7 @@
         }
 
         // 8. change map
-        if (g_hMapChangeOption.IntValue != 0) {
+        if (g_DisplayMapChange) {
             Format(buffer, sizeof(buffer), "%T", "ChangeMapMenuOption", client);
             AddMenuItem(menu, "change_map", buffer, style);
         }

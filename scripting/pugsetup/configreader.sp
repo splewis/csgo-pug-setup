@@ -1,7 +1,7 @@
 /**
  * Update maplist info and fetch any workshop info needed.
  */
-public void InitMapSettings() {
+stock void InitMapSettings() {
     ClearArray(g_MapList);
 
     char maplist[PLATFORM_MAX_PATH];
@@ -27,7 +27,7 @@ public void InitMapSettings() {
     }
 }
 
-public void ReadChatConfig() {
+stock void ReadChatConfig() {
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/chataliases.cfg");
     KeyValues kv = new KeyValues("ChatAliases");
@@ -39,6 +39,55 @@ public void ReadChatConfig() {
             kv.GetString(NULL_STRING, command, sizeof(command));
             AddChatAlias(alias, command);
         } while (kv.GotoNextKey(false));
+    }
+    delete kv;
+}
+
+stock void ReadSetupOptions() {
+    char configFile[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, configFile, sizeof(configFile), "configs/pugsetup/setupsettings.cfg");
+    KeyValues kv = new KeyValues("SetupSettings");
+    if (kv.ImportFromFile(configFile) && kv.GotoFirstSubKey()) {
+        do {
+            char setting[128];
+            char buffer[128];
+            kv.GetSectionName(setting, sizeof(setting));
+            bool display = !!kv.GetNum("display_setting", 1);
+
+            if (StrEqual(setting, "map_type", false)) {
+                kv.GetString("default", buffer, sizeof(buffer), "vote");
+                g_MapType = MapTypeFromString(buffer);
+                g_DisplayMapType = display;
+
+            } else if (StrEqual(setting, "team_type", false)) {
+                kv.GetString("default", buffer, sizeof(buffer), "captains");
+                g_TeamType = TeamTypeFromString(buffer);
+                g_DisplayTeamType = display;
+
+            } else if (StrEqual(setting, "auto_live", false)) {
+                g_AutoLive = !!kv.GetNum("default", 0);
+                g_DisplayAutoLive = display;
+
+            } else if (StrEqual(setting, "knife_round", false)) {
+                g_DoKnifeRound = !!kv.GetNum("default", 0);
+                g_DisplayKnifeRound = display;
+
+            } else if (StrEqual(setting, "team_size", false)) {
+                g_PlayersPerTeam = kv.GetNum("default", 5);
+                g_DisplayTeamSize = display;
+
+            } else if (StrEqual(setting, "record_demo", false)) {
+                g_RecordGameOption = !!kv.GetNum("default", 0);
+                g_DisplayRecordDemo = display;
+
+            } else if (StrEqual(setting, "allow_map_change", false)) {
+                g_DisplayMapChange = display;
+
+            } else {
+                LogError("Unknown section name in %s: \"%s\"", configFile, setting);
+            }
+
+        } while (kv.GotoNextKey());
     }
     delete kv;
 }

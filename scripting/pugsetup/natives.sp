@@ -8,6 +8,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_ChatAliases = new ArrayList(ALIAS_LENGTH);
     g_ChatAliasesCommands = new ArrayList(COMMAND_LENGTH);
     g_MapList = new ArrayList(PLATFORM_MAX_PATH);
+    g_PermissionsMap = new StringMap();
 
     CreateNative("SetupGame", Native_SetupGame);
     CreateNative("ReadyPlayer", Native_ReadyPlayer);
@@ -31,6 +32,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("SetRandomCaptains", Native_SetRandomCaptains);
     CreateNative("AddChatAlias", Native_AddChatAlias);
     CreateNative("GiveSetupMenu", Native_GiveSetupMenu);
+    CreateNative("GetPermissions", Native_GetPermissions);
+    CreateNative("SetPermissions", Native_SetPermissions);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -321,9 +324,9 @@ public int Native_AddChatAlias(Handle plugin, int numParams) {
     char command[COMMAND_LENGTH];
     GetNativeString(1, alias, sizeof(alias));
     GetNativeString(2, command, sizeof(command));
-
     // don't allow duplicate aliases to be added
     if (g_ChatAliases.FindString(alias) == -1) {
+        LogDebug("AddChatAlias(%s, %s)", alias, command);
         g_ChatAliases.PushString(alias);
         g_ChatAliasesCommands.PushString(command);
     }
@@ -341,4 +344,22 @@ public int Native_GiveSetupMenu(Handle plugin, int numParams) {
     }
 
     SetupMenu(client, displayOnly, menuPosition);
+}
+
+public int Native_GetPermissions(Handle plugin, int numParams) {
+    char command[COMMAND_LENGTH];
+    GetNativeString(1, command, sizeof(command));
+    Permissions p;
+    if (!g_PermissionsMap.GetValue(command, p)) {
+        ThrowNativeError(SP_ERROR_PARAM, "Unknown pugsetup command: %s", command);
+    }
+    return view_as<int>(p);
+}
+
+public int Native_SetPermissions(Handle plugin, int numParams) {
+    char command[COMMAND_LENGTH];
+    GetNativeString(1, command, sizeof(command));
+    Permissions p = GetNativeCell(2);
+    LogDebug("Set permissions for %s = %d", command, p);
+    return view_as<int>(g_PermissionsMap.SetValue(command, p));
 }

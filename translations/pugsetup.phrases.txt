@@ -300,7 +300,7 @@
 	}
 	"TVDisabled"
 	{
-		"en"		"GOTV is disabled, so demoes can not be recorded. Set {GREEN}tv_enable 1{NORMAL} to enable GOTV."
+		"en"		"GOTV is disabled, so a demo cannot be recorded. Set {GREEN}tv_enable 1{NORMAL} to enable GOTV."
 	}
 	"FinishSetup"
 	{
