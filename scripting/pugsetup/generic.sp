@@ -7,6 +7,8 @@
 #endif
 
 #define DEBUG_CVAR "sm_pugsetup_debug"
+#define MAX_INTEGER_STRING_LENGTH 16
+#define MAX_FLOAT_STRING_LENGTH 32
 
 static char _colorNames[][] = {"{NORMAL}", "{DARK_RED}", "{PINK}", "{GREEN}", "{YELLOW}", "{LIGHT_GREEN}", "{LIGHT_RED}", "{GRAY}", "{ORANGE}", "{LIGHT_BLUE}", "{DARK_BLUE}", "{PURPLE}", "{CARRIAGE_RETURN}"};
 static char _colorCodes[][] = {"\x01",     "\x02",      "\x03",   "\x04",         "\x05",     "\x06",          "\x07",        "\x08",   "\x09",     "\x0B",         "\x0C",        "\x0E",     "\n"};
@@ -23,7 +25,7 @@ stock void AddMenuOption(Menu menu, const char[] info, const char[] display, any
 stock void AddMenuInt(Menu menu, int value, const char[] display, any:...) {
     char formattedDisplay[128];
     VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
-    char buffer[8];
+    char buffer[MAX_INTEGER_STRING_LENGTH];
     IntToString(value, buffer, sizeof(buffer));
     menu.AddItem(buffer, formattedDisplay);
 }
@@ -32,7 +34,7 @@ stock void AddMenuInt(Menu menu, int value, const char[] display, any:...) {
  * Adds an integer to a menu, named by the integer itself.
  */
 stock void AddMenuInt2(Menu menu, int value) {
-    char buffer[8];
+    char buffer[MAX_INTEGER_STRING_LENGTH];
     IntToString(value, buffer, sizeof(buffer));
     menu.AddItem(buffer, buffer);
 }
@@ -41,7 +43,7 @@ stock void AddMenuInt2(Menu menu, int value) {
  * Gets an integer to a menu from a string choice.
  */
 stock int GetMenuInt(Menu menu, int param2) {
-    char buffer[8];
+    char buffer[MAX_INTEGER_STRING_LENGTH];
     menu.GetItem(param2, buffer, sizeof(buffer));
     return StringToInt(buffer);
 }
@@ -211,25 +213,25 @@ stock void Unpause() {
 }
 
 stock int GetCookieInt(int client, Handle cookie) {
-    char buffer[32];
+    char buffer[MAX_INTEGER_STRING_LENGTH];
     GetClientCookie(client, cookie, buffer, sizeof(buffer));
     return StringToInt(buffer);
 }
 
 stock float GetCookieFloat(int client, Handle cookie) {
-    char buffer[32];
+    char buffer[MAX_FLOAT_STRING_LENGTH];
     GetClientCookie(client, cookie, buffer, sizeof(buffer));
     return StringToFloat(buffer);
 }
 
 stock void SetCookieInt(int client, Handle cookie, int value) {
-    char buffer[32];
+    char buffer[MAX_INTEGER_STRING_LENGTH];
     IntToString(value, buffer, sizeof(buffer));
     SetClientCookie(client, cookie, buffer);
 }
 
 stock void SetCookieFloat(int client, Handle cookie, float value) {
-    char buffer[32];
+    char buffer[MAX_FLOAT_STRING_LENGTH];
     FloatToString(value, buffer, sizeof(buffer));
     SetClientCookie(client, cookie, buffer);
 }
@@ -312,7 +314,7 @@ stock void SQL_CreateTable(Handle db_connection, const char[] table_name, const 
 }
 
 stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace, int value, bool caseSensitive=true) {
-    char intString[16];
+    char intString[MAX_INTEGER_STRING_LENGTH];
     IntToString(value, intString, sizeof(intString));
     ReplaceString(buffer, len, replace, intString, caseSensitive);
 }
