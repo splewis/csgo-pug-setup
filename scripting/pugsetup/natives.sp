@@ -2,6 +2,7 @@
 
 #define CHECK_CLIENT(%1) if (!IsValidClient(%1)) ThrowNativeError(SP_ERROR_PARAM, "Client %d is not connected", %1)
 #define CHECK_CAPTAIN(%1) if (%1 != 1 && %1 != 2) ThrowNativeError(SP_ERROR_PARAM, "Captain number %d is not valid", %1)
+#define CHECK_COMMAND(%1) if (!IsValidCommand(%1)) ThrowNativeError(SP_ERROR_PARAM, "Pugsetup command %s is not valid", %1)
 
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
@@ -32,6 +33,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("SetRandomCaptains", Native_SetRandomCaptains);
     CreateNative("AddChatAlias", Native_AddChatAlias);
     CreateNative("GiveSetupMenu", Native_GiveSetupMenu);
+    CreateNative("IsValidCommand", Native_IsValidCommand);
     CreateNative("GetPermissions", Native_GetPermissions);
     CreateNative("SetPermissions", Native_SetPermissions);
     RegPluginLibrary("pugsetup");
@@ -200,7 +202,7 @@ public int Native_GetCaptain(Handle plugin, int numParams) {
 
 public int Native_PugSetupMessage(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
-    if (!IsValidClient(client))
+    if (client != 0 && (!IsClientConnected(client) || !IsClientInGame(client)))
         return;
 
     char buffer[1024];
@@ -217,8 +219,14 @@ public int Native_PugSetupMessage(Handle plugin, int numParams) {
     else
         Format(finalMsg, sizeof(finalMsg), "%s %s", prefix, buffer);
 
-    Colorize(finalMsg, sizeof(finalMsg));
-    PrintToChat(client, finalMsg);
+    if (client == 0) {
+        Colorize(finalMsg, sizeof(finalMsg), false);
+        PrintToConsole(client, finalMsg);
+    } else if (IsClientInGame(client)) {
+        Colorize(finalMsg, sizeof(finalMsg));
+        PrintToChat(client, finalMsg);
+    }
+
 }
 
 public int Native_PugSetupMessageToAll(Handle plugin, int numParams) {
@@ -227,8 +235,8 @@ public int Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     char buffer[1024];
     int bytesWritten = 0;
 
-    for (int i = 1; i <= MaxClients; i++) {
-        if (!IsClientInGame(i))
+    for (int i = 0; i <= MaxClients; i++) {
+        if (i != 0 && (!IsClientConnected(i) || !IsClientInGame(i)))
             continue;
 
         SetGlobalTransTarget(i);
@@ -240,8 +248,13 @@ public int Native_PugSetupMessageToAll(Handle plugin, int numParams) {
         else
             Format(finalMsg, sizeof(finalMsg), "%s %s", prefix, buffer);
 
-        Colorize(finalMsg, sizeof(finalMsg));
-        PrintToChat(i, finalMsg);
+        if (i != 0) {
+            Colorize(finalMsg, sizeof(finalMsg));
+            PrintToChat(i, finalMsg);
+        } else {
+            Colorize(finalMsg, sizeof(finalMsg), false);
+            PrintToConsole(i, finalMsg);
+        }
     }
 }
 
@@ -324,6 +337,7 @@ public int Native_AddChatAlias(Handle plugin, int numParams) {
     char command[COMMAND_LENGTH];
     GetNativeString(1, alias, sizeof(alias));
     GetNativeString(2, command, sizeof(command));
+
     // don't allow duplicate aliases to be added
     if (g_ChatAliases.FindString(alias) == -1) {
         LogDebug("AddChatAlias(%s, %s)", alias, command);
@@ -346,20 +360,27 @@ public int Native_GiveSetupMenu(Handle plugin, int numParams) {
     SetupMenu(client, displayOnly, menuPosition);
 }
 
+public int Native_IsValidCommand(Handle plugin, int numParams) {
+    char command[COMMAND_LENGTH];
+    GetNativeString(1, command, sizeof(command));
+    return g_Commands.FindString(command) != -1;
+}
+
 public int Native_GetPermissions(Handle plugin, int numParams) {
     char command[COMMAND_LENGTH];
     GetNativeString(1, command, sizeof(command));
+    CHECK_COMMAND(command);
+
     Permissions p;
-    if (!g_PermissionsMap.GetValue(command, p)) {
-        ThrowNativeError(SP_ERROR_PARAM, "Unknown pugsetup command: %s", command);
-    }
+    g_PermissionsMap.GetValue(command, p);
     return view_as<int>(p);
 }
 
 public int Native_SetPermissions(Handle plugin, int numParams) {
     char command[COMMAND_LENGTH];
     GetNativeString(1, command, sizeof(command));
+    CHECK_COMMAND(command);
+
     Permissions p = GetNativeCell(2);
-    LogDebug("Set permissions for %s = %d", command, p);
     return view_as<int>(g_PermissionsMap.SetValue(command, p));
 }

@@ -101,6 +101,7 @@ ArrayList g_ChatAliasesCommands;
 
 /** Permissions **/
 StringMap g_PermissionsMap;
+ArrayList g_Commands; // just a list of all known pugsetup commands
 
 /** Map-choosing variables **/
 ArrayList g_MapVetoed;
@@ -142,7 +143,7 @@ Handle g_hOnUnready = INVALID_HANDLE;
 Handle g_hOnWarmupCfg = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
-#include "pugsetup/configreader.sp"
+#include "pugsetup/configs.sp"
 #include "pugsetup/generic.sp"
 #include "pugsetup/kniferounds.sp"
 #include "pugsetup/leadermenus.sp"
@@ -176,6 +177,7 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
+    g_Commands = new ArrayList(COMMAND_LENGTH);
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
     g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
     g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "1", "Whether everyone can pause, or just captains/leader. Note: if sm_pugsetup_mutual_unpausing is set to 1, this cvar is ignored");
@@ -200,7 +202,7 @@ public void OnPluginStart() {
     g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "10", "How many seconds before the lo3 process should being. You might want to make this longer if you want to move people into teamspeak/mumble channels or similar.", _, true, 0.0, true, 60.0);
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
 
-    // cvars that require dynamic permission changes
+    /** Cvars that require dynamic permission changes **/
     HookConVarChange(g_hAnyCanPause, OnCvarChanged);
     HookConVarChange(g_hMutualUnpause, OnCvarChanged);
     HookConVarChange(g_hRequireAdminToSetup, OnCvarChanged);
@@ -230,10 +232,17 @@ public void OnPluginStart() {
     AddPugSetupCommand("t", Command_T, "Elects to start on T side after winning a knife round", Permission_All);
     AddPugSetupCommand("ct", Command_Ct, "Elects to start on CT side after winning a knife round", Permission_All);
     AddPugSetupCommand("forcestart", Command_ForceStart, "Force starts the game", Permission_Admin);
+    AddPugSetupCommand("addmap", Command_AddMap, "Adds a map to the current maplist", Permission_All);
+    AddPugSetupCommand("removemap", Command_RemoveMap, "Removes a map to the current maplist", Permission_All);
     AddPugSetupCommand("listpugmaps", Command_ListPugMaps, "Lists the current maplist", Permission_All);
     AddPugSetupCommand("start", Command_Start, "Lists the current maplist", Permission_Leader);
+    AddPugSetupCommand("addalias", Command_AddAlias, "Adds a pugsetup alias, and saves it to the chatalias.cfg file", Permission_Admin);
+    AddPugSetupCommand("setdefault", Command_SetDefault, "Sets a default setup option", Permission_Admin);
+    AddPugSetupCommand("setdisplay", Command_SetDisplay, "Sets whether a setup option will be displayed", Permission_Admin);
+
     LoadExtraAliases();
 
+    /** Admin commands for editing configs **/
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("round_end", Event_RoundEnd);
@@ -271,6 +280,7 @@ public void OnPluginStart() {
 static void AddPugSetupCommand(const char[] command, ConCmd callback, const char[] description, Permissions p) {
     char smCommandBuffer[64];
     Format(smCommandBuffer, sizeof(smCommandBuffer), "sm_%s", command);
+    g_Commands.PushString(smCommandBuffer);
     RegConsoleCmd(smCommandBuffer, callback, description);
     SetPermissions(smCommandBuffer, p);
 
@@ -736,7 +746,10 @@ public void FindChatCommand(const char[] command, char alias[ALIAS_LENGTH]) {
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] chatCommand, const char[] chatArgs, int client) {
     if (StrEqual(chatCommand, alias, false)) {
-        FakeClientCommand(client, "%s %s", command, chatArgs);
+        // This is so any ReplyToCommand logic goes into the chat area and stripts the sm_
+        char fakeCommand[256];
+        Format(fakeCommand, sizeof(fakeCommand), "say /%s %s", command[3], chatArgs);
+        FakeClientCommand(client, fakeCommand);
         return true;
     }
     return false;
@@ -745,13 +758,13 @@ static bool CheckChatAlias(const char[] alias, const char[] command, const char[
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs) {
     // splits to find the first word to do a chat alias command check
     char chatCommand[COMMAND_LENGTH];
-    char chatArgs[255]; chatArgs[0] = '\0';
+    char chatArgs[255];
     int index = SplitString(sArgs, " ", chatCommand, sizeof(chatCommand));
 
     if (index == -1) {
         strcopy(chatCommand, sizeof(chatCommand), sArgs);
     } else if (index + 1 < strlen(sArgs)) {
-        strcopy(chatArgs, sizeof(chatArgs), sArgs[index + 1]);
+        strcopy(chatArgs, sizeof(chatArgs), sArgs[index]);
     }
 
     if (chatCommand[0]) {

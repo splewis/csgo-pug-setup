@@ -227,6 +227,9 @@ native void AddChatAlias(const char[] alias, const char[] command);
 // This is intended to be called in the OnSetupMenuSelect forward.
 native void GiveSetupMenu(int client, bool displayOnly=false, int menuPosition=-1);
 
+// Returns if a console command is a valid pugsetup command.
+native bool IsValidCommand(const char[] command);
+
 // Gets the permissions for a command, or throws an error on invalid command.
 // Note: permissions-checking is only relevent for pugsetup commands.
 native Permissions GetPermissions(const char[] command);
@@ -269,6 +272,7 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetRandomCaptains");
     MarkNativeAsOptional("AddChatAlias");
     MarkNativeAsOptional("GiveSetupMenu");
+    MarkNativeAsOptional("IsValidCommand");
     MarkNativeAsOptional("GetPermissions");
     MarkNativeAsOptional("SetPermissions");
 }

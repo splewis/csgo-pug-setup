@@ -15,18 +15,18 @@ public Action Timer_DelayedChangeMap(Handle timer) {
 }
 
 public void AddBackupMaps() {
-    AddMap("de_cache");
-    AddMap("de_dust2");
-    AddMap("de_inferno");
-    AddMap("de_mirage");
-    AddMap("de_nuke");
-    AddMap("de_overpass");
-    AddMap("de_season");
-    AddMap("de_train");
+    AddMap("de_cache", g_MapList);
+    AddMap("de_dust2", g_MapList);
+    AddMap("de_inferno", g_MapList);
+    AddMap("de_mirage", g_MapList);
+    AddMap("de_nuke", g_MapList);
+    AddMap("de_overpass", g_MapList);
+    AddMap("de_season", g_MapList);
+    AddMap("de_train", g_MapList);
 }
 
-public void GetMapList(const char[] fileName) {
-    g_MapList.Clear();
+public void GetMapList(const char[] fileName, ArrayList mapList) {
+    mapList.Clear();
     char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", fileName);
 
@@ -38,7 +38,7 @@ public void GetMapList(const char[] fileName) {
             char mapName[PLATFORM_MAX_PATH];
             while (!file.EndOfFile() && file.ReadLine(mapName, sizeof(mapName))) {
                 TrimString(mapName);
-                AddMap(mapName);
+                AddMap(mapName, mapList);
             }
             delete file;
         } else {
@@ -48,23 +48,100 @@ public void GetMapList(const char[] fileName) {
 
     Call_StartForward(g_hOnMapListRead);
     Call_PushString(fileName);
-    Call_PushCell(g_MapList);
+    Call_PushCell(mapList);
     Call_PushCell(false);
     Call_Finish();
 }
 
-public void AddMap(const char[] mapName) {
-    LogDebug("AddMap(%s)", mapName);
+public bool WriteMapList(const char[] fileName, ArrayList mapList) {
+    char mapFile[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", fileName);
 
+    if (!FileExists(mapFile)) {
+        LogError("Missing map file: %s", mapFile);
+    } else {
+        File file = OpenFile(mapFile, "w");
+        if (file != null) {
+            char mapName[PLATFORM_MAX_PATH];
+            for (int i = 0; i < mapList.Length; i++) {
+                mapList.GetString(i, mapName, sizeof(mapName));
+                file.WriteLine(mapName);
+            }
+            delete file;
+            return true;
+        } else {
+            LogError("Failed to open maplist for reading: %s", mapFile);
+            return false;
+        }
+    }
+
+    return false;
+}
+
+public bool AddToMapList(const char[] mapName) {
+    if (UsingWorkshopCollection())
+        return false;
+
+    char maplist[PLATFORM_MAX_PATH];
+    g_hMapList.GetString(maplist, sizeof(maplist));
+
+    char mapFile[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", maplist);
+
+    File file = OpenFile(mapFile, "a");
+    if (file != null) {
+        file.WriteLine(mapName);
+        delete file;
+        return true;
+    } else {
+        LogError("Failed to open maplist for writing: %s", mapFile);
+    }
+    return false;
+}
+
+public bool RemoveMapFromList(const char[] mapName) {
+    if (UsingWorkshopCollection())
+        return false;
+
+    char maplist[PLATFORM_MAX_PATH];
+    g_hMapList.GetString(maplist, sizeof(maplist));
+
+    ArrayList tmpList = new ArrayList(PLATFORM_MAX_PATH);
+    GetMapList(maplist, tmpList);
+
+    if (!RemoveMap(mapName, tmpList))
+        return false;
+
+    if (!WriteMapList(maplist, tmpList))
+        return false;
+
+    return true;
+}
+
+public bool AddMap(const char[] mapName, ArrayList mapList) {
     bool isComment = strlen(mapName) >= 2 && mapName[0] == '/' && mapName[1] == '/';
     if (strlen(mapName) <= 2 || isComment) {
-        return;
+        return false;
     }
 
     // only add valid maps and non-duplicate maps
-    if (IsMapValid(mapName) && g_MapList.FindString(mapName) == -1) {
+    if (IsMapValid(mapName) && mapList.FindString(mapName) == -1) {
         LogDebug("succesfully added map %s to maplist", mapName);
-        g_MapList.PushString(mapName);
+        mapList.PushString(mapName);
+        return true;
+    }
+
+    return false;
+}
+
+public bool RemoveMap(const char[] mapName, ArrayList mapList) {
+    int index = mapList.FindString(mapName);
+
+    if (index == -1) {
+        return false;
+    } else {
+        mapList.Erase(index);
+        return true;
     }
 }
 

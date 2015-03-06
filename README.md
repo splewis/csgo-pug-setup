@@ -71,19 +71,27 @@ For quick help, also check the [FAQ](https://github.com/splewis/csgo-pug-setup/w
 
 After installing the plugin, start the server and check ``cfg/sourcemod/pugsetup``. There will be a file called ``pugsetup.cfg`` that you can edit to change the cvars the plugin uses. I recommend skimming this file at least to see if there's anything you want to change.
 
-Another file to edit is [addons/sourcemod/configs/pugsetup/setupsettings.cfg](addons/sourcemod/configs/pugsetup/setupsettings.cfg). This lets you modify the default options in the setup menu, as well as lets you hide options so their default is always used. For example, this will always record and remove the setup menu option related to demo-recording:
+You can also modify the behavior of the setup menu: each option has a default value and a display setting. The display setting controls whether the option is displayed at all - if the display for an option is turned off the default is used. You can edit [addons/sourcemod/configs/pugsetup/setupoptions.cfg](addons/sourcemod/configs/pugsetup/setupoptions.cfg) to do this.
+
+Alternatively, you can edit these options ingame. For example, to turn demo recording to be always on and remove it from the setup menu, you can type:
 ```
-"record_demo"
-{
-    "default"       "1"
-    "display_setting"       "0"
-}
+.setdefault record 1
+.setdisplay record 0
 ```
+
+This changes will save to the setupoptions config file automatically.
 
 (A side note: when a knife round occurs the command ``exec sourcemod/pugsetup/knife`` is sent to the server - so you can edit the file ``cfg/sourcemod/pugsetup/knife.cfg`` if you wish. For example, you uncomment the last 2 lines in that file to do taser+knife rounds)
 
 You can also add more chat alias commands in [addons/sourcemod/configs/pugsetup/chataliases.cfg](configs/pugsetup/chataliases.cfg) if you wish. If players are not comfortable with english, I'd
 strongly recommend adding chat aliases, since those will be read by the plugin and used in chat messages when referencing commands.
+
+Just like with setup options, you can edit these in game. For example, you could type:
+```
+.addalias .gaben sm_ready
+```
+
+This will automatically save to the chataliases config file.
 
 Below is a list of commands you may want to alias:
 ```
@@ -154,7 +162,13 @@ You can also type !ready instead of .ready, or !capt instead of .capt, etc.
 These are some helper commands for automation purposes the bypass requiring a player to press any menus:
 - sm_forceend (force ends the game with no confirmation menu)
 - sm_forcestart (force starts the match)
-- sm_listpugmaps (list the maps currently in the maplist)
+
+Other admin level commands are:
+- sm_addmap <mapname> [temp|perm] to add a map to the maplist (defaults to permanently writing to the maplist)
+- sm_removemap <mapname> [temp|perm] to remove a map from the maplist (defaults to permanently writing to the maplist)
+- sm_addalias <alias> <command> to add a chat alias
+-.sm_setdefault <setting> <value> to set a default setup menu setting
+- sm_setdisplay <setting> <0|1> to set whether a setup setting is displayed in the setup menu
 
 
 ## ConVars

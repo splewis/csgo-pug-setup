@@ -176,7 +176,7 @@ static void AddWorkshopMapsToList(int collectionID) {
     for (int i = 0; i < mapIds.Length; i++) {
         mapIds.GetString(i, mapId, sizeof(mapId));
         g_WorkshopCache.GetString(mapId, mapName, sizeof(mapName));
-        AddMap(mapName);
+        AddMap(mapName, g_MapList);
     }
 
     g_WorkshopCache.Rewind();

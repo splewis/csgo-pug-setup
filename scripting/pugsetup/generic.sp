@@ -149,9 +149,13 @@ stock int GetArrayCellRandom(ArrayList array) {
     return array.Get(index);
 }
 
-stock void Colorize(char[] msg, int size) {
+stock void Colorize(char[] msg, int size, bool stripColor=false) {
     for (int i = 0; i < sizeof(_colorNames); i ++) {
-        ReplaceString(msg, size, _colorNames[i], _colorCodes[i]);
+        char code[] = "\x01";
+        if (!stripColor)
+            strcopy(code,  sizeof(code), _colorCodes[i]);
+
+        ReplaceString(msg, size, _colorNames[i], code);
     }
 }
 
