@@ -748,7 +748,7 @@ static bool CheckChatAlias(const char[] alias, const char[] command, const char[
     if (StrEqual(chatCommand, alias, false)) {
         // This is so any ReplyToCommand logic goes into the chat area and stripts the sm_
         char fakeCommand[256];
-        Format(fakeCommand, sizeof(fakeCommand), "say /%s %s", command[3], chatArgs);
+        Format(fakeCommand, sizeof(fakeCommand), "%s %s", command, chatArgs);
         FakeClientCommand(client, fakeCommand);
         return true;
     }
