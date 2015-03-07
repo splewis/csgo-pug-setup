@@ -48,6 +48,7 @@ ConVar g_hRequireAdminToSetup;
 ConVar g_hSnakeCaptains;
 ConVar g_hStartDelay;
 ConVar g_hWarmupCfg;
+ConVar g_hWarmupMoneyOnSpawn;
 
 /** Setup menu options **/
 bool g_DisplayMapType = true;
@@ -201,6 +202,7 @@ public void OnPluginStart() {
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "10", "How many seconds before the lo3 process should being. You might want to make this longer if you want to move people into teamspeak/mumble channels or similar.", _, true, 0.0, true, 60.0);
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
+    g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "0", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
 
     /** Cvars that require dynamic permission changes **/
     HookConVarChange(g_hAnyCanPause, OnCvarChanged);
@@ -239,13 +241,12 @@ public void OnPluginStart() {
     AddPugSetupCommand("addalias", Command_AddAlias, "Adds a pugsetup alias, and saves it to the chatalias.cfg file", Permission_Admin);
     AddPugSetupCommand("setdefault", Command_SetDefault, "Sets a default setup option", Permission_Admin);
     AddPugSetupCommand("setdisplay", Command_SetDisplay, "Sets whether a setup option will be displayed", Permission_Admin);
-
     LoadExtraAliases();
 
-    /** Admin commands for editing configs **/
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("round_end", Event_RoundEnd);
+    HookEvent("player_spawn", Event_PlayerSpawn);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
@@ -1018,6 +1019,15 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
     }
 }
 
+public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
+    if (g_MatchLive || !g_Setup)
+        return;
+
+    int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    if (IsPlayer(client) && OnActiveTeam(client) && g_hWarmupMoneyOnSpawn.IntValue != 0) {
+        SetEntProp(client, Prop_Send, "m_iAccount", 16000);
+    }
+}
 
 /***********************
  *                     *
