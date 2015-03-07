@@ -613,9 +613,9 @@ public Action Command_Pugstatus(int client, int args) {
                 ReplyToCommand(client, "  %L", i);
         }
 
-        ReplyToCommand(client, "T Team (score = %d):", CS_GetTeamScore(CS_TEAM_CT));
+        ReplyToCommand(client, "T Team (score = %d):", CS_GetTeamScore(CS_TEAM_T));
         for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i) && GetClientTeam(i) == CS_TEAM_CT)
+            if (IsPlayer(i) && GetClientTeam(i) == CS_TEAM_T)
                 ReplyToCommand(client, "  %L", i);
         }
     }
