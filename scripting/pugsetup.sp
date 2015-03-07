@@ -958,6 +958,8 @@ public Action Command_ForceReady(int client, int args) {
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
             ReadyPlayer(target);
+    } else {
+        PugSetupMessage(client, "Usage: .forceready <player>");
     }
 
     return Plugin_Handled;
