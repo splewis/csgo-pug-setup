@@ -695,7 +695,7 @@ public Action Command_10man(int client, int args) {
     for (int i = 1; i <= MaxClients; i++)
         g_Ready[i] = false;
 
-    SetupGame(TeamType_Captains, MapType_Vote, 5);
+    SetupGame(TeamType_Captains, MapType_Vote, 5, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
     return Plugin_Handled;
 }
 
