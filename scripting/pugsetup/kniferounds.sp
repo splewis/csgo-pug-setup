@@ -1,5 +1,5 @@
 public Action StartKnifeRound(Handle timer) {
-    if (!g_InStartPhase)
+    if (g_GameState != GameState_KnifeRound)
         return Plugin_Handled;
 
     // reset player tags
@@ -10,8 +10,6 @@ public Action StartKnifeRound(Handle timer) {
     }
 
     ServerCommand("exec sourcemod/pugsetup/knife");
-    g_WaitingForKnifeWinner = true;
-    g_WaitingForKnifeDecision = false;
     ServerCommand("mp_restartgame 1");
 
     // This is done on a delay since the cvar changes from
@@ -22,7 +20,7 @@ public Action StartKnifeRound(Handle timer) {
 }
 
 public Action Timer_AnnounceKnife(Handle timer) {
-    if (!g_InStartPhase)
+    if (g_GameState != GameState_KnifeRound)
         return Plugin_Handled;
 
     for (int i = 0; i < 5; i++)
@@ -31,36 +29,29 @@ public Action Timer_AnnounceKnife(Handle timer) {
 }
 
 public void EndKnifeRound() {
+    g_GameState = GameState_GoingLive;
     ExecGameConfigs();
-    g_WaitingForKnifeWinner = false;
     CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
 static bool AwaitingDecision(int client) {
-    if (!g_InStartPhase)
-        return false;
-
-    if (!g_WaitingForKnifeDecision)
-        return false;
-
     // always lets console make the decision
     if (client == 0)
         return true;
 
     // check if they're on the winning team
-    return IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
+    return g_GameState == GameState_WaitingForKnifeRoundDecision && IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
 }
 
 public Action Command_Stay(int client, int args) {
     if (AwaitingDecision(client)) {
-        g_WaitingForKnifeDecision = false;
         EndKnifeRound();
     }
+    return Plugin_Handled;
 }
 
 public Action Command_Swap(int client, int args) {
     if (AwaitingDecision(client)) {
-        g_WaitingForKnifeDecision = false;
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
                 int team = GetClientTeam(i);
@@ -72,6 +63,7 @@ public Action Command_Swap(int client, int args) {
         }
         EndKnifeRound();
     }
+    return Plugin_Handled;
 }
 
 public Action Command_Ct(int client, int args) {

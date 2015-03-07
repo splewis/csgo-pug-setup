@@ -18,6 +18,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("IsSetup", Native_IsSetup);
     CreateNative("GetTeamType", Native_GetTeamType);
     CreateNative("GetMapType", Native_GetMapType);
+    CreateNative("GetGameState", Native_GetGameState);
     CreateNative("IsMatchLive", Native_IsMatchLive);
     CreateNative("IsPendingStart", Native_IsPendingStart);
     CreateNative("SetLeader", Native_SetLeader);
@@ -66,7 +67,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
-    if (!g_Setup || g_MatchLive || !IsPlayer(client))
+    if (g_GameState != GameState_Warmup || !IsPlayer(client))
         return;
 
     if (g_hExcludeSpectators.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
@@ -86,7 +87,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
-    if (!g_Setup || g_MatchLive || !IsPlayer(client))
+    if (g_GameState != GameState_Warmup || !IsPlayer(client))
         return;
 
     Call_StartForward(g_hOnUnready);
@@ -105,7 +106,7 @@ public int Native_IsReady(Handle plugin, int numParams) {
 }
 
 public int Native_IsSetup(Handle plugin, int numParams) {
-    return g_Setup;
+    return view_as<int>(g_GameState >= GameState_Warmup);
 }
 
 public int Native_GetMapType(Handle plugin, int numParams) {
@@ -116,12 +117,16 @@ public int Native_GetTeamType(Handle plugin, int numParams) {
     return view_as<int>(g_TeamType);
 }
 
+public int Native_GetGameState(Handle plugin, int numParams) {
+    return view_as<int>(g_GameState);
+}
+
 public int Native_IsMatchLive(Handle plugin, int numParams) {
-    return g_MatchLive;
+    return g_GameState == GameState_Live;
 }
 
 public int Native_IsPendingStart(Handle plugin, int numParams) {
-    return g_InStartPhase;
+    return g_GameState >= GameState_PickingPlayers && g_GameState <= GameState_GoingLive;
 }
 
 public int Native_SetLeader(Handle plugin, int numParams) {

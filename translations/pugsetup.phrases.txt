@@ -55,6 +55,11 @@
 		"#format"		"{1:N},{2:s}"
 		"en"		"Waiting for {GREEN}{1} {NORMAL}to type {GREEN}{2} {NORMAL}to select captains."
 	}
+	"ReadyCommandHint"
+	{
+		"#format"		"{1:s}"
+		"en"		"You still need to ready up by typing {GREEN}{1}"
+	}
 	"NoPermission"
 	{
 		"en"		"You don't have permission to do that."

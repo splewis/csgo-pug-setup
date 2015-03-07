@@ -7,14 +7,14 @@
 enum TeamType {
     TeamType_Manual = 0,
     TeamType_Random = 1,
-    TeamType_Captains = 2
+    TeamType_Captains = 2,
 };
 
 // Different ways the map can be selected.
 enum MapType {
     MapType_Current = 0,
     MapType_Vote = 1,
-    MapType_Veto = 2
+    MapType_Veto = 2,
 };
 
 // Permissions checking values.
@@ -22,7 +22,20 @@ enum Permissions {
     Permission_All = 0,
     Permission_Captains = 1,
     Permission_Leader = 2,
-    Permission_Admin = 3
+    Permission_Admin = 3,
+};
+
+// Pug game state
+enum GameState {
+    GameState_None = 0,                          // no setup has taken place
+    GameState_Warmup = 1,                         // setup done, waiting for players to ready up
+    GameState_PickingPlayers = 2,                // only used if TeamType_Captains is the teamtype
+    GameState_WaitingForStart = 3,               // waiting for a .start if autolive is disabled
+    GameState_Countdown = 4,                     // waiting for a .start if autolive is disabled
+    GameState_KnifeRound = 5,                    // in the knife round
+    GameState_WaitingForKnifeRoundDecision = 6,  // waiting for a .stay/.swap command after the knife round
+    GameState_GoingLive = 7,                     // in the lo3 process
+    GameState_Live = 8,                          // the match is live
 };
 
 /**
@@ -177,6 +190,9 @@ native TeamType GetTeamType();
 // Only valid if IsSetup is true.
 native MapType GetMapType();
 
+// Returns the current pug gamestate.
+native GameState GetGameState();
+
 // Returns if there is currently a match setup.
 native bool IsMatchLive();
 
@@ -257,6 +273,7 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("IsSetup");
     MarkNativeAsOptional("GetTeamType");
     MarkNativeAsOptional("GetMapType");
+    MarkNativeAsOptional("GetGameState");
     MarkNativeAsOptional("IsMatchLive");
     MarkNativeAsOptional("IsPendingStart");
     MarkNativeAsOptional("SetLeader");

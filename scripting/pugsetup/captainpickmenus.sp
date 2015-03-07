@@ -5,7 +5,6 @@ int g_PickCounter = 0;
 public void InitialChoiceMenu(int client) {
     if (!g_DoKnifeRound) {
         // if no knife rounds, they get to choose between side/1st pick
-        g_PickingPlayers = true;
         Menu menu = new Menu(InitialChoiceHandler);
         SetMenuTitle(menu, "%T", "InitialPickTitle", client);
         SetMenuExitButton(menu, false);
@@ -91,6 +90,9 @@ public int SideMenuHandler(Menu menu, MenuAction action, int param1, int param2)
  * Player selection menus.
  */
 public Action GivePlayerSelectionMenu(Handle timer, int serial) {
+    if (g_GameState != GameState_PickingPlayers)
+        return Plugin_Handled;
+
     int client = GetClientFromSerial(serial);
     if (IsPickingFinished()) {
         CreateTimer(1.0, FinishPicking);
@@ -111,9 +113,14 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
             EndMatch(false);
         }
     }
+
+    return Plugin_Handled;
 }
 
 public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
+    if (g_GameState != GameState_PickingPlayers)
+        return;
+
     if (action == MenuAction_Select) {
         int client = param1;
         int selected = GetClientFromSerial(GetMenuInt(menu, param2));

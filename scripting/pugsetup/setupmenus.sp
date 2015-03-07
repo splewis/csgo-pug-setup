@@ -13,7 +13,7 @@
 
         char buffer[256];
 
-        if (!g_Setup) {
+        if (g_GameState == GameState_None) {
             char finishSetupStr[128];
             Format(finishSetupStr, sizeof(finishSetupStr), "%T", "FinishSetup", client);
             AddMenuItem(menu, "finish_setup", finishSetupStr, style);
@@ -23,7 +23,7 @@
             AddMenuItem(menu, "cancel_setup", finishSetupStr, style);
         }
 
-        if (g_Setup && g_WaitingForStartCommand) {
+        if (g_GameState == GameState_WaitingForStart) {
             Format(buffer, sizeof(buffer), "%T", "StartMatchMenuOption", client);
             AddMenuItem(menu, "start_match", buffer, style);
         }
@@ -75,7 +75,7 @@
         }
 
         // 7. set captains
-        if (g_Setup && UsingCaptains()) {
+        if (g_GameState == GameState_Warmup && UsingCaptains()) {
             Format(buffer, sizeof(buffer), "%T", "SetCaptainsMenuOption", client);
             AddMenuItem(menu, "set_captains", buffer, style);
         }
@@ -258,14 +258,10 @@ public void SetupFinished() {
         }
     }
 
-    g_Setup = true;
-
     // reset match state variables
     g_capt1 = -1;
     g_capt2 = -1;
-    g_WaitingForKnifeWinner = false;
-    g_WaitingForKnifeDecision = false;
-    g_WaitingForStartCommand = false;
+    g_GameState = GameState_Warmup;
 
     if (!g_LiveTimerRunning)
         CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);

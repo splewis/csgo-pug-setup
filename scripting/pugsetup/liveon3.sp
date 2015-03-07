@@ -1,10 +1,9 @@
 /** Begins the LO3 process. **/
 public Action BeginLO3(Handle timer) {
-    if (!g_InStartPhase)
+    if (g_GameState == GameState_None)
         return Plugin_Handled;
 
-    Call_StartForward(g_hOnGoingLive);
-    Call_Finish();
+    g_GameState = GameState_GoingLive;
 
     // force kill the warmup if we need to
     if (InWarmup()) {
@@ -17,6 +16,9 @@ public Action BeginLO3(Handle timer) {
             UpdateClanTag(i, true); // force strip them
         }
     }
+
+    Call_StartForward(g_hOnGoingLive);
+    Call_Finish();
 
     if (GetConVarInt(g_hQuickRestarts) == 0) {
         // start lo3
@@ -33,7 +35,7 @@ public Action BeginLO3(Handle timer) {
 }
 
 public Action Restart2(Handle timer) {
-    if (!g_InStartPhase)
+    if (g_GameState == GameState_None)
         return Plugin_Handled;
 
     PugSetupMessageToAll("%t", "RestartCounter", 2);
@@ -44,23 +46,26 @@ public Action Restart2(Handle timer) {
 }
 
 public Action Restart3(Handle timer) {
-    if (!g_InStartPhase)
-        return;
+    if (g_GameState == GameState_None)
+        return Plugin_Handled;
 
     PugSetupMessageToAll("%t", "RestartCounter", 3);
     ServerCommand("mp_restartgame 5");
     CreateTimer(5.1, MatchLive);
+
+    return Plugin_Handled;
 }
 
 public Action MatchLive(Handle timer) {
-    if (!g_InStartPhase)
-        return;
+    if (g_GameState == GameState_None)
+        return Plugin_Handled;
 
-    g_MatchLive = true;
-    g_InStartPhase = false;
+    g_GameState = GameState_Live;
     Call_StartForward(g_hOnLive);
     Call_Finish();
 
     for (int i = 0; i < 5; i++)
         PugSetupMessageToAll("%t", "Live");
+
+    return Plugin_Handled;
 }

@@ -64,7 +64,7 @@ int g_Leader = -1;
 ArrayList g_MapList;
 bool g_ForceEnded = false;
 
-// Specific choices made when setting up
+/** Specific choices made when setting up **/
 int g_PlayersPerTeam = 5;
 TeamType g_TeamType = TeamType_Captains;
 MapType g_MapType = MapType_Vote;
@@ -72,22 +72,24 @@ bool g_RecordGameOption = false;
 bool g_DoKnifeRound = false;
 bool g_AutoLive = true;
 
-// Other important variables about the state of the game
-bool g_Setup = false;
-bool g_MapSet = false; // whether we're on the map that is going to be used
+/** Other important variables about the state of the game **/
+GameState g_GameState = GameState_None;
 bool g_SwitchingMaps = false; // if we're in the middle of a map change
+bool g_MapSet = false; // whether we're on the map that is going to be used
+
 bool g_Recording = true;
 char g_DemoFileName[PLATFORM_MAX_PATH];
 bool g_LiveTimerRunning = false;
 int g_CountDownTicks = 0;
 bool g_ForceStartSignal = false;
-bool g_WaitingForStartCommand = false;
 
 #define CAPTAIN_COMMAND_HINT_TIME 15
 #define START_COMMAND_HINT_TIME 15
+#define READY_COMMAND_HINT_TIME 25
 int g_LastCaptainHintTime = 0;
+int g_LastReadyHintTime = 0;
 
-// Pause information
+/** Pause information **/
 bool g_ctUnpaused = false;
 bool g_tUnpaused = false;
 
@@ -114,13 +116,8 @@ int g_capt2 = -1;
 int g_Teams[MAXPLAYERS+1];
 bool g_Ready[MAXPLAYERS+1];
 bool g_PlayerAtStart[MAXPLAYERS+1];
-bool g_PickingPlayers = false;
-bool g_MatchLive = false;
-bool g_InStartPhase = false;
 
 /** Knife round data **/
-bool g_WaitingForKnifeWinner = false;
-bool g_WaitingForKnifeDecision = false;
 int g_KnifeWinner = -1;
 
 /** Forwards **/
@@ -202,7 +199,7 @@ public void OnPluginStart() {
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "10", "How many seconds before the lo3 process should being. You might want to make this longer if you want to move people into teamspeak/mumble channels or similar.", _, true, 0.0, true, 60.0);
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
-    g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "0", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
+    g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
 
     /** Cvars that require dynamic permission changes **/
     HookConVarChange(g_hAnyCanPause, OnCvarChanged);
@@ -345,18 +342,17 @@ public void OnClientDisconnect_Post(int client) {
 public void OnMapStart() {
     if (g_SwitchingMaps) {
         g_MapSet = true;
+        g_GameState = GameState_Warmup;
+    } else {
+        g_GameState = GameState_None;
+        g_MapSet = false;
     }
     g_SwitchingMaps = false;
     g_ForceEnded = false;
     g_MapVetoed = new ArrayList();
     g_Recording = false;
-    g_MatchLive = false;
     g_LiveTimerRunning = false;
-    g_WaitingForKnifeWinner = false;
-    g_WaitingForKnifeDecision = false;
-    g_InStartPhase = false;
     g_ForceStartSignal = false;
-    g_WaitingForStartCommand = false;
 
     InitMapSettings();
 
@@ -365,9 +361,8 @@ public void OnMapStart() {
         g_Teams[i] = CS_TEAM_NONE;
     }
 
-    if (g_Setup) {
+    if (g_MapSet) {
         ExecCfg(g_hWarmupCfg);
-        g_Setup = true;
         if (!g_LiveTimerRunning) {
             CreateTimer(0.3, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             g_LiveTimerRunning = true;
@@ -388,7 +383,7 @@ public bool UsingCaptains() {
 }
 
 public Action Timer_CheckReady(Handle timer) {
-    if (!g_Setup || g_MatchLive || !g_LiveTimerRunning) {
+    if (g_GameState != GameState_Warmup || !g_LiveTimerRunning) {
         g_LiveTimerRunning = false;
         return Plugin_Stop;
     }
@@ -408,8 +403,14 @@ public Action Timer_CheckReady(Handle timer) {
         }
     }
 
+    if (totalPlayers >= GetPugMaxPlayers()) {
+        GiveReadyHints();
+    }
+
     // beware: scary spaghetti code ahead
     if ((readyPlayers == totalPlayers && readyPlayers >= 2 * g_PlayersPerTeam) || g_ForceStartSignal)  {
+        g_ForceStartSignal = false;
+
         if (g_MapSet) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
@@ -487,6 +488,22 @@ public void StatusHint(int readyPlayers, int totalPlayers) {
     }
 }
 
+static void GiveReadyHints() {
+    int time = GetTime();
+    int dt = time - g_LastReadyHintTime;
+
+    if (dt >= READY_COMMAND_HINT_TIME) {
+        g_LastReadyHintTime = time;
+        char cmd[ALIAS_LENGTH];
+        FindChatCommand("sm_ready", cmd);
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i) && !IsReady(i) && OnActiveTeam(i)) {
+                PugSetupMessageToAll("%t", "ReadyCommandHint", cmd);
+            }
+        }
+    }
+}
+
 static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
     char cap1[64];
     char cap2[64];
@@ -543,19 +560,18 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
 }
 
 public Action Command_Setup(int client, int args) {
-    if (g_MatchLive) {
+    if (g_GameState > GameState_Warmup) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
     }
 
-    if (g_Setup && client != GetLeader() && client != 0) {
+    if (g_GameState == GameState_Warmup && client != GetLeader() && client != 0) {
         GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
 
     PermissionCheck(client, "sm_setup")
 
-    g_PickingPlayers = false;
     g_capt1 = -1;
     g_capt2 = -1;
     if (IsPlayer(client))
@@ -576,19 +592,18 @@ public Action Command_Setup(int client, int args) {
 }
 
 public Action Command_10man(int client, int args) {
-    if (g_MatchLive) {
+    if (g_GameState > GameState_Warmup) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
     }
 
-    if (g_Setup && client != GetLeader()) {
+    if (g_GameState == GameState_Warmup && client != GetLeader() && client != 0) {
         GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
 
     PermissionCheck(client, "sm_10man")
 
-    g_PickingPlayers = false;
     g_capt1 = -1;
     g_capt2 = -1;
     if (IsPlayer(client))
@@ -602,7 +617,7 @@ public Action Command_10man(int client, int args) {
 }
 
 public Action Command_Rand(int client, int args) {
-    if (!g_Setup || g_MatchLive)
+    if (g_GameState != GameState_Warmup)
         return Plugin_Handled;
 
     if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
@@ -616,7 +631,7 @@ public Action Command_Rand(int client, int args) {
 }
 
 public Action Command_Capt(int client, int args) {
-    if (!g_Setup || g_MatchLive || g_PickingPlayers)
+    if (g_GameState != GameState_Warmup)
         return Plugin_Handled;
 
     if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
@@ -652,7 +667,7 @@ public Action Command_Capt(int client, int args) {
 }
 
 public Action Command_ForceStart(int client, int args) {
-    if (!g_Setup || g_MatchLive || g_InStartPhase)
+    if (g_GameState != GameState_Warmup)
         return Plugin_Handled;
 
     PermissionCheck(client, "sm_forcestart")
@@ -676,13 +691,11 @@ public Action Command_ListPugMaps(int client, int args) {
 }
 
 public Action Command_Start(int client, int args) {
-    if (!g_Setup || !g_WaitingForStartCommand || g_MatchLive)
+    if (g_GameState != GameState_WaitingForStart)
         return Plugin_Handled;
 
     PermissionCheck(client, "sm_start")
-
     CreateCountDown();
-    g_WaitingForStartCommand = false;
     return Plugin_Handled;
 }
 
@@ -713,7 +726,7 @@ public void LoadExtraAliases() {
     AddChatAlias(".gaben", "sm_ready");
     AddChatAlias(".gs4lyfe", "sm_ready");
     AddChatAlias(".splewis", "sm_ready");
-    AddChatAlias(".notready", "sm_unready");
+    AddChatAlias(".unready", "sm_notready");
     AddChatAlias(".paws", "sm_pause");
     AddChatAlias(".unpaws", "sm_unpause");
 }
@@ -794,7 +807,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 }
 
 public Action Command_EndGame(int client, int args) {
-    if (!g_Setup) {
+    if (g_GameState == GameState_None) {
         PugSetupMessage(client, "%t", "NotLiveYet");
     } else {
         PermissionCheck(client, "sm_endgame")
@@ -868,13 +881,7 @@ public Action Command_ForceReady(int client, int args) {
 }
 
 static bool Pauseable() {
-    if (!g_Setup)
-        return false;
-
-    if (!g_MatchLive && !g_WaitingForKnifeWinner && !g_InStartPhase)
-        return false;
-
-    return true;
+    return g_GameState >= GameState_KnifeRound;
 }
 
 public Action Command_Pause(int client, int args) {
@@ -948,7 +955,7 @@ public Action Command_NotReady(int client, int args) {
 }
 
 public Action Command_Leader(int client, int args) {
-    if (!g_Setup)
+    if (g_GameState == GameState_None)
         return Plugin_Handled;
 
     PermissionCheck(client, "sm_leader")
@@ -975,7 +982,7 @@ public Action Command_Leader(int client, int args) {
  ***********************/
 
 public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcast) {
-    if (g_MatchLive) {
+    if (g_GameState == GameState_Live) {
         CreateTimer(15.0, Timer_EndMatch);
         ExecCfg(g_hWarmupCfg);
     }
@@ -983,10 +990,6 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
     // Always make these false, in case the players didn't use the plugin's lo3/start functionality
     // and manually rcon'd the commands.
     g_MapSet = false;
-    g_Setup = false;
-    g_MatchLive = false;
-    g_WaitingForKnifeDecision = false;
-    g_WaitingForKnifeWinner = false;
 
     CreateTimer(15.0, Timer_CheckAutoSetup);
     return Plugin_Continue;
@@ -999,9 +1002,8 @@ public Action Timer_EndMatch(Handle timer) {
 
 public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
     int winner = GetEventInt(event, "winner");
-    if (g_WaitingForKnifeWinner) {
-        g_WaitingForKnifeWinner = false;
-        g_WaitingForKnifeDecision = true;
+    if (g_GameState == GameState_KnifeRound) {
+        g_GameState = GameState_WaitingForKnifeRoundDecision;
         g_KnifeWinner = winner;
 
         char teamString[4];
@@ -1020,7 +1022,7 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
 }
 
 public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
-    if (g_MatchLive || !g_Setup)
+    if (g_GameState != GameState_Warmup)
         return;
 
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -1074,15 +1076,13 @@ public void PrintSetupInfo(int client) {
 }
 
 public void ReadyToStart() {
-    g_InStartPhase = true;
-    g_ForceStartSignal = false;
     Call_StartForward(g_hOnReadyToStart);
     Call_Finish();
 
     if (g_AutoLive) {
         CreateCountDown();
     } else {
-        g_WaitingForStartCommand = true;
+        g_GameState = GameState_WaitingForStart;
         CreateTimer(float(START_COMMAND_HINT_TIME), Timer_StartCommandHint);
         GiveStartCommandHint();
     }
@@ -1095,7 +1095,7 @@ static void GiveStartCommandHint() {
 }
 
 public Action Timer_StartCommandHint(Handle timer) {
-    if (!g_Setup || !g_WaitingForStartCommand || g_MatchLive) {
+    if (g_GameState != GameState_WaitingForStart) {
         return Plugin_Handled;
     }
     GiveStartCommandHint();
@@ -1103,12 +1103,13 @@ public Action Timer_StartCommandHint(Handle timer) {
 }
 
 static void CreateCountDown() {
+    g_GameState = GameState_Countdown;
     g_CountDownTicks = g_hStartDelay.IntValue;
     CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 public Action Timer_CountDown(Handle timer)  {
-    if (!g_Setup) {
+    if (g_GameState != GameState_Countdown) {
         // match cancelled
         PugSetupMessageToAll("%t", "CancelCountdownMessage");
         return Plugin_Stop;
@@ -1183,9 +1184,11 @@ public void StartGame() {
     }
 
     if (g_DoKnifeRound) {
+        g_GameState = GameState_KnifeRound;
         ExecGameConfigs();
         CreateTimer(3.0, StartKnifeRound, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
+        g_GameState = GameState_GoingLive;
         ExecGameConfigs();
         CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
     }
@@ -1247,7 +1250,7 @@ public void EndMatch(bool execConfigs) {
     }
 
     ServerCommand("mp_unpause_match");
-    if (g_MatchLive && execConfigs)
+    if (g_GameState == GameState_Live && execConfigs)
         ExecCfg(g_hWarmupCfg);
 
     g_LiveTimerRunning = false;
@@ -1255,10 +1258,7 @@ public void EndMatch(bool execConfigs) {
     g_capt1 = -1;
     g_capt2 = -1;
     g_MapSet = false;
-    g_Setup = false;
-    g_MatchLive = false;
-    g_WaitingForKnifeWinner = false;
-    g_InStartPhase = false;
+    g_GameState = GameState_None;
 
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i))
@@ -1285,7 +1285,7 @@ public Action MapSetup(Handle timer) {
 }
 
 public Action StartPicking(Handle timer) {
-    g_InStartPhase = true;
+    g_GameState = GameState_PickingPlayers;
 
     ServerCommand("mp_pause_match");
     ServerCommand("mp_restartgame 1");
@@ -1343,7 +1343,7 @@ public Action Timer_CheckAutoSetup(Handle timer) {
 }
 
 public void CheckAutoSetup() {
-    if (g_hAutoSetup.IntValue != 0 && !g_Setup && !g_ForceEnded && !g_InStartPhase && !g_MatchLive) {
+    if (g_hAutoSetup.IntValue != 0 && g_GameState == GameState_None && !g_ForceEnded) {
         // Re-fetch the defaults
         ReadSetupOptions();
         SetupFinished();
@@ -1396,7 +1396,7 @@ stock void UpdateClanTag(int client, bool strip=false) {
     if (IsPlayer(client)) {
 
         // don't bother with crazy things when the plugin isn't active
-        if (g_MatchLive || !g_Setup || strip) {
+        if (g_GameState == GameState_Live || g_GameState == GameState_None || strip) {
             CS_SetClientClanTag(client, "");
             return;
         }
