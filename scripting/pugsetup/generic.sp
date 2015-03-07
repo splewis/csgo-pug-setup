@@ -296,6 +296,13 @@ stock void GetEnabledString(char[] buffer, int length, bool variable, int client
         Format(buffer, length, "%T", "Disabled", client);
 }
 
+stock void GetTrueString(char[] buffer, int length, bool variable, int client=LANG_SERVER) {
+    if (variable)
+        Format(buffer, length, "true");
+    else
+        Format(buffer, length, "false");
+}
+
 stock void SQL_CreateTable(Handle db_connection, const char[] table_name, const char[][] fields, int num_fields) {
     char buffer[1024];
     Format(buffer, sizeof(buffer), "CREATE TABLE IF NOT EXISTS %s (", table_name);

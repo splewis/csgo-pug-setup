@@ -75,7 +75,7 @@
         }
 
         // 7. set captains
-        if (g_GameState == GameState_Warmup && UsingCaptains()) {
+        if (g_GameState ==  GameState_Warmup && UsingCaptains()) {
             Format(buffer, sizeof(buffer), "%T", "SetCaptainsMenuOption", client);
             AddMenuItem(menu, "set_captains", buffer, style);
         }
@@ -117,7 +117,7 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         } else if (StrEqual(buffer, "maptype")) {
             MapTypeMenu(client);
 
-        }else if (StrEqual(buffer, "teamtype")) {
+        } else if (StrEqual(buffer, "teamtype")) {
             TeamTypeMenu(client);
 
         } else if (StrEqual(buffer, "teamsize")) {
