@@ -75,7 +75,7 @@ bool g_AutoLive = true;
 /** Other important variables about the state of the game **/
 GameState g_GameState = GameState_None;
 bool g_SwitchingMaps = false; // if we're in the middle of a map change
-bool g_MapSet = false; // whether we're on the map that is going to be used
+bool g_OnDecidedMap = false; // whether we're on the map that is going to be used
 
 bool g_Recording = true;
 char g_DemoFileName[PLATFORM_MAX_PATH];
@@ -343,11 +343,11 @@ public void OnClientDisconnect_Post(int client) {
 
 public void OnMapStart() {
     if (g_SwitchingMaps) {
-        g_MapSet = true;
+        g_OnDecidedMap = true;
         g_GameState = GameState_Warmup;
     } else {
         g_GameState = GameState_None;
-        g_MapSet = false;
+        g_OnDecidedMap = false;
     }
     g_SwitchingMaps = false;
     g_ForceEnded = false;
@@ -363,7 +363,7 @@ public void OnMapStart() {
         g_Teams[i] = CS_TEAM_NONE;
     }
 
-    if (g_MapSet) {
+    if (g_OnDecidedMap) {
         ExecCfg(g_hWarmupCfg);
         if (!g_LiveTimerRunning) {
             CreateTimer(0.3, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
@@ -413,7 +413,7 @@ public Action Timer_CheckReady(Handle timer) {
     if ((readyPlayers == totalPlayers && readyPlayers >= 2 * g_PlayersPerTeam) || g_ForceStartSignal)  {
         g_ForceStartSignal = false;
 
-        if (g_MapSet) {
+        if (g_OnDecidedMap) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
@@ -476,7 +476,7 @@ public Action Timer_CheckReady(Handle timer) {
 public void StatusHint(int readyPlayers, int totalPlayers) {
     char rdyCommand[ALIAS_LENGTH];
     FindChatCommand("sm_ready", rdyCommand);
-    if (!g_MapSet && g_MapType != MapType_Veto) {
+    if (!g_OnDecidedMap && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
         if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
@@ -545,15 +545,16 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
 public Action Command_Pugstatus(int client, int args) {
     char stateString[64];
     switch (g_GameState) {
-        case GameState_None: stateString = "None";
-        case GameState_Warmup: stateString = "In warmup phase";
-        case GameState_PickingPlayers: stateString = "Captains are picking players";
-        case GameState_WaitingForStart: stateString = "Waiting for .start command from the leader";
-        case GameState_Countdown: stateString = "Countdown timer active";
-        case GameState_KnifeRound: stateString = "In knife round";
-        case GameState_WaitingForKnifeRoundDecision: stateString = "Waiting for knife winner to pick sides";
-        case GameState_GoingLive: stateString = "Going live";
-        case GameState_Live: stateString = "Live";
+        case GameState_None: Format(stateString, sizeof(stateString), "None");
+        case GameState_Warmup: Format(stateString, sizeof(stateString), "In warmup phase");
+        case GameState_PickingPlayers: Format(stateString, sizeof(stateString), "Captains are picking players");
+        case GameState_WaitingForStart: Format(stateString, sizeof(stateString), "Waiting for .start command from the leader");
+        case GameState_Countdown: Format(stateString, sizeof(stateString), "Countdown timer active");
+        case GameState_KnifeRound: Format(stateString, sizeof(stateString), "In knife round");
+        case GameState_WaitingForKnifeRoundDecision: Format(stateString, sizeof(stateString), "Waiting for knife winner to pick sides");
+        case GameState_GoingLive: Format(stateString, sizeof(stateString), "Going live");
+        case GameState_Live: Format(stateString, sizeof(stateString), "Live");
+        default: Format(stateString, sizeof(stateString), "Unknown");
     }
 
     char buffer[256];
@@ -596,11 +597,11 @@ public Action Command_Pugstatus(int client, int args) {
         ReplyToCommand(client, "Knife round: %s", buffer);
 
         if (g_MapType == MapType_Vote || g_MapType == MapType_Veto) {
-            GetTrueString(buffer, sizeof(buffer), g_MapSet);
+            GetTrueString(buffer, sizeof(buffer), g_OnDecidedMap);
             ReplyToCommand(client, "Map decided: %s", buffer);
         }
 
-        if (g_MapSet) {
+        if (g_OnDecidedMap) {
             GetCurrentMap(buffer, sizeof(buffer));
             ReplyToCommand(client, "On map %s", buffer);
         }
@@ -1074,7 +1075,7 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
 
     // Always make these false, in case the players didn't use the plugin's lo3/start functionality
     // and manually rcon'd the commands.
-    g_MapSet = false;
+    g_OnDecidedMap = false;
 
     CreateTimer(15.0, Timer_CheckAutoSetup);
     return Plugin_Continue;
@@ -1127,36 +1128,32 @@ public void PrintSetupInfo(int client) {
         PugSetupMessage(client, "%t", "SetupBy", GetLeader());
 
     // print each setup option avaliable
+    char buffer[128];
 
     if (g_DisplayMapType) {
-        char mapType[256];
-        GetMapString(mapType, sizeof(mapType), g_MapType, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "MapTypeOption", mapType);
+        GetMapString(buffer, sizeof(buffer), g_MapType, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "MapTypeOption", buffer);
     }
 
     if (g_DisplayTeamSize || g_DisplayTeamType) {
-        char teamType[256];
-        GetTeamString(teamType, sizeof(teamType), g_TeamType, client);
+        GetTeamString(buffer, sizeof(buffer), g_TeamType, client);
         PugSetupMessage(client, "%t: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s",
-                        "TeamTypeOption", g_PlayersPerTeam, g_PlayersPerTeam, teamType);
+                        "TeamTypeOption", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
     }
 
     if (g_DisplayRecordDemo) {
-        char demo[256];
-        GetEnabledString(demo, sizeof(demo), g_RecordGameOption, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "DemoOption", demo);
+        GetEnabledString(buffer, sizeof(buffer), g_RecordGameOption, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "DemoOption", buffer);
     }
 
     if (g_DisplayKnifeRound) {
-        char knife[256];
-        GetEnabledString(knife, sizeof(knife), g_DoKnifeRound, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "KnifeRoundOption", knife);
+        GetEnabledString(buffer, sizeof(buffer), g_DoKnifeRound, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "KnifeRoundOption", buffer);
     }
 
     if (g_DisplayAutoLive) {
-        char autolive[256];
-        GetEnabledString(autolive, sizeof(autolive), g_AutoLive, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "AutoLiveOption", autolive);
+        GetEnabledString(buffer, sizeof(buffer), g_AutoLive, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "AutoLiveOption", buffer);
     }
 }
 
@@ -1237,7 +1234,7 @@ public void StartGame() {
         FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
 
         // get the player count, this is {TEAMSIZE} in the format string
-        char playerCount[8];
+        char playerCount[MAX_INTEGER_STRING_LENGTH];
         IntToString(g_PlayersPerTeam, playerCount, sizeof(playerCount));
 
         // create the actual demo name to use
@@ -1342,7 +1339,7 @@ public void EndMatch(bool execConfigs) {
     g_Leader = -1;
     g_capt1 = -1;
     g_capt2 = -1;
-    g_MapSet = false;
+    g_OnDecidedMap = false;
     g_GameState = GameState_None;
 
     for (int i = 1; i <= MaxClients; i++) {

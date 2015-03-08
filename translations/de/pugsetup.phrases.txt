@@ -296,46 +296,6 @@
 	{
 		"de"		"Zurück"
 	}
-	"sm_capt_alias"
-	{
-		"de"		".capt"
-	}
-	"sm_endgame_alias"
-	{
-		"de"		".endgame"
-	}
-	"sm_notready_alias"
-	{
-		"de"		".notready"
-	}
-	"sm_pause_alias"
-	{
-		"de"		".pause"
-	}
-	"sm_ready_alias"
-	{
-		"de"		".ready"
-	}
-	"sm_setup_alias"
-	{
-		"de"		".setup"
-	}
-	"sm_stay_alias"
-	{
-		"de"		".stay"
-	}
-	"sm_swap_alias"
-	{
-		"de"		".swap"
-	}
-	"sm_unpause_alias"
-	{
-		"de"		".unpause"
-	}
-	"sm_start_alias"
-	{
-		"de"		".start"
-	}
 	"ChooseCaptainTitle"
 	{
 		"de"		"Wähle Kapitän {1}:"

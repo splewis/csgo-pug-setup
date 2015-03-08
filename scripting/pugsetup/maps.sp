@@ -8,7 +8,7 @@ public void ChangeMap() {
 public Action Timer_DelayedChangeMap(Handle timer) {
     char map[PLATFORM_MAX_PATH];
     GetArrayString(g_MapList, g_ChosenMap, map, sizeof(map));
-    g_MapSet = true;
+    g_OnDecidedMap = true;
     g_SwitchingMaps = true;
     ServerCommand("changelevel %s", map);
     return Plugin_Handled;

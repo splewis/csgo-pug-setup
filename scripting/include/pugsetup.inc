@@ -28,7 +28,7 @@ enum Permissions {
 // Pug game state
 enum GameState {
     GameState_None = 0,                          // no setup has taken place
-    GameState_Warmup = 1,                         // setup done, waiting for players to ready up
+    GameState_Warmup = 1,                        // setup done, waiting for players to ready up
     GameState_PickingPlayers = 2,                // only used if TeamType_Captains is the teamtype
     GameState_WaitingForStart = 3,               // waiting for a .start if autolive is disabled
     GameState_Countdown = 4,                     // waiting for a .start if autolive is disabled

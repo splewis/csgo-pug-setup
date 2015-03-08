@@ -304,9 +304,9 @@ stock void GetMapString(char[] buffer, int length, MapType type, int client=LANG
 
 static void UpdateMapStatus() {
     switch (g_MapType) {
-        case MapType_Current: g_MapSet = true;
-        case MapType_Vote: g_MapSet = false;
-        case MapType_Veto: g_MapSet = false;
+        case MapType_Current: g_OnDecidedMap = true;
+        case MapType_Vote: g_OnDecidedMap = false;
+        case MapType_Veto: g_OnDecidedMap = false;
         default: LogError("unknown maptype=%d", g_MapType);
     }
 }
