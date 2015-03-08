@@ -251,6 +251,11 @@ public int DemoHandler(int client) {
 public void SetupFinished() {
     ExecCfg(g_hWarmupCfg);
 
+    if (g_hUseGameWarmup.IntValue != 0 && !InWarmup())
+        StartWarmup();
+    else
+        ServerCommand("mp_restartgame 1");
+
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
             PrintSetupInfo(i);

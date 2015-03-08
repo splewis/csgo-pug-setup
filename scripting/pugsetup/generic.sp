@@ -192,16 +192,29 @@ stock bool Record(const char[] demoName) {
     return true;
 }
 
-stock bool IsPaused() {
-    return GameRules_GetProp("m_bMatchWaitingForResume") != 0;
-}
-
 stock bool InWarmup() {
     return GameRules_GetProp("m_bWarmupPeriod") != 0;
 }
 
+stock void StartWarmup(bool indefinite=true) {
+    if (indefinite) {
+        ServerCommand("mp_do_warmup_period 1");
+        ServerCommand("mp_warmuptime 60"); // just so it doesn't get into the final 5 seconds where it rrefuses to pause via mp_warmup_pausetimer
+    }
+
+    ServerCommand("mp_warmup_start");
+
+    if (indefinite) {
+        ServerCommand("mp_warmup_pausetimer 1");
+    }
+}
+
 stock void EndWarmup() {
     ServerCommand("mp_warmup_end");
+}
+
+stock bool IsPaused() {
+    return GameRules_GetProp("m_bMatchWaitingForResume") != 0;
 }
 
 stock void Pause() {

@@ -47,6 +47,7 @@ ConVar g_hRandomizeMapOrder;
 ConVar g_hRequireAdminToSetup;
 ConVar g_hSnakeCaptains;
 ConVar g_hStartDelay;
+ConVar g_hUseGameWarmup;
 ConVar g_hWarmupCfg;
 ConVar g_hWarmupMoneyOnSpawn;
 
@@ -197,7 +198,8 @@ public void OnPluginStart() {
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
     g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the sm_pugsetup_admin_flag flag to use the .setup command.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
-    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "10", "How many seconds before the lo3 process should being. You might want to make this longer if you want to move people into teamspeak/mumble channels or similar.", _, true, 0.0, true, 60.0);
+    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds before the lo3 process should being. You might want to make this longer if you want to move people into teamspeak/mumble channels or similar.", _, true, 0.0, true, 60.0);
+    g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality or not");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
 
@@ -1083,7 +1085,7 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
 
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
 public Action Timer_EndMatch(Handle timer) {
-    EndMatch(false);
+    EndMatch(false, false);
 }
 
 public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
@@ -1319,9 +1321,11 @@ public void ExecGameConfigs() {
         ServerCommand("exec gamemode_competitive");
 
     ExecCfg(g_hLiveCfg);
+    if (InWarmup())
+        EndWarmup();
 }
 
-public void EndMatch(bool execConfigs) {
+stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     if (g_Recording) {
         CreateTimer(4.0, StopDemo, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
@@ -1332,8 +1336,13 @@ public void EndMatch(bool execConfigs) {
     }
 
     ServerCommand("mp_unpause_match");
-    if (g_GameState == GameState_Live && execConfigs)
+    if (execConfigs)
         ExecCfg(g_hWarmupCfg);
+    if (doRestart)
+        ServerCommand("mp_restartgame 1");
+
+    if (InWarmup())
+        EndWarmup();
 
     g_LiveTimerRunning = false;
     g_Leader = -1;
@@ -1346,6 +1355,9 @@ public void EndMatch(bool execConfigs) {
         if (IsPlayer(i))
             UpdateClanTag(i);
     }
+
+    if (execConfigs)
+        ServerCommand("exec sourcemod/pugsetup/postgame.cfg");
 }
 
 public ArrayList GetCurrentMapList() {

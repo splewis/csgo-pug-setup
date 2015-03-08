@@ -1,3 +1,14 @@
+static char g_BackupMaps[][] = {
+    "de_cache",
+    "de_dust2",
+    "de_inferno",
+    "de_mirage",
+    "de_nuke",
+    "de_overpass",
+    "de_season",
+    "de_train",
+};
+
 public void ChangeMap() {
     char map[PLATFORM_MAX_PATH];
     GetArrayString(g_MapList, g_ChosenMap, map, sizeof(map));
@@ -15,14 +26,8 @@ public Action Timer_DelayedChangeMap(Handle timer) {
 }
 
 public void AddBackupMaps() {
-    AddMap("de_cache", g_MapList);
-    AddMap("de_dust2", g_MapList);
-    AddMap("de_inferno", g_MapList);
-    AddMap("de_mirage", g_MapList);
-    AddMap("de_nuke", g_MapList);
-    AddMap("de_overpass", g_MapList);
-    AddMap("de_season", g_MapList);
-    AddMap("de_train", g_MapList);
+    for (int i = 0; i < sizeof(g_BackupMaps); i++)
+        AddMap(g_BackupMaps[i], g_MapList);
 }
 
 public void GetMapList(const char[] fileName, ArrayList mapList) {
