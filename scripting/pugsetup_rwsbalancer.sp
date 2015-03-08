@@ -45,6 +45,8 @@ enum StorageMethod {
     Storage_MySQL = 2,
 };
 
+StorageMethod g_StorageMethod = Storage_ClientPrefs;
+
 /** Client cookie handles **/
 Handle g_RWSCookie = INVALID_HANDLE;
 Handle g_RoundsPlayedCookie = INVALID_HANDLE;
@@ -58,11 +60,11 @@ bool g_PlayerHasStats[MAXPLAYERS+1];
 int g_RoundPoints[MAXPLAYERS+1];
 
 /** Cvars **/
-ConVar g_MoveTeams;
-ConVar g_RecordRWS;
-ConVar g_SetCaptainsByRWS;
-ConVar g_StorageMethod;
-ConVar g_ShowRWSOnMenu;
+ConVar g_MoveTeamsCvar;
+ConVar g_RecordRWSCvar;
+ConVar g_SetCaptainsByRWSCvar;
+ConVar g_StorageMethodCvar;
+ConVar g_ShowRWSOnMenuCvar;
 
 Handle g_Database = INVALID_HANDLE;
 bool g_ManuallySetCaptains = false;
@@ -89,13 +91,13 @@ public void OnPluginStart() {
     RegAdminCmd("sm_showrws", Command_DumpRWS, ADMFLAG_KICK, "Dumps all player historical rws and rounds played");
     RegConsoleCmd("sm_rws", Command_RWS, "Show player's historical rws");
 
-    g_MoveTeams = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
-    g_RecordRWS = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
-    g_SetCaptainsByRWS = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
-    g_StorageMethod = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
-    g_ShowRWSOnMenu = CreateConVar("sm_pugsetup_rws_display_on_menu", "1", "Whether rws stats are to be displayed on captain-player selection menus");
+    g_MoveTeamsCvar = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
+    g_RecordRWSCvar = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
+    g_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
+    g_StorageMethodCvar = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
+    g_ShowRWSOnMenuCvar = CreateConVar("sm_pugsetup_rws_display_on_menu", "1", "Whether rws stats are to be displayed on captain-player selection menus");
 
-    HookConVarChange(g_StorageMethod, OnCvarChanged);
+    HookConVarChange(g_StorageMethodCvar, OnCvarChanged);
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 
@@ -107,28 +109,23 @@ public void OnPluginStart() {
 }
 
 public int OnCvarChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
-    if (cvar == g_StorageMethod) {
-        StorageMethod m = view_as<StorageMethod>(StringToInt(newValue));
-        if (m == Storage_MySQL) {
+    if (cvar == g_StorageMethodCvar) {
+        g_StorageMethod = view_as<StorageMethod>(StringToInt(newValue));
+        if (g_StorageMethod == Storage_MySQL) {
             InitSqlConnection();
         }
     }
 }
 
-public StorageMethod GetStorageMethod() {
-    return view_as<StorageMethod>(g_StorageMethod.IntValue);
-}
-
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
-    StorageMethod m = GetStorageMethod();
     g_RwsKV = new KeyValues("RWSBalancerStats");
 
-    if (m == Storage_KeyValues) {
+    if (g_StorageMethod == Storage_KeyValues) {
         char path[PLATFORM_MAX_PATH];
         BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
         g_RwsKV.ImportFromFile(path);
-    } else if (m == Storage_MySQL && g_Database == INVALID_HANDLE) {
+    } else if (g_StorageMethod == Storage_MySQL && g_Database == INVALID_HANDLE) {
         InitSqlConnection();
     }
 }
@@ -153,15 +150,16 @@ public void InitSqlConnection() {
 }
 
 public void OnMapEnd() {
-    StorageMethod m = GetStorageMethod();
-
-    if (m == Storage_KeyValues) {
-        char path[PLATFORM_MAX_PATH];
-        BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
-        g_RwsKV.ExportToFile(path);
+    if (g_StorageMethod == Storage_KeyValues) {
+        WriteOutKeyValueStorage();
     }
-
     delete g_RwsKV;
+}
+
+public void OnMatchOver(bool hasDemo, const char[] demoFileName) {
+    if (g_StorageMethod == Storage_KeyValues) {
+        WriteOutKeyValueStorage();
+    }
 }
 
 public void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow) {
@@ -171,7 +169,7 @@ public void OnPermissionCheck(int client, const char[] command, Permissions p, b
 }
 
 public int OnClientCookiesCached(int client) {
-    if (IsFakeClient(client) || GetStorageMethod() != Storage_ClientPrefs)
+    if (IsFakeClient(client) || g_StorageMethod != Storage_ClientPrefs)
         return;
 
     g_PlayerRWS[client] = GetCookieFloat(client, g_RWSCookie);
@@ -201,15 +199,14 @@ public void OnClientAuthorized(int client, const char[] engineAuth) {
 
     LogDebug("OnClientAuthorized with engineAuth = %s, auth = %s", engineAuth, auth);
 
-    StorageMethod m = GetStorageMethod();
-    if (m == Storage_KeyValues) {
+    if (g_StorageMethod == Storage_KeyValues) {
         g_RwsKV.JumpToKey(auth, true);
         g_PlayerRWS[client] = g_RwsKV.GetFloat("rws", 0.0);
         g_PlayerRounds[client] = g_RwsKV.GetNum("roundsplayed", 0);
         g_RwsKV.GoBack();
         g_PlayerHasStats[client] = true;
 
-    } else if (m == Storage_MySQL && g_Database != INVALID_HANDLE) {
+    } else if (g_StorageMethod == Storage_MySQL && g_Database != INVALID_HANDLE) {
         char query[2048];
         Format(query, sizeof(query),
                "INSERT IGNORE INTO %s (auth,rws,roundsplayed) VALUES ('%s', 0.0, 0)",
@@ -267,12 +264,11 @@ public void WriteStats(int client) {
 
     LogDebug("Writing player stats(%L), rws=%f, roundsplayed=%d", client, g_PlayerRWS[client], g_PlayerRounds[client]);
 
-    StorageMethod method = GetStorageMethod();
-    if (method == Storage_ClientPrefs) {
+    if (g_StorageMethod == Storage_ClientPrefs) {
         SetCookieInt(client, g_RoundsPlayedCookie, g_PlayerRounds[client]);
         SetCookieFloat(client, g_RWSCookie, g_PlayerRWS[client]);
 
-    } else if (method == Storage_KeyValues) {
+    } else if (g_StorageMethod == Storage_KeyValues) {
         char auth[64];
         GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
 
@@ -282,7 +278,7 @@ public void WriteStats(int client) {
         g_RwsKV.SetNum("roundsplayed", g_PlayerRounds[client]);
         g_RwsKV.GoBack();
 
-    } else if (method == Storage_MySQL && g_Database != INVALID_HANDLE) {
+    } else if (g_StorageMethod == Storage_MySQL && g_Database != INVALID_HANDLE) {
         char auth[64];
         GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
         char query[1024];
@@ -292,7 +288,7 @@ public void WriteStats(int client) {
         SQL_TQuery(g_Database, Callback_CheckError, query);
 
     } else {
-        LogError("[WriteStats(%L)] unknown storage method or invalid database connection, m=%d", g_StorageMethod.IntValue);
+        LogError("[WriteStats(%L)] unknown storage method or invalid database connection, m=%d", g_StorageMethodCvar.IntValue);
     }
 
 }
@@ -302,7 +298,7 @@ public void WriteStats(int client) {
  */
 public void OnReadyToStart() {
     // only do balancing if we didn't do captains
-    if (GetTeamType() == TeamType_Captains || g_MoveTeams.IntValue == 0)
+    if (GetTeamType() == TeamType_Captains || g_MoveTeamsCvar.IntValue == 0)
         return;
 
     Handle pq = PQ_Init();
@@ -396,7 +392,7 @@ public bool HelpfulAttack(int attacker, int victim) {
  * Round end event, updates rws values for everyone.
  */
 public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive() || g_RecordRWS.IntValue == 0)
+    if (!IsMatchLive() || g_RecordRWSCvar.IntValue == 0)
         return;
 
     int winner = GetEventInt(event, "winner");
@@ -460,7 +456,7 @@ public int rwsSortFunction(int index1, int index2, Handle array, Handle hndl) {
 }
 
 public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
-    if (!g_ManuallySetCaptains && g_SetCaptainsByRWS.IntValue != 0 &&
+    if (!g_ManuallySetCaptains && g_SetCaptainsByRWSCvar.IntValue != 0 &&
         totalPlayers >= GetPugMaxPlayers() && GetTeamType() == TeamType_Captains) {
 
         // The idea is to set the captains to the 2 highest rws players,
@@ -513,7 +509,14 @@ public Action Command_RWS(int client, int args) {
 }
 
 public void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length) {
-    if (g_ShowRWSOnMenu.IntValue != 0 && HasStats(client)) {
+    if (g_ShowRWSOnMenuCvar.IntValue != 0 && HasStats(client)) {
         Format(menuString, length, "%N [%.1f RWS]", client, g_PlayerRWS[client]);
     }
+}
+
+public void WriteOutKeyValueStorage() {
+    LogDebug("Exporting keyvalue stats storage");
+    char path[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
+    g_RwsKV.ExportToFile(path);
 }
