@@ -226,8 +226,8 @@ public void OnPluginStart() {
     AddPugSetupCommand("t", Command_T, "Elects to start on T side after winning a knife round", Permission_All);
     AddPugSetupCommand("ct", Command_Ct, "Elects to start on CT side after winning a knife round", Permission_All);
     AddPugSetupCommand("forcestart", Command_ForceStart, "Force starts the game", Permission_Admin);
-    AddPugSetupCommand("addmap", Command_AddMap, "Adds a map to the current maplist", Permission_All);
-    AddPugSetupCommand("removemap", Command_RemoveMap, "Removes a map to the current maplist", Permission_All);
+    AddPugSetupCommand("addmap", Command_AddMap, "Adds a map to the current maplist", Permission_Admin);
+    AddPugSetupCommand("removemap", Command_RemoveMap, "Removes a map to the current maplist", Permission_Admin);
     AddPugSetupCommand("listpugmaps", Command_ListPugMaps, "Lists the current maplist", Permission_All);
     AddPugSetupCommand("start", Command_Start, "Lists the current maplist", Permission_Leader);
     AddPugSetupCommand("addalias", Command_AddAlias, "Adds a pugsetup alias, and saves it to the chatalias.cfg file", Permission_Admin);
