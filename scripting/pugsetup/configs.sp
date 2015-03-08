@@ -1,5 +1,6 @@
 #define CHAT_ALIAS_FILE "configs/pugsetup/chataliases.cfg"
 #define SETUP_OPTIONS_FILE "configs/pugsetup/setupoptions.cfg"
+#define PERMISSIONS_FILE "configs/pugsetup/permissions.cfg"
 
 /**
  * Update maplist info and fetch any workshop info needed.
@@ -37,56 +38,6 @@ stock void InitMapSettings() {
     }
 }
 
-public Action Command_AddMap(int client, int args) {
-    char mapName[PLATFORM_MAX_PATH];
-    char durationString[32];
-    bool perm = true;
-
-    if (args >= 1 && GetCmdArg(1, mapName, sizeof(mapName))) {
-        if (args >= 2 && GetCmdArg(2, durationString, sizeof(durationString))) {
-            perm = StrEqual(durationString, "perm", false);
-        }
-
-        if (AddMap(mapName, g_MapList)) {
-            PugSetupMessage(client, "Succesfully added map %s", mapName);
-            if (perm && !AddToMapList(mapName)) {
-                PugSetupMessage(client, "Failed to add map to maplist file.");
-            }
-        } else {
-            PugSetupMessage(client, "Map could not be found: %s", mapName);
-        }
-    } else {
-        PugSetupMessage(client, "Usage: sm_addmap <map> [temp|perm] (default perm)");
-    }
-
-    return Plugin_Handled;
-}
-
-public Action Command_RemoveMap(int client, int args) {
-    char mapName[PLATFORM_MAX_PATH];
-    char durationString[32];
-    bool perm = true;
-
-    if (args >= 1 && GetCmdArg(1, mapName, sizeof(mapName))) {
-        if (args >= 2 && GetCmdArg(2, durationString, sizeof(durationString))) {
-            perm = StrEqual(durationString, "perm", false);
-        }
-
-        if (RemoveMap(mapName, g_MapList)) {
-            PugSetupMessage(client, "Succesfully removed map %s", mapName);
-            if (perm && !RemoveMapFromList(mapName)) {
-                PugSetupMessage(client, "Failed to remove map from maplist file.");
-            }
-        } else {
-            PugSetupMessage(client, "Map %s was not found", mapName);
-        }
-    } else {
-        PugSetupMessage(client, "Usage: sm_removemap <map> [temp|perm] (default perm)");
-    }
-
-    return Plugin_Handled;
-}
-
 /**
  * Dealing with the chat alias config file.
  */
@@ -106,28 +57,6 @@ stock void ReadChatConfig() {
     delete kv;
 }
 
-public Action Command_AddAlias(int client, int args) {
-    char alias[ALIAS_LENGTH];
-    char command[COMMAND_LENGTH];
-
-    if (args >= 2 && GetCmdArg(1, alias, sizeof(alias)) && GetCmdArg(2, command, sizeof(command))) {
-        if (!IsValidCommand(command)) {
-            PugSetupMessage(client, "%s is not a valid pugsetup command.", command);
-            PugSetupMessage(client, "Usage: sm_addalias <alias> <command>");
-        } else {
-            AddChatAlias(alias, command);
-            if (AddChatAliasToFile(alias, command))
-                PugSetupMessage(client, "Succesfully added %s as an alias of commmand %s", alias, command);
-            else
-                PugSetupMessage(client, "Failed to add chat alias");
-        }
-    } else {
-        PugSetupMessage(client, "Usage: sm_addalias <alias> <command>");
-    }
-
-    return Plugin_Handled;
-}
-
 stock bool AddChatAliasToFile(const char[] alias, const char[] command) {
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), CHAT_ALIAS_FILE);
@@ -139,7 +68,6 @@ stock bool AddChatAliasToFile(const char[] alias, const char[] command) {
     delete kv;
     return success;
 }
-
 
 /**
  * Dealing with the setup options config file.
@@ -162,7 +90,7 @@ stock bool CheckSetupOptionValidity(int client, const char[] setting, const char
             PugSetupMessage(client, "%s is not a valid option for setting %s, valid options are vote, veto, manual", value, setting);
             return false;
         } else if (setDefault) {
-            g_MapType = MapTypeFromString(value);
+            MapTypeFromString(value, g_MapType);
         }
 
         if (setDisplay)
@@ -174,7 +102,7 @@ stock bool CheckSetupOptionValidity(int client, const char[] setting, const char
             PugSetupMessage(client, "%s is not a valid option for setting %s, valid options are captains, manual, random", value, setting);
             return false;
         } else if (setDefault) {
-            g_TeamType = TeamTypeFromString(value);
+            TeamTypeFromString(value, g_TeamType);
         }
 
         if (setDisplay)
@@ -250,12 +178,12 @@ stock void ReadSetupOptions() {
 
             if (StrEqual(setting, "maptype", false)) {
                 kv.GetString("default", buffer, sizeof(buffer), "vote");
-                g_MapType = MapTypeFromString(buffer);
+                MapTypeFromString(buffer, g_MapType, true);
                 g_DisplayMapType = display;
 
             } else if (StrEqual(setting, "teamtype", false)) {
                 kv.GetString("default", buffer, sizeof(buffer), "captains");
-                g_TeamType = TeamTypeFromString(buffer);
+                TeamTypeFromString(buffer, g_TeamType, true);
                 g_DisplayTeamType = display;
 
             } else if (StrEqual(setting, "autolive", false)) {
@@ -301,7 +229,7 @@ public Action Command_SetDefault(int client, int args) {
                 PugSetupMessage(client, "Failed to write default setting to file");
         }
     } else {
-        PugSetupMessage(client, "Usage: sm_setdefault <setting> <default>");
+        PugSetupMessage(client, "Usage: .setdefault <setting> <default>");
     }
 
     return Plugin_Handled;
@@ -319,7 +247,7 @@ public Action Command_SetDisplay(int client, int args) {
                 PugSetupMessage(client, "Failed to write display setting to file");
         }
     } else {
-        PugSetupMessage(client, "Usage: sm_setdefault <setting> <0/1>");
+        PugSetupMessage(client, "Usage: .setdefault <setting> <0/1>");
     }
 
     return Plugin_Handled;
@@ -349,4 +277,33 @@ stock bool SetDisplayInFile(const char[] setting, bool display) {
     bool success = kv.ExportToFile(configFile);
     delete kv;
     return success;
+}
+
+/**
+ * Dealing with (optionally set) command permissions.
+ */
+stock void ReadPermissions() {
+    char configFile[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, configFile, sizeof(configFile), PERMISSIONS_FILE);
+    KeyValues kv = new KeyValues("Permissions");
+    kv.ImportFromFile(configFile);
+
+    if (kv.ImportFromFile(configFile) && kv.GotoFirstSubKey(false)) {
+        do {
+            char command[128];
+            char permission[128];
+            kv.GetSectionName(command, sizeof(command));
+            kv.GetString(NULL_STRING, permission, sizeof(permission));
+            if (IsValidCommand(command)) {
+                Permissions p = Permission_All;
+                if (PermissionFromString(permission, p, true)) {
+                    SetPermissions(command, p);
+                }
+            } else {
+                LogError("Can't assign permissions to invalid command: %s", command);
+            }
+        } while (kv.GotoNextKey(false));
+    }
+
+    delete kv;
 }

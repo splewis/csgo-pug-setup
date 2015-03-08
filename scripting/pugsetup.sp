@@ -26,7 +26,6 @@
 /** ConVar handles **/
 ConVar g_hAdminFlag;
 ConVar g_hAnnounceCountdown;
-ConVar g_hAnyCanPause;
 ConVar g_hAutoRandomizeCaptains;
 ConVar g_hAutoSetup;
 ConVar g_hAutoUpdate;
@@ -42,9 +41,9 @@ ConVar g_hMapVoteTime;
 ConVar g_hMaxTeamSize;
 ConVar g_hMessagePrefix;
 ConVar g_hMutualUnpause;
+ConVar g_hPostGameCfg;
 ConVar g_hQuickRestarts;
 ConVar g_hRandomizeMapOrder;
-ConVar g_hRequireAdminToSetup;
 ConVar g_hSnakeCaptains;
 ConVar g_hStartDelay;
 ConVar g_hUseGameWarmup;
@@ -179,7 +178,6 @@ public void OnPluginStart() {
     g_Commands = new ArrayList(COMMAND_LENGTH);
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
     g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
-    g_hAnyCanPause = CreateConVar("sm_pugsetup_any_can_pause", "1", "Whether everyone can pause, or just captains/leader. Note: if sm_pugsetup_mutual_unpausing is set to 1, this cvar is ignored");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not.");
     g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update.");
@@ -193,20 +191,15 @@ public void OnPluginStart() {
     g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
     g_hMaxTeamSize = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes", _, true, 2.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
-    g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this cvar will let anybody use the !unpause command.");
+    g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
+    g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/postgame.cfg");
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
-    g_hRequireAdminToSetup = CreateConVar("sm_pugsetup_requireadmin", "0", "If a client needs the sm_pugsetup_admin_flag flag to use the .setup command.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
-    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds before the lo3 process should being. You might want to make this longer if you want to move people into teamspeak/mumble channels or similar.", _, true, 0.0, true, 60.0);
+    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds before the lo3 process should being.", _, true, 0.0, true, 60.0);
     g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality or not");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
-
-    /** Cvars that require dynamic permission changes **/
-    HookConVarChange(g_hAnyCanPause, OnCvarChanged);
-    HookConVarChange(g_hMutualUnpause, OnCvarChanged);
-    HookConVarChange(g_hRequireAdminToSetup, OnCvarChanged);
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -291,23 +284,9 @@ static void AddPugSetupCommand(const char[] command, ConCmd callback, const char
     AddChatAlias(dotCommandBuffer, smCommandBuffer);
 }
 
-public int OnCvarChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
-    if (cvar == g_hRequireAdminToSetup) {
-        bool enabled = g_hRequireAdminToSetup.IntValue != 0;
-        Permissions p = enabled ? Permission_Admin : Permission_All;
-        SetPermissions("sm_setup", p);
-        SetPermissions("sm_10man", p);
-
-    } else if (cvar == g_hAnyCanPause || cvar == g_hMutualUnpause) {
-        bool enabled = g_hAnyCanPause.IntValue == 0 && g_hMutualUnpause.IntValue == 0;
-        Permissions p = enabled ? Permission_Captains : Permission_All;
-        SetPermissions("sm_pause", p);
-        SetPermissions("sm_unpause", p);
-    }
-}
-
 public void OnConfigsExecuted() {
     InitMapSettings();
+    ReadPermissions();
 }
 
 public void OnLibraryAdded(const char[] name) {
@@ -502,7 +481,7 @@ static void GiveReadyHints() {
         FindChatCommand("sm_ready", cmd);
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && !IsReady(i) && OnActiveTeam(i)) {
-                PugSetupMessageToAll("%t", "ReadyCommandHint", cmd);
+                PugSetupMessage(i, "%t", "ReadyCommandHint", cmd);
             }
         }
     }
@@ -728,8 +707,7 @@ public Action Command_Capt(int client, int args) {
     PermissionCheck(client, "sm_capt")
 
     char buffer[64];
-    if (args != 0 && GetCmdArgs() >= 1) {
-
+    if (GetCmdArgs() >= 1) {
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
@@ -762,6 +740,8 @@ public Action Command_ForceStart(int client, int args) {
 }
 
 public Action Command_ListPugMaps(int client, int args) {
+    PermissionCheck(client, "sm_listpugmaps")
+
     int n = g_MapList.Length;
     if (n == 0) {
         PugSetupMessage(client, "No maps are in the maplist");
@@ -976,6 +956,10 @@ public Action Command_Pause(int client, int args) {
     if (!Pauseable() || IsPaused())
         return Plugin_Handled;
 
+    if (g_hMutualUnpause.IntValue != 0) {
+        SetPermissions("sm_pause", Permission_All);
+    }
+
     PermissionCheck(client, "sm_pause")
 
     g_ctUnpaused = false;
@@ -992,13 +976,16 @@ public Action Command_Unpause(int client, int args) {
     if (!Pauseable() || !IsPaused())
         return Plugin_Handled;
 
+    if (g_hMutualUnpause.IntValue != 0) {
+        SetPermissions("sm_unpause", Permission_All);
+    }
+
     PermissionCheck(client, "sm_unpause")
 
     char unpauseCmd[ALIAS_LENGTH];
     FindChatCommand("sm_unpause", unpauseCmd);
 
     if (g_hMutualUnpause.IntValue == 0) {
-
         Unpause();
         if (IsPlayer(client)) {
             PugSetupMessageToAll("%t", "Unpause", client);
@@ -1049,7 +1036,7 @@ public Action Command_Leader(int client, int args) {
     PermissionCheck(client, "sm_leader")
 
     char buffer[64];
-    if (args != 0 && GetCmdArgs() >= 1) {
+    if (GetCmdArgs() >= 1) {
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
@@ -1061,6 +1048,83 @@ public Action Command_Leader(int client, int args) {
     return Plugin_Handled;
 }
 
+public Action Command_AddMap(int client, int args) {
+    PermissionCheck(client, "sm_addmap")
+
+    char mapName[PLATFORM_MAX_PATH];
+    char durationString[32];
+    bool perm = true;
+
+    if (args >= 1 && GetCmdArg(1, mapName, sizeof(mapName))) {
+        if (args >= 2 && GetCmdArg(2, durationString, sizeof(durationString))) {
+            perm = StrEqual(durationString, "perm", false);
+        }
+
+        if (AddMap(mapName, g_MapList)) {
+            PugSetupMessage(client, "Succesfully added map %s", mapName);
+            if (perm && !AddToMapList(mapName)) {
+                PugSetupMessage(client, "Failed to add map to maplist file.");
+            }
+        } else {
+            PugSetupMessage(client, "Map could not be found: %s", mapName);
+        }
+    } else {
+        PugSetupMessage(client, "Usage: .addmap <map> [temp|perm] (default perm)");
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_RemoveMap(int client, int args) {
+    PermissionCheck(client, "sm_removemap")
+
+    char mapName[PLATFORM_MAX_PATH];
+    char durationString[32];
+    bool perm = true;
+
+    if (args >= 1 && GetCmdArg(1, mapName, sizeof(mapName))) {
+        if (args >= 2 && GetCmdArg(2, durationString, sizeof(durationString))) {
+            perm = StrEqual(durationString, "perm", false);
+        }
+
+        if (RemoveMap(mapName, g_MapList)) {
+            PugSetupMessage(client, "Succesfully removed map %s", mapName);
+            if (perm && !RemoveMapFromList(mapName)) {
+                PugSetupMessage(client, "Failed to remove map from maplist file.");
+            }
+        } else {
+            PugSetupMessage(client, "Map %s was not found", mapName);
+        }
+    } else {
+        PugSetupMessage(client, "Usage: .addmap <map> [temp|perm] (default perm)");
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_AddAlias(int client, int args) {
+    PermissionCheck(client, "sm_addalias")
+
+    char alias[ALIAS_LENGTH];
+    char command[COMMAND_LENGTH];
+
+    if (args >= 2 && GetCmdArg(1, alias, sizeof(alias)) && GetCmdArg(2, command, sizeof(command))) {
+        if (!IsValidCommand(command)) {
+            PugSetupMessage(client, "%s is not a valid pugsetup command.", command);
+            PugSetupMessage(client, "Usage: sm_addalias <alias> <command>");
+        } else {
+            AddChatAlias(alias, command);
+            if (AddChatAliasToFile(alias, command))
+                PugSetupMessage(client, "Succesfully added %s as an alias of commmand %s", alias, command);
+            else
+                PugSetupMessage(client, "Failed to add chat alias");
+        }
+    } else {
+        PugSetupMessage(client, "Usage: .addalias <alias> <command>");
+    }
+
+    return Plugin_Handled;
+}
 
 
 /***********************
@@ -1075,11 +1139,9 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
         ExecCfg(g_hWarmupCfg);
     }
 
-    // Always make these false, in case the players didn't use the plugin's lo3/start functionality
-    // and manually rcon'd the commands.
-    g_OnDecidedMap = false;
+    // g_OnDecidedMap = false;
 
-    CreateTimer(15.0, Timer_CheckAutoSetup);
+    CreateTimer(20.0, Timer_CheckAutoSetup);
     return Plugin_Continue;
 }
 
@@ -1199,7 +1261,7 @@ public Action Timer_CountDown(Handle timer)  {
         return Plugin_Stop;
     }
 
-    if (g_CountDownTicks == 0) {
+    if (g_CountDownTicks <= 0) {
         StartGame();
         return Plugin_Stop;
     }
@@ -1357,7 +1419,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     }
 
     if (execConfigs)
-        ServerCommand("exec sourcemod/pugsetup/postgame.cfg");
+        ExecCfg(g_hPostGameCfg);
 }
 
 public ArrayList GetCurrentMapList() {

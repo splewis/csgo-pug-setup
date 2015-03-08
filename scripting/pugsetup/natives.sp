@@ -148,8 +148,10 @@ public int Native_GetLeader(Handle plugin, int numParams) {
 
     // then check if we have someone with admin permissions
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && IsPugAdmin(i))
+        if (IsPlayer(i) && IsPugAdmin(i)) {
+            g_Leader = GetSteamAccountID(i);
             return i;
+        }
     }
 
     // otherwise fall back to a random player

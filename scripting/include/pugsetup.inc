@@ -295,32 +295,52 @@ public __pl_pugsetup_SetNTVOptional() {
 }
 #endif
 
-stock TeamType TeamTypeFromString(const char[] teamTypeString,
-                                  TeamType fallback=TeamType_Captains,
-                                  bool logError=true) {
-    if (StrEqual(teamTypeString, "captains") || StrEqual(teamTypeString, "captain"))
-        return TeamType_Captains;
-    else if (StrEqual(teamTypeString, "manual"))
-        return TeamType_Manual;
-    else if (StrEqual(teamTypeString, "random"))
-        return TeamType_Random;
-    else if (logError)
-        LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\"", teamTypeString);
+stock bool TeamTypeFromString(const char[] teamTypeString, TeamType& teamType, bool logError=false) {
+    if (StrEqual(teamTypeString, "captains", false) || StrEqual(teamTypeString, "captain", false)) {
+        teamType = TeamType_Captains;
+    } else if (StrEqual(teamTypeString, "manual", false)) {
+        teamType = TeamType_Manual;
+    } else if (StrEqual(teamTypeString, "random", false)) {
+        teamType = TeamType_Random;
+    } else {
+        if (logError)
+            LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\"", teamTypeString);
+        return false;
+    }
 
-    return fallback;
+    return true;
 }
 
-stock MapType MapTypeFromString(const char[] mapTypeString,
-                                MapType fallback=MapType_Vote,
-                                bool logError=true) {
-    if (StrEqual(mapTypeString, "current"))
-        return MapType_Current;
-    else if (StrEqual(mapTypeString, "vote"))
-        return MapType_Vote;
-    else if (StrEqual(mapTypeString, "veto"))
-        return MapType_Veto;
-    else if (logError)
-        LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
+stock bool MapTypeFromString(const char[] mapTypeString, MapType& mapType, bool logError=false) {
+    if (StrEqual(mapTypeString, "current", false)) {
+        mapType = MapType_Current;
+    } else if (StrEqual(mapTypeString, "vote", false)) {
+        mapType = MapType_Vote;
+    } else if (StrEqual(mapTypeString, "veto", false)) {
+        mapType = MapType_Veto;
+    } else {
+        if (logError)
+            LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
+        return false;
+    }
 
-    return fallback;
+    return true;
+}
+
+stock bool PermissionFromString(const char[] permissionString, Permissions& p, bool logError=false) {
+    if (StrEqual(permissionString, "all", false) || StrEqual(permissionString, "any", false)) {
+        p = Permission_All;
+    } else if (StrEqual(permissionString, "captains", false) || StrEqual(permissionString, "captain", false)) {
+        p = Permission_Captains;
+    } else if (StrEqual(permissionString, "leader", false)) {
+        p = Permission_Leader;
+    } else if (StrEqual(permissionString, "admin", false)) {
+        p = Permission_Admin;
+    } else {
+        if (logError)
+            LogError("Invalid permission type: \"%s\", allowed values: \"all\", \"captain\", \"leader\", \"admin\"", permissionString);
+        return false;
+    }
+
+    return true;
 }
