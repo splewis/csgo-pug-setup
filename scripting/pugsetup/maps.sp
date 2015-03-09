@@ -1,5 +1,6 @@
 static char g_BackupMaps[][] = {
     "de_cache",
+    "de_cbble",
     "de_dust2",
     "de_inferno",
     "de_mirage",
