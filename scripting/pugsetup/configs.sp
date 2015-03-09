@@ -84,7 +84,25 @@ stock bool CheckEnabledFromString(const char[] value) {
     return false;
 }
 
-stock bool CheckSetupOptionValidity(int client, const char[] setting, const char[] value, bool setDefault=true, bool setDisplay=false) {
+stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] value, bool setDefault=true, bool setDisplay=false) {
+    char coercions[][][] = {
+        {"map", "maptype"},
+        {"teams", "teamtype"},
+        {"team", "teamtype"},
+        {"knife", "kniferound"},
+        {"autolo3", "autolive"},
+        {"demo", "record"},
+        {"changemap", "mapchange"},
+    };
+
+    for (int i = 0; i < sizeof(coercions); i++) {
+        if (StrEqual(setting, coercions[i][0], false)) {
+            int len = strlen(setting);
+            strcopy(setting, len, coercions[i][1]);
+            break;
+        }
+    }
+
     if (StrEqual(setting, "maptype", false)) {
         if (setDefault && !StrEqual(value, "vote") && !StrEqual(value, "veto") && !StrEqual(value, "manual")) {
             PugSetupMessage(client, "%s is not a valid option for setting %s, valid options are vote, veto, manual", value, setting);
