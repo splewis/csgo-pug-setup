@@ -324,13 +324,9 @@ public void OnClientDisconnect_Post(int client) {
 
 public void OnMapStart() {
     if (g_SwitchingMaps) {
-        g_OnDecidedMap = true;
-        g_GameState = GameState_Warmup;
-    } else {
-        g_GameState = GameState_None;
-        g_OnDecidedMap = false;
+        g_SwitchingMaps = false;
     }
-    g_SwitchingMaps = false;
+
     g_ForceEnded = false;
     g_MapVetoed = new ArrayList();
     g_Recording = false;
@@ -344,8 +340,11 @@ public void OnMapStart() {
         g_Teams[i] = CS_TEAM_NONE;
     }
 
-    if (g_OnDecidedMap) {
+    if (g_GameState == GameState_Warmup) {
         ExecCfg(g_hWarmupCfg);
+        if (g_hUseGameWarmup.IntValue != 0)
+            StartWarmup();
+
         if (!g_LiveTimerRunning) {
             CreateTimer(0.3, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
             g_LiveTimerRunning = true;
@@ -1389,6 +1388,8 @@ public void ExecGameConfigs() {
 }
 
 stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
+    LogDebug("EndMatch(%d, %d)", execConfigs, doRestart);
+
     if (g_Recording) {
         CreateTimer(4.0, StopDemo, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
