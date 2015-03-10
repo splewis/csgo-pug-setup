@@ -2,7 +2,9 @@
 // Tracking the "number of picks left" for the current captain.
 int g_PickCounter = 0;
 
-public void InitialChoiceMenu(int client) {
+public Action Timer_InitialChoiceMenu(Handle timer) {
+    int client = g_capt1;
+
     if (!g_DoKnifeRound) {
         // if no knife rounds, they get to choose between side/1st pick
         Menu menu = new Menu(InitialChoiceHandler);
@@ -14,8 +16,10 @@ public void InitialChoiceMenu(int client) {
     } else {
         // if using knife rounds, they just always get the 1st pick
         g_PickCounter = 0;
-        CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(g_capt1));
+        CreateTimer(0.1, GivePlayerSelectionMenu, GetClientSerial(g_capt1));
     }
+
+    return Plugin_Handled;
 }
 
 public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int param2) {

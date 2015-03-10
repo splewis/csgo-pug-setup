@@ -1462,7 +1462,7 @@ public Action StartPicking(Handle timer) {
     SwitchPlayerTeam(g_capt1, CS_TEAM_T);
     g_Teams[g_capt1] = CS_TEAM_T;
 
-    InitialChoiceMenu(g_capt1);
+    CreateTimer(2.0, Timer_InitialChoiceMenu);
     return Plugin_Handled;
 }
 
