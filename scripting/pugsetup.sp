@@ -636,13 +636,8 @@ public Action Command_Setup(int client, int args) {
 
     PermissionCheck(client, "sm_setup")
 
-    g_capt1 = -1;
-    g_capt2 = -1;
     if (IsPlayer(client))
         g_Leader = GetSteamAccountID(client);
-
-    for (int i = 1; i <= MaxClients; i++)
-        g_Ready[i] = false;
 
     if (client == 0) {
         // if we did the setup command from the console just use the default settings
@@ -668,13 +663,8 @@ public Action Command_10man(int client, int args) {
 
     PermissionCheck(client, "sm_10man")
 
-    g_capt1 = -1;
-    g_capt2 = -1;
     if (IsPlayer(client))
         g_Leader = GetSteamAccountID(client);
-
-    for (int i = 1; i <= MaxClients; i++)
-        g_Ready[i] = false;
 
     SetupGame(TeamType_Captains, MapType_Vote, 5, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
     return Plugin_Handled;

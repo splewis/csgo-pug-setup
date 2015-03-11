@@ -257,9 +257,9 @@ public void SetupFinished() {
         ServerCommand("mp_restartgame 1");
 
     for (int i = 1; i <= MaxClients; i++) {
+        g_Ready[i] = false;
         if (IsPlayer(i)) {
             PrintSetupInfo(i);
-            UnreadyPlayer(i);
         }
     }
 
