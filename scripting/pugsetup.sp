@@ -192,7 +192,7 @@ public void OnPluginStart() {
     g_hMaxTeamSize = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes", _, true, 2.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
-    g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/postgame.cfg");
+    g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish.");
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
@@ -826,6 +826,9 @@ static bool CheckChatAlias(const char[] alias, const char[] command, const char[
 }
 
 public void OnClientSayCommand_Post(int client, const char[] command, const char[] sArgs) {
+    if (!IsPlayer(client))
+        return;
+
     // splits to find the first word to do a chat alias command check
     char chatCommand[COMMAND_LENGTH];
     char chatArgs[255];
@@ -1380,6 +1383,10 @@ public void ExecGameConfigs() {
 stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     LogDebug("EndMatch(%d, %d)", execConfigs, doRestart);
 
+    if (g_GameState == GameState_None) {
+        return;
+    }
+
     if (g_Recording) {
         CreateTimer(4.0, StopDemo, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
@@ -1390,13 +1397,9 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     }
 
     ServerCommand("mp_unpause_match");
-    if (execConfigs)
+    if (execConfigs) {
         ExecCfg(g_hWarmupCfg);
-    if (doRestart)
-        ServerCommand("mp_restartgame 1");
-
-    if (InWarmup())
-        EndWarmup();
+    }
 
     g_LiveTimerRunning = false;
     g_Leader = -1;
@@ -1406,12 +1409,22 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     g_GameState = GameState_None;
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i))
+        if (IsPlayer(i)) {
             UpdateClanTag(i);
+        }
     }
 
-    if (execConfigs)
+    if (execConfigs) {
         ExecCfg(g_hPostGameCfg);
+    }
+
+    if (InWarmup()) {
+        EndWarmup();
+    }
+
+    if (doRestart) {
+        ServerCommand("mp_restartgame 1");
+    }
 }
 
 public ArrayList GetCurrentMapList() {
