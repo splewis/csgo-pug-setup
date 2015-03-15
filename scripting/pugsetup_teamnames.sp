@@ -90,8 +90,8 @@ public Action Command_ListNames(int client, int args) {
 }
 
 public Action Command_Name(int client, int args) {
-    char arg1[128];
-    char arg2[128];
+    char arg1[MAX_NAME_LENGTH];
+    char arg2[TEAM_NAME_LENGTH];
 
     if (args >= 2 && GetCmdArg(1, arg1, sizeof(arg1)) && GetCmdArg(2, arg2, sizeof(arg2))) {
         int target = FindTarget(client, arg1, true, false);

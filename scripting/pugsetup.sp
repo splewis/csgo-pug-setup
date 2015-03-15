@@ -85,7 +85,7 @@ bool g_ForceStartSignal = false;
 
 #define CAPTAIN_COMMAND_HINT_TIME 15
 #define START_COMMAND_HINT_TIME 15
-#define READY_COMMAND_HINT_TIME 25
+#define READY_COMMAND_HINT_TIME 19
 int g_LastCaptainHintTime = 0;
 int g_LastReadyHintTime = 0;
 
@@ -487,8 +487,8 @@ static void GiveReadyHints() {
 }
 
 static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
-    char cap1[64];
-    char cap2[64];
+    char cap1[MAX_NAME_LENGTH];
+    char cap2[MAX_NAME_LENGTH];
     if (IsPlayer(g_capt1))
         Format(cap1, sizeof(cap1), "%N", g_capt1);
     else
@@ -695,7 +695,7 @@ public Action Command_Capt(int client, int args) {
 
     PermissionCheck(client, "sm_capt")
 
-    char buffer[64];
+    char buffer[MAX_NAME_LENGTH];
     if (GetCmdArgs() >= 1) {
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
@@ -788,7 +788,7 @@ public void LoadExtraAliases() {
 }
 
 static void AddTranslatedAlias(const char[] command) {
-    char translationName[64];
+    char translationName[128];
     Format(translationName, sizeof(translationName), "%s_alias", command);
 
     char alias[ALIAS_LENGTH];
@@ -929,7 +929,7 @@ public Action Command_ForceEnd(int client, int args) {
 public Action Command_ForceReady(int client, int args) {
     PermissionCheck(client, "sm_forceready")
 
-    char buffer[64];
+    char buffer[MAX_NAME_LENGTH];
     if (args >= 1 && GetCmdArg(1, buffer, sizeof(buffer))) {
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
@@ -1131,8 +1131,6 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
         CreateTimer(15.0, Timer_EndMatch);
         ExecCfg(g_hWarmupCfg);
     }
-
-    // g_OnDecidedMap = false;
 
     CreateTimer(20.0, Timer_CheckAutoSetup);
     return Plugin_Continue;
