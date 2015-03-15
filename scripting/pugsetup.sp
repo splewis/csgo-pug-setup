@@ -636,7 +636,7 @@ public Action Command_Setup(int client, int args) {
 
     PermissionCheck(client, "sm_setup")
 
-    if (IsPlayer(client))
+    if (IsPlayer(client) && !IsPlayer(GetLeader()))
         g_Leader = GetSteamAccountID(client);
 
     if (client == 0) {
