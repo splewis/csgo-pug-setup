@@ -1,5 +1,6 @@
 #include <cstrike>
 #include <sourcemod>
+#include "include/logdebug.inc"
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
@@ -17,9 +18,10 @@ public Plugin myinfo = {
 };
 
 public void OnPluginStart() {
+    InitDebugLog(DEBUG_CVAR, "teamlock");
     g_hLockTeamsEnabled = CreateConVar("sm_pugsetup_teamlocker_enabled", "1", "Whether teams are locked when matches are live.");
     AutoExecConfig(true, "pugsetup_teamlocker", "sourcemod/pugsetup");
-    AddCommandListener(Command_TeamJoin, "jointeam");
+    AddCommandListener(Command_JoinTeam, "jointeam");
     HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Pre);
 }
 
@@ -27,7 +29,7 @@ public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroad
     return Plugin_Continue;
 }
 
-public Action Command_TeamJoin(int client, const char[] command, int argc) {
+public Action Command_JoinTeam(int client, const char[] command, int argc) {
     if (!IsValidClient(client))
         return Plugin_Handled;
 
@@ -46,6 +48,8 @@ public Action Command_TeamJoin(int client, const char[] command, int argc) {
     GetCmdArg(1, arg, sizeof(arg));
     int team_to = StringToInt(arg);
 
+    LogDebug("%L jointeam command, from %d to %d", GetClientTeam(client), team_to);
+
     // don't let someone change to a "none" team (e.g. using auto-select)
     if (team_to == CS_TEAM_NONE)
         return Plugin_Handled;
@@ -57,9 +61,13 @@ public Action Command_TeamJoin(int client, const char[] command, int argc) {
         }
     }
 
+    LogDebug("playerCount on team %d = %d", team_to, playerCount);
+
     if (playerCount >= GetPugMaxPlayers() / 2) {
+        LogDebug("blocking jointeam");
         return Plugin_Handled;
     } else {
+        LogDebug("allowing jointeam");
         return Plugin_Continue;
     }
 }

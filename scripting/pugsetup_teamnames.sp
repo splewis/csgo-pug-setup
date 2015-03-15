@@ -2,6 +2,7 @@
 #include <cstrike>
 #include <geoip>
 #include <sourcemod>
+#include "include/logdebug.inc"
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
 
@@ -24,6 +25,7 @@ public Plugin myinfo = {
 };
 
 public void OnPluginStart() {
+    InitDebugLog(DEBUG_CVAR, "teamnames");
     LoadTranslations("common.phrases");
     LoadTranslations("pugsetup.phrases");
     RegAdminCmd("sm_name", Command_Name, ADMFLAG_CHANGEMAP, "Sets a team name/flag to go with a player: sm_name <player> <teamname> <teamflag>, use quotes for the team name if it includes a space!");
@@ -49,6 +51,7 @@ public void OnGoingLive() {
         choice = GetArrayRandomIndex(ctNames);
         GetArrayString(ctNames, choice, name, sizeof(name));
         GetArrayString(ctFlags, choice, flag, sizeof(flag));
+        LogDebug("Setting ct name, flag = %s, %s", name, flag);
         SetTeamInfo(CS_TEAM_CT, name, flag);
     }
 
@@ -56,6 +59,7 @@ public void OnGoingLive() {
         choice = GetArrayRandomIndex(tNames);
         GetArrayString(tNames, choice, name, sizeof(name));
         GetArrayString(tFlags, choice, flag, sizeof(flag));
+        LogDebug("Setting t name, flag = %s, %s", name, flag);
         SetTeamInfo(CS_TEAM_T, name, flag);
     }
 
@@ -152,6 +156,7 @@ public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
 
 /** Clear the names/flags when the game is over **/
 public void OnMatchOver(bool hasDemo, const char[] demoFileName) {
+    LogDebug("Match over - resetting team names");
     SetTeamInfo(CS_TEAM_T, "", "");
     SetTeamInfo(CS_TEAM_CT, "", "");
 }
