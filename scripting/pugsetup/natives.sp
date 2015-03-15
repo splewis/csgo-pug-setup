@@ -12,6 +12,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_PermissionsMap = new StringMap();
 
     CreateNative("SetupGame", Native_SetupGame);
+    CreateNative("SetSetupOptions", Native_SetSetupOptions);
+    CreateNative("GetSetupOptions", Native_GetSetupOptions);
     CreateNative("ReadyPlayer", Native_ReadyPlayer);
     CreateNative("UnreadyPlayer", Native_UnreadyPlayer);
     CreateNative("IsReady", Native_IsReady);
@@ -61,6 +63,28 @@ public int Native_SetupGame(Handle plugin, int numParams) {
     }
 
     SetupFinished();
+}
+
+public int Native_GetSetupOptions(Handle plugin, int numParams) {
+    if (!IsSetup()) {
+        ThrowNativeError(SP_ERROR_ABORTED, "Cannot get setup options when a match is not setup.");
+    }
+
+    SetNativeCellRef(1, g_TeamType);
+    SetNativeCellRef(2, g_MapType);
+    SetNativeCellRef(3, g_PlayersPerTeam);
+    SetNativeCellRef(4, g_RecordGameOption);
+    SetNativeCellRef(5, g_DoKnifeRound);
+    SetNativeCellRef(6, g_AutoLive);
+}
+
+public int Native_SetSetupOptions(Handle plugin, int numParams) {
+    g_TeamType = view_as<TeamType>(GetNativeCell(1));
+    g_MapType = view_as<MapType>(GetNativeCell(2));
+    g_PlayersPerTeam = GetNativeCell(3);
+    g_RecordGameOption = GetNativeCell(4);
+    g_DoKnifeRound = GetNativeCell(5);
+    g_AutoLive = GetNativeCell(6);
 }
 
 public int Native_ReadyPlayer(Handle plugin, int numParams) {

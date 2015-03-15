@@ -169,6 +169,13 @@ forward void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString
 // Sets a game up with the given settings.
 native void SetupGame(TeamType teamType, MapType mapType=MapType_Vote, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);
 
+// Sets the current game options. These can still be overwritten by a user with access to the .setup menu.
+native void SetSetupOptions(TeamType teamType, MapType mapType, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);
+
+// Fetches the current game options.
+// @error If there is no game setup yet.
+native void GetSetupOptions(TeamType& teamType, MapType& mapType, int& playersPerTeam, bool& recordDemo, bool& knifeRound, bool& autoLive);
+
 // Readies up a player.
 native void ReadyPlayer(int client);
 
@@ -267,6 +274,8 @@ public SharedPlugin __pl_pugsetup = {
 #if !defined REQUIRE_PLUGIN
 public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("SetupGame");
+    MarkNativeAsOptional("GetSetupOptions");
+    MarkNativeAsOptional("SetSetupOptions");
     MarkNativeAsOptional("ReadyPlayer");
     MarkNativeAsOptional("UnreadyPlayer");
     MarkNativeAsOptional("IsReady");
