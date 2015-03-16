@@ -69,6 +69,18 @@ stock bool AddChatAliasToFile(const char[] alias, const char[] command) {
     return success;
 }
 
+stock bool RemoveChatAliasFromFile(const char[] alias) {
+    char configFile[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, configFile, sizeof(configFile), CHAT_ALIAS_FILE);
+    KeyValues kv = new KeyValues("ChatAliases");
+    kv.ImportFromFile(configFile);
+    kv.DeleteKey(alias);
+    kv.Rewind();
+    bool success = kv.ExportToFile(configFile);
+    delete kv;
+    return success;
+}
+
 /**
  * Dealing with the setup options config file.
  */

@@ -154,6 +154,7 @@ Other admin level commands are:
 - sm_addmap <mapname> [temp|perm] to add a map to the maplist (defaults to permanently writing to the maplist)
 - sm_removemap <mapname> [temp|perm] to remove a map from the maplist (defaults to permanently writing to the maplist)
 - sm_addalias <alias> <command> to add a chat alias
+- sm_removealias <alias> to remove a chat alias
 - sm_setdefault <setting> <value> to set a default setup menu setting
 - sm_setdisplay <setting> <0|1> to set whether a setup setting is displayed in the setup menu
 

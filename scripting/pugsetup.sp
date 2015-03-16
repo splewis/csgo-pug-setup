@@ -231,6 +231,7 @@ public void OnPluginStart() {
     AddPugSetupCommand("listpugmaps", Command_ListPugMaps, "Lists the current maplist", Permission_All);
     AddPugSetupCommand("start", Command_Start, "Lists the current maplist", Permission_Leader);
     AddPugSetupCommand("addalias", Command_AddAlias, "Adds a pugsetup alias, and saves it to the chatalias.cfg file", Permission_Admin);
+    AddPugSetupCommand("removealias", Command_RemoveAlias, "Removes a pugsetup alias", Permission_Admin);
     AddPugSetupCommand("setdefault", Command_SetDefault, "Sets a default setup option", Permission_Admin);
     AddPugSetupCommand("setdisplay", Command_SetDisplay, "Sets whether a setup option will be displayed", Permission_Admin);
     LoadExtraAliases();
@@ -455,7 +456,7 @@ public Action Timer_CheckReady(Handle timer) {
 
 public void StatusHint(int readyPlayers, int totalPlayers) {
     char rdyCommand[ALIAS_LENGTH];
-    FindChatCommand("sm_ready", rdyCommand);
+    FindAliasFromCommand("sm_ready", rdyCommand);
     if (!g_OnDecidedMap && g_MapType != MapType_Veto) {
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
@@ -477,7 +478,7 @@ static void GiveReadyHints() {
     if (dt >= READY_COMMAND_HINT_TIME) {
         g_LastReadyHintTime = time;
         char cmd[ALIAS_LENGTH];
-        FindChatCommand("sm_ready", cmd);
+        FindAliasFromCommand("sm_ready", cmd);
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && !IsReady(i) && OnActiveTeam(i)) {
                 PugSetupMessage(i, "%t", "ReadyCommandHint", cmd);
@@ -509,7 +510,7 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
         if (dt >= CAPTAIN_COMMAND_HINT_TIME) {
             g_LastCaptainHintTime = time;
             char cmd[ALIAS_LENGTH];
-            FindChatCommand("sm_capt", cmd);
+            FindAliasFromCommand("sm_capt", cmd);
             PugSetupMessageToAll("%t", "SetCaptainsHint", GetLeader(), cmd);
         }
     }
@@ -629,7 +630,7 @@ public Action Command_Setup(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (g_GameState == GameState_Warmup && client != GetLeader() && client != 0) {
+    if (g_GameState == GameState_Warmup && client != GetLeader() && client != 0 && !IsPugAdmin(client)) {
         GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
@@ -797,7 +798,7 @@ static void AddTranslatedAlias(const char[] command) {
     AddChatAlias(alias, command);
 }
 
-public void FindChatCommand(const char[] command, char alias[ALIAS_LENGTH]) {
+public bool FindAliasFromCommand(const char[] command, char alias[ALIAS_LENGTH]) {
     int n = g_ChatAliases.Length;
     char tmpCommand[COMMAND_LENGTH];
 
@@ -806,12 +807,29 @@ public void FindChatCommand(const char[] command, char alias[ALIAS_LENGTH]) {
 
         if (StrEqual(command, tmpCommand)) {
             g_ChatAliases.GetString(i, alias, sizeof(alias));
-            return;
+            return true;
         }
     }
 
     // If we never found one, just use .<command> since it always gets added by AddPugSetupCommand
     Format(alias, sizeof(alias), ".%s", command);
+    return false;
+}
+
+public bool FindComandFromAlias(const char[] alias, char command[COMMAND_LENGTH]) {
+    int n = g_ChatAliases.Length;
+    char tmpAlias[ALIAS_LENGTH];
+
+    for (int i = 0; i < n; i++) {
+        g_ChatAliases.GetString(i, tmpAlias, sizeof(tmpAlias));
+
+        if (StrEqual(alias, tmpAlias)) {
+            g_ChatAliasesCommands.GetString(i, command, sizeof(command));
+            return true;
+        }
+    }
+
+    return false;
 }
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] chatCommand, const char[] chatArgs, int client) {
@@ -976,7 +994,7 @@ public Action Command_Unpause(int client, int args) {
     PermissionCheck(client, "sm_unpause")
 
     char unpauseCmd[ALIAS_LENGTH];
-    FindChatCommand("sm_unpause", unpauseCmd);
+    FindAliasFromCommand("sm_unpause", unpauseCmd);
 
     if (g_hMutualUnpause.IntValue == 0) {
         Unpause();
@@ -1102,6 +1120,11 @@ public Action Command_AddAlias(int client, int args) {
     char command[COMMAND_LENGTH];
 
     if (args >= 2 && GetCmdArg(1, alias, sizeof(alias)) && GetCmdArg(2, command, sizeof(command))) {
+        // try a lookup to find a valid command, e.g., if command=.ready, replace .ready with sm_ready
+        if (!IsValidCommand(command))  {
+            FindComandFromAlias(alias, command);
+        }
+
         if (!IsValidCommand(command)) {
             PugSetupMessage(client, "%s is not a valid pugsetup command.", command);
             PugSetupMessage(client, "Usage: sm_addalias <alias> <command>");
@@ -1119,6 +1142,38 @@ public Action Command_AddAlias(int client, int args) {
     return Plugin_Handled;
 }
 
+public Action Command_RemoveAlias(int client, int args) {
+    PermissionCheck(client, "sm_addalias")
+
+    char alias[ALIAS_LENGTH];
+    if (args >= 1 && GetCmdArg(1, alias, sizeof(alias))) {
+        int index = -1; // index of the alias inside g_ChatAliases
+        char tmpAlias[ALIAS_LENGTH];
+        for (int i = 0; i < g_ChatAliases.Length; i++) {
+            g_ChatAliases.GetString(i, tmpAlias, sizeof(tmpAlias));
+            if (StrEqual(alias, tmpAlias, false)) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) {
+            PugSetupMessage(client, "%s is not currently a chat alias", alias);
+        } else {
+            g_ChatAliasesCommands.Erase(index);
+            g_ChatAliases.Erase(index);
+
+            if (RemoveChatAliasFromFile(alias))
+                PugSetupMessage(client, "Succesfully removed alias %s", alias);
+            else
+                PugSetupMessage(client, "Failed to remove chat alias");
+        }
+    } else {
+        PugSetupMessage(client, "Usage: .removealias <alias>");
+    }
+
+    return Plugin_Handled;
+}
 
 /***********************
  *                     *
@@ -1155,8 +1210,8 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
 
         char stayCmd[ALIAS_LENGTH];
         char swapCmd[ALIAS_LENGTH];
-        FindChatCommand("sm_stay", stayCmd);
-        FindChatCommand("sm_swap", swapCmd);
+        FindAliasFromCommand("sm_stay", stayCmd);
+        FindAliasFromCommand("sm_swap", swapCmd);
 
         PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
     }
@@ -1227,7 +1282,7 @@ public void ReadyToStart() {
 
 static void GiveStartCommandHint() {
     char startCmd[ALIAS_LENGTH];
-    FindChatCommand("sm_start", startCmd);
+    FindAliasFromCommand("sm_start", startCmd);
     PugSetupMessageToAll("%t", "WaitingForStart", GetLeader(), startCmd);
 }
 
