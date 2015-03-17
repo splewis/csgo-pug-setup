@@ -85,6 +85,15 @@ stock bool RemoveChatAliasFromFile(const char[] alias) {
  * Dealing with the setup options config file.
  */
 static char g_SetupKeys[][] = {"maptype", "teamtype", "autolive", "kniferound", "teamsize", "record", "mapchange"};
+static char g_SetupCoercions[][][] = {
+    {"map", "maptype"},
+    {"teams", "teamtype"},
+    {"team", "teamtype"},
+    {"knife", "kniferound"},
+    {"autolo3", "autolive"},
+    {"demo", "record"},
+    {"changemap", "mapchange"},
+};
 
 stock bool CheckEnabledFromString(const char[] value) {
     char strs[][] = { "true", "enabled", "1", "yes", "on" , "y" };
@@ -97,20 +106,10 @@ stock bool CheckEnabledFromString(const char[] value) {
 }
 
 stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] value, bool setDefault=true, bool setDisplay=false) {
-    char coercions[][][] = {
-        {"map", "maptype"},
-        {"teams", "teamtype"},
-        {"team", "teamtype"},
-        {"knife", "kniferound"},
-        {"autolo3", "autolive"},
-        {"demo", "record"},
-        {"changemap", "mapchange"},
-    };
-
-    for (int i = 0; i < sizeof(coercions); i++) {
-        if (StrEqual(setting, coercions[i][0], false)) {
+    for (int i = 0; i < sizeof(g_SetupCoercions); i++) {
+        if (StrEqual(setting, g_SetupCoercions[i][0], false)) {
             int len = strlen(setting);
-            strcopy(setting, len, coercions[i][1]);
+            strcopy(setting, len, g_SetupCoercions[i][1]);
             break;
         }
     }

@@ -111,9 +111,7 @@ stock void SwitchPlayerTeam(int client, int team) {
  * Returns if a client is valid.
  */
 stock bool IsValidClient(int client) {
-    if (client > 0 && client <= MaxClients && IsClientConnected(client) && IsClientInGame(client))
-        return true;
-    return false;
+    return client > 0 && client <= MaxClients && IsClientConnected(client) && IsClientInGame(client);
 }
 
 stock bool IsPlayer(int client) {
@@ -126,7 +124,7 @@ stock bool IsPlayer(int client) {
 stock int GetRealClientCount() {
     int clients = 0;
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsClientInGame(i) && !IsFakeClient(i)) {
+        if (IsPlayer(i)) {
             clients++;
         }
     }
@@ -196,15 +194,15 @@ stock bool InWarmup() {
     return GameRules_GetProp("m_bWarmupPeriod") != 0;
 }
 
-stock void StartWarmup(bool indefinite=true) {
-    if (indefinite) {
+stock void StartWarmup(bool indefiniteWarmup=true, int warmupTime=60) {
+    if (indefiniteWarmup) {
         ServerCommand("mp_do_warmup_period 1");
-        ServerCommand("mp_warmuptime 60"); // just so it doesn't get into the final 5 seconds where it rrefuses to pause via mp_warmup_pausetimer
     }
 
+    ServerCommand("mp_warmuptime %d", warmupTime);
     ServerCommand("mp_warmup_start");
 
-    if (indefinite) {
+    if (indefiniteWarmup) {
         ServerCommand("mp_warmup_pausetimer 1");
     }
 }
