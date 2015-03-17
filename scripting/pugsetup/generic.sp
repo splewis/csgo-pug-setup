@@ -190,6 +190,10 @@ stock bool Record(const char[] demoName) {
     return true;
 }
 
+stock void StopRecording() {
+    ServerCommand("tv_stoprecord");
+}
+
 stock bool InWarmup() {
     return GameRules_GetProp("m_bWarmupPeriod") != 0;
 }
@@ -221,6 +225,10 @@ stock void Pause() {
 
 stock void Unpause() {
     ServerCommand("mp_unpause_match");
+}
+
+stock void RestartGame(int delay) {
+    ServerCommand("mp_restartgame %d", delay);
 }
 
 stock int GetCookieInt(int client, Handle cookie) {

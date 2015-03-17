@@ -23,11 +23,11 @@ public Action BeginLO3(Handle timer) {
     if (GetConVarInt(g_hQuickRestarts) == 0) {
         // start lo3
         PugSetupMessageToAll("%t", "RestartCounter", 1);
-        ServerCommand("mp_restartgame 1");
+        RestartGame(1);
         CreateTimer(3.0, Restart2);
     } else {
         // single restart
-        ServerCommand("mp_restartgame 5");
+        RestartGame(5);
         CreateTimer(5.1, MatchLive);
     }
 
@@ -39,7 +39,7 @@ public Action Restart2(Handle timer) {
         return Plugin_Handled;
 
     PugSetupMessageToAll("%t", "RestartCounter", 2);
-    ServerCommand("mp_restartgame 1");
+    RestartGame(1);
     CreateTimer(4.0, Restart3);
 
     return Plugin_Handled;
@@ -50,7 +50,7 @@ public Action Restart3(Handle timer) {
         return Plugin_Handled;
 
     PugSetupMessageToAll("%t", "RestartCounter", 3);
-    ServerCommand("mp_restartgame 5");
+    RestartGame(5);
     CreateTimer(5.1, MatchLive);
 
     return Plugin_Handled;
