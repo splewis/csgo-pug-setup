@@ -9,7 +9,7 @@ public Action StartKnifeRound(Handle timer) {
         }
     }
 
-    ServerCommand("exec sourcemod/pugsetup/knife");
+    SetCfgCvarsToStack("sourcemod/pugsetup/knife.cfg");
     ServerCommand("mp_restartgame 1");
 
     // This is done on a delay since the cvar changes from
@@ -30,7 +30,7 @@ public Action Timer_AnnounceKnife(Handle timer) {
 
 public void EndKnifeRound() {
     g_GameState = GameState_GoingLive;
-    ExecGameConfigs();
+    RestoreCvarsFromStack();
     CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 

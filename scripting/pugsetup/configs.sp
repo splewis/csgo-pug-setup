@@ -246,42 +246,6 @@ stock void ReadSetupOptions() {
     delete kv;
 }
 
-public Action Command_SetDefault(int client, int args) {
-    char setting[32];
-    char value[32];
-
-    if (args >= 2 && GetCmdArg(1, setting, sizeof(setting)) && GetCmdArg(2, value, sizeof(value))) {
-        if (CheckSetupOptionValidity(client, setting, value, true, false)) {
-            if (SetDefaultInFile(setting, value))
-                PugSetupMessage(client, "Succesfully set default option %s as %s", setting, value);
-            else
-                PugSetupMessage(client, "Failed to write default setting to file");
-        }
-    } else {
-        PugSetupMessage(client, "Usage: .setdefault <setting> <default>");
-    }
-
-    return Plugin_Handled;
-}
-
-public Action Command_SetDisplay(int client, int args) {
-    char setting[32];
-    char value[32];
-
-    if (args >= 2 && GetCmdArg(1, setting, sizeof(setting)) && GetCmdArg(2, value, sizeof(value))) {
-        if (CheckSetupOptionValidity(client, setting, value, false, true)) {
-            if (SetDisplayInFile(setting, CheckEnabledFromString(value)))
-                PugSetupMessage(client, "Succesfully set display for setting %s as %s", setting, value);
-            else
-                PugSetupMessage(client, "Failed to write display setting to file");
-        }
-    } else {
-        PugSetupMessage(client, "Usage: .setdefault <setting> <0/1>");
-    }
-
-    return Plugin_Handled;
-}
-
 stock bool SetDefaultInFile(const char[] setting, const char[] newValue) {
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), SETUP_OPTIONS_FILE);

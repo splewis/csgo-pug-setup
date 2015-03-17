@@ -1,8 +1,10 @@
 #include <cstrike>
 #include <sourcemod>
 #include <sdktools>
+#include "include/cvarstack.inc"
 #include "include/logdebug.inc"
 #include "include/pugsetup.inc"
+#include "pugsetup/generic.sp"
 
 #undef REQUIRE_EXTENSIONS
 #include "include/system2.inc"
@@ -16,6 +18,7 @@
 
 #pragma semicolon 1
 #pragma newdecls required
+
 
 /***********************
  *                     *
@@ -142,7 +145,6 @@ Handle g_hOnWarmupCfg = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configs.sp"
-#include "pugsetup/generic.sp"
 #include "pugsetup/kniferounds.sp"
 #include "pugsetup/leadermenus.sp"
 #include "pugsetup/liveon3.sp"
@@ -188,16 +190,16 @@ public void OnPluginStart() {
     g_hForceDefaults = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options (note that admins can override them still).");
     g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/live.cfg", "Config to execute when the game goes live");
     g_hMapList = CreateConVar("sm_pugsetup_maplist", "maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the System2 extension installed.");
-    g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes", _, true, 10.0);
-    g_hMaxTeamSize = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes", _, true, 2.0);
+    g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes.", _, true, 10.0);
+    g_hMaxTeamSize = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes.", _, true, 2.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
-    g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish.");
+    g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish; should be in the csgo/cfg directory.");
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds before the lo3 process should being.", _, true, 0.0, true, 60.0);
-    g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality or not");
+    g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality or not.");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
 
@@ -605,19 +607,33 @@ public Action Command_Pugstatus(int client, int args) {
     return Plugin_Handled;
 }
 
+public bool DoPermissionCheck(int client, const char[] command) {
+    Permissions p = GetPermissions(command);
+    bool result = HasPermissions(client, p);
+    char cmd[COMMAND_LENGTH];
+    GetCmdArg(0, cmd, sizeof(cmd));
+    Call_StartForward(g_hOnPermissionCheck);
+    Call_PushCell(client);
+    Call_PushString(cmd);
+    Call_PushCell(p);
+    Call_PushCellRef(result);
+    Call_Finish();
+    return result;
+}
+
 // PermissionCheck(int client, const char[] command)
 #define PermissionCheck(%1,%2) { \
     Permissions _p = GetPermissions(%2); \
-    bool _perm = HasPermissions(%1, _p); \
+    bool _result = HasPermissions(%1, _p); \
     char _cmd[COMMAND_LENGTH]; \
     GetCmdArg(0, _cmd, sizeof(_cmd)); \
     Call_StartForward(g_hOnPermissionCheck); \
     Call_PushCell(%1); \
     Call_PushString(_cmd); \
     Call_PushCell(_p); \
-    Call_PushCellRef(_perm); \
+    Call_PushCellRef(_result); \
     Call_Finish(); \
-    if (!_perm) { \
+    if (!DoPermissionCheck(%1, %2)) { \
         if (IsValidClient(%1)) \
             PugSetupMessage(%1, "%t", "NoPermission"); \
         return Plugin_Handled; \
@@ -630,12 +646,14 @@ public Action Command_Setup(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (g_GameState == GameState_Warmup && client != GetLeader() && client != 0 && !IsPugAdmin(client)) {
-        GiveSetupMenu(client, true);
+    if (!DoPermissionCheck(client, "sm_setup")) {
+        if (g_GameState == GameState_Warmup) {
+            GiveSetupMenu(client, true);
+        } else {
+            PugSetupMessage(client, "%t", "NoPermission");
+        }
         return Plugin_Handled;
     }
-
-    PermissionCheck(client, "sm_setup")
 
     if (IsPlayer(client) && !IsPlayer(GetLeader()))
         g_Leader = GetSteamAccountID(client);
@@ -984,7 +1002,7 @@ public Action Command_Pause(int client, int args) {
 }
 
 public Action Command_Unpause(int client, int args) {
-    if (!Pauseable() || !IsPaused())
+    if (!IsPaused())
         return Plugin_Handled;
 
     if (g_hMutualUnpause.IntValue != 0) {
@@ -1003,7 +1021,7 @@ public Action Command_Unpause(int client, int args) {
         }
     } else {
         // Let console force unpause
-        if (!IsPlayer(client)) {
+        if (client == 0) {
             Unpause();
         } else {
             int team = GetClientTeam(client);
@@ -1174,6 +1192,47 @@ public Action Command_RemoveAlias(int client, int args) {
 
     return Plugin_Handled;
 }
+
+public Action Command_SetDefault(int client, int args) {
+    PermissionCheck(client, "sm_setdefault")
+
+    char setting[32];
+    char value[32];
+
+    if (args >= 2 && GetCmdArg(1, setting, sizeof(setting)) && GetCmdArg(2, value, sizeof(value))) {
+        if (CheckSetupOptionValidity(client, setting, value, true, false)) {
+            if (SetDefaultInFile(setting, value))
+                PugSetupMessage(client, "Succesfully set default option %s as %s", setting, value);
+            else
+                PugSetupMessage(client, "Failed to write default setting to file");
+        }
+    } else {
+        PugSetupMessage(client, "Usage: .setdefault <setting> <default>");
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_SetDisplay(int client, int args) {
+    PermissionCheck(client, "sm_setdisplay")
+
+    char setting[32];
+    char value[32];
+
+    if (args >= 2 && GetCmdArg(1, setting, sizeof(setting)) && GetCmdArg(2, value, sizeof(value))) {
+        if (CheckSetupOptionValidity(client, setting, value, false, true)) {
+            if (SetDisplayInFile(setting, CheckEnabledFromString(value)))
+                PugSetupMessage(client, "Succesfully set display for setting %s as %s", setting, value);
+            else
+                PugSetupMessage(client, "Failed to write display setting to file");
+        }
+    } else {
+        PugSetupMessage(client, "Usage: .setdefault <setting> <0/1>");
+    }
+
+    return Plugin_Handled;
+}
+
 
 /***********************
  *                     *
@@ -1375,13 +1434,12 @@ public void StartGame() {
         ScrambleTeams();
     }
 
+    ExecGameConfigs();
     if (g_DoKnifeRound) {
         g_GameState = GameState_KnifeRound;
-        ExecGameConfigs();
         CreateTimer(3.0, StartKnifeRound, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
-        g_GameState = GameState_GoingLive;
-        ExecGameConfigs();
+        g_GameState = GameState_GoingLive;\
         CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
     }
 
@@ -1449,7 +1507,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
         Call_Finish();
     }
 
-    ServerCommand("mp_unpause_match");
+    Unpause();
     if (execConfigs) {
         ExecCfg(g_hWarmupCfg);
     }
@@ -1476,7 +1534,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     }
 
     if (doRestart) {
-        ServerCommand("mp_restartgame 1");
+        RestartGame(1);
     }
 }
 
@@ -1501,8 +1559,8 @@ public Action MapSetup(Handle timer) {
 public Action StartPicking(Handle timer) {
     g_GameState = GameState_PickingPlayers;
 
-    ServerCommand("mp_pause_match");
-    ServerCommand("mp_restartgame 1");
+    Pause();
+    RestartGame(1);
 
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
@@ -1536,13 +1594,13 @@ public Action FinishPicking(Handle timer) {
         }
     }
 
-    ServerCommand("mp_unpause_match");
+    Unpause();
     ReadyToStart();
     return Plugin_Handled;
 }
 
 public Action StopDemo(Handle timer) {
-    ServerCommand("tv_stoprecord");
+    StopRecording();
     g_Recording = false;
     Call_StartForward(g_hOnMatchOver);
     Call_PushCell(true);
