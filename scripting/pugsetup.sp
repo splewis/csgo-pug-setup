@@ -823,7 +823,7 @@ public bool FindComandFromAlias(const char[] alias, char command[COMMAND_LENGTH]
     for (int i = 0; i < n; i++) {
         g_ChatAliases.GetString(i, tmpAlias, sizeof(tmpAlias));
 
-        if (StrEqual(alias, tmpAlias)) {
+        if (StrEqual(alias, tmpAlias, false)) {
             g_ChatAliasesCommands.GetString(i, command, sizeof(command));
             return true;
         }
@@ -1122,12 +1122,12 @@ public Action Command_AddAlias(int client, int args) {
     if (args >= 2 && GetCmdArg(1, alias, sizeof(alias)) && GetCmdArg(2, command, sizeof(command))) {
         // try a lookup to find a valid command, e.g., if command=.ready, replace .ready with sm_ready
         if (!IsValidCommand(command))  {
-            FindComandFromAlias(alias, command);
+            FindComandFromAlias(command, command);
         }
 
         if (!IsValidCommand(command)) {
             PugSetupMessage(client, "%s is not a valid pugsetup command.", command);
-            PugSetupMessage(client, "Usage: sm_addalias <alias> <command>");
+            PugSetupMessage(client, "Usage: .addalias <alias> <command>");
         } else {
             AddChatAlias(alias, command);
             if (AddChatAliasToFile(alias, command))
