@@ -84,7 +84,11 @@ static bool __firstWord(const char[] line, char[] buffer, int len) {
         return false;
     }
 
-    strcopy(buffer, splitIndex, lineBuffer);
+    int destLen = splitIndex + 1;
+    if (destLen > len)
+        destLen = len;
+
+    strcopy(buffer, destLen, lineBuffer);
     return true;
 }
 
