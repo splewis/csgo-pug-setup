@@ -1,7 +1,7 @@
 #include <cstrike>
 #include <sdktools>
 
-#tryinclude "../include/pugsetup_version.inc"
+#tryinclude "manual_version.sp"
 #if !defined PLUGIN_VERSION
 #define PLUGIN_VERSION "1.4.0-dev"
 #endif
