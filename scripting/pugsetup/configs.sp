@@ -25,15 +25,6 @@ stock void InitMapSettings() {
         GetMapList(maplist, g_MapList);
     } else {
         // it's a workshop collection id, setup the workshop cache
-        BuildPath(Path_SM, g_DataDir, sizeof(g_DataDir), "data/pugsetup");
-
-        if (!DirExists(g_DataDir)) {
-            CreateDirectory(g_DataDir, 511);
-        }
-
-        Format(g_CacheFile, sizeof(g_CacheFile), "%s/cache.cfg", g_DataDir);
-        g_WorkshopCache = new KeyValues("Workshop");
-        g_WorkshopCache.ImportFromFile(g_CacheFile);
         UpdateWorkshopCache(collectionID);
     }
 }

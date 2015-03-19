@@ -4,39 +4,76 @@
  * and adapted to work for the maplists used by pugsetup.
  */
 
-#define MAX_ID_LEN          64
-#define MAX_URL_LEN         256
-#define MAX_POST_LEN        256
-#define WAPI_USERAGENT      "Valve/Steam HTTP Client 1.0"
+#define MAX_ID_LEN 64
+#define MAX_URL_LEN 256
+#define MAX_POST_LEN 256
+#define WAPI_USERAGENT "Valve/Steam HTTP Client 1.0"
 #define WORKSHOP_ID_LENGTH 64
+#define RESPONSE_FILE "data/pugsetup/collectionresponse.txt"
 
 // Feature checks
+#define STEAMWORKS_AVALIABLE()        (GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available)
 #define SYSTEM2_AVAILABLE()        (GetFeatureStatus(FeatureType_Native, "System2_GetPage") == FeatureStatus_Available)
+
+static int g_CollectionID = -1; // used when our callback functions can't have data passed through them
 
 /*
  * Sends an API call for steam to fetch the maps inside a collection.
  */
 stock void UpdateWorkshopCache(int collectionID) {
-    // Build URL
-    char request[MAX_URL_LEN];
-    char data[MAX_POST_LEN];
+    g_CollectionID = collectionID;
+    char strID[WORKSHOP_ID_LENGTH];
+    IntToString(collectionID, strID, sizeof(strID));
 
-    Format(request, MAX_URL_LEN, "%s",
-        "http://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/");
-    Format(data, MAX_POST_LEN, "collectioncount=1&publishedfileids%%5B0%%5D=%d&format=vdf", collectionID);
+    char requestUrl[MAX_URL_LEN];
+    Format(requestUrl, MAX_URL_LEN, "http://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/");
 
-    LogDebug("Sending steam API POST with url=%s and data=%s", request, data);
+    if (STEAMWORKS_AVALIABLE()) {
+        LogDebug("using steamworks on collection id = %d", collectionID);
+        Handle request = SteamWorks_CreateHTTPRequest(k_EHTTPMethodPOST, requestUrl);
+        SteamWorks_SetHTTPRequestGetOrPostParameter(request, "collectioncount", "1");
+        SteamWorks_SetHTTPRequestGetOrPostParameter(request, "publishedfileids[0]", strID);
+        SteamWorks_SetHTTPRequestGetOrPostParameter(request, "format", "vdf");
+        SteamWorks_SetHTTPCallbacks(request, OnHTTPReplyRecieved);
+        SteamWorks_SendHTTPRequest(request);
 
-    if (SYSTEM2_AVAILABLE()) {
-        System2_GetPage(OnGetPageComplete, request, data, WAPI_USERAGENT, collectionID);
+    } else if (SYSTEM2_AVAILABLE()) {
+        char data[MAX_POST_LEN];
+        Format(data, MAX_POST_LEN, "collectioncount=1&publishedfileids%%5B0%%5D=%d&format=vdf", collectionID);
+        LogDebug("Sending steam API POST using System2 with url=%s and data=%s", requestUrl, data);
+        System2_GetPage(OnGetPageComplete, requestUrl, data, WAPI_USERAGENT, collectionID);
+
     } else {
         LogError("You have the system2 extension installed to use workshop collections.");
     }
 }
 
-/*
- * Gets called when response is received.
- */
+// SteamWorks HTTP callback
+public int OnHTTPReplyRecieved(Handle request, bool failure, bool requestSuccessful, EHTTPStatusCode statusCode) {
+    if (failure || !requestSuccessful) {
+        LogError("Steamworks collection request failed, HTTP status code = %d", statusCode);
+        AddWorkshopMapsToList(g_CollectionID); // add backup maps that might already be cached
+        return;
+    }
+
+    LogDebug("OnHTTPReplyRecieved, id=%d", g_CollectionID);
+
+    char filePath[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, filePath, sizeof(filePath), RESPONSE_FILE);
+    SteamWorks_WriteHTTPResponseBodyToFile(request, filePath);
+
+    KeyValues kv = new KeyValues("response");
+    if (kv.ImportFromFile(filePath)) {
+        WriteCollectionInfo(kv, g_CollectionID);
+    } else {
+        LogError("Couldn't import from file %s", RESPONSE_FILE);
+    }
+    delete kv;
+
+    AddWorkshopMapsToList(g_CollectionID);
+}
+
+// System2 HTTP callback
 public int OnGetPageComplete(const char[] output, const int size, CMDReturn status, int collectionID) {
     // Handle error condition
     if (status == CMD_ERROR) {
@@ -64,6 +101,7 @@ public int OnGetPageComplete(const char[] output, const int size, CMDReturn stat
 }
 
 stock void WriteCollectionInfo(KeyValues kv, int collectionID) {
+    LogDebug("WriteCollectionInfo %d", collectionID);
     if (kv.JumpToKey("collectiondetails") && kv.JumpToKey("0") && kv.JumpToKey("children")) {
         kv.GotoFirstSubKey();
 
