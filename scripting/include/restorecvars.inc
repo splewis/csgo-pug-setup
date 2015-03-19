@@ -1,26 +1,19 @@
 #define CVAR_NAME_MAX_LENGTH 255
 #define CVAR_VALUE_MAX_LENGTH 255
 
-ArrayList __cvarList;
-
-// Returns a cvar stack Handle that can be used to restore cvars.
-stock void SaveCvarsToStack(ArrayList cvarNames) {
-    if (__cvarList == null) {
-        __cvarList = CreateArray(2);
-    }
-
+// Returns a cvar Handle that can be used to restore cvars.
+stock Handle SaveCvars(ArrayList cvarNames) {
+    ArrayList storageList = CreateArray();
     ArrayList cvarNameList = new ArrayList(CVAR_NAME_MAX_LENGTH);
     ArrayList cvarValueList = new ArrayList(CVAR_VALUE_MAX_LENGTH);
 
     char nameBuffer[CVAR_NAME_MAX_LENGTH];
     char valueBuffer[CVAR_VALUE_MAX_LENGTH];
-    for (int i = 0; i < cvarNames.Length; i++) {
+    for (int i = 0; cvarNames != null && i < cvarNames.Length; i++) {
         cvarNames.GetString(i, nameBuffer, sizeof(nameBuffer));
 
         Handle cvar = FindConVar(nameBuffer);
-        if (cvar == INVALID_HANDLE) {
-            LogError("Can't get cvar for name = %s", nameBuffer);
-        } else {
+        if (cvar != INVALID_HANDLE) {
             GetConVarString(cvar, valueBuffer, sizeof(valueBuffer));
             cvarNameList.PushString(nameBuffer);
             cvarValueList.PushString(valueBuffer);
@@ -28,28 +21,15 @@ stock void SaveCvarsToStack(ArrayList cvarNames) {
 
     }
 
-    __cvarList.Push(cvarNameList);
-    SetArrayCell(__cvarList, __cvarList.Length - 1, cvarValueList, 1);
+    storageList.Push(cvarNameList);
+    storageList.Push(cvarValueList);
+    return storageList;
 }
 
-stock int GetCvarStackSize() {
-    if (__cvarList == null)
-        return 0;
-    return __cvarList.Length;
-}
-
-// Restores cvars to their previous value after being changed by SetCvars.
-stock void RestoreCvarsFromStack() {
-    int size = GetArraySize(__cvarList);
-    if (size == 0) {
-        LogError("Can't restore cvars with an empty stack");
-        return;
-    }
-
-    int lastIndex = size - 1;
-
-    ArrayList cvarNameList = view_as<ArrayList>(GetArrayCell(__cvarList, lastIndex, 0));
-    ArrayList cvarValueList = view_as<ArrayList>(GetArrayCell(__cvarList, lastIndex, 1));
+// Restores cvars to their previous value using a return value of SaveCvars.
+stock void RestoreCvars(Handle cvarStorage, bool close=true) {
+    ArrayList cvarNameList = view_as<ArrayList>(GetArrayCell(cvarStorage, 0));
+    ArrayList cvarValueList = view_as<ArrayList>(GetArrayCell(cvarStorage, 1));
 
     char name[CVAR_NAME_MAX_LENGTH];
     char value[CVAR_VALUE_MAX_LENGTH];
@@ -58,16 +38,21 @@ stock void RestoreCvarsFromStack() {
         cvarValueList.GetString(i, value, sizeof(value));
 
         Handle cvar = FindConVar(name);
-        if (cvar == INVALID_HANDLE) {
-            LogError("Can't restore value of cvar: %s", name);
-        } else {
+        if (cvar != INVALID_HANDLE) {
             SetConVarString(cvar, value);
         }
     }
 
-    CloseHandle(cvarNameList);
-    CloseHandle(cvarValueList);
-    __cvarList.Erase(lastIndex);
+    if (close) {
+        CloseCvarStorage(cvarStorage);
+    }
+}
+
+// Closes a cvar storage object returned by SaveCvars.
+stock void CloseCvarStorage(Handle cvarStorage) {
+    CloseHandle(GetArrayCell(cvarStorage, 0));
+    CloseHandle(GetArrayCell(cvarStorage, 1));
+    CloseHandle(cvarStorage);
 }
 
 // Returns the first "word" in a line, as seperated by whitespace.
@@ -94,7 +79,7 @@ static bool __firstWord(const char[] line, char[] buffer, int len) {
 
 // Wrapper for SetCvars from an arbitrary file.
 // Returns if successful.
-stock bool SetCfgCvarsToStack(const char[] cfgFile) {
+stock Handle ExecuteAndSaveCvars(const char[] cfgFile) {
     char lineBuffer[CVAR_NAME_MAX_LENGTH + CVAR_VALUE_MAX_LENGTH];
     char nameBuffer[CVAR_NAME_MAX_LENGTH];
 
@@ -114,13 +99,13 @@ stock bool SetCfgCvarsToStack(const char[] cfgFile) {
             }
         }
 
-        SaveCvarsToStack(nameList);
+        Handle ret = SaveCvars(nameList);
         ServerCommand("exec %s", cfgFile);
         delete nameList;
         delete file;
-        return true;
+        return ret;
     } else {
         LogError("Failed to open file for reading: %s", filePath);
-        return false;
+        return INVALID_HANDLE;
     }
 }

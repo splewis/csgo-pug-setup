@@ -1,7 +1,7 @@
 #include <cstrike>
 #include <sourcemod>
 #include <sdktools>
-#include "include/cvarstack.inc"
+#include "include/restorecvars.inc"
 #include "include/logdebug.inc"
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"

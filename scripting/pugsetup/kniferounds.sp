@@ -1,3 +1,6 @@
+#define KNIFE_CONFIG "sourcemod/pugsetup/knife.cfg"
+static Handle g_KnifeCvarRestore = INVALID_HANDLE;
+
 public Action StartKnifeRound(Handle timer) {
     if (g_GameState != GameState_KnifeRound)
         return Plugin_Handled;
@@ -9,8 +12,12 @@ public Action StartKnifeRound(Handle timer) {
         }
     }
 
-    SetCfgCvarsToStack("sourcemod/pugsetup/knife.cfg");
-    ServerCommand("mp_restartgame 1");
+    g_KnifeCvarRestore = ExecuteAndSaveCvars(KNIFE_CONFIG);
+    if (g_KnifeCvarRestore == INVALID_HANDLE) {
+        LogError("Failed to save cvar values when executing %s", KNIFE_CONFIG);
+    }
+
+    RestartGame(1);
 
     // This is done on a delay since the cvar changes from
     // the knife cfg execute have their own delay of when they are printed
@@ -30,28 +37,31 @@ public Action Timer_AnnounceKnife(Handle timer) {
 
 public void EndKnifeRound() {
     g_GameState = GameState_GoingLive;
-    RestoreCvarsFromStack();
+    if (g_KnifeCvarRestore != INVALID_HANDLE)
+        RestoreCvars(g_KnifeCvarRestore);
     CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-static bool AwaitingDecision(int client) {
+static bool AwaitingDecision(int client, const char[] command) {
     // always lets console make the decision
     if (client == 0)
         return true;
 
     // check if they're on the winning team
-    return g_GameState == GameState_WaitingForKnifeRoundDecision && IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
+    bool canMakeDecision = g_GameState == GameState_WaitingForKnifeRoundDecision && IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
+    bool hasPermissions = DoPermissionCheck(client, command);
+    return canMakeDecision && hasPermissions;
 }
 
 public Action Command_Stay(int client, int args) {
-    if (AwaitingDecision(client)) {
+    if (AwaitingDecision(client, "sm_stay")) {
         EndKnifeRound();
     }
     return Plugin_Handled;
 }
 
 public Action Command_Swap(int client, int args) {
-    if (AwaitingDecision(client)) {
+    if (AwaitingDecision(client, "sm_swap")) {
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
                 int team = GetClientTeam(i);
