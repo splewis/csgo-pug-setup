@@ -279,7 +279,7 @@ stock void ReadPermissions() {
             kv.GetSectionName(command, sizeof(command));
             kv.GetString(NULL_STRING, permission, sizeof(permission));
             if (IsValidCommand(command)) {
-                Permissions p = Permission_All;
+                Permission p = Permission_All;
                 if (PermissionFromString(permission, p, true)) {
                     SetPermissions(command, p);
                 }

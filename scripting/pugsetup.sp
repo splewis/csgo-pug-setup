@@ -286,7 +286,7 @@ public void OnPluginStart() {
     }
 }
 
-static void AddPugSetupCommand(const char[] command, ConCmd callback, const char[] description, Permissions p) {
+static void AddPugSetupCommand(const char[] command, ConCmd callback, const char[] description, Permission p) {
     char smCommandBuffer[64];
     Format(smCommandBuffer, sizeof(smCommandBuffer), "sm_%s", command);
     g_Commands.PushString(smCommandBuffer);
@@ -624,7 +624,7 @@ public Action Command_Pugstatus(int client, int args) {
 }
 
 public bool DoPermissionCheck(int client, const char[] command) {
-    Permissions p = GetPermissions(command);
+    Permission p = GetPermissions(command);
     bool result = HasPermissions(client, p);
     char cmd[COMMAND_LENGTH];
     GetCmdArg(0, cmd, sizeof(cmd));
@@ -639,7 +639,7 @@ public bool DoPermissionCheck(int client, const char[] command) {
 
 // PermissionCheck(int client, const char[] command)
 #define PermissionCheck(%1,%2) { \
-    Permissions _p = GetPermissions(%2); \
+    Permission _p = GetPermissions(%2); \
     bool _result = HasPermissions(%1, _p); \
     char _cmd[COMMAND_LENGTH]; \
     GetCmdArg(0, _cmd, sizeof(_cmd)); \

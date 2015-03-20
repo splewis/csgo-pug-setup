@@ -170,7 +170,7 @@ public void OnMatchOver(bool hasDemo, const char[] demoFileName) {
     }
 }
 
-public void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow) {
+public void OnPermissionCheck(int client, const char[] command, Permission p, bool& allow) {
     if (StrEqual(command, "sm_capt", false)) {
         g_ManuallySetCaptains = true;
     }

@@ -328,7 +328,7 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
 
     CHECK_CLIENT(client);
 
-    Permissions p = view_as<Permissions>(GetNativeCell(2));
+    Permission p = view_as<Permission>(GetNativeCell(2));
     bool isAdmin = IsPugAdmin(client);
     bool isLeader = GetLeader() == client;
     bool isCapt = (client == g_capt1) || (client == g_capt2);
@@ -405,7 +405,7 @@ public int Native_GetPermissions(Handle plugin, int numParams) {
     GetNativeString(1, command, sizeof(command));
     CHECK_COMMAND(command);
 
-    Permissions p;
+    Permission p;
     g_PermissionsMap.GetValue(command, p);
     return view_as<int>(p);
 }
@@ -415,7 +415,7 @@ public int Native_SetPermissions(Handle plugin, int numParams) {
     GetNativeString(1, command, sizeof(command));
     CHECK_COMMAND(command);
 
-    Permissions p = GetNativeCell(2);
+    Permission p = GetNativeCell(2);
     return view_as<int>(g_PermissionsMap.SetValue(command, p));
 }
 

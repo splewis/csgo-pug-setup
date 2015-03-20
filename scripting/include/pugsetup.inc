@@ -18,8 +18,8 @@ enum MapType {
     MapType_Veto = 2,
 };
 
-// Permissions checking values.
-enum Permissions {
+// Permission checking values.
+enum Permission {
     Permission_All = 0,
     Permission_Captains = 1,
     Permission_Leader = 2,
@@ -139,7 +139,7 @@ forward void OnReadyToStartCheck(int readyPlayers, int totalPlayers);
  * @param allow Result of the check
  * @note permissions-checking is only relevent for pugsetup commands.
  */
-forward void OnPermissionCheck(int client, const char[] command, Permissions p, bool& allow);
+forward void OnPermissionCheck(int client, const char[] command, Permission p, bool& allow);
 
 /**
  * Called when a tv_record command is about to be sent.
@@ -256,7 +256,7 @@ native bool PlayerAtStart(int client);
 native bool IsPugAdmin(int client);
 
 // Returns if a client satisfies a permission check.
-native bool HasPermissions(int client, Permissions p);
+native bool HasPermissions(int client, Permission p);
 
 // Sets random captains.
 native void SetRandomCaptains();
@@ -273,11 +273,11 @@ native bool IsValidCommand(const char[] command);
 
 // Gets the permissions for a command, or throws an error on invalid command.
 // Note: permissions-checking is only relevent for pugsetup commands.
-native Permissions GetPermissions(const char[] command);
+native Permission GetPermissions(const char[] command);
 
 // Sets the permissions for a command, returning whether the command already had permissions set.
 // Note: permissions-checking is only relevent for pugsetup commands.
-native bool SetPermissions(const char[] command, Permissions p);
+native bool SetPermissions(const char[] command, Permission p);
 
 public SharedPlugin __pl_pugsetup = {
     name = "pugsetup",
@@ -359,7 +359,7 @@ stock bool MapTypeFromString(const char[] mapTypeString, MapType& mapType, bool 
     return true;
 }
 
-stock bool PermissionFromString(const char[] permissionString, Permissions& p, bool logError=false) {
+stock bool PermissionFromString(const char[] permissionString, Permission& p, bool logError=false) {
     if (StrEqual(permissionString, "all", false) || StrEqual(permissionString, "any", false)) {
         p = Permission_All;
     } else if (StrEqual(permissionString, "captains", false) || StrEqual(permissionString, "captain", false)) {
