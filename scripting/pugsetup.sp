@@ -450,6 +450,11 @@ public Action Timer_CheckReady(Handle timer) {
         StatusHint(readyPlayers, totalPlayers);
     }
 
+    Call_StartForward(g_hOnLiveCheck);
+    Call_PushCell(readyPlayers);
+    Call_PushCell(totalPlayers);
+    Call_Finish();
+
     if (g_TeamType == TeamType_Captains && g_hAutoRandomizeCaptains.IntValue != 0 && totalPlayers >= GetPugMaxPlayers()) {
         // re-randomize captains if they aren't set yet
         if (!IsPlayer(g_capt1)) {
@@ -463,11 +468,6 @@ public Action Timer_CheckReady(Handle timer) {
         }
 
     }
-
-    Call_StartForward(g_hOnLiveCheck);
-    Call_PushCell(readyPlayers);
-    Call_PushCell(totalPlayers);
-    Call_Finish();
 
     return Plugin_Continue;
 }
