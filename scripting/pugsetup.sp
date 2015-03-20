@@ -1564,6 +1564,12 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     g_OnDecidedMap = false;
     g_GameState = GameState_None;
 
+    if (g_KnifeCvarRestore != INVALID_HANDLE) {
+        RestoreCvars(g_KnifeCvarRestore);
+        CloseCvarStorage(g_KnifeCvarRestore);
+        g_KnifeCvarRestore = INVALID_HANDLE;
+    }
+
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i)) {
             UpdateClanTag(i);

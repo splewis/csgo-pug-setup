@@ -27,7 +27,7 @@ stock Handle SaveCvars(ArrayList cvarNames) {
 }
 
 // Restores cvars to their previous value using a return value of SaveCvars.
-stock void RestoreCvars(Handle cvarStorage, bool close=true) {
+stock void RestoreCvars(Handle cvarStorage, bool close=false) {
     ArrayList cvarNameList = view_as<ArrayList>(GetArrayCell(cvarStorage, 0));
     ArrayList cvarValueList = view_as<ArrayList>(GetArrayCell(cvarStorage, 1));
 

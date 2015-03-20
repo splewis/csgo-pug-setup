@@ -1,5 +1,5 @@
 #define KNIFE_CONFIG "sourcemod/pugsetup/knife.cfg"
-static Handle g_KnifeCvarRestore = INVALID_HANDLE;
+Handle g_KnifeCvarRestore = INVALID_HANDLE;
 
 public Action StartKnifeRound(Handle timer) {
     if (g_GameState != GameState_KnifeRound)
@@ -37,8 +37,11 @@ public Action Timer_AnnounceKnife(Handle timer) {
 
 public void EndKnifeRound() {
     g_GameState = GameState_GoingLive;
-    if (g_KnifeCvarRestore != INVALID_HANDLE)
+    if (g_KnifeCvarRestore != INVALID_HANDLE) {
         RestoreCvars(g_KnifeCvarRestore);
+        CloseCvarStorage(g_KnifeCvarRestore);
+        g_KnifeCvarRestore = INVALID_HANDLE;
+    }
     CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
