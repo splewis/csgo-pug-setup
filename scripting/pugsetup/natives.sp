@@ -39,6 +39,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     CreateNative("IsValidCommand", Native_IsValidCommand);
     CreateNative("GetPermissions", Native_GetPermissions);
     CreateNative("SetPermissions", Native_SetPermissions);
+    CreateNative("IsTeamBalancerAvaliable", Native_IsTeamBalancerAvaliable);
+    CreateNative("SetTeamBalancer", Native_SetTeamBalancer);
+    CreateNative("ClearTeamBalancer", Native_ClearTeamBalancer);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -414,4 +417,25 @@ public int Native_SetPermissions(Handle plugin, int numParams) {
 
     Permissions p = GetNativeCell(2);
     return view_as<int>(g_PermissionsMap.SetValue(command, p));
+}
+
+public int Native_IsTeamBalancerAvaliable(Handle plugin, int numParams) {
+    return view_as<int>(g_BalancerFunction != INVALID_FUNCTION && GetPluginStatus(g_BalancerFunctionPlugin) == Plugin_Running);
+}
+
+public int Native_SetTeamBalancer(Handle plugin, int numParams) {
+    bool override = GetNativeCell(2);
+    if (!IsTeamBalancerAvaliable() || override)  {
+        g_BalancerFunctionPlugin = plugin;
+        g_BalancerFunction = view_as<TeamBalancerFunction>(GetNativeFunction(1));
+        return true;
+    }
+    return false;
+}
+
+public int Native_ClearTeamBalancer(Handle plugin, int numParams) {
+    bool hadBalancer = IsTeamBalancerAvaliable();
+    g_BalancerFunction = INVALID_FUNCTION;
+    g_BalancerFunctionPlugin = INVALID_HANDLE;
+    return view_as<int>(hadBalancer);
 }

@@ -8,6 +8,7 @@ enum TeamType {
     TeamType_Manual = 0,
     TeamType_Random = 1,
     TeamType_Captains = 2,
+    TeamType_Autobalanced = 3,                  // only allowed if IsTeamBalancerAvaliable() is true
 };
 
 // Different ways the map can be selected.
@@ -166,6 +167,23 @@ forward void OnMapListRead(const char[] maplist, ArrayList maps, bool workshopCo
  */
 forward void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length);
 
+typedef TeamBalancerFunction = function void (ArrayList players);
+
+/**
+ * Returns if a team balancer function has been set for pugsetup to use, if selected in the setup menu.
+ */
+native bool IsTeamBalancerAvaliable();
+
+/**
+ * Sets a team balancer function, returning if the balancer function was set.
+ */
+native bool SetTeamBalancer(TeamBalancerFunction balancerFunction, bool override=false);
+
+/**
+ * Clears any team balancer function set, returning if there was one before clearing.
+ */
+native bool ClearTeamBalancer();
+
 // Sets a game up with the given settings.
 native void SetupGame(TeamType teamType, MapType mapType=MapType_Vote, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);
 
@@ -300,7 +318,10 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("GiveSetupMenu");
     MarkNativeAsOptional("IsValidCommand");
     MarkNativeAsOptional("GetPermissions");
-    MarkNativeAsOptional("SetPermissions");
+    MarkNativeAsOptional("SetPermissions");;
+    MarkNativeAsOptional("SetTeamBalancer");
+    MarkNativeAsOptional("IsTeamBalancerAvaliable")
+    MarkNativeAsOptional("ClearTeamBalancer");
 }
 #endif
 
@@ -311,9 +332,11 @@ stock bool TeamTypeFromString(const char[] teamTypeString, TeamType& teamType, b
         teamType = TeamType_Manual;
     } else if (StrEqual(teamTypeString, "random", false)) {
         teamType = TeamType_Random;
+    } else if (StrEqual(teamTypeString, "autobalanced", false) || StrEqual(teamTypeString, "balanced", false)) {
+        teamType = TeamType_Autobalanced;
     } else {
         if (logError)
-            LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\"", teamTypeString);
+            LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\", \"autobalanced\"", teamTypeString);
         return false;
     }
 

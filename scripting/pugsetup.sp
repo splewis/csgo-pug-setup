@@ -77,6 +77,9 @@ bool g_DoKnifeRound = false;
 bool g_AutoLive = true;
 
 /** Other important variables about the state of the game **/
+TeamBalancerFunction g_BalancerFunction = INVALID_FUNCTION;
+Handle g_BalancerFunctionPlugin = INVALID_HANDLE;
+
 GameState g_GameState = GameState_None;
 bool g_SwitchingMaps = false; // if we're in the middle of a map change
 bool g_OnDecidedMap = false; // whether we're on the map that is going to be used
@@ -1442,20 +1445,49 @@ public void StartGame() {
         g_PlayerAtStart[i] = IsPlayer(i);
     }
 
+    if (g_TeamType == TeamType_Autobalanced) {
+        if (!IsTeamBalancerAvaliable()) {
+            LogError("Match setup with autobalanced teams without a balancer avaliable - falling back to random teams");
+            g_TeamType = TeamType_Random;
+        } else {
+            ArrayList players = new ArrayList();
+            for (int i = 1; i <= MaxClients; i++) {
+                if (IsPlayer(i)) {
+                    players.Push(i);
+                }
+            }
+
+            char buffer[128];
+            GetPluginFilename(g_BalancerFunctionPlugin, buffer, sizeof(buffer));
+            LogDebug("Running autobalancer function from plugin %s", buffer);
+
+            Call_StartFunction(g_BalancerFunctionPlugin, g_BalancerFunction);
+            Call_PushCell(players);
+            Call_Finish();
+            delete players;
+        }
+    }
+
     if (g_TeamType == TeamType_Random) {
         PugSetupMessageToAll("%t", "Scrambling");
         ScrambleTeams();
     }
 
+    CreateTimer(3.0, Timer_BeginMatch);
     ExecGameConfigs();
+    if (InWarmup()) {
+        EndWarmup();
+    }
+}
+
+public Action Timer_BeginMatch(Handle timer) {
     if (g_DoKnifeRound) {
         g_GameState = GameState_KnifeRound;
         CreateTimer(3.0, StartKnifeRound, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
-        g_GameState = GameState_GoingLive;\
+        g_GameState = GameState_GoingLive;
         CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
     }
-
 }
 
 public void ScrambleTeams() {

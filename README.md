@@ -207,7 +207,8 @@ This plugin blocks players from joining full teams when a game is live.
 This plugin adds some tags to the server hostname depending on the pug status, examples: "[LIVE 11-5]" and "[NEED 3]".
 
 #### pugsetup_rwsbalancer
-This plugin implements a simple rws calculation (stored via clientprefs) and balances team accordingly when using manual teams (or assigns captains to the highest 2 rws players when using captains). You can tweak its behavior by editing ``cfg/sourcemod/pugsetup_rwsbalancer.cfg``.
+This plugin implements a simple rws calculation scheme and adds an option to the .setup menu to use autobalanced teams. When using captains,
+the players with the 2 highest RWS values will be made captains. You can tweak its behavior by editing ``cfg/sourcemod/pugsetup_rwsbalancer.cfg``.
 
 #### pugsetup_chatmoney
 This plugin prints out the team members' money to chat on round starts, you can tweak its behavior by editing ``cfg/sourcemod/pugsetup_chatmoney.cfg``.

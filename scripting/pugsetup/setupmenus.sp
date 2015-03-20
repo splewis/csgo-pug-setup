@@ -28,6 +28,11 @@
             AddMenuItem(menu, "start_match", buffer, style);
         }
 
+        // first do a sanity check if an autobalancer is avaliable
+        if (g_TeamType == TeamType_Autobalanced && !IsTeamBalancerAvaliable()) {
+            g_TeamType = TeamType_Random;
+        }
+
         // 1. team type
         if (g_DisplayTeamType) {
             char teamType[128];
@@ -166,6 +171,9 @@ public void TeamTypeMenu(int client) {
     AddMenuInt(menu, view_as<int>(TeamType_Captains), "%T", "TeamSetupMenuCaptains", client);
     AddMenuInt(menu, view_as<int>(TeamType_Random), "%T", "TeamSetupMenuRandom", client);
     AddMenuInt(menu, view_as<int>(TeamType_Manual), "%T", "TeamSetupMenuManual", client);
+    if (IsTeamBalancerAvaliable())
+        AddMenuInt(menu, view_as<int>(TeamType_Autobalanced), "%T", "Autobalanced", client);
+
     AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
@@ -254,7 +262,7 @@ public void SetupFinished() {
     if (g_hUseGameWarmup.IntValue != 0 && !InWarmup())
         StartWarmup();
     else
-        ServerCommand("mp_restartgame 1");
+        RestartGame(1);
 
     for (int i = 1; i <= MaxClients; i++) {
         g_Ready[i] = false;
@@ -294,6 +302,7 @@ stock void GetTeamString(char[] buffer, int length, TeamType type, int client=LA
         case TeamType_Manual: Format(buffer, length, "%T", "TeamSetupManualShort", client);
         case TeamType_Random: Format(buffer, length, "%T", "TeamSetupRandomShort", client);
         case TeamType_Captains: Format(buffer, length, "%T", "TeamSetupCaptainsShort", client);
+        case TeamType_Autobalanced: Format(buffer, length, "%T", "Autobalanced", client);
         default: LogError("unknown teamtype=%d", type);
     }
 }

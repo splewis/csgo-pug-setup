@@ -389,4 +389,8 @@
 	{
 		"en"		"Select the map"
 	}
+	"Autobalanced"
+	{
+		"en"		"Autobalanced"
+	}
 }

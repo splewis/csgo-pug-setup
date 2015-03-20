@@ -60,7 +60,6 @@ bool g_PlayerHasStats[MAXPLAYERS+1];
 int g_RoundPoints[MAXPLAYERS+1];
 
 /** Cvars **/
-ConVar g_MoveTeamsCvar;
 ConVar g_RecordRWSCvar;
 ConVar g_SetCaptainsByRWSCvar;
 ConVar g_StorageMethodCvar;
@@ -68,6 +67,7 @@ ConVar g_ShowRWSOnMenuCvar;
 
 Handle g_Database = INVALID_HANDLE;
 bool g_ManuallySetCaptains = false;
+bool g_SetTeamBalancer = false;
 
 
 public Plugin myinfo = {
@@ -91,7 +91,6 @@ public void OnPluginStart() {
     RegAdminCmd("sm_showrws", Command_DumpRWS, ADMFLAG_KICK, "Dumps all player historical rws and rounds played");
     RegConsoleCmd("sm_rws", Command_RWS, "Show player's historical rws");
 
-    g_MoveTeamsCvar = CreateConVar("sm_pugsetup_rws_move_teams", "1", "Whether to balance teams in non-captains pugs. Set to 0 to disable team moves by this plugin");
     g_RecordRWSCvar = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
     g_StorageMethodCvar = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
@@ -106,6 +105,15 @@ public void OnPluginStart() {
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
 
     InitDebugLog(DEBUG_CVAR, "rwsbalance");
+}
+
+public void OnAllPluginsLoaded() {
+    g_SetTeamBalancer = SetTeamBalancer(BalancerFunction);
+}
+
+public void OnPluginEnd() {
+    if (g_SetTeamBalancer)
+        ClearTeamBalancer();
 }
 
 public int OnCvarChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
@@ -296,18 +304,13 @@ public void WriteStats(int client) {
 /**
  * Here the teams are actually set to use the rws stuff.
  */
-public void OnReadyToStart() {
-    // only do balancing if we didn't do captains
-    if (GetTeamType() == TeamType_Captains || g_MoveTeamsCvar.IntValue == 0)
-        return;
-
+public void BalancerFunction(ArrayList players) {
     Handle pq = PQ_Init();
 
-    for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && PlayerAtStart(i)) {
-            PQ_Enqueue(pq, i, g_PlayerRWS[i]);
-            LogDebug("PQ_Enqueue(%L, %f)", i, g_PlayerRWS[i]);
-        }
+    for (int i = 0; i < players.Length; i++) {
+        int client = players.Get(i);
+        PQ_Enqueue(pq, client, g_PlayerRWS[client]);
+        LogDebug("PQ_Enqueue(%L, %f)", client, g_PlayerRWS[client]);
     }
 
     int count = 0;
