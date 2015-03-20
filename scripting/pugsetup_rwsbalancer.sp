@@ -459,6 +459,9 @@ public int rwsSortFunction(int index1, int index2, Handle array, Handle hndl) {
 }
 
 public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
+    if (GetTeamType() != TeamType_Captains)
+        return;
+
     if (!g_ManuallySetCaptains && g_SetCaptainsByRWSCvar.IntValue != 0 &&
         totalPlayers >= GetPugMaxPlayers() && GetTeamType() == TeamType_Captains) {
 
