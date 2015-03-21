@@ -56,7 +56,7 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
 
     int playerCount = 0;
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && GetClientTeam(i) == team_to) {
+        if (IsValidClient(i) && GetClientTeam(i) == team_to) {
             playerCount++;
         }
     }
