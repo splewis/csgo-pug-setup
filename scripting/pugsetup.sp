@@ -144,6 +144,7 @@ Handle g_hOnSetup = INVALID_HANDLE;
 Handle g_hOnSetupMenuOpen = INVALID_HANDLE;
 Handle g_hOnSetupMenuSelect = INVALID_HANDLE;
 Handle g_hOnStartRecording = INVALID_HANDLE;
+Handle g_hOnStateChange = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 Handle g_hOnWarmupCfg = INVALID_HANDLE;
 
@@ -265,6 +266,7 @@ public void OnPluginStart() {
     g_hOnSetupMenuOpen = CreateGlobalForward("OnSetupMenuOpen", ET_Single, Param_Cell, Param_Cell, Param_Cell);
     g_hOnSetupMenuSelect = CreateGlobalForward("OnSetupMenuSelect", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnStartRecording = CreateGlobalForward("OnStartRecording", ET_Ignore, Param_String);
+    g_hOnStateChange = CreateGlobalForward("OnGameStateChanged", ET_Ignore, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
     g_hOnWarmupCfg = CreateGlobalForward("OnWarmupCfgExecuted", ET_Ignore);
 
@@ -1292,7 +1294,7 @@ public Action Timer_EndMatch(Handle timer) {
 public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
     int winner = GetEventInt(event, "winner");
     if (g_GameState == GameState_KnifeRound) {
-        g_GameState = GameState_WaitingForKnifeRoundDecision;
+        ChangeState(GameState_WaitingForKnifeRoundDecision);
         g_KnifeWinner = winner;
 
         char teamString[4];
@@ -1367,7 +1369,7 @@ public void ReadyToStart() {
     if (g_AutoLive) {
         CreateCountDown();
     } else {
-        g_GameState = GameState_WaitingForStart;
+        ChangeState(GameState_WaitingForStart);
         CreateTimer(float(START_COMMAND_HINT_TIME), Timer_StartCommandHint);
         GiveStartCommandHint();
     }
@@ -1388,7 +1390,7 @@ public Action Timer_StartCommandHint(Handle timer) {
 }
 
 static void CreateCountDown() {
-    g_GameState = GameState_Countdown;
+    ChangeState(GameState_Countdown);
     g_CountDownTicks = g_hStartDelay.IntValue;
     CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
@@ -1500,10 +1502,10 @@ public void StartGame() {
 
 public Action Timer_BeginMatch(Handle timer) {
     if (g_DoKnifeRound) {
-        g_GameState = GameState_KnifeRound;
+        ChangeState(GameState_KnifeRound);
         CreateTimer(3.0, StartKnifeRound, _, TIMER_FLAG_NO_MAPCHANGE);
     } else {
-        g_GameState = GameState_GoingLive;
+        ChangeState(GameState_GoingLive);
         CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
     }
 }
@@ -1580,7 +1582,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     g_capt1 = -1;
     g_capt2 = -1;
     g_OnDecidedMap = false;
-    g_GameState = GameState_None;
+    ChangeState(GameState_None);
 
     if (g_KnifeCvarRestore != INVALID_HANDLE) {
         RestoreCvars(g_KnifeCvarRestore);
@@ -1755,4 +1757,13 @@ stock void UpdateClanTag(int client, bool strip=false) {
             CS_SetClientClanTag(client, "");
         }
     }
+}
+
+public void ChangeState(GameState state) {
+    LogDebug("Change from state %d -> %d", g_GameState, state);
+    Call_StartForward(g_hOnStateChange);
+    Call_PushCell(g_GameState);
+    Call_PushCell(state);
+    Call_Finish();
+    g_GameState = state;
 }

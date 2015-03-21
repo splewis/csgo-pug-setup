@@ -167,6 +167,11 @@ forward void OnMapListRead(const char[] maplist, ArrayList maps, bool workshopCo
  */
 forward void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length);
 
+/**
+ * Called during any game state change.
+ */
+forward void OnGameStateChanged(GameState before, GameState after);
+
 typedef TeamBalancerFunction = function void (ArrayList players);
 
 /**

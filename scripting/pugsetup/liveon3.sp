@@ -3,7 +3,7 @@ public Action BeginLO3(Handle timer) {
     if (g_GameState == GameState_None)
         return Plugin_Handled;
 
-    g_GameState = GameState_GoingLive;
+    ChangeState(GameState_GoingLive);
 
     // force kill the warmup if we need to
     if (InWarmup()) {
@@ -60,7 +60,7 @@ public Action MatchLive(Handle timer) {
     if (g_GameState == GameState_None)
         return Plugin_Handled;
 
-    g_GameState = GameState_Live;
+    ChangeState(GameState_Live);
     Call_StartForward(g_hOnLive);
     Call_Finish();
 

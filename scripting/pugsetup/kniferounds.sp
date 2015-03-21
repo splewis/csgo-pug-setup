@@ -36,7 +36,7 @@ public Action Timer_AnnounceKnife(Handle timer) {
 }
 
 public void EndKnifeRound() {
-    g_GameState = GameState_GoingLive;
+    ChangeState(GameState_GoingLive);
     if (g_KnifeCvarRestore != INVALID_HANDLE) {
         RestoreCvars(g_KnifeCvarRestore);
         CloseCvarStorage(g_KnifeCvarRestore);
