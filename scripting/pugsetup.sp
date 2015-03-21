@@ -1105,6 +1105,10 @@ public Action Command_AddMap(int client, int args) {
             perm = StrEqual(durationString, "perm", false);
         }
 
+        if (UsingWorkshopCollection()) {
+            perm = false;
+        }
+
         if (AddMap(mapName, g_MapList)) {
             PugSetupMessage(client, "Succesfully added map %s", mapName);
             if (perm && !AddToMapList(mapName)) {
@@ -1130,6 +1134,10 @@ public Action Command_RemoveMap(int client, int args) {
     if (args >= 1 && GetCmdArg(1, mapName, sizeof(mapName))) {
         if (args >= 2 && GetCmdArg(2, durationString, sizeof(durationString))) {
             perm = StrEqual(durationString, "perm", false);
+        }
+
+        if (UsingWorkshopCollection()) {
+            perm = false;
         }
 
         if (RemoveMap(mapName, g_MapList)) {
