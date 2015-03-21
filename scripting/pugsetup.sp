@@ -662,17 +662,21 @@ public Action Command_Setup(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (!DoPermissionCheck(client, "sm_setup")) {
-        if (g_GameState == GameState_Warmup) {
-            GiveSetupMenu(client, true);
-        } else {
-            PugSetupMessage(client, "%t", "NoPermission");
-        }
+    bool allowedToSetup = DoPermissionCheck(client, "sm_setup");
+    if (g_GameState == GameState_None && !allowedToSetup) {
+        PugSetupMessage(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
 
-    if (IsPlayer(client) && !IsPlayer(GetLeader()))
+    bool allowedToChangeSetup = HasPermissions(client, Permission_Leader);
+    if (g_GameState == GameState_Warmup && !allowedToChangeSetup) {
+        GiveSetupMenu(client, true);
+        return Plugin_Handled;
+    }
+
+    if (IsPlayer(client) && !IsPlayer(GetLeader())) {
         g_Leader = GetSteamAccountID(client);
+    }
 
     if (client == 0) {
         // if we did the setup command from the console just use the default settings
@@ -691,15 +695,21 @@ public Action Command_10man(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (g_GameState == GameState_Warmup && client != GetLeader() && client != 0) {
+    bool allowedToSetup = DoPermissionCheck(client, "sm_10man");
+    if (g_GameState == GameState_None && !allowedToSetup) {
+        PugSetupMessage(client, "%t", "NoPermission");
+        return Plugin_Handled;
+    }
+
+    bool allowedToChangeSetup = HasPermissions(client, Permission_Leader);
+    if (g_GameState == GameState_Warmup && !allowedToChangeSetup) {
         GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
 
-    PermissionCheck(client, "sm_10man")
-
-    if (IsPlayer(client))
+    if (IsPlayer(client) && !IsPlayer(GetLeader())) {
         g_Leader = GetSteamAccountID(client);
+    }
 
     SetupGame(TeamType_Captains, MapType_Vote, 5, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
     return Plugin_Handled;
