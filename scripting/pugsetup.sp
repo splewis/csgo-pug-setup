@@ -16,6 +16,7 @@
 
 #define ALIAS_LENGTH 64
 #define COMMAND_LENGTH 64
+#define LIVE_TIMER_INTERVAL 0.3
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -363,10 +364,7 @@ public void OnMapStart() {
         if (g_hUseGameWarmup.IntValue != 0)
             StartWarmup();
 
-        if (!g_LiveTimerRunning) {
-            CreateTimer(0.3, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
-            g_LiveTimerRunning = true;
-        }
+        StartLiveTimer();
     } else {
         g_capt1 = -1;
         g_capt2 = -1;
@@ -784,7 +782,7 @@ public Action Command_ListPugMaps(int client, int args) {
     } else {
         char buffer[PLATFORM_MAX_PATH];
         for (int i = 0; i < n; i++) {
-            g_MapList.GetString(i, buffer, sizeof(buffer));
+            FormatMapName(g_MapList, i, buffer, sizeof(buffer));
             PugSetupMessage(client, "Map %d: %s", i + 1, buffer);
         }
     }

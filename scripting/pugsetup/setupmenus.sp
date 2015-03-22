@@ -275,10 +275,7 @@ public void SetupFinished() {
     g_capt1 = -1;
     g_capt2 = -1;
     g_GameState = GameState_Warmup;
-
-    if (!g_LiveTimerRunning)
-        CreateTimer(1.0, Timer_CheckReady, _, TIMER_REPEAT);
-    g_LiveTimerRunning = true;
+    StartLiveTimer();
 
     if (GetConVarInt(g_hAutoRandomizeCaptains) != 0) {
         SetRandomCaptains();
@@ -292,6 +289,12 @@ public void SetupFinished() {
     Call_PushCell(g_MapType);
     Call_PushCell(g_PlayersPerTeam);
     Call_Finish();
+}
+
+public void StartLiveTimer() {
+    if (!g_LiveTimerRunning)
+        CreateTimer(LIVE_TIMER_INTERVAL, Timer_CheckReady, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    g_LiveTimerRunning = true;
 }
 
 /**
