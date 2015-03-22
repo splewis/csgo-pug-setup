@@ -48,7 +48,7 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
     GetCmdArg(1, arg, sizeof(arg));
     int team_to = StringToInt(arg);
 
-    LogDebug("%L jointeam command, from %d to %d", GetClientTeam(client), team_to);
+    LogDebug("%L jointeam command, from %d to %d", client, GetClientTeam(client), team_to);
 
     // don't let someone change to a "none" team (e.g. using auto-select)
     if (team_to == CS_TEAM_NONE)
