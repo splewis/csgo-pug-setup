@@ -90,6 +90,7 @@ public void OnPluginStart() {
 
     RegAdminCmd("sm_showrws", Command_DumpRWS, ADMFLAG_KICK, "Dumps all player historical rws and rounds played");
     RegConsoleCmd("sm_rws", Command_RWS, "Show player's historical rws");
+    AddChatAlias(".rws", "sm_rws");
 
     g_RecordRWSCvar = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
@@ -508,6 +509,8 @@ public Action Command_RWS(int client, int args) {
             else
                 PugSetupMessage(client, "%N does not currently have stats stored", target);
         }
+    } else {
+        PugSetupMessage(client, "Usage: .rws <player>");
     }
 
     return Plugin_Handled;
