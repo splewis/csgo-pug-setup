@@ -12,7 +12,7 @@ static char g_BackupMaps[][] = {
 
 public void ChangeMap() {
     char map[PLATFORM_MAX_PATH];
-    GetArrayString(g_MapList, g_ChosenMap, map, sizeof(map));
+    FormatMapName(g_MapList, g_ChosenMap, map, sizeof(map));
     PugSetupMessageToAll("Changing map to {GREEN}%s{NORMAL}...", map);
     CreateTimer(3.0, Timer_DelayedChangeMap);
 }
@@ -151,7 +151,7 @@ public bool RemoveMap(const char[] mapName, ArrayList mapList) {
     }
 }
 
-public void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex) {
+public void FormatMapName(ArrayList mapList, int mapIndex, char[] buffer, int len) {
     char map[PLATFORM_MAX_PATH];
     mapList.GetString(mapIndex, map, sizeof(map));
 
@@ -159,6 +159,11 @@ public void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex) {
     char buffers[4][PLATFORM_MAX_PATH];
     int numSplits = ExplodeString(map, "/", buffers, sizeof(buffers), PLATFORM_MAX_PATH);
     int mapStringIndex = (numSplits > 0) ? (numSplits - 1) : (0);
+    strcopy(buffer, len, buffers[mapStringIndex]);
+}
 
-    AddMenuInt(menu, mapIndex, buffers[mapStringIndex]);
+public void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex) {
+    char mapName[128];
+    FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
+    AddMenuInt(menu, mapIndex, mapName);
 }
