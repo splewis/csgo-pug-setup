@@ -32,7 +32,7 @@ enum GameState {
     GameState_Warmup = 1,                        // setup done, waiting for players to ready up
     GameState_PickingPlayers = 2,                // only used if TeamType_Captains is the teamtype
     GameState_WaitingForStart = 3,               // waiting for a .start if autolive is disabled
-    GameState_Countdown = 4,                     // waiting for a .start if autolive is disabled
+    GameState_Countdown = 4,                     // doing the countdown timer
     GameState_KnifeRound = 5,                    // in the knife round
     GameState_WaitingForKnifeRoundDecision = 6,  // waiting for a .stay/.swap command after the knife round
     GameState_GoingLive = 7,                     // in the lo3 process
