@@ -374,7 +374,6 @@ public int Native_AddChatAlias(Handle plugin, int numParams) {
 
     // don't allow duplicate aliases to be added
     if (g_ChatAliases.FindString(alias) == -1) {
-        LogDebug("AddChatAlias(%s, %s)", alias, command);
         g_ChatAliases.PushString(alias);
         g_ChatAliasesCommands.PushString(command);
     }
