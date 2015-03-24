@@ -60,10 +60,11 @@ bool g_PlayerHasStats[MAXPLAYERS+1];
 int g_RoundPoints[MAXPLAYERS+1];
 
 /** Cvars **/
+ConVar g_AllowRWSCommandCvar;
 ConVar g_RecordRWSCvar;
 ConVar g_SetCaptainsByRWSCvar;
-ConVar g_StorageMethodCvar;
 ConVar g_ShowRWSOnMenuCvar;
+ConVar g_StorageMethodCvar;
 
 Handle g_Database = INVALID_HANDLE;
 bool g_ManuallySetCaptains = false;
@@ -79,6 +80,7 @@ public Plugin myinfo = {
 };
 
 public void OnPluginStart() {
+    InitDebugLog(DEBUG_CVAR, "rwsbalance");
     LoadTranslations("pugsetup.phrases");
     LoadTranslations("common.phrases");
 
@@ -92,10 +94,11 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_rws", Command_RWS, "Show player's historical rws");
     AddChatAlias(".rws", "sm_rws");
 
+    g_AllowRWSCommandCvar = CreateConVar("sm_pugsetup_rws_allow_rws_command", "1", "Whether players can use the .rws or !rws command on other players");
     g_RecordRWSCvar = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
-    g_StorageMethodCvar = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
     g_ShowRWSOnMenuCvar = CreateConVar("sm_pugsetup_rws_display_on_menu", "1", "Whether rws stats are to be displayed on captain-player selection menus");
+    g_StorageMethodCvar = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
 
     HookConVarChange(g_StorageMethodCvar, OnCvarChanged);
 
@@ -104,8 +107,6 @@ public void OnPluginStart() {
     // for clientprefs storage
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
-
-    InitDebugLog(DEBUG_CVAR, "rwsbalance");
 }
 
 public void OnAllPluginsLoaded() {
@@ -499,6 +500,11 @@ public Action Command_DumpRWS(int client, int args) {
 }
 
 public Action Command_RWS(int client, int args) {
+    if (g_AllowRWSCommandCvar.IntValue == 0) {
+        PugSetupMessage(client, "That command is disabled.");
+        return Plugin_Handled;
+    }
+
     char arg1[32];
     if (args >= 1 && GetCmdArg(1, arg1, sizeof(arg1))) {
         int target = FindTarget(client, arg1, true, false);
