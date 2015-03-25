@@ -393,4 +393,22 @@
 	{
 		"en"		"Autobalanced"
 	}
+	"YouAreReady"
+	{
+		"en"		"You are now ready."
+	}
+	"YouAreNotReady"
+	{
+		"en"		"You are no longer ready."
+	}
+	"IsNowReady"
+	{
+		"#format"		"{1:s}"
+		"en"		"{1} is now ready."
+	}
+	"IsNoLongerReady"
+	{
+		"#format"		"{1:s}"
+		"en"		"{1} is no longer ready."
+	}
 }

@@ -113,6 +113,15 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
 
     g_Ready[client] = true;
     UpdateClanTag(client);
+
+    if (g_hEchoReadyMessages.IntValue != 0) {
+        PugSetupMessage(client, "%t", "YouAreReady");
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i) && client != i)
+                PugSetupMessage(i, "%t", "IsNowReady", i);
+        }
+    }
+
     return view_as<int>(true);
 }
 
@@ -134,6 +143,15 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
 
     g_Ready[client] = false;
     UpdateClanTag(client);
+
+    if (g_hEchoReadyMessages.IntValue != 0) {
+        PugSetupMessage(client, "%t", "YouAreNotReady");
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i) && client != i)
+                PugSetupMessage(i, "%t", "IsNoLongerReady", i);
+        }
+    }
+
     return view_as<int>(true);
 }
 

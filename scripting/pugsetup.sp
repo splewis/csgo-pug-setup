@@ -37,6 +37,7 @@ ConVar g_hAutoUpdate;
 ConVar g_hCvarVersion;
 ConVar g_hDemoNameFormat;
 ConVar g_hDemoTimeFormat;
+ConVar g_hEchoReadyMessages;
 ConVar g_hExcludeSpectators;
 ConVar g_hExecDefaultConfig;
 ConVar g_hForceDefaults;
@@ -191,6 +192,7 @@ public void OnPluginStart() {
     g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update.");
     g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
     g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
+    g_hEchoReadyMessages = CreateConVar("sm_pugsetup_echo_ready_messages", "0", "Whether to print to chat when clients ready/unready.");
     g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains as well.");
     g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_hForceDefaults = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options (note that admins can override them still).");
