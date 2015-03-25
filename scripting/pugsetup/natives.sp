@@ -95,11 +95,16 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     CHECK_CLIENT(client);
 
     if (g_GameState != GameState_Warmup || !IsPlayer(client))
-        return;
+        return view_as<int>(false);
 
     if (g_hExcludeSpectators.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
         PugSetupMessage(client, "%t", "SpecCantReady");
-        return;
+        return view_as<int>(false);
+    }
+
+    // already ready
+    if (g_Ready[client]) {
+        return view_as<int>(false);
     }
 
     Call_StartForward(g_hOnReady);
@@ -108,6 +113,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
 
     g_Ready[client] = true;
     UpdateClanTag(client);
+    return view_as<int>(true);
 }
 
 public int Native_UnreadyPlayer(Handle plugin, int numParams) {
@@ -115,7 +121,12 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
     CHECK_CLIENT(client);
 
     if (g_GameState != GameState_Warmup || !IsPlayer(client))
-        return;
+        return view_as<int>(false);
+
+    // already un-ready
+    if (g_Ready[client]) {
+        return view_as<int>(false);
+    }
 
     Call_StartForward(g_hOnUnready);
     Call_PushCell(client);
@@ -123,6 +134,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
 
     g_Ready[client] = false;
     UpdateClanTag(client);
+    return view_as<int>(true);
 }
 
 public int Native_IsReady(Handle plugin, int numParams) {

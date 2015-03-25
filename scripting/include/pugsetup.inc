@@ -200,10 +200,12 @@ native void SetSetupOptions(TeamType teamType, MapType mapType, int playersPerTe
 native void GetSetupOptions(TeamType& teamType, MapType& mapType, int& playersPerTeam, bool& recordDemo, bool& knifeRound, bool& autoLive);
 
 // Readies up a player.
-native void ReadyPlayer(int client);
+// Returns if they were successfully readied.
+native bool ReadyPlayer(int client);
 
 // Unreadies a player.
-native void UnreadyPlayer(int client);
+// Returns if they were successfully unreadied. (returns false if the client was already not-ready)
+native bool UnreadyPlayer(int client);
 
 // Returns whether a client is ready.
 // This is only valid when the game is setup AND not live.
