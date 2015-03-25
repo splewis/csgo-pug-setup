@@ -133,7 +133,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
         return false;
 
     // already un-ready
-    if (g_Ready[client]) {
+    if (!g_Ready[client]) {
         return false;
     }
 
