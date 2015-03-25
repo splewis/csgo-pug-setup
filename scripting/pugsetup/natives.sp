@@ -95,16 +95,16 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     CHECK_CLIENT(client);
 
     if (g_GameState != GameState_Warmup || !IsPlayer(client))
-        return view_as<int>(false);
+        return false;
 
     if (g_hExcludeSpectators.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
         PugSetupMessage(client, "%t", "SpecCantReady");
-        return view_as<int>(false);
+        return false;
     }
 
     // already ready
     if (g_Ready[client]) {
-        return view_as<int>(false);
+        return false;
     }
 
     Call_StartForward(g_hOnReady);
@@ -122,7 +122,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
         }
     }
 
-    return view_as<int>(true);
+    return true;
 }
 
 public int Native_UnreadyPlayer(Handle plugin, int numParams) {
@@ -130,11 +130,11 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
     CHECK_CLIENT(client);
 
     if (g_GameState != GameState_Warmup || !IsPlayer(client))
-        return view_as<int>(false);
+        return false;
 
     // already un-ready
     if (g_Ready[client]) {
-        return view_as<int>(false);
+        return false;
     }
 
     Call_StartForward(g_hOnUnready);
@@ -152,7 +152,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
         }
     }
 
-    return view_as<int>(true);
+    return true;
 }
 
 public int Native_IsReady(Handle plugin, int numParams) {
@@ -163,7 +163,7 @@ public int Native_IsReady(Handle plugin, int numParams) {
 }
 
 public int Native_IsSetup(Handle plugin, int numParams) {
-    return view_as<int>(g_GameState >= GameState_Warmup);
+    return g_GameState >= GameState_Warmup;
 }
 
 public int Native_GetMapType(Handle plugin, int numParams) {
@@ -445,11 +445,11 @@ public int Native_SetPermissions(Handle plugin, int numParams) {
     CHECK_COMMAND(command);
 
     Permission p = GetNativeCell(2);
-    return view_as<int>(g_PermissionsMap.SetValue(command, p));
+    return g_PermissionsMap.SetValue(command, p);
 }
 
 public int Native_IsTeamBalancerAvaliable(Handle plugin, int numParams) {
-    return view_as<int>(g_BalancerFunction != INVALID_FUNCTION && GetPluginStatus(g_BalancerFunctionPlugin) == Plugin_Running);
+    return g_BalancerFunction != INVALID_FUNCTION && GetPluginStatus(g_BalancerFunctionPlugin) == Plugin_Running;
 }
 
 public int Native_SetTeamBalancer(Handle plugin, int numParams) {
@@ -466,5 +466,5 @@ public int Native_ClearTeamBalancer(Handle plugin, int numParams) {
     bool hadBalancer = IsTeamBalancerAvaliable();
     g_BalancerFunction = INVALID_FUNCTION;
     g_BalancerFunctionPlugin = INVALID_HANDLE;
-    return view_as<int>(hadBalancer);
+    return hadBalancer;
 }
