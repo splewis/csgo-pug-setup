@@ -403,12 +403,12 @@
 	}
 	"IsNowReady"
 	{
-		"#format"		"{1:s}"
+		"#format"		"{1:N}"
 		"en"		"{1} is now ready."
 	}
 	"IsNoLongerReady"
 	{
-		"#format"		"{1:s}"
+		"#format"		"{1:N}"
 		"en"		"{1} is no longer ready."
 	}
 }

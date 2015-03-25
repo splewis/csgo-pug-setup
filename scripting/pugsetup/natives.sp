@@ -118,7 +118,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
         PugSetupMessage(client, "%t", "YouAreReady");
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && client != i)
-                PugSetupMessage(i, "%t", "IsNowReady", i);
+                PugSetupMessage(i, "%t", "IsNowReady", client);
         }
     }
 
@@ -148,7 +148,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
         PugSetupMessage(client, "%t", "YouAreNotReady");
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && client != i)
-                PugSetupMessage(i, "%t", "IsNoLongerReady", i);
+                PugSetupMessage(i, "%t", "IsNoLongerReady", client);
         }
     }
 
