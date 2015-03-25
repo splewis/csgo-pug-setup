@@ -6,7 +6,7 @@
 	}
 	"MapTypeOption"
 	{
-		"de"		"Karten Art"
+		"de"		"Map Art"
 	}
 	"TeamTypeOption"
 	{
@@ -26,11 +26,11 @@
 	}
 	"VetoMessage"
 	{
-		"de"		"Der Kartenauswahl Prozess wird in wenigen Sekunden starten."
+		"de"		"Map veto wird in wenigen Sekunden starten."
 	}
 	"VoteMessage"
 	{
-		"de"		"Die Kartenwahl wird in wenigen Sekunden beginnen."
+		"de"		"Die Mapwahl wird in wenigen Sekunden beginnen."
 	}
 	"AlreadyLive"
 	{
@@ -62,7 +62,7 @@
 	}
 	"Scrambling"
 	{
-		"de"		"{GREEN}Die Manschaften werden gemischt!"
+		"de"		"{GREEN}Die Teams werden gemischt!"
 	}
 	"ForceEnd"
 	{
@@ -90,15 +90,15 @@
 	}
 	"TeamSetupMenuTitle"
 	{
-		"de"		"Wie werden die Manschaften gewählt?"
+		"de"		"Wie werden die Teams gewählt?"
 	}
 	"TeamSetupMenuCaptains"
 	{
-		"de"		"Gewählte Kapitäne wählen ihre Mannschaften?"
+		"de"		"Gewählte Kapitäne wählen ihre Teams?"
 	}
 	"TeamSetupMenuRandom"
 	{
-		"de"		"Zufällig gemischte Mannschaften"
+		"de"		"Zufällig gemischte Teams"
 	}
 	"TeamSetupMenuManual"
 	{
@@ -118,35 +118,35 @@
 	}
 	"HowManyPlayers"
 	{
-		"de"		"Wie viele Spieler pro Mannschaft?"
+		"de"		"Wie viele Spieler pro Team?"
 	}
 	"MapChoiceMenuTitle"
 	{
-		"de"		"Wie soll die Karte gewählt werden?"
+		"de"		"Wie soll die Map gewählt werden?"
 	}
 	"MapChoiceCurrent"
 	{
-		"de"		"Derzeitige Karte verwenden"
+		"de"		"Derzeitige Map verwenden"
 	}
 	"MapChoiceVote"
 	{
-		"de"		"Karte abstimmen"
+		"de"		"Map abstimmen"
 	}
 	"MapChoiceVeto"
 	{
-		"de"		"Kapitäne schließen Karten aus bis 1 übrig ist"
+		"de"		"Kapitäne schließen Maps aus bis 1 übrig ist"
 	}
 	"MapChoiceCurrentShort"
 	{
-		"de"		"Derzeitige Karte"
+		"de"		"Derzeitige Map"
 	}
 	"MapChoiceVoteShort"
 	{
-		"de"		"Kartenabstimmung"
+		"de"		"Mapabstimmung"
 	}
 	"MapChoiceVetoShort"
 	{
-		"de"		"Ausschlußverfahren"
+		"de"		"veto"
 	}
 	"Yes"
 	{
@@ -214,7 +214,7 @@
 	}
 	"VetoMenuTitle"
 	{
-		"de"		"Wähle eine Karte die du nicht spielen willst"
+		"de"		"Wähle eine Map die du nicht spielen willst"
 	}
 	"PlayerVetoed"
 	{
@@ -222,11 +222,11 @@
 	}
 	"MapsLeft"
 	{
-		"de"		"Karten übrig:"
+		"de"		"Map übrig:"
 	}
 	"VoteMenuTitle"
 	{
-		"de"		"Stimme für eine Karte"
+		"de"		"Stimme für eine Map"
 	}
 	"Random"
 	{
@@ -318,10 +318,10 @@
 	}
 	"ChangeMapMenuOption"
 	{
-		"de"		"Karte wechseln"
+		"de"		"Map wechseln"
 	}
 	"ChangeMapMenuTitle"
 	{
-		"de"		"Wähle Karte"
+		"de"		"Wähle Map"
 	}
 }
