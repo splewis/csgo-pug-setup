@@ -47,6 +47,7 @@ ConVar g_hMapVoteTime;
 ConVar g_hMaxTeamSize;
 ConVar g_hMessagePrefix;
 ConVar g_hMutualUnpause;
+ConVar g_hPausingEnabled;
 ConVar g_hPostGameCfg;
 ConVar g_hQuickRestarts;
 ConVar g_hRandomizeMapOrder;
@@ -202,13 +203,14 @@ public void OnPluginStart() {
     g_hMaxTeamSize = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes.", _, true, 2.0);
     g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
     g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
+    g_hPausingEnabled = CreateConVar("sm_pugsetup_pausing_enabled", "1", "Whether pausing is allowed.");
     g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish; should be in the csgo/cfg directory.");
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
     g_hRandomOptionInMapVote = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
-    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds before the lo3 process should being.", _, true, 0.0, true, 60.0);
-    g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality or not.");
+    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds of a countdown phase right before the lo3 process begins.", _, true, 0.0, true, 60.0);
+    g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality. The warmup config (sm_pugsetup_warmup_cfg) will be executed regardless of this setting.");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
 
@@ -1008,7 +1010,7 @@ public Action Command_ForceReady(int client, int args) {
 }
 
 static bool Pauseable() {
-    return g_GameState >= GameState_KnifeRound;
+    return g_GameState >= GameState_KnifeRound && g_hPausingEnabled.IntValue != 0;
 }
 
 public Action Command_Pause(int client, int args) {
