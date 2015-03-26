@@ -102,17 +102,25 @@ public int OnGetPageComplete(const char[] output, const int size, CMDReturn stat
 
 stock void WriteCollectionInfo(KeyValues kv, int collectionID) {
     LogDebug("WriteCollectionInfo %d", collectionID);
+
+    char strID[WORKSHOP_ID_LENGTH];
+    IntToString(collectionID, strID, sizeof(strID));
+
     if (kv.JumpToKey("collectiondetails") && kv.JumpToKey("0") && kv.JumpToKey("children")) {
         kv.GotoFirstSubKey();
 
+        // delete current workshop stuff in this collection
+        g_WorkshopCache.Rewind();
+        g_WorkshopCache.JumpToKey("collections", true);
+        g_WorkshopCache.DeleteKey(strID);
+        g_WorkshopCache.Rewind();
+
+        // write out maps currently in the collection
         char buffer[64];
         do {
             kv.GetSectionName(buffer, sizeof(buffer));
             char mapId[WORKSHOP_ID_LENGTH];
             kv.GetString("publishedfileid", mapId, sizeof(mapId));
-
-            char strID[WORKSHOP_ID_LENGTH];
-            IntToString(collectionID, strID, sizeof(strID));
 
             LogDebug("Read map id=%s inside collection id=%d", mapId, collectionID);
 
@@ -120,7 +128,7 @@ stock void WriteCollectionInfo(KeyValues kv, int collectionID) {
                 g_WorkshopCache.Rewind();
                 g_WorkshopCache.JumpToKey("collections", true);
                 g_WorkshopCache.JumpToKey(strID, true);
-                g_WorkshopCache.SetString(mapId, "x"); // appearently empty string values don't work
+                g_WorkshopCache.SetString(mapId, "x"); // apparently empty string values don't work
                 g_WorkshopCache.Rewind();
                 AddMapByID(mapId);
 
