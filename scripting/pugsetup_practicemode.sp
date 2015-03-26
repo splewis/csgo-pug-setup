@@ -93,11 +93,13 @@ public void OnPluginStart() {
     g_GrenadeTimeCvar = GetCvar("sv_grenade_trajectory_time");
     g_GrenadeSpecTimeCvar = GetCvar("sv_grenade_trajectory_time_spectator");
 
-    // set default color to green
-    g_ClientColors[0][0] = 0;
-    g_ClientColors[0][1] = 255;
-    g_ClientColors[0][2] = 0;
-    g_ClientColors[0][3] = 255;
+    // set default colors to green
+    for (int i = 0; i <= MAXPLAYERS; i++) {
+        g_ClientColors[0][0] = 0;
+        g_ClientColors[0][1] = 255;
+        g_ClientColors[0][2] = 0;
+        g_ClientColors[0][3] = 255;
+    }
 }
 
 public Handle GetCvar(const char[] name) {
