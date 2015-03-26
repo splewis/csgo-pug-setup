@@ -17,12 +17,16 @@ static void ShowMapVote() {
     SetMenuTitle(menu, "%T", "VoteMenuTitle", LANG_SERVER);
     SetMenuExitButton(menu, false);
 
-    char buffer[255];
-    Format(buffer, sizeof(buffer), "%T", "Random", LANG_SERVER);
-    AddMenuItem(menu, RANDOM_MAP_VOTE, buffer);
+    if (g_hRandomOptionInMapVote.IntValue != 0) {
+        char buffer[255];
+        Format(buffer, sizeof(buffer), "%T", "Random", LANG_SERVER);
+        AddMenuItem(menu, RANDOM_MAP_VOTE, buffer);
+    }
+
     for (int i = 0; i < GetArraySize(mapList); i++) {
         AddMapIndexToMenu(menu, mapList, i);
     }
+
     VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
 }
 

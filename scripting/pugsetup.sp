@@ -50,6 +50,7 @@ ConVar g_hMutualUnpause;
 ConVar g_hPostGameCfg;
 ConVar g_hQuickRestarts;
 ConVar g_hRandomizeMapOrder;
+ConVar g_hRandomOptionInMapVote;
 ConVar g_hSnakeCaptains;
 ConVar g_hStartDelay;
 ConVar g_hUseGameWarmup;
@@ -184,7 +185,6 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
-    g_Commands = new ArrayList(COMMAND_LENGTH);
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
     g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
@@ -205,6 +205,7 @@ public void OnPluginStart() {
     g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish; should be in the csgo/cfg directory.");
     g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
+    g_hRandomOptionInMapVote = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds before the lo3 process should being.", _, true, 0.0, true, 60.0);
     g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality or not.");
@@ -218,6 +219,7 @@ public void OnPluginStart() {
     SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
 
     /** Commands **/
+    g_Commands = new ArrayList(COMMAND_LENGTH);
     LoadTranslatedAliases();
     AddPugSetupCommand("ready", Command_Ready, "Marks the client as ready", Permission_All);
     AddPugSetupCommand("notready", Command_NotReady, "Marks the client as not ready", Permission_All);
