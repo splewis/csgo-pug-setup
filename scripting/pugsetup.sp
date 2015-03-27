@@ -336,6 +336,11 @@ public void OnClientDisconnect(int client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
     g_PlayerAtStart[client] = false;
+
+    if (client == g_capt1)
+        g_capt1 = -1;
+    if (client == g_capt2)
+        g_capt2 = -1;
 }
 
 public void OnClientDisconnect_Post(int client) {
