@@ -344,3 +344,13 @@ stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace, in
     IntToString(value, intString, sizeof(intString));
     ReplaceString(buffer, len, replace, intString, caseSensitive);
 }
+
+stock int GetCvarIntSafe(const char[] cvarName) {
+    Handle cvar = FindConVar(cvarName);
+    if (cvar == INVALID_HANDLE) {
+        LogError("Failed to find cvar \"%s\"", cvar);
+        return 0;
+    } else {
+        return GetConVarInt(cvar);
+    }
+}

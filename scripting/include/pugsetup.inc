@@ -55,14 +55,9 @@ forward bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly);
 forward void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int param2);
 
 /**
- * Called when a setup menu is finished.
- *
- * @param client Client that did the setup menu (e.g. the leader).
- * @param teamType The team type selected
- * @param mapType The map type selected
- * @param playersPerTeam The number of players per team
+ * Called when a setup is completed.
  */
-forward void OnSetup(int client, TeamType teamType, MapType mapType, int playersPerTeam);
+forward void OnSetup();
 
 /**
  * Called when a client force-ends the match.

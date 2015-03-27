@@ -31,13 +31,14 @@ public void AddBackupMaps() {
         AddMap(g_BackupMaps[i], g_MapList);
 }
 
-public void GetMapList(const char[] fileName, ArrayList mapList) {
+public bool GetMapList(const char[] fileName, ArrayList mapList) {
     mapList.Clear();
     char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", fileName);
 
     if (!FileExists(mapFile)) {
         LogError("Missing map file: %s", mapFile);
+        return false;
     } else {
         File file = OpenFile(mapFile, "r");
         if (file != null) {
@@ -49,6 +50,7 @@ public void GetMapList(const char[] fileName, ArrayList mapList) {
             delete file;
         } else {
             LogError("Failed to open maplist for reading: %s", mapFile);
+            return false;
         }
     }
 
@@ -57,6 +59,7 @@ public void GetMapList(const char[] fileName, ArrayList mapList) {
     Call_PushCell(mapList);
     Call_PushCell(false);
     Call_Finish();
+    return true;
 }
 
 public bool WriteMapList(const char[] fileName, ArrayList mapList) {
@@ -166,4 +169,38 @@ public void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex) {
     char mapName[128];
     FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
     AddMenuInt(menu, mapIndex, mapName);
+}
+
+public bool OnAimMap() {
+    ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
+    GetMapList("aim_maps.txt", maps);
+
+    char currentMap[PLATFORM_MAX_PATH];
+    GetCurrentMap(currentMap, sizeof(currentMap));
+
+    // if the map starts with 'aim' or exists in the aim map list
+    bool ret = StrContains(currentMap, "aim") == 0 || maps.FindString(currentMap) >= 0;
+
+    delete maps;
+    return ret;
+}
+
+public void ChangeToAimMap() {
+    LogDebug("ChangeToAimMap");
+    ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
+    char choiceMap[PLATFORM_MAX_PATH];
+    GetMapList("aim_maps.txt", maps);
+    int length = maps.Length;
+
+    if (length > 0) {
+        int choiceIndex = GetArrayRandomIndex(maps);
+        maps.GetString(choiceIndex, choiceMap, sizeof(choiceMap));
+    }
+
+    delete maps;
+
+    if (length > 0) {
+        g_SwitchingMaps = true;
+        ServerCommand("changelevel %s", choiceMap);
+    }
 }

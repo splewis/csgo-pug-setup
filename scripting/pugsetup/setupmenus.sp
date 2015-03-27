@@ -257,7 +257,7 @@ public int DemoHandler(int client) {
  * Called when the setup phase is over and the ready-up period should begin.
  */
 public void SetupFinished() {
-    ExecCfg(g_hWarmupCfg);
+    ExecWarmupConfigs();
 
     if (g_hUseGameWarmup.IntValue != 0 && !InWarmup())
         StartWarmup();
@@ -274,7 +274,7 @@ public void SetupFinished() {
     // reset match state variables
     g_capt1 = -1;
     g_capt2 = -1;
-    g_GameState = GameState_Warmup;
+    ChangeState(GameState_Warmup);
     StartLiveTimer();
 
     if (GetConVarInt(g_hAutoRandomizeCaptains) != 0) {
@@ -284,11 +284,11 @@ public void SetupFinished() {
     UpdateMapStatus();
 
     Call_StartForward(g_hOnSetup);
-    Call_PushCell(GetLeader());
-    Call_PushCell(g_TeamType);
-    Call_PushCell(g_MapType);
-    Call_PushCell(g_PlayersPerTeam);
     Call_Finish();
+
+    if (!g_OnDecidedMap && g_hUseAimMapWarmup.IntValue != 0 && !OnAimMap()) {
+        ChangeToAimMap();
+    }
 }
 
 public void StartLiveTimer() {

@@ -54,6 +54,7 @@ ConVar g_hRandomizeMapOrder;
 ConVar g_hRandomOptionInMapVote;
 ConVar g_hSnakeCaptains;
 ConVar g_hStartDelay;
+ConVar g_hUseAimMapWarmup;
 ConVar g_hUseGameWarmup;
 ConVar g_hWarmupCfg;
 ConVar g_hWarmupMoneyOnSpawn;
@@ -186,6 +187,7 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
+
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
     g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
@@ -210,6 +212,7 @@ public void OnPluginStart() {
     g_hRandomOptionInMapVote = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
     g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds of a countdown phase right before the lo3 process begins.", _, true, 0.0, true, 60.0);
+    g_hUseAimMapWarmup = CreateConVar("sm_pugsetup_use_aim_map_warmup", "0", "Whether to change map to a random map from configs/pugsetup/aim_maps.txt during warmup periods");
     g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality. The warmup config (sm_pugsetup_warmup_cfg) will be executed regardless of this setting.");
     g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
@@ -254,6 +257,7 @@ public void OnPluginStart() {
 
     /** Hooks **/
     HookEvent("cs_win_panel_match", Event_MatchOver);
+    HookEvent("round_start", Event_RoundStart);
     HookEvent("round_end", Event_RoundEnd);
     HookEvent("player_spawn", Event_PlayerSpawn);
 
@@ -340,7 +344,7 @@ public void OnClientDisconnect_Post(int client) {
         if (IsPlayer(i))
             numPlayers++;
 
-    if (numPlayers == 0 && !g_SwitchingMaps) {
+    if (numPlayers == 0 && !g_SwitchingMaps && g_hAutoSetup.IntValue == 0) {
         EndMatch(true);
     }
 }
@@ -366,10 +370,10 @@ public void OnMapStart() {
     }
 
     if (g_GameState == GameState_Warmup) {
-        ExecCfg(g_hWarmupCfg);
-        if (g_hUseGameWarmup.IntValue != 0)
+        ExecWarmupConfigs();
+        if (g_hUseGameWarmup.IntValue != 0) {
             StartWarmup();
-
+        }
         StartLiveTimer();
     } else {
         g_capt1 = -1;
@@ -956,7 +960,6 @@ public Action Command_EndGame(int client, int args) {
             AddMenuBool(menu, false, "%T", "ContinueMatch", client);
             AddMenuBool(menu, true, "%T", "EndMatch", client);
             DisplayMenu(menu, client, 20);
-
         }
 
     }
@@ -1286,13 +1289,16 @@ public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcas
         ExecCfg(g_hWarmupCfg);
     }
 
-    CreateTimer(20.0, Timer_CheckAutoSetup);
     return Plugin_Continue;
 }
 
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
 public Action Timer_EndMatch(Handle timer) {
     EndMatch(false, false);
+}
+
+public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast) {
+    CheckAutoSetup();
 }
 
 public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
@@ -1322,7 +1328,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
 
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
     if (IsPlayer(client) && OnActiveTeam(client) && g_hWarmupMoneyOnSpawn.IntValue != 0) {
-        SetEntProp(client, Prop_Send, "m_iAccount", 16000);
+        SetEntProp(client, Prop_Send, "m_iAccount", GetCvarIntSafe("mp_maxmoney"));
     }
 }
 
@@ -1551,6 +1557,13 @@ public void ScrambleTeams() {
     }
 }
 
+public void ExecWarmupConfigs() {
+    ExecCfg(g_hWarmupCfg);
+    if (OnAimMap() && g_hUseAimMapWarmup.IntValue != 0 && !g_OnDecidedMap) {
+        ServerCommand("exec sourcemod/pugsetup/aim_warmup.cfg");
+    }
+}
+
 public void ExecGameConfigs() {
     if (g_hExecDefaultConfig.IntValue != 0)
         ServerCommand("exec gamemode_competitive");
@@ -1578,7 +1591,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
 
     Unpause();
     if (execConfigs) {
-        ExecCfg(g_hWarmupCfg);
+        ExecWarmupConfigs();
     }
 
     g_LiveTimerRunning = false;
@@ -1681,11 +1694,6 @@ public Action StopDemo(Handle timer) {
     Call_PushCell(true);
     Call_PushString(g_DemoFileName);
     Call_Finish();
-    return Plugin_Handled;
-}
-
-public Action Timer_CheckAutoSetup(Handle timer) {
-    CheckAutoSetup();
     return Plugin_Handled;
 }
 
