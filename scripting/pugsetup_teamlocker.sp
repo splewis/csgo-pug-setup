@@ -7,6 +7,8 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+ConVar g_hBlockSpecJoins;
+ConVar g_hKickTime;
 ConVar g_hLockTeamsEnabled;
 
 public Plugin myinfo = {
@@ -19,10 +21,41 @@ public Plugin myinfo = {
 
 public void OnPluginStart() {
     InitDebugLog(DEBUG_CVAR, "teamlock");
+
+    g_hBlockSpecJoins = CreateConVar("sm_pugsetup_block_spectate_joins", "1", "Whether players are blocked from joining spectator (admins excluded) during a live match.");
+    g_hKickTime = CreateConVar("sm_pugsetup_kick_time", "0", "If players don't join a team after this many seconds, they will be kicked. Use 0 to disable.");
     g_hLockTeamsEnabled = CreateConVar("sm_pugsetup_teamlocker_enabled", "1", "Whether teams are locked when matches are live.");
+
     AutoExecConfig(true, "pugsetup_teamlocker", "sourcemod/pugsetup");
     AddCommandListener(Command_JoinTeam, "jointeam");
     HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Pre);
+}
+
+public void OnClientPutInServer(int client) {
+    if (GetGameState() > GameState_None) {
+        return;
+    }
+
+    int kickTime = g_hKickTime.IntValue;
+    if (kickTime != 0) {
+        CreateTimer(float(kickTime), Timer_CheckIfSpectator, GetClientSerial(client));
+    }
+}
+
+public Action Timer_CheckIfSpectator(Handle timer, int serial) {
+    if (GetGameState() > GameState_None) {
+        return Plugin_Handled;
+    }
+
+    int client = GetClientFromSerial(serial);
+    if (!IsPlayer(client) || IsPugAdmin(client)) {
+        int team = GetClientTeam(client);
+        if (team == CS_TEAM_SPECTATOR || team == CS_TEAM_NONE) {
+            KickClient(client, "You did not join a team in time");
+        }
+    }
+
+    return Plugin_Handled;
 }
 
 public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
@@ -52,6 +85,9 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
 
     // don't let someone change to a "none" team (e.g. using auto-select)
     if (team_to == CS_TEAM_NONE)
+        return Plugin_Handled;
+
+    if (team_to == CS_TEAM_SPECTATOR && !IsPugAdmin(client) && g_hBlockSpecJoins.IntValue != 0)
         return Plugin_Handled;
 
     int playerCount = 0;
