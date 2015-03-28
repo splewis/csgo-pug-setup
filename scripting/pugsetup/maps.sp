@@ -10,17 +10,36 @@ static char g_BackupMaps[][] = {
     "de_train",
 };
 
-public void ChangeMap() {
+stock void ChangeMap(ArrayList mapList, int mapIndex=-1, float delay=3.0, bool toFinalMap=true) {
     char map[PLATFORM_MAX_PATH];
-    FormatMapName(g_MapList, g_ChosenMap, map, sizeof(map));
+
+    if (mapIndex == -1) {
+        mapIndex = GetArrayRandomIndex(mapList);
+    }
+
+    // print the formatted name
+    FormatMapName(mapList, mapIndex, map, sizeof(map));
     PugSetupMessageToAll("Changing map to {GREEN}%s{NORMAL}...", map);
-    CreateTimer(3.0, Timer_DelayedChangeMap);
+
+    // pass the "true" name to a timer to changelevel
+    mapList.GetString(mapIndex, map, sizeof(map));
+    Handle data = CreateDataPack();
+    WritePackString(data, map);
+    WritePackCell(data, toFinalMap);
+
+    CreateTimer(delay, Timer_DelayedChangeMap, data);
 }
 
-public Action Timer_DelayedChangeMap(Handle timer) {
+public Action Timer_DelayedChangeMap(Handle timer, Handle pack) {
     char map[PLATFORM_MAX_PATH];
-    GetArrayString(g_MapList, g_ChosenMap, map, sizeof(map));
-    g_OnDecidedMap = true;
+    ResetPack(pack);
+    ReadPackString(pack, map, sizeof(map));
+    bool toFinalMap = ReadPackCell(pack);
+
+    if (toFinalMap) {
+        g_OnDecidedMap = true;
+    }
+
     g_SwitchingMaps = true;
     ServerCommand("changelevel %s", map);
     return Plugin_Handled;
@@ -186,21 +205,10 @@ public bool OnAimMap() {
 }
 
 public void ChangeToAimMap() {
-    LogDebug("ChangeToAimMap");
     ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
-    char choiceMap[PLATFORM_MAX_PATH];
     GetMapList("aim_maps.txt", maps);
-    int length = maps.Length;
-
-    if (length > 0) {
-        int choiceIndex = GetArrayRandomIndex(maps);
-        maps.GetString(choiceIndex, choiceMap, sizeof(choiceMap));
+    if (maps.Length > 0) {
+        ChangeMap(maps, GetArrayRandomIndex(maps), 5.0, false);
     }
-
     delete maps;
-
-    if (length > 0) {
-        g_SwitchingMaps = true;
-        ServerCommand("changelevel %s", choiceMap);
-    }
 }

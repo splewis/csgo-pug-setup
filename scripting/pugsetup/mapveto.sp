@@ -65,8 +65,7 @@ public int VetoHandler(Menu menu, MenuAction action, int param1, int param2) {
 
         g_MapVetoed.Set(index, true);
         if (GetNumMapsLeft() == 1) {
-            g_ChosenMap = GetFirstMapLeft();
-            ChangeMap();
+            ChangeMap(g_MapList, GetFirstMapLeft());
         } else {
             int other = OtherCaptain(client);
             GiveVetoMenu(other);

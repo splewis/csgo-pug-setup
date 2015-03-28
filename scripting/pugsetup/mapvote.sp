@@ -50,11 +50,10 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
     } else if (action == MenuAction_VoteEnd) {
         int winner = GetMenuInt(menu, param1);
         if (winner == StringToInt(RANDOM_MAP_VOTE)) {
-            g_ChosenMap = GetArrayRandomIndex(mapList);
+            ChangeMap(g_MapList,  GetArrayRandomIndex(mapList));
         } else {
-            g_ChosenMap = GetMenuInt(menu, param1);
+            ChangeMap(g_MapList, GetMenuInt(menu, param1));
         }
-        ChangeMap();
 
     } else if (action == MenuAction_End) {
         CloseHandle(menu);

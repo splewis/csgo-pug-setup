@@ -120,7 +120,6 @@ ArrayList g_Commands; // just a list of all known pugsetup commands
 
 /** Map-choosing variables **/
 ArrayList g_MapVetoed;
-int g_ChosenMap = -1;
 
 /** Data about team selections **/
 int g_capt1 = -1;
@@ -187,7 +186,6 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
-
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
     g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");

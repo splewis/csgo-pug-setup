@@ -351,8 +351,7 @@ public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2
         if (choice == -1) {
             GiveSetupMenu(client);
         } else {
-            g_ChosenMap = GetMenuInt(menu, param2);
-            ChangeMap();
+            ChangeMap(g_MapList, GetMenuInt(menu, param2));
         }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
