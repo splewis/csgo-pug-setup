@@ -32,7 +32,7 @@ public void OnPluginStart() {
 }
 
 public void OnClientPutInServer(int client) {
-    if (GetGameState() > GameState_None) {
+    if (GetGameState() == GameState_None) {
         return;
     }
 
@@ -43,12 +43,12 @@ public void OnClientPutInServer(int client) {
 }
 
 public Action Timer_CheckIfSpectator(Handle timer, int serial) {
-    if (GetGameState() > GameState_None) {
+    if (GetGameState() == GameState_None) {
         return Plugin_Handled;
     }
 
     int client = GetClientFromSerial(serial);
-    if (!IsPlayer(client) || IsPugAdmin(client)) {
+    if (IsPlayer(client) && !IsPugAdmin(client)) {
         int team = GetClientTeam(client);
         if (team == CS_TEAM_SPECTATOR || team == CS_TEAM_NONE) {
             KickClient(client, "You did not join a team in time");
