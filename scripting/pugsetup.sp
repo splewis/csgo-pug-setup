@@ -688,7 +688,7 @@ public Action Command_Setup(int client, int args) {
     }
 
     if (IsPlayer(client) && !IsPlayer(GetLeader())) {
-        g_Leader = GetSteamAccountID(client);
+        g_Leader = client;
     }
 
     if (client == 0) {
@@ -721,7 +721,7 @@ public Action Command_10man(int client, int args) {
     }
 
     if (IsPlayer(client) && !IsPlayer(GetLeader())) {
-        g_Leader = GetSteamAccountID(client);
+        g_Leader = client;
     }
 
     SetupGame(TeamType_Captains, MapType_Vote, 5, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
@@ -1597,7 +1597,6 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
         ExecWarmupConfigs();
     }
 
-    g_Leader = -1;
     g_LiveTimerRunning = false;
     g_Leader = -1;
     g_capt1 = -1;

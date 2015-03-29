@@ -192,21 +192,19 @@ public int Native_SetLeader(Handle plugin, int numParams) {
 
     if (IsPlayer(client)) {
         PugSetupMessageToAll("%t", "NewLeader", client);
-        g_Leader = GetSteamAccountID(client);
+        g_Leader = client;
     }
 }
 
 public int Native_GetLeader(Handle plugin, int numParams) {
     // first check if our "leader" is still connected
-    for (int i = 1; i <= MaxClients; i++) {
-        if (IsClientConnected(i) && !IsFakeClient(i) && GetSteamAccountID(i) == g_Leader)
-            return i;
-    }
+    if (g_Leader > 0 && IsClientConnected(g_Leader) && !IsFakeClient(g_Leader))
+        return g_Leader;
 
     // then check if we have someone with admin permissions
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && IsPugAdmin(i)) {
-            g_Leader = GetSteamAccountID(i);
+            g_Leader = i;
             return i;
         }
     }
@@ -214,7 +212,7 @@ public int Native_GetLeader(Handle plugin, int numParams) {
     // otherwise fall back to a random player
     int r = RandomPlayer();
     if (IsPlayer(r))
-        g_Leader = GetSteamAccountID(r);
+        g_Leader = r;
 
     return r;
 }
