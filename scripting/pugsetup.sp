@@ -1597,6 +1597,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
         ExecWarmupConfigs();
     }
 
+    g_Leader = -1;
     g_LiveTimerRunning = false;
     g_Leader = -1;
     g_capt1 = -1;
