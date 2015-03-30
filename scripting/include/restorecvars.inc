@@ -27,7 +27,7 @@ stock Handle SaveCvars(ArrayList cvarNames) {
 }
 
 // Restores cvars to their previous value using a return value of SaveCvars.
-stock void RestoreCvars(Handle cvarStorage, bool close=false) {
+stock void RestoreCvars(Handle& cvarStorage, bool close=false) {
     ArrayList cvarNameList = view_as<ArrayList>(GetArrayCell(cvarStorage, 0));
     ArrayList cvarValueList = view_as<ArrayList>(GetArrayCell(cvarStorage, 1));
 
@@ -49,10 +49,11 @@ stock void RestoreCvars(Handle cvarStorage, bool close=false) {
 }
 
 // Closes a cvar storage object returned by SaveCvars.
-stock void CloseCvarStorage(Handle cvarStorage) {
+stock void CloseCvarStorage(Handle& cvarStorage) {
     CloseHandle(GetArrayCell(cvarStorage, 0));
     CloseHandle(GetArrayCell(cvarStorage, 1));
     CloseHandle(cvarStorage);
+    cvarStorage = INVALID_HANDLE;
 }
 
 // Returns the first "word" in a line, as seperated by whitespace.
@@ -94,8 +95,6 @@ stock Handle ExecuteAndSaveCvars(const char[] cfgFile) {
             if (__firstWord(lineBuffer, nameBuffer, sizeof(nameBuffer))) {
                 TrimString(nameBuffer);
                 nameList.PushString(nameBuffer);
-            } else {
-                LogError("Couldn't split cvar name/value for line = %s", lineBuffer);
             }
         }
 
