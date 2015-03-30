@@ -15,18 +15,19 @@
 #define STEAMWORKS_AVALIABLE()        (GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available)
 #define SYSTEM2_AVAILABLE()        (GetFeatureStatus(FeatureType_Native, "System2_GetPage") == FeatureStatus_Available)
 
-static int g_CollectionID = -1; // used when our callback functions can't have data passed through them
-
 /*
  * Sends an API call for steam to fetch the maps inside a collection.
  */
-stock void UpdateWorkshopCache(int collectionID) {
-    g_CollectionID = collectionID;
+stock void UpdateWorkshopCache(int collectionID, ArrayList list) {
     char strID[WORKSHOP_ID_LENGTH];
     IntToString(collectionID, strID, sizeof(strID));
 
     char requestUrl[MAX_URL_LEN];
     Format(requestUrl, MAX_URL_LEN, "http://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/");
+
+    DataPack pack = new DataPack();
+    pack.WriteCell(collectionID);
+    pack.WriteCell(list);
 
     if (STEAMWORKS_AVALIABLE()) {
         LogDebug("using steamworks on collection id = %d", collectionID);
@@ -35,28 +36,36 @@ stock void UpdateWorkshopCache(int collectionID) {
         SteamWorks_SetHTTPRequestGetOrPostParameter(request, "publishedfileids[0]", strID);
         SteamWorks_SetHTTPRequestGetOrPostParameter(request, "format", "vdf");
         SteamWorks_SetHTTPCallbacks(request, OnHTTPReplyRecieved);
+        SteamWorks_SetHTTPRequestContextValue(request, pack);
         SteamWorks_SendHTTPRequest(request);
 
     } else if (SYSTEM2_AVAILABLE()) {
         char data[MAX_POST_LEN];
         Format(data, MAX_POST_LEN, "collectioncount=1&publishedfileids%%5B0%%5D=%d&format=vdf", collectionID);
         LogDebug("Sending steam API POST using System2 with url=%s and data=%s", requestUrl, data);
-        System2_GetPage(OnGetPageComplete, requestUrl, data, WAPI_USERAGENT, collectionID);
+        System2_GetPage(OnGetPageComplete, requestUrl, data, WAPI_USERAGENT, pack);
 
     } else {
+        delete pack;
         LogError("You have the system2 extension installed to use workshop collections.");
     }
 }
 
 // SteamWorks HTTP callback
-public int OnHTTPReplyRecieved(Handle request, bool failure, bool requestSuccessful, EHTTPStatusCode statusCode) {
+public int OnHTTPReplyRecieved(Handle request, bool failure, bool requestSuccessful, EHTTPStatusCode statusCode, Handle data) {
+    DataPack pack = view_as<DataPack>(data);
+    pack.Reset();
+    int collectionID = pack.ReadCell();
+    ArrayList list = view_as<ArrayList>(pack.ReadCell());
+
     if (failure || !requestSuccessful) {
         LogError("Steamworks collection request failed, HTTP status code = %d", statusCode);
-        AddWorkshopMapsToList(g_CollectionID); // add backup maps that might already be cached
+        AddWorkshopMapsToList(collectionID, list); // add backup maps that might already be cached
+        delete pack;
         return;
     }
 
-    LogDebug("OnHTTPReplyRecieved, id=%d", g_CollectionID);
+    LogDebug("OnHTTPReplyRecieved, id=%d", collectionID);
 
     char filePath[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, filePath, sizeof(filePath), RESPONSE_FILE);
@@ -64,21 +73,28 @@ public int OnHTTPReplyRecieved(Handle request, bool failure, bool requestSuccess
 
     KeyValues kv = new KeyValues("response");
     if (kv.ImportFromFile(filePath)) {
-        WriteCollectionInfo(kv, g_CollectionID);
+        WriteCollectionInfo(kv, collectionID);
     } else {
         LogError("Couldn't import from file %s", RESPONSE_FILE);
     }
     delete kv;
 
-    AddWorkshopMapsToList(g_CollectionID);
+    AddWorkshopMapsToList(collectionID, list);
+    delete pack;
 }
 
 // System2 HTTP callback
-public int OnGetPageComplete(const char[] output, const int size, CMDReturn status, int collectionID) {
+public int OnGetPageComplete(const char[] output, const int size, CMDReturn status, Handle data) {
+    DataPack pack = view_as<DataPack>(data);
+    pack.Reset();
+    int collectionID = pack.ReadCell();
+    ArrayList list = view_as<ArrayList>(pack.ReadCell());
+
     // Handle error condition
     if (status == CMD_ERROR) {
         LogDebug("Steam API error: couldn't fetch data for collection ID %d", collectionID);
-        AddWorkshopMapsToList(collectionID); // add anything we might already have (e.g. still in the workshop cache)
+        AddWorkshopMapsToList(collectionID, list); // add anything we might already have (e.g. still in the workshop cache)
+        delete pack;
         return;
     }
 
@@ -97,7 +113,9 @@ public int OnGetPageComplete(const char[] output, const int size, CMDReturn stat
         }
     }
 
-    AddWorkshopMapsToList(collectionID);
+    AddWorkshopMapsToList(collectionID, list);
+
+    delete pack;
 }
 
 stock void WriteCollectionInfo(KeyValues kv, int collectionID) {
@@ -193,7 +211,7 @@ static void AddMapByID(const char[] mapId) {
     }
 }
 
-static void AddWorkshopMapsToList(int collectionID) {
+static void AddWorkshopMapsToList(int collectionID, ArrayList mapList) {
     // first get all the map ids for this colelction into a list
     ArrayList mapIds = CreateArray(WORKSHOP_ID_LENGTH);
 
@@ -218,18 +236,18 @@ static void AddWorkshopMapsToList(int collectionID) {
     char mapName[PLATFORM_MAX_PATH];
     g_WorkshopCache.JumpToKey("maps", true);
 
-    g_MapList.Clear();
+    mapList.Clear();
     for (int i = 0; i < mapIds.Length; i++) {
         mapIds.GetString(i, mapId, sizeof(mapId));
         g_WorkshopCache.GetString(mapId, mapName, sizeof(mapName));
-        AddMap(mapName, g_MapList);
+        AddMap(mapName, mapList);
     }
 
     g_WorkshopCache.Rewind();
 
     Call_StartForward(g_hOnMapListRead);
     Call_PushString(strID);
-    Call_PushCell(g_MapList);
+    Call_PushCell(mapList);
     Call_PushCell(true);
     Call_Finish();
 

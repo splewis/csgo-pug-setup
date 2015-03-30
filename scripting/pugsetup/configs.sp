@@ -13,19 +13,23 @@ stock bool UsingWorkshopCollection() {
 }
 
 stock void InitMapSettings() {
-    ClearArray(g_MapList);
+    FillMapList(g_hMapList, g_MapList);
+    FillMapList(g_hAimMapList, g_AimMapList);
+}
+
+static void FillMapList(ConVar cvar, ArrayList list) {
+    ClearArray(list);
 
     char maplist[PLATFORM_MAX_PATH];
-    g_hMapList.GetString(maplist, sizeof(maplist));
+    cvar.GetString(maplist, sizeof(maplist));
 
     int collectionID = StringToInt(maplist);
-
     if (collectionID == 0) {
         // it's a regular map list
         GetMapList(maplist, g_MapList);
     } else {
         // it's a workshop collection id, setup the workshop cache
-        UpdateWorkshopCache(collectionID);
+        UpdateWorkshopCache(collectionID, list);
     }
 }
 

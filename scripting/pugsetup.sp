@@ -30,6 +30,7 @@
 
 /** ConVar handles **/
 ConVar g_hAdminFlag;
+ConVar g_hAimMapList;
 ConVar g_hAnnounceCountdown;
 ConVar g_hAutoRandomizeCaptains;
 ConVar g_hAutoSetup;
@@ -71,6 +72,7 @@ bool g_DisplayMapChange = false;
 /** Setup info **/
 int g_Leader = -1;
 ArrayList g_MapList;
+ArrayList g_AimMapList;
 bool g_ForceEnded = false;
 
 /** Specific choices made when setting up **/
@@ -187,6 +189,7 @@ public void OnPluginStart() {
 
     /** ConVars **/
     g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
+    g_hAimMapList = CreateConVar("sm_pugsetup_maplist_aim_maps", "aim_maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have either the SteamWorks or System2 extensions installed.");
     g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
     g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not.");
