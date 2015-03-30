@@ -111,7 +111,7 @@ public bool AddToMapList(const char[] mapName) {
         return false;
 
     char maplist[PLATFORM_MAX_PATH];
-    g_hMapList.GetString(maplist, sizeof(maplist));
+    g_MapListCvar.GetString(maplist, sizeof(maplist));
 
     char mapFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, mapFile, sizeof(mapFile), "configs/pugsetup/%s", maplist);
@@ -132,7 +132,7 @@ public bool RemoveMapFromList(const char[] mapName) {
         return false;
 
     char maplist[PLATFORM_MAX_PATH];
-    g_hMapList.GetString(maplist, sizeof(maplist));
+    g_MapListCvar.GetString(maplist, sizeof(maplist));
 
     ArrayList tmpList = new ArrayList(PLATFORM_MAX_PATH);
     GetMapList(maplist, tmpList);

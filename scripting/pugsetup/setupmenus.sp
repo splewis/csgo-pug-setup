@@ -7,7 +7,7 @@
         SetMenuExitButton(menu, true);
 
         int style = ITEMDRAW_DEFAULT;
-        if ((g_hForceDefaults.IntValue != 0 && !IsPugAdmin(client)) || displayOnly) {
+        if ((g_ForceDefaultsCvar.IntValue != 0 && !IsPugAdmin(client)) || displayOnly) {
             style = ITEMDRAW_DISABLED;
         }
 
@@ -196,7 +196,7 @@ public void TeamSizeMenu(int client) {
     SetMenuTitle(menu, "%T", "HowManyPlayers", client);
     SetMenuExitButton(menu, false);
 
-    for (int i = 1; i <= g_hMaxTeamSize.IntValue; i++)
+    for (int i = 1; i <= g_MaxTeamSizeCvar.IntValue; i++)
         AddMenuInt(menu, i, "");
 
     AddMenuInt(menu, -1, "%T", "Back", client);
@@ -259,7 +259,7 @@ public int DemoHandler(int client) {
 public void SetupFinished() {
     ExecWarmupConfigs();
 
-    if (g_hUseGameWarmup.IntValue != 0 && !InWarmup())
+    if (g_UseGameWarmupCvar.IntValue != 0 && !InWarmup())
         StartWarmup();
     else
         RestartGame(1);
@@ -277,7 +277,7 @@ public void SetupFinished() {
     ChangeState(GameState_Warmup);
     StartLiveTimer();
 
-    if (GetConVarInt(g_hAutoRandomizeCaptains) != 0) {
+    if (GetConVarInt(g_AutoRandomizeCaptainsCvar) != 0) {
         SetRandomCaptains();
     }
 
@@ -286,7 +286,7 @@ public void SetupFinished() {
     Call_StartForward(g_hOnSetup);
     Call_Finish();
 
-    if (!g_OnDecidedMap && g_hUseAimMapWarmup.IntValue != 0 && !OnAimMap()) {
+    if (!g_OnDecidedMap && g_UseAimMapWarmupCvar.IntValue != 0 && !OnAimMap()) {
         ChangeToAimMap();
     }
 }

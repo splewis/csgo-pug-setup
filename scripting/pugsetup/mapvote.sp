@@ -4,7 +4,7 @@
  * Map voting functions
  */
 public void CreateMapVote() {
-    if (GetConVarInt(g_hRandomizeMapOrder) != 0)
+    if (GetConVarInt(g_RandomizeMapOrderCvar) != 0)
         RandomizeArray(GetCurrentMapList());
 
     ShowMapVote();
@@ -17,7 +17,7 @@ static void ShowMapVote() {
     SetMenuTitle(menu, "%T", "VoteMenuTitle", LANG_SERVER);
     SetMenuExitButton(menu, false);
 
-    if (g_hRandomOptionInMapVote.IntValue != 0) {
+    if (g_RandomOptionInMapVoteCvar.IntValue != 0) {
         char buffer[255];
         Format(buffer, sizeof(buffer), "%T", "Random", LANG_SERVER);
         AddMenuItem(menu, RANDOM_MAP_VOTE, buffer);
@@ -27,7 +27,7 @@ static void ShowMapVote() {
         AddMapIndexToMenu(menu, mapList, i);
     }
 
-    VoteMenuToAll(menu, GetConVarInt(g_hMapVoteTime));
+    VoteMenuToAll(menu, GetConVarInt(g_MapVoteTimeCvar));
 }
 
 public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) {

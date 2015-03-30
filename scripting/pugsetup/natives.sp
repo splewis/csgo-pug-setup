@@ -98,7 +98,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     if (g_GameState != GameState_Warmup || !IsPlayer(client))
         return false;
 
-    if (g_hExcludeSpectators.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
+    if (g_ExcludeSpectatorsCvar.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
         PugSetupMessage(client, "%t", "SpecCantReady");
         return false;
     }
@@ -115,7 +115,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     g_Ready[client] = true;
     UpdateClanTag(client);
 
-    if (g_hEchoReadyMessages.IntValue != 0) {
+    if (g_EchoReadyMessagesCvar.IntValue != 0) {
         PugSetupMessage(client, "%t", "YouAreReady");
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && client != i)
@@ -145,7 +145,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
     g_Ready[client] = false;
     UpdateClanTag(client);
 
-    if (g_hEchoReadyMessages.IntValue != 0) {
+    if (g_EchoReadyMessagesCvar.IntValue != 0) {
         PugSetupMessage(client, "%t", "YouAreNotReady");
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && client != i)
@@ -274,7 +274,7 @@ public int Native_PugSetupMessage(Handle plugin, int numParams) {
     FormatNativeString(0, 2, 3, sizeof(buffer), bytesWritten, buffer);
 
     char prefix[64];
-    g_hMessagePrefix.GetString(prefix, sizeof(prefix));
+    g_MessagePrefixCvar.GetString(prefix, sizeof(prefix));
 
     char finalMsg[1024];
     if (StrEqual(prefix, ""))
@@ -294,7 +294,7 @@ public int Native_PugSetupMessage(Handle plugin, int numParams) {
 
 public int Native_PugSetupMessageToAll(Handle plugin, int numParams) {
     char prefix[64];
-    g_hMessagePrefix.GetString(prefix, sizeof(prefix));
+    g_MessagePrefixCvar.GetString(prefix, sizeof(prefix));
     char buffer[1024];
     int bytesWritten = 0;
 
@@ -338,7 +338,7 @@ public int Native_IsPugAdmin(Handle plugin, int numParams) {
     if (admin != INVALID_ADMIN_ID) {
         char flags[8];
         AdminFlag flag;
-        g_hAdminFlag.GetString(flags, sizeof(flags));
+        g_AdminFlagCvar.GetString(flags, sizeof(flags));
         if (!FindFlagByChar(flags[0], flag)) {
             LogError("Invalid immunity flag: %s", flags[0]);
             return false;

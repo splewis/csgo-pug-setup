@@ -7,13 +7,13 @@
  */
 stock bool UsingWorkshopCollection() {
     char maplist[PLATFORM_MAX_PATH];
-    g_hMapList.GetString(maplist, sizeof(maplist));
+    g_MapListCvar.GetString(maplist, sizeof(maplist));
     int collectionID = StringToInt(maplist);
     return collectionID != 0;
 }
 
 stock void InitMapSettings() {
-    FillMapList(g_hMapList, g_MapList);
+    FillMapList(g_MapListCvar, g_MapList);
     FillMapList(g_hAimMapList, g_AimMapList);
 }
 

@@ -20,7 +20,7 @@ public Action BeginLO3(Handle timer) {
     Call_StartForward(g_hOnGoingLive);
     Call_Finish();
 
-    if (GetConVarInt(g_hQuickRestarts) == 0) {
+    if (GetConVarInt(g_QuickRestartsCvar) == 0) {
         // start lo3
         PugSetupMessageToAll("%t", "RestartCounter", 1);
         RestartGame(1);

@@ -4,7 +4,7 @@
 public void CreateMapVeto() {
     ArrayList mapList = GetCurrentMapList();
 
-    if (GetConVarInt(g_hRandomizeMapOrder) != 0)
+    if (GetConVarInt(g_RandomizeMapOrderCvar) != 0)
         RandomizeArray(mapList);
 
     ClearArray(g_MapVetoed);

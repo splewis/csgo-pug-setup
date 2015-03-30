@@ -29,36 +29,36 @@
  ***********************/
 
 /** ConVar handles **/
-ConVar g_hAdminFlag;
+ConVar g_AdminFlagCvar;
+ConVar g_AnnounceCountdownCvar;
+ConVar g_AutoRandomizeCaptainsCvar;
+ConVar g_AutoSetupCvar;
+ConVar g_AutoUpdateCvar;
+ConVar g_CvarVersionCvar;
+ConVar g_DemoNameFormatCvar;
+ConVar g_DemoTimeFormatCvar;
+ConVar g_EchoReadyMessagesCvar;
+ConVar g_ExcludeSpectatorsCvar;
+ConVar g_ExecDefaultConfigCvar;
+ConVar g_ForceDefaultsCvar;
 ConVar g_hAimMapList;
-ConVar g_hAnnounceCountdown;
-ConVar g_hAutoRandomizeCaptains;
-ConVar g_hAutoSetup;
-ConVar g_hAutoUpdate;
-ConVar g_hCvarVersion;
-ConVar g_hDemoNameFormat;
-ConVar g_hDemoTimeFormat;
-ConVar g_hEchoReadyMessages;
-ConVar g_hExcludeSpectators;
-ConVar g_hExecDefaultConfig;
-ConVar g_hForceDefaults;
-ConVar g_hLiveCfg;
-ConVar g_hMapList;
-ConVar g_hMapVoteTime;
-ConVar g_hMaxTeamSize;
-ConVar g_hMessagePrefix;
-ConVar g_hMutualUnpause;
-ConVar g_hPausingEnabled;
-ConVar g_hPostGameCfg;
-ConVar g_hQuickRestarts;
-ConVar g_hRandomizeMapOrder;
-ConVar g_hRandomOptionInMapVote;
-ConVar g_hSnakeCaptains;
-ConVar g_hStartDelay;
-ConVar g_hUseAimMapWarmup;
-ConVar g_hUseGameWarmup;
-ConVar g_hWarmupCfg;
-ConVar g_hWarmupMoneyOnSpawn;
+ConVar g_LiveCfgCvar;
+ConVar g_MapListCvar;
+ConVar g_MapVoteTimeCvar;
+ConVar g_MaxTeamSizeCvar;
+ConVar g_MessagePrefixCvar;
+ConVar g_MutualUnpauseCvar;
+ConVar g_PausingEnabledCvar;
+ConVar g_PostGameCfgCvar;
+ConVar g_QuickRestartsCvar;
+ConVar g_RandomizeMapOrderCvar;
+ConVar g_RandomOptionInMapVoteCvar;
+ConVar g_SnakeCaptainsCvar;
+ConVar g_StartDelayCvar;
+ConVar g_UseAimMapWarmupCvar;
+ConVar g_UseGameWarmupCvar;
+ConVar g_WarmupCfgCvar;
+ConVar g_WarmupMoneyOnSpawnCvar;
 
 /** Setup menu options **/
 bool g_DisplayMapType = true;
@@ -188,41 +188,41 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
-    g_hAdminFlag = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
+    g_AdminFlagCvar = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
+    g_AnnounceCountdownCvar = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
+    g_AutoRandomizeCaptainsCvar = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
+    g_AutoSetupCvar = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not.");
+    g_AutoUpdateCvar = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update.");
+    g_DemoNameFormatCvar = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
+    g_DemoTimeFormatCvar = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
+    g_EchoReadyMessagesCvar = CreateConVar("sm_pugsetup_echo_ready_messages", "0", "Whether to print to chat when clients ready/unready.");
+    g_ExcludeSpectatorsCvar = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains as well.");
+    g_ExecDefaultConfigCvar = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
+    g_ForceDefaultsCvar = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options (note that admins can override them still).");
     g_hAimMapList = CreateConVar("sm_pugsetup_maplist_aim_maps", "aim_maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have either the SteamWorks or System2 extensions installed.");
-    g_hAnnounceCountdown = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
-    g_hAutoRandomizeCaptains = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
-    g_hAutoSetup = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not.");
-    g_hAutoUpdate = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update.");
-    g_hDemoNameFormat = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
-    g_hDemoTimeFormat = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
-    g_hEchoReadyMessages = CreateConVar("sm_pugsetup_echo_ready_messages", "0", "Whether to print to chat when clients ready/unready.");
-    g_hExcludeSpectators = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains as well.");
-    g_hExecDefaultConfig = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
-    g_hForceDefaults = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options (note that admins can override them still).");
-    g_hLiveCfg = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/live.cfg", "Config to execute when the game goes live");
-    g_hMapList = CreateConVar("sm_pugsetup_maplist", "maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have either the SteamWorks or System2 extensions installed.");
-    g_hMapVoteTime = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes.", _, true, 10.0);
-    g_hMaxTeamSize = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes.", _, true, 2.0);
-    g_hMessagePrefix = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
-    g_hMutualUnpause = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
-    g_hPausingEnabled = CreateConVar("sm_pugsetup_pausing_enabled", "1", "Whether pausing is allowed.");
-    g_hPostGameCfg = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish; should be in the csgo/cfg directory.");
-    g_hQuickRestarts = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
-    g_hRandomizeMapOrder = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
-    g_hRandomOptionInMapVote = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
-    g_hSnakeCaptains = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
-    g_hStartDelay = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds of a countdown phase right before the lo3 process begins.", _, true, 0.0, true, 60.0);
-    g_hUseAimMapWarmup = CreateConVar("sm_pugsetup_use_aim_map_warmup", "0", "Whether to change map to a random map from configs/pugsetup/aim_maps.txt during warmup periods");
-    g_hUseGameWarmup = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality. The warmup config (sm_pugsetup_warmup_cfg) will be executed regardless of this setting.");
-    g_hWarmupCfg = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
-    g_hWarmupMoneyOnSpawn = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
+    g_LiveCfgCvar = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/live.cfg", "Config to execute when the game goes live");
+    g_MapListCvar = CreateConVar("sm_pugsetup_maplist", "maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have either the SteamWorks or System2 extensions installed.");
+    g_MapVoteTimeCvar = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes.", _, true, 10.0);
+    g_MaxTeamSizeCvar = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes.", _, true, 2.0);
+    g_MessagePrefixCvar = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
+    g_MutualUnpauseCvar = CreateConVar("sm_pugsetup_mutual_unpausing", "1", "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
+    g_PausingEnabledCvar = CreateConVar("sm_pugsetup_pausing_enabled", "1", "Whether pausing is allowed.");
+    g_PostGameCfgCvar = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish; should be in the csgo/cfg directory.");
+    g_QuickRestartsCvar = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
+    g_RandomizeMapOrderCvar = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
+    g_RandomOptionInMapVoteCvar = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
+    g_SnakeCaptainsCvar = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
+    g_StartDelayCvar = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds of a countdown phase right before the lo3 process begins.", _, true, 0.0, true, 60.0);
+    g_UseAimMapWarmupCvar = CreateConVar("sm_pugsetup_use_aim_map_warmup", "0", "Whether to change map to a random map from configs/pugsetup/aim_maps.txt during warmup periods");
+    g_UseGameWarmupCvar = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality. The warmup config (sm_pugsetup_warmup_cfg) will be executed regardless of this setting.");
+    g_WarmupCfgCvar = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
+    g_WarmupMoneyOnSpawnCvar = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
 
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
 
-    g_hCvarVersion = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
-    SetConVarString(g_hCvarVersion, PLUGIN_VERSION);
+    g_CvarVersionCvar = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+    SetConVarString(g_CvarVersionCvar, PLUGIN_VERSION);
 
     /** Commands **/
     g_Commands = new ArrayList(COMMAND_LENGTH);
@@ -293,7 +293,7 @@ public void OnPluginStart() {
     Format(g_CacheFile, sizeof(g_CacheFile), "%s/cache.cfg", g_DataDir);
 
     /** Updater support **/
-    if (GetConVarInt(g_hAutoUpdate) != 0) {
+    if (GetConVarInt(g_AutoUpdateCvar) != 0) {
         if (LibraryExists("updater")) {
             Updater_AddPlugin(UPDATE_URL);
         }
@@ -318,7 +318,7 @@ public void OnConfigsExecuted() {
 }
 
 public void OnLibraryAdded(const char[] name) {
-    if (GetConVarInt(g_hAutoUpdate) != 0) {
+    if (GetConVarInt(g_AutoUpdateCvar) != 0) {
         if (LibraryExists("updater")) {
             Updater_AddPlugin(UPDATE_URL);
         }
@@ -350,7 +350,7 @@ public void OnClientDisconnect_Post(int client) {
         if (IsPlayer(i))
             numPlayers++;
 
-    if (numPlayers == 0 && !g_SwitchingMaps && g_hAutoSetup.IntValue == 0) {
+    if (numPlayers == 0 && !g_SwitchingMaps && g_AutoSetupCvar.IntValue == 0) {
         EndMatch(true);
     }
 }
@@ -377,7 +377,7 @@ public void OnMapStart() {
 
     if (g_GameState == GameState_Warmup) {
         ExecWarmupConfigs();
-        if (g_hUseGameWarmup.IntValue != 0) {
+        if (g_UseGameWarmupCvar.IntValue != 0) {
             StartWarmup();
         }
         StartLiveTimer();
@@ -411,7 +411,7 @@ public Action Timer_CheckReady(Handle timer) {
         if (IsPlayer(i)) {
             UpdateClanTag(i);
             int team = GetClientTeam(i);
-            if (g_hExcludeSpectators.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+            if (g_ExcludeSpectatorsCvar.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
                 totalPlayers++;
                 if (g_Ready[i]) {
                     readyPlayers++;
@@ -471,7 +471,7 @@ public Action Timer_CheckReady(Handle timer) {
     Call_PushCell(totalPlayers);
     Call_Finish();
 
-    if (g_TeamType == TeamType_Captains && g_hAutoRandomizeCaptains.IntValue != 0 && totalPlayers >= GetPugMaxPlayers()) {
+    if (g_TeamType == TeamType_Captains && g_AutoRandomizeCaptainsCvar.IntValue != 0 && totalPlayers >= GetPugMaxPlayers()) {
         // re-randomize captains if they aren't set yet
         if (!IsPlayer(g_capt1)) {
             g_capt1 = RandomPlayer();
@@ -1019,14 +1019,14 @@ public Action Command_ForceReady(int client, int args) {
 }
 
 static bool Pauseable() {
-    return g_GameState >= GameState_KnifeRound && g_hPausingEnabled.IntValue != 0;
+    return g_GameState >= GameState_KnifeRound && g_PausingEnabledCvar.IntValue != 0;
 }
 
 public Action Command_Pause(int client, int args) {
     if (!Pauseable() || IsPaused())
         return Plugin_Handled;
 
-    if (g_hMutualUnpause.IntValue != 0) {
+    if (g_MutualUnpauseCvar.IntValue != 0) {
         SetPermissions("sm_pause", Permission_All);
     }
 
@@ -1046,7 +1046,7 @@ public Action Command_Unpause(int client, int args) {
     if (!IsPaused())
         return Plugin_Handled;
 
-    if (g_hMutualUnpause.IntValue != 0) {
+    if (g_MutualUnpauseCvar.IntValue != 0) {
         SetPermissions("sm_unpause", Permission_All);
     }
 
@@ -1055,7 +1055,7 @@ public Action Command_Unpause(int client, int args) {
     char unpauseCmd[ALIAS_LENGTH];
     FindAliasFromCommand("sm_unpause", unpauseCmd);
 
-    if (g_hMutualUnpause.IntValue == 0) {
+    if (g_MutualUnpauseCvar.IntValue == 0) {
         Unpause();
         if (IsPlayer(client)) {
             PugSetupMessageToAll("%t", "Unpause", client);
@@ -1292,7 +1292,7 @@ public Action Command_SetDisplay(int client, int args) {
 public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcast) {
     if (g_GameState == GameState_Live) {
         CreateTimer(15.0, Timer_EndMatch);
-        ExecCfg(g_hWarmupCfg);
+        ExecCfg(g_WarmupCfgCvar);
     }
 
     return Plugin_Continue;
@@ -1333,7 +1333,7 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
         return;
 
     int client = GetClientOfUserId(GetEventInt(event, "userid"));
-    if (IsPlayer(client) && OnActiveTeam(client) && g_hWarmupMoneyOnSpawn.IntValue != 0) {
+    if (IsPlayer(client) && OnActiveTeam(client) && g_WarmupMoneyOnSpawnCvar.IntValue != 0) {
         SetEntProp(client, Prop_Send, "m_iAccount", GetCvarIntSafe("mp_maxmoney"));
     }
 }
@@ -1407,7 +1407,7 @@ public Action Timer_StartCommandHint(Handle timer) {
 
 static void CreateCountDown() {
     ChangeState(GameState_Countdown);
-    g_CountDownTicks = g_hStartDelay.IntValue;
+    g_CountDownTicks = g_StartDelayCvar.IntValue;
     CreateTimer(1.0, Timer_CountDown, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
@@ -1423,7 +1423,7 @@ public Action Timer_CountDown(Handle timer)  {
         return Plugin_Stop;
     }
 
-    if (g_hAnnounceCountdown.IntValue != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
+    if (g_AnnounceCountdownCvar.IntValue != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
         PugSetupMessageToAll("%t", "Countdown", g_CountDownTicks);
     }
 
@@ -1449,7 +1449,7 @@ public void StartGame() {
 
         // get the time, this is {TIME} in the format string
         char timeFormat[64];
-        g_hDemoTimeFormat.GetString(timeFormat, sizeof(timeFormat));
+        g_DemoTimeFormatCvar.GetString(timeFormat, sizeof(timeFormat));
         int timeStamp = GetTime();
         char formattedTime[64];
         FormatTime(formattedTime, sizeof(formattedTime), timeFormat, timeStamp);
@@ -1460,7 +1460,7 @@ public void StartGame() {
 
         // create the actual demo name to use
         char demoName[PLATFORM_MAX_PATH];
-        g_hDemoNameFormat.GetString(demoName, sizeof(demoName));
+        g_DemoNameFormatCvar.GetString(demoName, sizeof(demoName));
 
         ReplaceString(demoName, sizeof(demoName), "{MAP}", mapName[last_slash], false);
         ReplaceString(demoName, sizeof(demoName), "{TEAMSIZE}", playerCount, false);
@@ -1531,7 +1531,7 @@ public void ScrambleTeams() {
     int ctCount = 0;
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && (g_hExcludeSpectators.IntValue == 0 || GetClientTeam(i) != CS_TEAM_SPECTATOR)) {
+        if (IsPlayer(i) && (g_ExcludeSpectatorsCvar.IntValue == 0 || GetClientTeam(i) != CS_TEAM_SPECTATOR)) {
             if (tCount < g_PlayersPerTeam && ctCount < g_PlayersPerTeam) {
                 bool ct = (GetRandomInt(0, 1) == 0);
                 if (ct) {
@@ -1564,17 +1564,17 @@ public void ScrambleTeams() {
 }
 
 public void ExecWarmupConfigs() {
-    ExecCfg(g_hWarmupCfg);
-    if (OnAimMap() && g_hUseAimMapWarmup.IntValue != 0 && !g_OnDecidedMap) {
+    ExecCfg(g_WarmupCfgCvar);
+    if (OnAimMap() && g_UseAimMapWarmupCvar.IntValue != 0 && !g_OnDecidedMap) {
         ServerCommand("exec sourcemod/pugsetup/aim_warmup.cfg");
     }
 }
 
 public void ExecGameConfigs() {
-    if (g_hExecDefaultConfig.IntValue != 0)
+    if (g_ExecDefaultConfigCvar.IntValue != 0)
         ServerCommand("exec gamemode_competitive");
 
-    ExecCfg(g_hLiveCfg);
+    ExecCfg(g_LiveCfgCvar);
     if (InWarmup())
         EndWarmup();
 }
@@ -1620,7 +1620,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     }
 
     if (execConfigs) {
-        ExecCfg(g_hPostGameCfg);
+        ExecCfg(g_PostGameCfgCvar);
     }
 
     if (InWarmup()) {
@@ -1704,7 +1704,7 @@ public Action StopDemo(Handle timer) {
 }
 
 public void CheckAutoSetup() {
-    if (g_hAutoSetup.IntValue != 0 && g_GameState == GameState_None && !g_ForceEnded) {
+    if (g_AutoSetupCvar.IntValue != 0 && g_GameState == GameState_None && !g_ForceEnded) {
         // Re-fetch the defaults
         ReadSetupOptions();
         SetupFinished();
@@ -1727,10 +1727,10 @@ public void ExecCfg(ConVar cvar) {
         ServerCommand("exec \"%s\"", cfg);
     }
 
-    if (cvar == g_hLiveCfg) {
+    if (cvar == g_LiveCfgCvar) {
         Call_StartForward(g_hOnLiveCfg);
         Call_Finish();
-    } else if (cvar == g_hWarmupCfg) {
+    } else if (cvar == g_WarmupCfgCvar) {
         Call_StartForward(g_hOnWarmupCfg);
         Call_Finish();
     }
@@ -1763,7 +1763,7 @@ stock void UpdateClanTag(int client, bool strip=false) {
         }
 
         int team = GetClientTeam(client);
-        if (g_hExcludeSpectators.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
+        if (g_ExcludeSpectatorsCvar.IntValue == 0 || team == CS_TEAM_CT || team == CS_TEAM_T) {
             char tag[32];
             if (g_Ready[client]) {
                 Format(tag, sizeof(tag), "%T", "Ready", LANG_SERVER);
