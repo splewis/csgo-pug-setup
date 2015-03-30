@@ -3,4 +3,3 @@ workshop/125689062/aim_street_go
 workshop/126759439/aim_usp_a
 workshop/131866721/aim_redline
 workshop/136490612/aim_dust
-workshop/183511193/aim_ak47_colt
