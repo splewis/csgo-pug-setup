@@ -620,6 +620,15 @@ public Action Command_Pugstatus(int client, int args) {
             GetCurrentMap(buffer, sizeof(buffer));
             ReplyToCommand(client, "On map %s", buffer);
         }
+
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i)) {
+                if (IsReady(i))
+                    ReplyToCommand(client, "  Player %L is READY", i);
+                else
+                    ReplyToCommand(client, "  Player %L is NOT READY", i);
+            }
+        }
     }
 
     if (g_GameState == GameState_Live) {
