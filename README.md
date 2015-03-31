@@ -56,7 +56,6 @@ Download pugsetup.zip and extract the files to the game server. You can simply u
  From the download, you should have installed the following (to the ``csgo`` directory):
 - ``addons/sourcemod/plugins/pugsetup.smx``
 - ``addons/sourcemod/translations/`` (the entire directory)
-- ``addons/sourcemod/data/pugsetup/`` (the entire directory)
 - ``addons/sourcemod/configs/pugsetup/`` (the entire directory)
 - ``cfg/sourcemod/pugsetup`` (the entire directory)
 
