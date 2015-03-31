@@ -29,6 +29,7 @@
 
 /** ConVar handles **/
 ConVar g_AdminFlagCvar;
+ConVar g_AimMapListCvar;
 ConVar g_AnnounceCountdownCvar;
 ConVar g_AutoRandomizeCaptainsCvar;
 ConVar g_AutoSetupCvar;
@@ -40,7 +41,6 @@ ConVar g_EchoReadyMessagesCvar;
 ConVar g_ExcludeSpectatorsCvar;
 ConVar g_ExecDefaultConfigCvar;
 ConVar g_ForceDefaultsCvar;
-ConVar g_AimMapListCvar;
 ConVar g_LiveCfgCvar;
 ConVar g_MapListCvar;
 ConVar g_MapVoteTimeCvar;
@@ -187,6 +187,7 @@ public void OnPluginStart() {
 
     /** ConVars **/
     g_AdminFlagCvar = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
+    g_AimMapListCvar = CreateConVar("sm_pugsetup_maplist_aim_maps", "aim_maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
     g_AnnounceCountdownCvar = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
     g_AutoRandomizeCaptainsCvar = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_AutoSetupCvar = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not.");
@@ -197,7 +198,6 @@ public void OnPluginStart() {
     g_ExcludeSpectatorsCvar = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains as well.");
     g_ExecDefaultConfigCvar = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_ForceDefaultsCvar = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options (note that admins can override them still).");
-    g_AimMapListCvar = CreateConVar("sm_pugsetup_maplist_aim_maps", "aim_maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
     g_LiveCfgCvar = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/live.cfg", "Config to execute when the game goes live");
     g_MapListCvar = CreateConVar("sm_pugsetup_maplist", "maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
     g_MapVoteTimeCvar = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes.", _, true, 10.0);
@@ -211,7 +211,7 @@ public void OnPluginStart() {
     g_RandomOptionInMapVoteCvar = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
     g_SnakeCaptainsCvar = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_StartDelayCvar = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds of a countdown phase right before the lo3 process begins.", _, true, 0.0, true, 60.0);
-    g_UseAimMapWarmupCvar = CreateConVar("sm_pugsetup_use_aim_map_warmup", "0", "Whether to change map to a random map from configs/pugsetup/aim_maps.txt during warmup periods");
+    g_UseAimMapWarmupCvar = CreateConVar("sm_pugsetup_use_aim_map_warmup", "0", "Whether to change map to a random map from sm_pugsetup_maplist_aim_maps during warmup periods");
     g_UseGameWarmupCvar = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality. The warmup config (sm_pugsetup_warmup_cfg) will be executed regardless of this setting.");
     g_WarmupCfgCvar = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_WarmupMoneyOnSpawnCvar = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
