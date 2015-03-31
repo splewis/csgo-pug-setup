@@ -191,24 +191,16 @@ public void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex) {
 }
 
 public bool OnAimMap() {
-    ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
-    GetMapList("aim_maps.txt", maps);
-
     char currentMap[PLATFORM_MAX_PATH];
     GetCurrentMap(currentMap, sizeof(currentMap));
 
     // if the map starts with 'aim' or exists in the aim map list
-    bool ret = StrContains(currentMap, "aim") == 0 || maps.FindString(currentMap) >= 0;
-
-    delete maps;
+    bool ret = StrContains(currentMap, "aim") == 0 ||  g_AimMapList.FindString(currentMap) >= 0;
     return ret;
 }
 
 public void ChangeToAimMap() {
-    ArrayList maps = new ArrayList(PLATFORM_MAX_PATH);
-    GetMapList("aim_maps.txt", maps);
-    if (maps.Length > 0) {
-        ChangeMap(maps, GetArrayRandomIndex(maps), 5.0, false);
+    if (g_AimMapList.Length > 0) {
+        ChangeMap(g_AimMapList, GetArrayRandomIndex(g_AimMapList), 5.0, false);
     }
-    delete maps;
 }
