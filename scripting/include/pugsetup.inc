@@ -144,15 +144,6 @@ forward void OnPermissionCheck(int client, const char[] command, Permission p, b
 forward void OnStartRecording(char[] demoName);
 
 /**
- * Called after a maplist is read.
- *
- * @param maplist The maplist file or workshop collection id
- * @param maps The ArrayList of maps fetched
- * @param workshopCollection Whether the maplist was a workshop collection or a regular maplist file
- */
-forward void OnMapListRead(const char[] maplist, ArrayList maps, bool workshopCollection);
-
-/**
  * Called before a player gets added to a captain selection menu.
  *
  * @param menu The Menu players are being added to

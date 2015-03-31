@@ -5,16 +5,16 @@
 /**
  * Update maplist info and fetch any workshop info needed.
  */
-stock bool UsingWorkshopCollection() {
+public bool UsingWorkshopCollection() {
     char maplist[PLATFORM_MAX_PATH];
     g_MapListCvar.GetString(maplist, sizeof(maplist));
     int collectionID = StringToInt(maplist);
     return collectionID != 0;
 }
 
-stock void InitMapSettings() {
+public void InitMapSettings() {
     FillMapList(g_MapListCvar, g_MapList);
-    FillMapList(g_hAimMapList, g_AimMapList);
+    FillMapList(g_AimMapListCvar, g_AimMapList);
 }
 
 static void FillMapList(ConVar cvar, ArrayList list) {
@@ -29,7 +29,7 @@ static void FillMapList(ConVar cvar, ArrayList list) {
         GetMapList(maplist, g_MapList);
     } else {
         // it's a workshop collection id, setup the workshop cache
-        UpdateWorkshopCache(collectionID, list);
+        UpdateWorkshopCache(maplist, list);
     }
 }
 

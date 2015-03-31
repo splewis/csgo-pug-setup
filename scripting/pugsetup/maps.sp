@@ -41,7 +41,13 @@ public Action Timer_DelayedChangeMap(Handle timer, Handle pack) {
     }
 
     g_SwitchingMaps = true;
-    ServerCommand("changelevel %s", map);
+
+    if (IsMapValid(map)) {
+        ServerCommand("changelevel %s", map);
+    } else if (StrContains(map, "workshop") == 0) {
+        ServerCommand("host_workshop_map %d", GetMapIdFromString(map));
+    }
+
     return Plugin_Handled;
 }
 
@@ -73,11 +79,6 @@ public bool GetMapList(const char[] fileName, ArrayList mapList) {
         }
     }
 
-    Call_StartForward(g_hOnMapListRead);
-    Call_PushString(fileName);
-    Call_PushCell(mapList);
-    Call_PushCell(false);
-    Call_Finish();
     return true;
 }
 
@@ -153,8 +154,7 @@ public bool AddMap(const char[] mapName, ArrayList mapList) {
     }
 
     // only add valid maps and non-duplicate maps
-    if (IsMapValid(mapName) && mapList.FindString(mapName) == -1) {
-        LogDebug("succesfully added map %s to maplist", mapName);
+    if ((IsMapValid(mapName) || StrContains(mapName, "workshop") == 0) && mapList.FindString(mapName) == -1) {
         mapList.PushString(mapName);
         return true;
     }
@@ -203,4 +203,10 @@ public void ChangeToAimMap() {
     if (g_AimMapList.Length > 0) {
         ChangeMap(g_AimMapList, GetArrayRandomIndex(g_AimMapList), 5.0, false);
     }
+}
+
+public int GetMapIdFromString(const char[] map) {
+    char buffers[4][PLATFORM_MAX_PATH];
+    ExplodeString(map, "/", buffers, sizeof(buffers), PLATFORM_MAX_PATH);
+    return StringToInt(buffers[1]);
 }

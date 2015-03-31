@@ -7,7 +7,6 @@
 #include "pugsetup/generic.sp"
 
 #undef REQUIRE_EXTENSIONS
-#include "include/system2.inc"
 #include "include/SteamWorks.inc"
 
 #undef REQUIRE_PLUGIN
@@ -41,7 +40,7 @@ ConVar g_EchoReadyMessagesCvar;
 ConVar g_ExcludeSpectatorsCvar;
 ConVar g_ExecDefaultConfigCvar;
 ConVar g_ForceDefaultsCvar;
-ConVar g_hAimMapList;
+ConVar g_AimMapListCvar;
 ConVar g_LiveCfgCvar;
 ConVar g_MapListCvar;
 ConVar g_MapVoteTimeCvar;
@@ -139,7 +138,6 @@ Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnLive = INVALID_HANDLE;
 Handle g_hOnLiveCfg = INVALID_HANDLE;
 Handle g_hOnLiveCheck = INVALID_HANDLE;
-Handle g_hOnMapListRead = INVALID_HANDLE;
 Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnNotPicked = INVALID_HANDLE;
 Handle g_hOnPermissionCheck = INVALID_HANDLE;
@@ -199,9 +197,9 @@ public void OnPluginStart() {
     g_ExcludeSpectatorsCvar = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains as well.");
     g_ExecDefaultConfigCvar = CreateConVar("sm_pugsetup_exec_default_game_config", "1", "Whether gamemode_competitive (the matchmaking config) should be executed before the live config.");
     g_ForceDefaultsCvar = CreateConVar("sm_pugsetup_force_defaults", "0", "Whether the default setup options are forced as the setup options (note that admins can override them still).");
-    g_hAimMapList = CreateConVar("sm_pugsetup_maplist_aim_maps", "aim_maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have either the SteamWorks or System2 extensions installed.");
+    g_AimMapListCvar = CreateConVar("sm_pugsetup_maplist_aim_maps", "aim_maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
     g_LiveCfgCvar = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/live.cfg", "Config to execute when the game goes live");
-    g_MapListCvar = CreateConVar("sm_pugsetup_maplist", "maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have either the SteamWorks or System2 extensions installed.");
+    g_MapListCvar = CreateConVar("sm_pugsetup_maplist", "maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
     g_MapVoteTimeCvar = CreateConVar("sm_pugsetup_mapvote_time", "20", "How long the map vote should last if using map-votes.", _, true, 10.0);
     g_MaxTeamSizeCvar = CreateConVar("sm_pugsetup_max_team_size", "5", "Maximum size of a team when selecting team sizes.", _, true, 2.0);
     g_MessagePrefixCvar = CreateConVar("sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]", "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
@@ -247,6 +245,7 @@ public void OnPluginStart() {
     AddPugSetupCommand("addmap", Command_AddMap, "Adds a map to the current maplist", Permission_Admin);
     AddPugSetupCommand("removemap", Command_RemoveMap, "Removes a map to the current maplist", Permission_Admin);
     AddPugSetupCommand("listpugmaps", Command_ListPugMaps, "Lists the current maplist", Permission_All);
+    AddPugSetupCommand("listaimmaps", Command_ListAimMaps, "Lists the current aim maplist", Permission_All);
     AddPugSetupCommand("start", Command_Start, "Lists the current maplist", Permission_Leader);
     AddPugSetupCommand("addalias", Command_AddAlias, "Adds a pugsetup alias, and saves it to the chatalias.cfg file", Permission_Admin);
     AddPugSetupCommand("removealias", Command_RemoveAlias, "Removes a pugsetup alias", Permission_Admin);
@@ -267,7 +266,6 @@ public void OnPluginStart() {
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
     g_hOnLiveCfg = CreateGlobalForward("OnLiveCfgExecuted", ET_Ignore);
     g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
-    g_hOnMapListRead = CreateGlobalForward("OnMapListRead", ET_Ignore, Param_String, Param_Cell, Param_Cell);
     g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
     g_hOnNotPicked = CreateGlobalForward("OnNotPicked", ET_Ignore, Param_Cell);
     g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
@@ -798,20 +796,28 @@ public Action Command_ForceStart(int client, int args) {
     return Plugin_Handled;
 }
 
-public Action Command_ListPugMaps(int client, int args) {
-    PermissionCheck(client, "sm_listpugmaps")
-
-    int n = g_MapList.Length;
+static void ListMapList(int client, ArrayList maplist) {
+    int n = maplist.Length;
     if (n == 0) {
-        PugSetupMessage(client, "No maps are in the maplist");
+        PugSetupMessage(client, "No maps found");
     } else {
         char buffer[PLATFORM_MAX_PATH];
         for (int i = 0; i < n; i++) {
-            FormatMapName(g_MapList, i, buffer, sizeof(buffer));
+            FormatMapName(maplist, i, buffer, sizeof(buffer));
             PugSetupMessage(client, "Map %d: %s", i + 1, buffer);
         }
     }
+}
 
+public Action Command_ListPugMaps(int client, int args) {
+    PermissionCheck(client, "sm_listpugmaps")
+    ListMapList(client, g_MapList);
+    return Plugin_Handled;
+}
+
+public Action Command_ListAimMaps(int client, int args) {
+    PermissionCheck(client, "sm_listaimmaps")
+    ListMapList(client, g_AimMapList);
     return Plugin_Handled;
 }
 
