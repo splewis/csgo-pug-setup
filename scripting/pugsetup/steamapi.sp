@@ -34,7 +34,7 @@ public void UpdateWorkshopCache(const char[] collectionId, ArrayList list) {
     }
 }
 
-// SteamWorks HTTP callback
+// SteamWorks HTTP callback for fetching a workshop collection
 public int OnWorkshopInfoReceived(Handle request, bool failure, bool requestSuccessful, EHTTPStatusCode statusCode, Handle data) {
     char collectionId[WORKSHOP_ID_LENGTH];
 
@@ -42,8 +42,6 @@ public int OnWorkshopInfoReceived(Handle request, bool failure, bool requestSucc
     pack.Reset();
     pack.ReadString(collectionId, sizeof(collectionId));
     ArrayList list = view_as<ArrayList>(pack.ReadCell());
-
-    LogDebug("OnWorkshopInfoReceived(collection=%s)", collectionId);
 
     if (failure || !requestSuccessful) {
         LogError("Steamworks collection request failed, HTTP status code = %d", statusCode);
@@ -79,6 +77,8 @@ stock void WriteCollectionInfo(KeyValues kv, const char[] collectionId, ArrayLis
         g_WorkshopCache.DeleteKey(collectionId);
         g_WorkshopCache.Rewind();
 
+        ArrayList mapIds = CreateArray(WORKSHOP_ID_LENGTH);
+
         // write out maps currently in the collection
         char buffer[64];
         do {
@@ -92,15 +92,21 @@ stock void WriteCollectionInfo(KeyValues kv, const char[] collectionId, ArrayLis
                 g_WorkshopCache.JumpToKey(collectionId, true);
                 g_WorkshopCache.SetString(mapId, "x"); // apparently empty string values don't work
                 g_WorkshopCache.Rewind();
-                UpdateMapInfo(collectionId, mapId, mapList);
+                mapIds.PushString(mapId);
             } else {
                 LogError("Failed to add map %s to collection %s inside the workshop cache", mapId, collectionId);
             }
 
         } while (kv.GotoNextKey());
+
+        // Updates any cache info about the maps in the collection
+        UpdateMapInfo(collectionId, mapList, mapIds);
+        delete mapIds;
+
     } else {
         LogError("Recieved improperly formatted respone in response kv");
     }
+
 }
 
 static void AddWorkshopMapsToList(const char[] collectionId, ArrayList mapList) {
@@ -142,52 +148,64 @@ static void AddWorkshopMapsToList(const char[] collectionId, ArrayList mapList) 
 /*
  * Sends an API call for steam to fetch the maps inside a collection.
  */
-public void UpdateMapInfo(const char[] collectionId, const char[] mapId, ArrayList list) {
+// public void UpdateMapInfo(const char[] collectionId, const char[] mapId, ArrayList list) {
+public void UpdateMapInfo(const char[] collectionId, ArrayList list, ArrayList mapIds) {
     char requestUrl[MAX_URL_LEN];
     Format(requestUrl, MAX_URL_LEN, "http://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/");
 
-    if (STEAMWORKS_AVALIABLE()) {
-        Handle request = SteamWorks_CreateHTTPRequest(k_EHTTPMethodPOST, requestUrl);
-        if (request == INVALID_HANDLE) {
-            LogError("Failed to create HTTP POST request using url: %s", requestUrl);
-            return;
-        }
-
-        DataPack pack = new DataPack();
-        pack.WriteString(collectionId);
-        pack.WriteString(mapId);
-        pack.WriteCell(list);
-
-        SteamWorks_SetHTTPRequestGetOrPostParameter(request, "itemcount", "1");
-        SteamWorks_SetHTTPRequestGetOrPostParameter(request, "publishedfileids[0]", mapId);
-        SteamWorks_SetHTTPRequestGetOrPostParameter(request, "format", "vdf");
-        SteamWorks_SetHTTPCallbacks(request, OnMapInfoReceived);
-        SteamWorks_SetHTTPRequestContextValue(request, pack);
-        SteamWorks_SendHTTPRequest(request);
-
-    } else {
-        LogError("You have the SteamWorks extension installed to use workshop collections.");
+    Handle request = SteamWorks_CreateHTTPRequest(k_EHTTPMethodPOST, requestUrl);
+    if (request == INVALID_HANDLE) {
+        LogError("Failed to create HTTP POST request using url: %s", requestUrl);
+        return;
     }
+
+    DataPack pack = new DataPack();
+    pack.WriteString(collectionId);
+    pack.WriteCell(list);
+    pack.WriteCell(mapIds.Length);
+
+    char itemcount[32];
+    IntToString(mapIds.Length, itemcount, sizeof(itemcount));
+    SteamWorks_SetHTTPRequestGetOrPostParameter(request, "itemcount", itemcount);
+
+    char mapId[WORKSHOP_ID_LENGTH];
+    for (int i = 0; i < mapIds.Length; i++) {
+        mapIds.GetString(i, mapId, sizeof(mapId));
+        pack.WriteString(mapId);
+
+        char param[64];
+        Format(param, sizeof(param), "publishedfileids[%d]", i);
+        SteamWorks_SetHTTPRequestGetOrPostParameter(request, param, mapId);
+    }
+
+    SteamWorks_SetHTTPRequestGetOrPostParameter(request, "format", "vdf");
+    SteamWorks_SetHTTPCallbacks(request, OnMapInfoReceived);
+    SteamWorks_SetHTTPRequestContextValue(request, pack);
+    SteamWorks_SendHTTPRequest(request);
 }
 
-// SteamWorks HTTP callback for a map id
+// SteamWorks HTTP callback for fetching map information
 public int OnMapInfoReceived(Handle request, bool failure, bool requestSuccessful, EHTTPStatusCode statusCode, Handle data) {
     char collectionId[WORKSHOP_ID_LENGTH];
-    char mapId[WORKSHOP_ID_LENGTH];
+    ArrayList mapIds = CreateArray(WORKSHOP_ID_LENGTH);
 
     DataPack pack = view_as<DataPack>(data);
     pack.Reset();
-
     pack.ReadString(collectionId, sizeof(collectionId));
-    pack.ReadString(mapId, sizeof(mapId));
     ArrayList list = view_as<ArrayList>(pack.ReadCell());
 
-    LogDebug("OnMapInfoReceived(map=%s, collection=%s)", mapId, collectionId);
+    int numMaps = pack.ReadCell();
+    for (int i = 0; i < numMaps; i++) {
+        char mapId[WORKSHOP_ID_LENGTH];
+        pack.ReadString(mapId, sizeof(mapId));
+        mapIds.PushString(mapId);
+    }
 
     if (failure || !requestSuccessful) {
         LogError("Steamworks collection request failed, HTTP status code = %d", statusCode);
         AddWorkshopMapsToList(collectionId, list);
         delete pack;
+        delete mapIds;
         return;
     }
 
@@ -198,20 +216,28 @@ public int OnMapInfoReceived(Handle request, bool failure, bool requestSuccessfu
 
     KeyValues kv = new KeyValues("response");
     if (kv.ImportFromString(response)) {
-        WriteMapInfo(kv, mapId);
+        char mapId[WORKSHOP_ID_LENGTH];
+        for (int i = 0; i < numMaps; i++) {
+            mapIds.GetString(i, mapId, sizeof(mapId));
+            WriteMapInfo(kv, i, mapId);
+        }
     } else {
         LogError("Couldn't import keyvalue response:\n%s", response);
     }
 
     AddWorkshopMapsToList(collectionId, list);
     delete pack;
+    delete mapIds;
     delete kv;
 }
 
-public void WriteMapInfo(KeyValues kv, const char[] mapId) {
+public void WriteMapInfo(KeyValues kv, int index, const char[] mapId) {
     g_WorkshopCache.JumpToKey("maps", true);
 
-    if (kv.JumpToKey("publishedfiledetails") && kv.JumpToKey("0")) {
+    char indexString[32];
+    IntToString(index, indexString, sizeof(indexString));
+
+    if (kv.JumpToKey("publishedfiledetails") && kv.JumpToKey(indexString)) {
         char mapName[PLATFORM_MAX_PATH];
         kv.GetString("filename", mapName, sizeof(mapName));
 
@@ -220,13 +246,12 @@ public void WriteMapInfo(KeyValues kv, const char[] mapId) {
         ReplaceString(mapName, sizeof(mapName), "mymaps/", "");
         ReplaceString(mapName, sizeof(mapName), ".bsp", "");
 
-        LogDebug("mapId = %s, mapName = %s", mapId, mapName);
-
         g_WorkshopCache.SetString(mapId, mapName);
 
     } else {
         LogError("Recieved improperly formatted respone in response kv");
     }
 
+    kv.Rewind();
     g_WorkshopCache.Rewind();
 }
