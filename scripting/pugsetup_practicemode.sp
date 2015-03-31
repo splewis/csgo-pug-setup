@@ -70,8 +70,6 @@ public void OnPluginStart() {
     AddChatAlias(".noclip", "noclip");
     AddChatAlias(".god", "god");
     AddCommandListener(Command_TeamJoin, "jointeam");
-    g_InfiniteMoneyCvar = CreateConVar("sm_infinite_money", "0", "Whether clients recieve infinite money");
-    HookConVarChange(g_InfiniteMoneyCvar, OnCvarChanged);
 
     // Init data structures to be read from the config file
     g_BinaryOptionIds = new ArrayList(OPTION_NAME_LENGTH);
@@ -84,14 +82,22 @@ public void OnPluginStart() {
     g_BinaryOptionDisabledValues = new ArrayList();
     ReadPracticeSettings();
 
-    // Init grenade settings
-    g_GrenadeTrajectoryClientColorCvar = CreateConVar("sm_grenade_trajectory_use_player_color", "1", "Whether to use client colors when drawing grenade trajectories");
-    HookConVarChange(g_GrenadeTrajectoryClientColorCvar, OnCvarChanged);
+    // New cvars
+    g_InfiniteMoneyCvar = CreateConVar("sm_infinite_money", "0", "Whether clients recieve infinite money");
+    HookConVarChange(g_InfiniteMoneyCvar, OnInfiniteMoneyChanged);
 
+    g_GrenadeTrajectoryClientColorCvar = CreateConVar("sm_grenade_trajectory_use_player_color", "1", "Whether to use client colors when drawing grenade trajectories");
+    HookConVarChange(g_GrenadeTrajectoryClientColorCvar, OnGrenadeTrajectoryClientColorChanged);
+
+    // Patched builtin cvars
     g_GrenadeTrajectoryCvar = GetCvar("sv_grenade_trajectory");
     g_GrenadeThicknessCvar = GetCvar("sv_grenade_trajectory_thickness");
     g_GrenadeTimeCvar = GetCvar("sv_grenade_trajectory_time");
     g_GrenadeSpecTimeCvar = GetCvar("sv_grenade_trajectory_time_spectator");
+    HookConVarChange(g_GrenadeTrajectoryCvar, OnGrenadeTrajectoryChanged);
+    HookConVarChange(g_GrenadeThicknessCvar, OnGrenadeThicknessChanged);
+    HookConVarChange(g_GrenadeTimeCvar, OnGrenadeTimeChanged);
+    HookConVarChange(g_GrenadeSpecTimeCvar, OnGrenadeSpecTimeChanged);
 
     // set default colors to green
     for (int i = 0; i <= MAXPLAYERS; i++) {
@@ -107,27 +113,35 @@ public Handle GetCvar(const char[] name) {
     if (cvar == INVALID_HANDLE) {
         SetFailState("Failed to find cvar: \"%s\"", name);
     }
-    HookConVarChange(cvar, OnCvarChanged);
     return cvar;
 }
 
-public int OnCvarChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
-    if (cvar == g_GrenadeTrajectoryCvar) {
-        g_GrenadeTrajectory = !StrEqual(newValue, "0");
-    } else if (cvar == g_GrenadeThicknessCvar) {
-        g_GrenadeThickness = StringToFloat(newValue);
-    } else if (cvar == g_GrenadeTimeCvar) {
-        g_GrenadeTime = StringToFloat(newValue);
-    } else if (cvar == g_GrenadeSpecTimeCvar) {
-        g_GrenadeSpecTime = StringToFloat(newValue);
-    } else if (cvar == g_InfiniteMoneyCvar) {
-        g_InfiniteMoney = !StrEqual(newValue, "0");
-        if (g_InfiniteMoney) {
-            CreateTimer(1.0, Timer_GivePlayersMoney, _, TIMER_REPEAT);
-        }
-    } else if (cvar == g_GrenadeTrajectoryClientColorCvar) {
-        g_GrenadeTrajectoryClientColor = !StrEqual(newValue, "0");
+public int OnInfiniteMoneyChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    bool previousValue = g_InfiniteMoney;
+    g_InfiniteMoney = !StrEqual(newValue, "0");
+    if (!previousValue && g_InfiniteMoney) {
+        CreateTimer(1.0, Timer_GivePlayersMoney, _, TIMER_REPEAT);
     }
+}
+
+public int OnGrenadeTrajectoryChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    g_GrenadeTrajectory = !StrEqual(newValue, "0");
+}
+
+public int OnGrenadeTrajectoryClientColorChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    g_GrenadeTrajectory = !StrEqual(newValue, "0");
+}
+
+public int OnGrenadeThicknessChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    g_GrenadeThickness = StringToFloat(newValue);
+}
+
+public int OnGrenadeTimeChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    g_GrenadeTime = StringToFloat(newValue);
+}
+
+public int OnGrenadeSpecTimeChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    g_GrenadeSpecTime = StringToFloat(newValue);
 }
 
 public void OnMapStart() {

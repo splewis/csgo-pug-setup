@@ -100,7 +100,7 @@ public void OnPluginStart() {
     g_ShowRWSOnMenuCvar = CreateConVar("sm_pugsetup_rws_display_on_menu", "1", "Whether rws stats are to be displayed on captain-player selection menus");
     g_StorageMethodCvar = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
 
-    HookConVarChange(g_StorageMethodCvar, OnCvarChanged);
+    HookConVarChange(g_StorageMethodCvar, OnStorageMethodChanged);
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 
@@ -118,12 +118,10 @@ public void OnPluginEnd() {
         ClearTeamBalancer();
 }
 
-public int OnCvarChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
-    if (cvar == g_StorageMethodCvar) {
-        g_StorageMethod = view_as<StorageMethod>(StringToInt(newValue));
-        if (g_StorageMethod == Storage_MySQL) {
-            InitSqlConnection();
-        }
+public int OnStorageMethodChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    g_StorageMethod = view_as<StorageMethod>(StringToInt(newValue));
+    if (g_StorageMethod == Storage_MySQL) {
+        InitSqlConnection();
     }
 }
 
