@@ -209,3 +209,26 @@ public int GetMapIdFromString(const char[] map) {
     ExplodeString(map, "/", buffers, sizeof(buffers), PLATFORM_MAX_PATH);
     return StringToInt(buffers[1]);
 }
+
+public bool IsStockMap(const char[] map) {
+    static StringMap stockMaps;
+    if (stockMaps == null) {
+        stockMaps = new StringMap();
+        stockMaps.SetValue("cs_assault", 0);
+        stockMaps.SetValue("cs_italy", 0);
+        stockMaps.SetValue("cs_militia", 0);
+        stockMaps.SetValue("cs_office", 0);
+        stockMaps.SetValue("de_cbble", 0);
+        stockMaps.SetValue("de_dust", 0);
+        stockMaps.SetValue("de_dust2", 0);
+        stockMaps.SetValue("de_inferno", 0);
+        stockMaps.SetValue("de_mirage", 0);
+        stockMaps.SetValue("de_nuke", 0);
+        stockMaps.SetValue("de_overpass", 0);
+        stockMaps.SetValue("de_train", 0);
+        stockMaps.SetValue("de_vertigo", 0);
+    }
+
+    int dummy;
+    return stockMaps.GetValue(map, dummy);
+}

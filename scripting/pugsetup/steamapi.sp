@@ -136,7 +136,16 @@ static void AddWorkshopMapsToList(const char[] collectionId, ArrayList mapList) 
     for (int i = 0; i < mapIds.Length; i++) {
         mapIds.GetString(i, mapId, sizeof(mapId));
         g_WorkshopCache.GetString(mapId, mapName, sizeof(mapName));
-        Format(fullMapPath, sizeof(fullMapPath), "workshop/%s/%s", mapId, mapName);
+
+        if (IsStockMap(mapName)) {
+            // This isn't needed for correctness, but makes it so a changelevel to inferno will do
+            // "changelevel inferno" rather than "changelevel workshop/1234678/de_inferno",
+            // which will show to clients that they are on "Inferno" rather than that nasty workshop path.
+            Format(fullMapPath, sizeof(fullMapPath), "%s", mapName);
+        } else {
+            Format(fullMapPath, sizeof(fullMapPath), "workshop/%s/%s", mapId, mapName);
+        }
+
         AddMap(fullMapPath, mapList);
     }
 
