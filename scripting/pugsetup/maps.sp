@@ -6,7 +6,6 @@ static char g_BackupMaps[][] = {
     "de_mirage",
     "de_nuke",
     "de_overpass",
-    "de_season",
     "de_train",
 };
 
