@@ -147,7 +147,7 @@ public int OnGrenadeTrajectoryChanged(Handle cvar, const char[] oldValue, const 
 }
 
 public int OnGrenadeTrajectoryClientColorChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
-    g_GrenadeTrajectory = !StrEqual(newValue, "0");
+    g_GrenadeTrajectoryClientColor = !StrEqual(newValue, "0");
 }
 
 public int OnGrenadeThicknessChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
@@ -481,7 +481,6 @@ public int OnEntitySpawned(int entity) {
     if (!IsGrenadeProjectile(className))
         return;
 
-    // update client color
     int client = 0; // will use the default color (green)
     if (g_GrenadeTrajectoryClientColor) {
         int owner = GetEntPropEnt(entity, Prop_Data, "m_hOwnerEntity");
@@ -493,6 +492,7 @@ public int OnEntitySpawned(int entity) {
 
     if (IsValidEntity(entity)) {
         for (int i = 1; i <= MaxClients; i++) {
+
             if (!IsClientConnected(i) || !IsClientInGame(i))
                 continue;
 
