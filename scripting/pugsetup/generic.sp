@@ -354,3 +354,13 @@ stock int GetCvarIntSafe(const char[] cvarName) {
         return GetConVarInt(cvar);
     }
 }
+
+stock int FindStringInArray2(const char[][] array, int len, const char[] string, bool caseSensitive=true) {
+    for (int i = 0; i < len; i++) {
+        if (StrEqual(string, array[i], caseSensitive)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
