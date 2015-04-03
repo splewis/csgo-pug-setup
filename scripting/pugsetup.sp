@@ -246,7 +246,7 @@ public void OnPluginStart() {
     AddPugSetupCommand("removemap", Command_RemoveMap, "Removes a map to the current maplist", Permission_Admin);
     AddPugSetupCommand("listpugmaps", Command_ListPugMaps, "Lists the current maplist", Permission_All);
     AddPugSetupCommand("listaimmaps", Command_ListAimMaps, "Lists the current aim maplist", Permission_All);
-    AddPugSetupCommand("start", Command_Start, "Lists the current maplist", Permission_Leader);
+    AddPugSetupCommand("start", Command_Start, "Starts the game if autolive is disabled", Permission_Leader);
     AddPugSetupCommand("addalias", Command_AddAlias, "Adds a pugsetup alias, and saves it to the chatalias.cfg file", Permission_Admin);
     AddPugSetupCommand("removealias", Command_RemoveAlias, "Removes a pugsetup alias", Permission_Admin);
     AddPugSetupCommand("setdefault", Command_SetDefault, "Sets a default setup option", Permission_Admin);
@@ -629,14 +629,18 @@ public Action Command_Pugstatus(int client, int args) {
         }
     }
 
-    if (g_GameState == GameState_Live) {
-        ReplyToCommand(client, "CT Team (score = %d):", CS_GetTeamScore(CS_TEAM_CT));
+    if (g_GameState >= GameState_WaitingForStart) {
+        if (g_GameState == GameState_Live)
+            ReplyToCommand(client, "CT Team (score = %d):", CS_GetTeamScore(CS_TEAM_CT));
+
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && GetClientTeam(i) == CS_TEAM_CT)
                 ReplyToCommand(client, "  %L", i);
         }
 
-        ReplyToCommand(client, "T Team (score = %d):", CS_GetTeamScore(CS_TEAM_T));
+        if (g_GameState == GameState_Live)
+            ReplyToCommand(client, "T Team (score = %d):", CS_GetTeamScore(CS_TEAM_T));
+
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && GetClientTeam(i) == CS_TEAM_T)
                 ReplyToCommand(client, "  %L", i);
@@ -662,16 +666,6 @@ public bool DoPermissionCheck(int client, const char[] command) {
 
 // PermissionCheck(int client, const char[] command)
 #define PermissionCheck(%1,%2) { \
-    Permission _p = GetPermissions(%2); \
-    bool _result = HasPermissions(%1, _p); \
-    char _cmd[COMMAND_LENGTH]; \
-    GetCmdArg(0, _cmd, sizeof(_cmd)); \
-    Call_StartForward(g_hOnPermissionCheck); \
-    Call_PushCell(%1); \
-    Call_PushString(_cmd); \
-    Call_PushCell(_p); \
-    Call_PushCellRef(_result); \
-    Call_Finish(); \
     if (!DoPermissionCheck(%1, %2)) { \
         if (IsValidClient(%1)) \
             PugSetupMessage(%1, "%t", "NoPermission"); \
@@ -822,8 +816,16 @@ public Action Command_ListAimMaps(int client, int args) {
 }
 
 public Action Command_Start(int client, int args) {
-    if (g_GameState != GameState_WaitingForStart)
+    // Some people like to type .start instead of .setup, since
+    // that's often types in ESEA's scrim server setup, so this is allowed here as well.
+    if (g_GameState == GameState_None)  {
+        FakeClientCommand(client, "sm_setup");
         return Plugin_Handled;
+    }
+
+    if (g_GameState != GameState_WaitingForStart) {
+        return Plugin_Handled;
+    }
 
     PermissionCheck(client, "sm_start")
     CreateCountDown();
@@ -1126,7 +1128,7 @@ public Action Command_Leader(int client, int args) {
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
             SetLeader(target);
-    } else {
+    } else if (IsClientInGame(client)) {
         LeaderMenu(client);
     }
 

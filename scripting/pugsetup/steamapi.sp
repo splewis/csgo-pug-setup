@@ -1,9 +1,6 @@
 #define MAX_URL_LEN 512
 #define WORKSHOP_ID_LENGTH 64
 
-// Feature checks
-#define STEAMWORKS_AVALIABLE()        (GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available)
-
 /*
  * Sends an API call for steam to fetch the maps inside a collection.
  */
@@ -11,7 +8,7 @@ public void UpdateWorkshopCache(const char[] collectionId, ArrayList list) {
     char requestUrl[MAX_URL_LEN];
     Format(requestUrl, MAX_URL_LEN, "http://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/");
 
-    if (STEAMWORKS_AVALIABLE()) {
+    if (GetFeatureStatus(FeatureType_Native, "SteamWorks_CreateHTTPRequest") == FeatureStatus_Available) {
         Handle request = SteamWorks_CreateHTTPRequest(k_EHTTPMethodPOST, requestUrl);
         if (request == INVALID_HANDLE) {
             LogError("Failed to create HTTP POST request using url: %s", requestUrl);
