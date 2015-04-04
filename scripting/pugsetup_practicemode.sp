@@ -612,7 +612,7 @@ public bool IsGrenadeWeapon(const char[] weapon) {
         "molotov",
         "hegrenade",
         "decoy",
-        "flashgrenade",
+        "flashbang",
         "smokegrenade",
     };
 
