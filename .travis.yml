@@ -10,10 +10,8 @@ install:
     - cd ..
 
 before_script:
-    - SMPATTERN="http:.*sourcemod-.*-linux.*"
-    - SMURL="http://www.sourcemod.net/smdrop/1.7/"
-    - SMPACKAGE=`lynx -dump "$SMURL" | egrep -o "$SMPATTERN" | tail -1`
-    - wget $SMPACKAGE
+    - wget http://y4kstudios.com/sourcemod/mirror/sourcemod-1.7.0-linux.tar.gz
+    - tar -xzf sourcemod-1.7.0-linux.tar.gz
     - tar -xzf $(basename "$SMPACKAGE")
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
