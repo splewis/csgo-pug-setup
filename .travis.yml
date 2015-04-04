@@ -12,7 +12,6 @@ install:
 before_script:
     - wget http://y4kstudios.com/sourcemod/mirror/sourcemod-1.7.0-linux.tar.gz
     - tar -xzf sourcemod-1.7.0-linux.tar.gz
-    - tar -xzf $(basename "$SMPACKAGE")
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
