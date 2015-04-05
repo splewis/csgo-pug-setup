@@ -128,12 +128,11 @@ public int OnStorageMethodChanged(Handle cvar, const char[] oldValue, const char
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
     g_RwsKV = new KeyValues("RWSBalancerStats");
+    char path[PLATFORM_MAX_PATH];
+    BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
+    g_RwsKV.ImportFromFile(path);
 
-    if (g_StorageMethod == Storage_KeyValues) {
-        char path[PLATFORM_MAX_PATH];
-        BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
-        g_RwsKV.ImportFromFile(path);
-    } else if (g_StorageMethod == Storage_MySQL && g_Database == INVALID_HANDLE) {
+    if (g_StorageMethod == Storage_MySQL && g_Database == INVALID_HANDLE) {
         InitSqlConnection();
     }
 }
