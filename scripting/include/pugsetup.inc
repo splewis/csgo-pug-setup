@@ -20,10 +20,10 @@ enum MapType {
 
 // Permission checking values.
 enum Permission {
-    Permission_All = 0,
-    Permission_Captains = 1,
-    Permission_Leader = 2,
-    Permission_Admin = 3,
+    Permission_All = 0,                         // anyone can use the command
+    Permission_Captains = 1,                    // only captains (and higher) can use the command (note: reverts to Permission_All when not using captains)
+    Permission_Leader = 2,                      // only the pug leader (and higher) can use the command
+    Permission_Admin = 3,                       // only pug admins can use the command
 };
 
 // Pug game state
