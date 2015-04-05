@@ -20,6 +20,10 @@
 	{
 		"ru"		"Запись DEMO"
 	}
+	"AutoLiveOption"
+	{
+		"ru"		"АвтоМатч"
+	}
 	"VetoMessage"
 	{
 		"ru"		"Голосование методом исключения карт начнется через несколько секунд."
@@ -43,6 +47,14 @@
 	"CaptainNotSelected"
 	{
 		"ru"		"не выбран"
+	}
+	"SetCaptainsHint"
+	{
+		"ru"		"Ждем {GREEN}{1} {NORMAL}пока напишет {GREEN}{2} {NORMAL}для выбора капитанов."
+	}
+	"ReadyCommandHint"
+	{
+		"ru"		"Вам необходимо подтвердить готовность, написав в чате {GREEN}{1}"
 	}
 	"NoPermission"
 	{
@@ -319,5 +331,21 @@
 	"Autobalanced"
 	{
 		"ru"		"Автобаланс"
+	}
+	"YouAreReady"
+	{
+		"ru"		"Вы готовы."
+	}
+	"YouAreNotReady"
+	{
+		"ru"		"Вы не готовы."
+	}
+	"IsNowReady"
+	{
+		"ru"		"{1} готов."
+	}
+	"IsNoLongerReady"
+	{
+		"ru"		"{1} не готов."
 	}
 }
