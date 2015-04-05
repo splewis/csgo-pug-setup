@@ -260,6 +260,7 @@ public void OnPluginStart() {
     HookEvent("round_start", Event_RoundStart);
     HookEvent("round_end", Event_RoundEnd);
     HookEvent("player_spawn", Event_PlayerSpawn);
+    HookEvent("player_disconnect", Event_PlayerDisconnect);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
@@ -335,11 +336,6 @@ public void OnClientDisconnect(int client) {
     g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
     g_PlayerAtStart[client] = false;
-
-    if (client == g_capt1)
-        g_capt1 = -1;
-    if (client == g_capt2)
-        g_capt2 = -1;
 }
 
 public void OnClientDisconnect_Post(int client) {
@@ -1353,6 +1349,17 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
     if (IsPlayer(client) && OnActiveTeam(client) && g_WarmupMoneyOnSpawnCvar.IntValue != 0) {
         SetEntProp(client, Prop_Send, "m_iAccount", GetCvarIntSafe("mp_maxmoney"));
     }
+}
+
+public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontBroadcast) {
+    int userid = GetEventInt(event, "userid");
+    int client = GetClientOfUserId(userid);
+    if (g_Leader == client)
+        g_Leader = -1;
+    if (g_capt1 == client)
+        g_capt1 = -1;
+    if (g_capt2 == client)
+        g_capt2 = -1;
 }
 
 /***********************
