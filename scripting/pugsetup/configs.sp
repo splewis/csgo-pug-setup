@@ -26,7 +26,7 @@ static void FillMapList(ConVar cvar, ArrayList list) {
     int collectionID = StringToInt(maplist);
     if (collectionID == 0) {
         // it's a regular map list
-        GetMapList(maplist, g_MapList);
+        GetMapList(maplist, list);
     } else {
         // it's a workshop collection id, setup the workshop cache
         UpdateWorkshopCache(maplist, list);
