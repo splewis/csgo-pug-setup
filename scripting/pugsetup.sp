@@ -256,7 +256,6 @@ public void OnPluginStart() {
     RegConsoleCmd("pugstatus", Command_Pugstatus, "Dumps information about the pug game status");
 
     /** Hooks **/
-    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("round_start", Event_RoundStart);
     HookEvent("round_end", Event_RoundEnd);
