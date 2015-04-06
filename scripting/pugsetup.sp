@@ -256,11 +256,13 @@ public void OnPluginStart() {
     RegConsoleCmd("pugstatus", Command_Pugstatus, "Dumps information about the pug game status");
 
     /** Hooks **/
+    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
     HookEvent("cs_win_panel_match", Event_MatchOver);
     HookEvent("round_start", Event_RoundStart);
     HookEvent("round_end", Event_RoundEnd);
     HookEvent("player_spawn", Event_PlayerSpawn);
     HookEvent("player_disconnect", Event_PlayerDisconnect);
+    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
@@ -626,17 +628,13 @@ public Action Command_Pugstatus(int client, int args) {
     }
 
     if (g_GameState >= GameState_WaitingForStart) {
-        if (g_GameState == GameState_Live)
-            ReplyToCommand(client, "CT Team (score = %d):", CS_GetTeamScore(CS_TEAM_CT));
-
+        ReplyToCommand(client, "CT Team (score = %d):", CS_GetTeamScore(CS_TEAM_CT));
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && GetClientTeam(i) == CS_TEAM_CT)
                 ReplyToCommand(client, "  %L", i);
         }
 
-        if (g_GameState == GameState_Live)
-            ReplyToCommand(client, "T Team (score = %d):", CS_GetTeamScore(CS_TEAM_T));
-
+        ReplyToCommand(client, "T Team (score = %d):", CS_GetTeamScore(CS_TEAM_T));
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && GetClientTeam(i) == CS_TEAM_T)
                 ReplyToCommand(client, "  %L", i);
@@ -1360,6 +1358,17 @@ public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontB
         g_capt1 = -1;
     if (g_capt2 == client)
         g_capt2 = -1;
+}
+
+/**
+ * Silences team join/switch events during player selection.
+ */
+public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
+    if (g_GameState != GameState_PickingPlayers)
+        return Plugin_Continue;
+
+    SetEventBroadcast(event, true);
+    return Plugin_Continue;
 }
 
 /***********************
