@@ -123,6 +123,19 @@ public int OnStorageMethodChanged(Handle cvar, const char[] oldValue, const char
     if (g_StorageMethod == Storage_MySQL) {
         InitSqlConnection();
     }
+
+    for (int i = 1; i <= MaxClients; i++) {
+        g_PlayerHasStats[i] = false;
+        if (IsFakeClient(i)) {
+            continue;
+        }
+        if (IsClientAuthorized(i)) {
+            OnClientAuthorized(i, "");
+        }
+        if (AreClientCookiesCached(i)) {
+            OnClientCookiesCached(i);
+        }
+    }
 }
 
 public void OnMapStart() {
@@ -225,7 +238,7 @@ public void OnClientAuthorized(int client, const char[] engineAuth) {
 
 public void Callback_Insert(Handle owner, Handle hndl, const char[] error, int serial) {
     int client = GetClientFromSerial(serial);
-    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client])
+    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client] || g_StorageMethod != Storage_MySQL)
         return;
 
     char auth[64];
@@ -241,7 +254,7 @@ public void Callback_Insert(Handle owner, Handle hndl, const char[] error, int s
 
 public void Callback_FetchStats(Handle owner, Handle hndl, const char[] error, int serial) {
     int client = GetClientFromSerial(serial);
-    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client])
+    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client] || g_StorageMethod != Storage_MySQL)
         return;
 
     if (hndl == INVALID_HANDLE) {
