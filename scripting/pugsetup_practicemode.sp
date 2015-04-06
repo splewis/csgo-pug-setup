@@ -4,6 +4,7 @@
 #include <sourcemod>
 #include "include/logdebug.inc"
 #include "include/pugsetup.inc"
+#include "include/restorecvars.inc"
 #include "pugsetup/generic.sp"
 
 #pragma semicolon 1
@@ -24,8 +25,7 @@ ArrayList g_BinaryOptionEnabled;
 ArrayList g_BinaryOptionChangeable;
 ArrayList g_BinaryOptionEnabledCvars;
 ArrayList g_BinaryOptionEnabledValues;
-ArrayList g_BinaryOptionDisabledCvars;
-ArrayList g_BinaryOptionDisabledValues;
+ArrayList g_BinaryOptionCvarRestore;
 
 // Infinite money data
 ConVar g_InfiniteMoneyCvar;
@@ -36,6 +36,9 @@ int g_BeamSprite = -1;
 int g_ClientColors[MAXPLAYERS+1][4];
 ConVar g_GrenadeTrajectoryClientColorCvar;
 bool g_GrenadeTrajectoryClientColor = true;
+
+ConVar g_AllowNoclipCvar;
+bool g_AllowNoclip = false;
 
 Handle g_GrenadeTrajectoryCvar = INVALID_HANDLE;
 Handle g_GrenadeThicknessCvar = INVALID_HANDLE;
@@ -72,8 +75,6 @@ public void OnPluginStart() {
     InitDebugLog(DEBUG_CVAR, "practice");
     LoadTranslations("pugsetup.phrases");
     g_InPracticeMode = false;
-    AddChatAlias(".noclip", "noclip");
-    AddChatAlias(".god", "god");
     AddCommandListener(Command_TeamJoin, "jointeam");
 
     // Init data structures to be read from the config file
@@ -83,8 +84,7 @@ public void OnPluginStart() {
     g_BinaryOptionChangeable = new ArrayList();
     g_BinaryOptionEnabledCvars = new ArrayList();
     g_BinaryOptionEnabledValues = new ArrayList();
-    g_BinaryOptionDisabledCvars = new ArrayList();
-    g_BinaryOptionDisabledValues = new ArrayList();
+    g_BinaryOptionCvarRestore = new ArrayList();
     ReadPracticeSettings();
 
     // Setup stuff for grenade history
@@ -117,6 +117,9 @@ public void OnPluginStart() {
     HookConVarChange(g_GrenadeTimeCvar, OnGrenadeTimeChanged);
     HookConVarChange(g_GrenadeSpecTimeCvar, OnGrenadeSpecTimeChanged);
 
+    g_AllowNoclipCvar = CreateConVar("sm_allow_noclip", "0", "Whether players may use .noclip in chat to toggle noclip");
+    HookConVarChange(g_AllowNoclipCvar, OnAllowNoclipChanged);
+
     // set default colors to green
     for (int i = 0; i <= MAXPLAYERS; i++) {
         g_ClientColors[0][0] = 0;
@@ -124,6 +127,12 @@ public void OnPluginStart() {
         g_ClientColors[0][2] = 0;
         g_ClientColors[0][3] = 255;
     }
+
+    // Remove cheats so sv_cheats isn't required for this:
+    RemoveCvarFlag(g_GrenadeTrajectoryCvar, FCVAR_CHEAT);
+
+    // Remove some notification flags on cvars that aren't needed and muddy up chat
+    RemoveCvarFlag(FindConVar("mp_buy_anywhere"), FCVAR_NOTIFY);
 }
 
 public Handle GetCvar(const char[] name) {
@@ -162,6 +171,10 @@ public int OnGrenadeSpecTimeChanged(Handle cvar, const char[] oldValue, const ch
     g_GrenadeSpecTime = StringToFloat(newValue);
 }
 
+public int OnAllowNoclipChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
+    g_AllowNoclip = !StrEqual(newValue, "0");
+}
+
 public void OnClientConnected(int client) {
     g_GrenadeHistoryIndex[client] = -1;
     ClearArray(g_GrenadeHistoryPositions[client]);
@@ -197,14 +210,21 @@ public Action Command_TeamJoin(int client, const char[] command, int argc) {
     return Plugin_Continue;
 }
 
+public Action OnClientSayCommand(int client, const char[] command, const char[] text) {
+    if (g_AllowNoclip && StrEqual(text, ".noclip") && IsPlayer(client)) {
+        MoveType t = GetEntityMoveType(client);
+        MoveType next = (t == MOVETYPE_WALK) ? MOVETYPE_NOCLIP : MOVETYPE_WALK;
+        SetEntityMoveType(client, next);
+    }
+}
+
 public void ReadPracticeSettings() {
     ClearArray(g_BinaryOptionNames);
     ClearArray(g_BinaryOptionEnabled);
     ClearArray(g_BinaryOptionChangeable);
     ClearNestedArray(g_BinaryOptionEnabledCvars);
     ClearNestedArray(g_BinaryOptionEnabledValues);
-    ClearNestedArray(g_BinaryOptionDisabledCvars);
-    ClearNestedArray(g_BinaryOptionDisabledValues);
+    ClearArray(g_BinaryOptionCvarRestore);
 
     char filePath[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, filePath, sizeof(filePath), "configs/pugsetup/practicemode.cfg");
@@ -252,31 +272,13 @@ public void ReadPracticeSettings() {
                     kv.GoBack();
                 }
 
-                // read the disabled cvar list
-                ArrayList disabledCvars = new ArrayList(CVAR_NAME_LENGTH);
-                ArrayList disabledValues = new ArrayList(CVAR_NAME_LENGTH);
-                if (kv.JumpToKey("disabled")) {
-                    if (kv.GotoFirstSubKey(false)) {
-                        do {
-                            kv.GetSectionName(cvarName, sizeof(cvarName));
-                            disabledCvars.PushString(cvarName);
-                            kv.GetString(NULL_STRING, cvarValue, sizeof(cvarValue));
-                            disabledValues.PushString(cvarValue);
-                        } while (kv.GotoNextKey(false));
-                        kv.GoBack();
-                    }
-                    kv.GoBack();
-                }
-
                 g_BinaryOptionIds.PushString(id);
                 g_BinaryOptionNames.PushString(name);
                 g_BinaryOptionEnabled.Push(enabled);
                 g_BinaryOptionChangeable.Push(changeable);
                 g_BinaryOptionEnabledCvars.Push(enabledCvars);
                 g_BinaryOptionEnabledValues.Push(enabledValues);
-                g_BinaryOptionDisabledCvars.Push(disabledCvars);
-                g_BinaryOptionDisabledValues.Push(disabledValues);
-
+                g_BinaryOptionCvarRestore.Push(INVALID_HANDLE);
 
             } while (kv.GotoNextKey());
         }
@@ -318,11 +320,6 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
     if (StrEqual(buffer, "launch_practice")) {
         g_InPracticeMode = !g_InPracticeMode;
         if (g_InPracticeMode) {
-            // TODO: I'm not sure if it's possible to force
-            // set cheat-protected cvars without this,
-            // it'd be nice if it was so this isn't needed.
-            SetCvar("sv_cheats", 1);
-
             for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
                 bool enabled = view_as<bool>(g_BinaryOptionEnabled.Get(i));
                 ChangeSetting(i, enabled, false);
@@ -338,24 +335,34 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
 }
 
 static void ChangeSetting(int index, bool enabled, bool print=true) {
-    ArrayList cvars = (enabled) ? g_BinaryOptionEnabledCvars.Get(index) : g_BinaryOptionDisabledCvars.Get(index);
-    ArrayList values = (enabled) ? g_BinaryOptionEnabledValues.Get(index) : g_BinaryOptionDisabledValues.Get(index);
+    if (enabled) {
+        ArrayList cvars = g_BinaryOptionEnabledCvars.Get(index);
+        ArrayList values = g_BinaryOptionEnabledValues.Get(index);
+        g_BinaryOptionCvarRestore.Set(index, SaveCvars(cvars));
 
-    char cvar[CVAR_NAME_LENGTH];
-    char value[CVAR_NAME_LENGTH];
+        char cvar[CVAR_NAME_LENGTH];
+        char value[CVAR_NAME_LENGTH];
 
-    for (int i = 0; i < cvars.Length; i++) {
-        cvars.GetString(i, cvar, sizeof(cvar));
-        values.GetString(i, value, sizeof(value));
-        ServerCommand("%s %s", cvar, value);
+        for (int i = 0; i < cvars.Length; i++) {
+            cvars.GetString(i, cvar, sizeof(cvar));
+            values.GetString(i, value, sizeof(value));
+            ServerCommand("%s %s", cvar, value);
+        }
+
+    } else {
+        Handle cvarRestore = g_BinaryOptionCvarRestore.Get(index);
+        if (cvarRestore != INVALID_HANDLE) {
+            RestoreCvars(cvarRestore, true);
+            g_BinaryOptionCvarRestore.Set(index, INVALID_HANDLE);
+        }
     }
 
-    char id[OPTION_NAME_LENGTH];
-    char name[OPTION_NAME_LENGTH];
-    g_BinaryOptionIds.GetString(index, id, sizeof(id));
-    g_BinaryOptionNames.GetString(index, name, sizeof(name));
-
     if (print) {
+        char id[OPTION_NAME_LENGTH];
+        char name[OPTION_NAME_LENGTH];
+        g_BinaryOptionIds.GetString(index, id, sizeof(id));
+        g_BinaryOptionNames.GetString(index, name, sizeof(name));
+
         char enabledString[32];
         GetEnabledString(enabledString, sizeof(enabledString), enabled);
 
@@ -429,7 +436,6 @@ public void DisablePracticeMode() {
         ChangeSetting(i, false, false);
     }
 
-    SetCvar("sv_cheats", 0);
     g_InPracticeMode = false;
 
     // force turn noclip off for everyone
@@ -617,4 +623,8 @@ public bool IsGrenadeWeapon(const char[] weapon) {
     };
 
     return FindStringInArray2(grenades, sizeof(grenades), weapon) >= 0;
+}
+
+public void RemoveCvarFlag(Handle cvar, int flag) {
+    SetConVarFlags(cvar, GetConVarFlags(cvar) & ~flag);
 }

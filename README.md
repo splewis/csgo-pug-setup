@@ -221,6 +221,7 @@ This plugin adds an option to the .setup menu to launch a practice mode with che
 It "patches" sv_grenade_trajectory to work on a dedicated server, and also creates two new cvars:
 - sm_infinite_money (sets player cash to 16000 every second)
 - sm_grenade_trajectory_use_player_color (sets player grenade trajectories to their cl_color setting)
+- sm_allow_noclip (allows .noclip in chat to use noclip)
 
 Another feature is remembering a grenade history - the position each grenade is thrown from (when in practice mode) is saved and players can go back through the history of these positions using the commands sm_grenadeback and sm_grenadeforward (or more simply in chat: .back, .forward). This is intended for those experimentation moments when testing grenades and asking "that worked; wait, how did I throw that from?"
 

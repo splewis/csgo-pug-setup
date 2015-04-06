@@ -57,7 +57,7 @@ stock void CloseCvarStorage(Handle& cvarStorage) {
 }
 
 // Returns the first "word" in a line, as seperated by whitespace.
-static bool __firstWord(const char[] line, char[] buffer, int len) {
+stock bool __firstWord(const char[] line, char[] buffer, int len) {
     char[] lineBuffer = new char[strlen(line)];
     strcopy(lineBuffer, strlen(line), line);
     TrimString(lineBuffer);
