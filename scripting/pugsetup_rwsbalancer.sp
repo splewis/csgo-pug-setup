@@ -126,7 +126,7 @@ public int OnStorageMethodChanged(Handle cvar, const char[] oldValue, const char
 
     for (int i = 1; i <= MaxClients; i++) {
         g_PlayerHasStats[i] = false;
-        if (IsFakeClient(i)) {
+        if (!IsClientConnected(i) || IsFakeClient(i)) {
             continue;
         }
         if (IsClientAuthorized(i)) {
