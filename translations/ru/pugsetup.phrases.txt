@@ -22,7 +22,7 @@
 	}
 	"AutoLiveOption"
 	{
-		"ru"		"АвтоМатч"
+		"ru"		"Автом. начать Матч"
 	}
 	"VetoMessage"
 	{
