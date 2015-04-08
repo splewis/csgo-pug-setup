@@ -40,10 +40,10 @@ bool g_GrenadeTrajectoryClientColor = true;
 ConVar g_AllowNoclipCvar;
 bool g_AllowNoclip = false;
 
-Handle g_GrenadeTrajectoryCvar = INVALID_HANDLE;
-Handle g_GrenadeThicknessCvar = INVALID_HANDLE;
-Handle g_GrenadeTimeCvar = INVALID_HANDLE;
-Handle g_GrenadeSpecTimeCvar = INVALID_HANDLE;
+ConVar g_GrenadeTrajectoryCvar;
+ConVar g_GrenadeThicknessCvar;
+ConVar g_GrenadeTimeCvar;
+ConVar g_GrenadeSpecTimeCvar;
 bool g_GrenadeTrajectory = false;
 float g_GrenadeThickness = 0.2;
 float g_GrenadeTime = 20.0;
@@ -102,23 +102,23 @@ public void OnPluginStart() {
 
     // New cvars
     g_InfiniteMoneyCvar = CreateConVar("sm_infinite_money", "0", "Whether clients recieve infinite money");
-    HookConVarChange(g_InfiniteMoneyCvar, OnInfiniteMoneyChanged);
+    g_InfiniteMoneyCvar.AddChangeHook(OnInfiniteMoneyChanged);
 
     g_GrenadeTrajectoryClientColorCvar = CreateConVar("sm_grenade_trajectory_use_player_color", "1", "Whether to use client colors when drawing grenade trajectories");
-    HookConVarChange(g_GrenadeTrajectoryClientColorCvar, OnGrenadeTrajectoryClientColorChanged);
+    g_GrenadeTrajectoryClientColorCvar.AddChangeHook(OnGrenadeTrajectoryClientColorChanged);
 
     // Patched builtin cvars
     g_GrenadeTrajectoryCvar = GetCvar("sv_grenade_trajectory");
     g_GrenadeThicknessCvar = GetCvar("sv_grenade_trajectory_thickness");
     g_GrenadeTimeCvar = GetCvar("sv_grenade_trajectory_time");
     g_GrenadeSpecTimeCvar = GetCvar("sv_grenade_trajectory_time_spectator");
-    HookConVarChange(g_GrenadeTrajectoryCvar, OnGrenadeTrajectoryChanged);
-    HookConVarChange(g_GrenadeThicknessCvar, OnGrenadeThicknessChanged);
-    HookConVarChange(g_GrenadeTimeCvar, OnGrenadeTimeChanged);
-    HookConVarChange(g_GrenadeSpecTimeCvar, OnGrenadeSpecTimeChanged);
+    g_GrenadeTrajectoryCvar.AddChangeHook(OnGrenadeTrajectoryChanged);
+    g_GrenadeThicknessCvar.AddChangeHook(OnGrenadeThicknessChanged);
+    g_GrenadeTimeCvar.AddChangeHook(OnGrenadeTimeChanged);
+    g_GrenadeSpecTimeCvar.AddChangeHook(OnGrenadeSpecTimeChanged);
 
     g_AllowNoclipCvar = CreateConVar("sm_allow_noclip", "0", "Whether players may use .noclip in chat to toggle noclip");
-    HookConVarChange(g_AllowNoclipCvar, OnAllowNoclipChanged);
+    g_AllowNoclipCvar.AddChangeHook(OnAllowNoclipChanged);
 
     // set default colors to green
     for (int i = 0; i <= MAXPLAYERS; i++) {
@@ -135,9 +135,9 @@ public void OnPluginStart() {
     RemoveCvarFlag(FindConVar("mp_buy_anywhere"), FCVAR_NOTIFY);
 }
 
-public Handle GetCvar(const char[] name) {
-    Handle cvar = FindConVar(name);
-    if (cvar == INVALID_HANDLE) {
+public ConVar GetCvar(const char[] name) {
+    ConVar cvar = FindConVar(name);
+    if (cvar == null) {
         SetFailState("Failed to find cvar: \"%s\"", name);
     }
     return cvar;

@@ -99,8 +99,7 @@ public void OnPluginStart() {
     g_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
     g_ShowRWSOnMenuCvar = CreateConVar("sm_pugsetup_rws_display_on_menu", "0", "Whether rws stats are to be displayed on captain-player selection menus");
     g_StorageMethodCvar = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
-
-    HookConVarChange(g_StorageMethodCvar, OnStorageMethodChanged);
+    g_StorageMethodCvar.AddChangeHook(OnStorageMethodChanged);
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 
@@ -120,6 +119,7 @@ public void OnPluginEnd() {
 
 public int OnStorageMethodChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
     g_StorageMethod = view_as<StorageMethod>(StringToInt(newValue));
+
     if (g_StorageMethod == Storage_MySQL) {
         InitSqlConnection();
     }
@@ -192,6 +192,7 @@ public int OnClientCookiesCached(int client) {
     if (IsFakeClient(client) || g_StorageMethod != Storage_ClientPrefs)
         return;
 
+    LogDebug("set %L rws from cookies, g_StorageMethod = %d", client, g_StorageMethod);
     g_PlayerRWS[client] = GetCookieFloat(client, g_RWSCookie);
     g_PlayerRounds[client] = GetCookieInt(client, g_RoundsPlayedCookie);
     g_PlayerHasStats[client] = true;
@@ -225,6 +226,7 @@ public void OnClientAuthorized(int client, const char[] engineAuth) {
         g_PlayerRounds[client] = g_RwsKV.GetNum("roundsplayed", 0);
         g_RwsKV.GoBack();
         g_PlayerHasStats[client] = true;
+        LogDebug("set %L rws from keyvalues, g_StorageMethod = %d", client, g_StorageMethod);
 
     } else if (g_StorageMethod == Storage_MySQL && g_Database != INVALID_HANDLE) {
         char query[2048];
@@ -246,8 +248,8 @@ public void Callback_Insert(Handle owner, Handle hndl, const char[] error, int s
 
     char query[2048];
     Format(query, sizeof(query),
-            "SELECT rws, roundsplayed FROM %s WHERE auth = '%s'",
-            TABLE_NAME, auth);
+           "SELECT rws, roundsplayed FROM %s WHERE auth = '%s'",
+           TABLE_NAME, auth);
     LogDebug("Fetching rws stats, query=%s", query);
     SQL_TQuery(g_Database, Callback_FetchStats, query, GetClientSerial(client));
 }
@@ -260,6 +262,7 @@ public void Callback_FetchStats(Handle owner, Handle hndl, const char[] error, i
     if (hndl == INVALID_HANDLE) {
         LogError("Query failed: (error: %s)", error);
     } else if (SQL_FetchRow(hndl)) {
+        LogDebug("set %L rws from sql, g_StorageMethod = %d", client, g_StorageMethod);
         g_PlayerRWS[client] = SQL_FetchFloat(hndl, 0);
         g_PlayerRounds[client] = SQL_FetchInt(hndl, 1);
         g_PlayerHasStats[client] = true;
@@ -511,7 +514,6 @@ public Action Command_DumpRWS(int client, int args) {
 
 public Action Command_RWS(int client, int args) {
     if (g_AllowRWSCommandCvar.IntValue == 0) {
-        PugSetupMessage(client, "That command is disabled.");
         return Plugin_Handled;
     }
 
