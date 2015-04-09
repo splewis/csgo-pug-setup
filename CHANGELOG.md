@@ -1,25 +1,61 @@
-1.3.3:
+## 1.4.0 (unreleased):
+
+Major core plugin changes:
+- complete rework on how the setup menu is configured, instead of 2 cvars per option (default/whether it is display), these options
+  are now stored in ``addons/sourcemod/configs/pugsetup/setupoptions.cfg``, and can be changed ingame using .setdefault and .setdisplay commmands
+- new cvars ``sm_pugsetup_use_aim_map_warmup``, ``sm_pugsetup_maplist_aim_maps`` to use aim_ maps during warmup periods when waiting for map votes/vetoes (off by default)
+- new cvar ``sm_pugsetup_use_game_warmup`` to use the builtin warmup system (on by default)
+- allow pugsetup commands to have their permissions changed in file ``addons/sourcemod/configs/pugsetup/permissions.cfg``, this means any cvar
+  dealing with permissions (e.g. ``sm_pugsetup_requireadmin`` is removed)
+- system2 support for using workshop collections is removed and replaced with [SteamWorks](https://forums.alliedmods.net/showthread.php?t=229556) for both correctness and reliability improvements
+- when using a workshop collection id as a maplist, the maps no longer have to already be on the server - the ``host_workshop_map`` command is used and the map will be download automatically
+- the core plugin is aware of an autobalancers (e.g. the pugsetup_rwsbalancer) now, if one is available the team type "autobalanced" will be on the setup menu
+
+Minor core plugin changes:
+- add generic console command ``pugstatus`` to print pug state information (setup options, current game state, etc.)
+- new cvar ``sm_pugsetup_money_on_warmup_spawn`` to give 16,000 dollars on player spawn during warmup phases
+- improvements to make the plugin force-end warmup when doing a lo3, regardless of what is in the live/warmup configs
+- add ingame .addalias/.removealias admin commands for adding aliases to ``addons/sourcemod/configs/pugsetup/chataliases.cfg``
+- add ingame .addmap/.removemap admin commands for modifying the current maplist
+- make knife round cvars in ``cfg/sourcemod/pugsetup/knife.cfg`` not reliant on being reset by the live config (cvars are restored to their previous values automatically now)
+- new cvar ``sm_pugsetup_pausing_enabled`` (default 1)
+- new cvar ``sm_pugsetup_random_map_vote_option`` (default 1)
+- new cvar ``sm_pugsetup_postgame_cfg`` (default sourcemod/pugsetup/warmup.cfg)
+
+API changes:
+- new fowards: ``OnGameStateChanged``, ``OnPlayerAddedToCaptainMenu``
+- new natives: ``IsTeamBalancerAvaliable``, ``IsTeamBalancerAvaliable``, ``ClearTeamBalancer``, ``GetGameState``, ``IsValidCommand``, ``GetPermissions``, ``SetPermissions``
+
+Optional plugin changes:
+- correct bugs with pugsetup_damageprint plugin and make ``sm_pugsetup_damageprint_format`` cvar configurable
+- new rws balancers features (off by default): ``sm_pugsetup_rws_allow_rws_command``, ``sm_pugsetup_rws_display_on_menu``
+- correct how the rwsbalancer writes stats when using non-clientprefs storage (keyvalues & mysql)
+- various improvements to pugsetup_practicemode plugin: new cvars ``sm_infinite_money``, ``sm_grenade_trajectory_use_player_color``, ``sm_allow_noclip``,
+  reimplement grenade trajectories using ``sv_grenade_trajectory`` value, ``sv_cheats`` is no longer required to be on
+- practicemode will save the origin/angles a client is facing when throwing grenades and can be revisited using .back, .forward commands
+
+### 1.3.3:
 - fix the rwsbalancer being totally broken with team balancing
 - bugfixes with the use of default setup options overriding the actual setup options used
 - fix ``sm_pugsetup_any_can_pause`` not having the correct effect
 - add pugsetup_damageprint plugin to replicate ESEA damage printing options (experimental)
 - add commands sm_t, sm_ct for picking sides after winning a knife round in addition to sm_stay and sm_swap
 
-1.3.2:
+### 1.3.2:
 - the auto-live-on-3 (named autolive) setting can now be turned off again, cvars ``sm_pugsetup_default_autolive`` and ``sm_pugsetup_autolive_option`` control the default setting and whether the setting is avaliable in the setup menu
 - captains can now be set by selecting a "select captains" option in the .setup menu after a game is setup
 - the pugsetup_hostname addon now displays scores in the name (e.g. [LIVE 11-8])
 - the pugsetup_rwsbalancer addon will not respect users that try to override the captains the plugin set (it sets captains as the 2 highest rated players)
 - fix the PugSetupMessageToAll native not checking for clients being in game and causing errors
 
-1.3.1:
+### 1.3.1:
 - several bug fixes when using default setting cvars
 - pausing now works during knife rounds
 - new command: sm_forcestart to force a match to proceed forward even if everyone isn't ready
 - add forward OnStartRecording
 - the rwsbalancer plugin can store data in any of: clientprefs, a flat keyvalues file on disk, or a MySQL database now (set by the ``sm_pugsetup_rws_storage_method`` cvar)
 
-1.3.0:
+## 1.3.0:
  - sourcemod 1.7 is now required
  - instead of a choice "auto-lo3", there is now a cvar for the length of a countdown timer (``sm_pugsetup_start_delay``)
  - the top .setup menu has be rewritten to be simpler and use toggle options rather than a series of pages
@@ -42,17 +78,17 @@
  - translation support
  - re-add updater support
 
-1.2.1:
+### 1.2.1:
  - bug fix for demo recording on a map inside another directory (e.g. workshop maps)
 
-1.2.0:
+## 1.2.0:
  - bug fixes with team name handling and live-timer
 
-1.1.0:
+## 1.1.0:
 - add chat prefixes to plugin chat messages
 - change the demo formatting name to use a time formatting string that is supported by Windows
 - fix issues where ready-up checking timers were being created multiple teams (as a result some chat messages were printed multiple times)
 - add an (optional) fun command ``sm_name`` that lets you pick a name/flag for a player, when the game goes live it selects a random team/flag from the players on the team to use
 
-1.0.0:
+## 1.0.0:
 - initial public release
