@@ -1521,7 +1521,10 @@ public void StartGame() {
             ArrayList players = new ArrayList();
             for (int i = 1; i <= MaxClients; i++) {
                 if (IsPlayer(i)) {
-                    players.Push(i);
+                    if (IsReady(i))
+                        players.Push(i);
+                    else
+                        ChangeClientTeam(i, CS_TEAM_SPECTATOR);
                 }
             }
 

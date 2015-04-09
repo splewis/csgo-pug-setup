@@ -159,8 +159,14 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
 public int Native_IsReady(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
+    if (!IsClientInGame(client) || IsFakeClient(client))
+        return false;
 
-    return g_Ready[client];
+    if (g_ExcludeSpectatorsCvar.IntValue != 0) {
+        return g_Ready[client] && GetClientTeam(client) == CS_TEAM_SPECTATOR || GetClientTeam(client) == CS_TEAM_NONE;
+    } else {
+        return g_Ready[client];
+    }
 }
 
 public int Native_IsSetup(Handle plugin, int numParams) {
