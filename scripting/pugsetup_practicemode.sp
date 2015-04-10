@@ -104,7 +104,7 @@ public void OnPluginStart() {
     g_InfiniteMoneyCvar = CreateConVar("sm_infinite_money", "0", "Whether clients recieve infinite money");
     g_InfiniteMoneyCvar.AddChangeHook(OnInfiniteMoneyChanged);
 
-    g_GrenadeTrajectoryClientColorCvar = CreateConVar("sm_grenade_trajectory_use_player_color", "1", "Whether to use client colors when drawing grenade trajectories");
+    g_GrenadeTrajectoryClientColorCvar = CreateConVar("sm_grenade_trajectory_use_player_color", "0", "Whether to use client colors when drawing grenade trajectories");
     g_GrenadeTrajectoryClientColorCvar.AddChangeHook(OnGrenadeTrajectoryClientColorChanged);
 
     // Patched builtin cvars
@@ -131,8 +131,7 @@ public void OnPluginStart() {
     // Remove cheats so sv_cheats isn't required for this:
     RemoveCvarFlag(g_GrenadeTrajectoryCvar, FCVAR_CHEAT);
 
-    // Remove some notification flags on cvars that aren't needed and muddy up chat
-    RemoveCvarFlag(FindConVar("mp_buy_anywhere"), FCVAR_NOTIFY);
+    HookEvent("server_cvar", Event_CvarChanged, EventHookMode_Pre);
 }
 
 public ConVar GetCvar(const char[] name) {
@@ -173,6 +172,16 @@ public int OnGrenadeSpecTimeChanged(Handle cvar, const char[] oldValue, const ch
 
 public int OnAllowNoclipChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
     g_AllowNoclip = !StrEqual(newValue, "0");
+}
+
+/**
+ * Silences all cvar changes in practice mode.
+ */
+public Action Event_CvarChanged(Handle event, const char[] name, bool dontBroadcast) {
+    if (g_InPracticeMode) {
+        SetEventBroadcast(event, true);
+    }
+    return Plugin_Continue;
 }
 
 public void OnClientConnected(int client) {

@@ -5,38 +5,38 @@
 
 // Different ways teams can be selected.
 enum TeamType {
-    TeamType_Manual = 0,
-    TeamType_Random = 1,
-    TeamType_Captains = 2,
-    TeamType_Autobalanced = 3,                  // only allowed if IsTeamBalancerAvaliable() is true
+    TeamType_Manual,
+    TeamType_Random,
+    TeamType_Captains,
+    TeamType_Autobalanced,                  // only allowed if IsTeamBalancerAvaliable() is true
 };
 
 // Different ways the map can be selected.
 enum MapType {
-    MapType_Current = 0,
-    MapType_Vote = 1,
-    MapType_Veto = 2,
+    MapType_Current,
+    MapType_Vote,
+    MapType_Veto,
 };
 
 // Permission checking values.
 enum Permission {
-    Permission_All = 0,                         // anyone can use the command
-    Permission_Captains = 1,                    // only captains (and higher) can use the command (note: reverts to Permission_All when not using captains)
-    Permission_Leader = 2,                      // only the pug leader (and higher) can use the command
-    Permission_Admin = 3,                       // only pug admins can use the command
+    Permission_All,                         // anyone can use the command
+    Permission_Captains,                    // only captains (and higher) can use the command (note: reverts to Permission_All when not using captains)
+    Permission_Leader,                      // only the pug leader (and higher) can use the command
+    Permission_Admin,                       // only pug admins can use the command
 };
 
 // Pug game state
 enum GameState {
-    GameState_None = 0,                          // no setup has taken place
-    GameState_Warmup = 1,                        // setup done, waiting for players to ready up
-    GameState_PickingPlayers = 2,                // only used if TeamType_Captains is the teamtype
-    GameState_WaitingForStart = 3,               // waiting for a .start if autolive is disabled
-    GameState_Countdown = 4,                     // doing the countdown timer
-    GameState_KnifeRound = 5,                    // in the knife round
-    GameState_WaitingForKnifeRoundDecision = 6,  // waiting for a .stay/.swap command after the knife round
-    GameState_GoingLive = 7,                     // in the lo3 process
-    GameState_Live = 8,                          // the match is live
+    GameState_None,                          // no setup has taken place
+    GameState_Warmup,                        // setup done, waiting for players to ready up
+    GameState_PickingPlayers,                // only used if TeamType_Captains is the teamtype
+    GameState_WaitingForStart,               // waiting for a .start if autolive is disabled
+    GameState_Countdown,                     // doing the countdown timer
+    GameState_KnifeRound,                    // in the knife round
+    GameState_WaitingForKnifeRoundDecision,  // waiting for a .stay/.swap command after the knife round
+    GameState_GoingLive,                     // in the lo3 process
+    GameState_Live,                          // the match is live
 };
 
 /**

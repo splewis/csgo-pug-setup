@@ -163,7 +163,7 @@ public int Native_IsReady(Handle plugin, int numParams) {
         return false;
 
     if (g_ExcludeSpectatorsCvar.IntValue != 0) {
-        return g_Ready[client] && GetClientTeam(client) == CS_TEAM_SPECTATOR || GetClientTeam(client) == CS_TEAM_NONE;
+        return g_Ready[client] && OnActiveTeam(client);
     } else {
         return g_Ready[client];
     }

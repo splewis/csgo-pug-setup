@@ -10,6 +10,7 @@
 #pragma newdecls required
 
 #define KV_DATA_LOCATION "data/pugsetup/rws.cfg"
+char g_KeyValueFile[PLATFORM_MAX_PATH];
 KeyValues g_RwsKV;
 
 /*
@@ -106,6 +107,9 @@ public void OnPluginStart() {
     // for clientprefs storage
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
+
+    // for keyvalues storage
+    BuildPath(Path_SM, g_KeyValueFile, sizeof(g_KeyValueFile), KV_DATA_LOCATION);
 }
 
 public void OnAllPluginsLoaded() {
@@ -170,16 +174,7 @@ public void InitSqlConnection() {
 }
 
 public void OnMapEnd() {
-    if (g_StorageMethod == Storage_KeyValues) {
-        WriteOutKeyValueStorage();
-    }
     delete g_RwsKV;
-}
-
-public void OnMatchOver(bool hasDemo, const char[] demoFileName) {
-    if (g_StorageMethod == Storage_KeyValues) {
-        WriteOutKeyValueStorage();
-    }
 }
 
 public void OnPermissionCheck(int client, const char[] command, Permission p, bool& allow) {
@@ -300,6 +295,7 @@ public void WriteStats(int client) {
         g_RwsKV.SetFloat("rws", g_PlayerRWS[client]);
         g_RwsKV.SetNum("roundsplayed", g_PlayerRounds[client]);
         g_RwsKV.GoBack();
+        g_RwsKV.ExportToFile(g_KeyValueFile);
 
     } else if (g_StorageMethod == Storage_MySQL && g_Database != INVALID_HANDLE) {
         char auth[64];
@@ -313,7 +309,6 @@ public void WriteStats(int client) {
     } else {
         LogError("[WriteStats(%L)] unknown storage method or invalid database connection, m=%d", g_StorageMethodCvar.IntValue);
     }
-
 }
 
 /**
@@ -538,11 +533,4 @@ public void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString,
     if (g_ShowRWSOnMenuCvar.IntValue != 0 && HasStats(client)) {
         Format(menuString, length, "%N [%.1f RWS]", client, g_PlayerRWS[client]);
     }
-}
-
-public void WriteOutKeyValueStorage() {
-    LogDebug("Exporting keyvalue stats storage");
-    char path[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
-    g_RwsKV.ExportToFile(path);
 }
