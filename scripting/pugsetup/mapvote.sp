@@ -33,7 +33,23 @@ static void ShowMapVote() {
 public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) {
     ArrayList mapList = GetCurrentMapList();
 
-    if (action == MenuAction_Display) {
+    if (action == MenuAction_Select && GetCvarIntSafe("sm_vote_progress_chat") != 0) {
+        int client = param1;
+        char clientName[MAX_NAME_LENGTH];
+        Format(clientName, sizeof(clientName), "%N", client);
+
+        int mapIndex = GetMenuInt(menu, param2);
+        char mapName[255];
+
+        if (mapIndex >= 0) {
+            FormatMapName(g_MapList, mapIndex, mapName, sizeof(mapName));
+        } else {
+            Format(mapName, sizeof(mapName), "%T", "RandomMapVote");
+        }
+
+        PugSetupMessageToAll("%t", "Voted For", clientName, mapName);
+
+    } else if (action == MenuAction_Display) {
         char buffer[255];
         Format(buffer, sizeof(buffer), "%T", "VoteMenuTitle", param1);
         SetPanelTitle(view_as<Handle>(param2), buffer);

@@ -183,6 +183,7 @@ public Plugin myinfo = {
 public void OnPluginStart() {
     InitDebugLog(DEBUG_CVAR, "pugsetup");
     LoadTranslations("common.phrases");
+    LoadTranslations("core.phrases");
     LoadTranslations("pugsetup.phrases");
 
     /** ConVars **/
