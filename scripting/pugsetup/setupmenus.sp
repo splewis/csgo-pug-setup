@@ -260,7 +260,7 @@ public void SetupFinished() {
     ExecWarmupConfigs();
 
     if (g_UseGameWarmupCvar.IntValue != 0)
-        StartWarmup();
+        EnsurePausedWarmup();
     else
         RestartGame(1);
 

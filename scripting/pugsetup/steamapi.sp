@@ -27,7 +27,7 @@ public void UpdateWorkshopCache(const char[] collectionId, ArrayList list) {
         SteamWorks_SendHTTPRequest(request);
 
     } else {
-        LogError("You have the SteamWorks extension installed to use workshop collections.");
+        LogError("You must have the SteamWorks extension installed to use workshop collections.");
     }
 }
 

@@ -151,11 +151,10 @@ stock int GetArrayCellRandom(ArrayList array) {
 
 stock void Colorize(char[] msg, int size, bool stripColor=false) {
     for (int i = 0; i < sizeof(_colorNames); i ++) {
-        char code[] = "\x01";
-        if (!stripColor)
-            strcopy(code,  sizeof(code), _colorCodes[i]);
-
-        ReplaceString(msg, size, _colorNames[i], code);
+        if (stripColor)
+            ReplaceString(msg, size, _colorNames[i], "\x01"); // replace with white
+        else
+            ReplaceString(msg, size, _colorNames[i], _colorCodes[i]);
     }
 }
 
@@ -202,6 +201,7 @@ stock void EnsurePausedWarmup() {
     if (!InWarmup())
         StartWarmup();
 
+    ServerCommand("mp_warmuptime 60"); // just need it to be longer than 5 seconds to make the pausetimer below always work
     ServerCommand("mp_warmup_pausetimer 1");
 }
 
@@ -239,15 +239,23 @@ stock void RestartGame(int delay) {
     ServerCommand("mp_restartgame %d", delay);
 }
 
-stock int GetCookieInt(int client, Handle cookie) {
+stock int GetCookieInt(int client, Handle cookie, int defaultValue=0) {
     char buffer[MAX_INTEGER_STRING_LENGTH];
     GetClientCookie(client, cookie, buffer, sizeof(buffer));
+
+    if (StrEqual(buffer, ""))
+        return defaultValue;
+
     return StringToInt(buffer);
 }
 
-stock float GetCookieFloat(int client, Handle cookie) {
+stock float GetCookieFloat(int client, Handle cookie, float defaultValue=0.0) {
     char buffer[MAX_FLOAT_STRING_LENGTH];
     GetClientCookie(client, cookie, buffer, sizeof(buffer));
+
+    if (StrEqual(buffer, ""))
+        return defaultValue;
+
     return StringToFloat(buffer);
 }
 
