@@ -252,6 +252,10 @@
 	{
 		"en"		"Random"
 	}
+	"RandomMapVote"
+	{
+		"en"		"random"
+	}
 	"NotLiveYet"
 	{
 		"en"		"The match has not begun yet."

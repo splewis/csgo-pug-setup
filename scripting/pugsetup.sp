@@ -261,8 +261,11 @@ public void OnPluginStart() {
     HookEvent("round_start", Event_RoundStart);
     HookEvent("round_end", Event_RoundEnd);
     HookEvent("player_spawn", Event_PlayerSpawn);
+
+    HookEvent("server_cvar", Event_CvarChanged, EventHookMode_Pre);
+
+    HookEvent("player_connect", Event_PlayerConnect);
     HookEvent("player_disconnect", Event_PlayerDisconnect);
-    HookEvent("player_team", Event_PlayerTeam, EventHookMode_Pre);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
@@ -327,17 +330,9 @@ public void OnLibraryAdded(const char[] name) {
 }
 
 public bool OnClientConnect(int client, char[] rejectmsg, int maxlen) {
-    g_Teams[client] = CS_TEAM_NONE;
     g_Ready[client] = false;
-    g_PlayerAtStart[client] = false;
     CheckAutoSetup();
     return true;
-}
-
-public void OnClientDisconnect(int client) {
-    g_Teams[client] = CS_TEAM_NONE;
-    g_Ready[client] = false;
-    g_PlayerAtStart[client] = false;
 }
 
 public void OnClientDisconnect_Post(int client) {
@@ -401,6 +396,10 @@ public Action Timer_CheckReady(Handle timer) {
         return Plugin_Stop;
     }
 
+    if (g_UseAimMapWarmupCvar.IntValue != 0) {
+        EnsurePausedWarmup();
+    }
+
     int readyPlayers = 0;
     int totalPlayers = 0;
     for (int i = 1; i <= MaxClients; i++) {
@@ -443,7 +442,7 @@ public Action Timer_CheckReady(Handle timer) {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     PugSetupMessageToAll("%t", "VetoMessage");
-                    CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
+                    CreateTimer(2.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
@@ -478,7 +477,6 @@ public Action Timer_CheckReady(Handle timer) {
                 break;
             g_capt2 = RandomPlayer();
         }
-
     }
 
     return Plugin_Continue;
@@ -946,7 +944,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
         PugSetupMessage(client, "{GREEN}Useful commands:");
         PugSetupMessage(client, "  {LIGHT_GREEN}.setup {NORMAL}begins the setup phase");
         PugSetupMessage(client, "  {LIGHT_GREEN}.endgame {NORMAL}ends the match");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.leader {NORMAL}allows you to set the game leader");
+        PugSetupMessage(client, "  {LIGHT_GREEN}.leader {NORMAL}allows you to set the pug leader");
         PugSetupMessage(client, "  {LIGHT_GREEN}.capt {NORMAL}allows you to set team captains");
         PugSetupMessage(client, "  {LIGHT_GREEN}.rand {NORMAL}selects random captains");
         PugSetupMessage(client, "  {LIGHT_GREEN}.ready/.notready {NORMAL}mark you as ready");
@@ -1349,6 +1347,13 @@ public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadc
     }
 }
 
+public Action Event_PlayerConnect(Handle event, const char[] name, bool dontBroadcast) {
+    int userid = GetEventInt(event, "userid");
+    int client = GetClientOfUserId(userid);
+    g_Teams[client] = CS_TEAM_NONE;
+    g_PlayerAtStart[client] = false;
+}
+
 public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontBroadcast) {
     int userid = GetEventInt(event, "userid");
     int client = GetClientOfUserId(userid);
@@ -1361,15 +1366,21 @@ public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontB
 }
 
 /**
- * Silences team join/switch events during player selection.
+ * Silences cvar changes when executing live/knife/warmup configs, *unless* it's sv_cheats.
  */
-public Action Event_PlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
-    if (g_GameState != GameState_PickingPlayers)
-        return Plugin_Continue;
+public Action Event_CvarChanged(Handle event, const char[] name, bool dontBroadcast) {
+    if (g_GameState != GameState_None) {
+        char cvarName[128];
+        GetEventString(event, "cvarname", cvarName, sizeof(cvarName));
+        if (!StrEqual(cvarName, "sv_cheats")) {
+            SetEventBroadcast(event, true);
+        }
+    }
 
-    SetEventBroadcast(event, true);
     return Plugin_Continue;
 }
+
+
 
 /***********************
  *                     *
@@ -1412,6 +1423,18 @@ public void PrintSetupInfo(int client) {
 }
 
 public void ReadyToStart() {
+    if (g_MapType == MapType_Veto && g_TeamType == TeamType_Captains) {
+        for (int i = 1; i <= MaxClients; i++) {
+            if (!IsPlayer(i))
+                continue;
+
+            if (g_PlayerAtStart[i])
+                ChangeClientTeam(i, g_Teams[i]);
+            else
+                ChangeClientTeam(i, CS_TEAM_SPECTATOR);
+        }
+    }
+
     Call_StartForward(g_hOnReadyToStart);
     Call_Finish();
 
@@ -1616,8 +1639,6 @@ public void ExecGameConfigs() {
 }
 
 stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
-    LogDebug("EndMatch(%d, %d)", execConfigs, doRestart);
-
     if (g_GameState == GameState_None) {
         return;
     }
@@ -1725,7 +1746,13 @@ public Action FinishPicking(Handle timer) {
     }
 
     Unpause();
-    ReadyToStart();
+
+    if (!g_OnDecidedMap && g_MapType == MapType_Veto) {
+        CreateTimer(2.0, MapSetup);
+    } else {
+        ReadyToStart();
+    }
+
     return Plugin_Handled;
 }
 

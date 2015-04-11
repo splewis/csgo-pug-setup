@@ -198,6 +198,13 @@ stock bool InWarmup() {
     return GameRules_GetProp("m_bWarmupPeriod") != 0;
 }
 
+stock void EnsurePausedWarmup() {
+    if (!InWarmup())
+        StartWarmup();
+
+    ServerCommand("mp_warmup_pausetimer 1");
+}
+
 stock void StartWarmup(bool indefiniteWarmup=true, int warmupTime=60) {
     if (indefiniteWarmup) {
         ServerCommand("mp_do_warmup_period 1");
@@ -206,6 +213,7 @@ stock void StartWarmup(bool indefiniteWarmup=true, int warmupTime=60) {
     ServerCommand("mp_warmuptime %d", warmupTime);
     ServerCommand("mp_warmup_start");
 
+    // for some reason this needs to get set multiple times to work correctly on occasion? (valve pls)
     if (indefiniteWarmup) {
         ServerCommand("mp_warmup_pausetimer 1");
     }
