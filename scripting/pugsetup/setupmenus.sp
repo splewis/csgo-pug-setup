@@ -259,7 +259,7 @@ public int DemoHandler(int client) {
 public void SetupFinished() {
     ExecWarmupConfigs();
 
-    if (g_UseGameWarmupCvar.IntValue != 0 && !InWarmup())
+    if (g_UseGameWarmupCvar.IntValue != 0)
         StartWarmup();
     else
         RestartGame(1);
