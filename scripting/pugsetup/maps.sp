@@ -180,6 +180,11 @@ public void FormatMapName(ArrayList mapList, int mapIndex, char[] buffer, int le
     char buffers[4][PLATFORM_MAX_PATH];
     int numSplits = ExplodeString(map, "/", buffers, sizeof(buffers), PLATFORM_MAX_PATH);
     int mapStringIndex = (numSplits > 0) ? (numSplits - 1) : (0);
+    strcopy(map, len, buffers[mapStringIndex]);
+
+    // not do it with backslashes too
+    numSplits = ExplodeString(map, "\\", buffers, sizeof(buffers), PLATFORM_MAX_PATH);
+    mapStringIndex = (numSplits > 0) ? (numSplits - 1) : (0);
     strcopy(buffer, len, buffers[mapStringIndex]);
 }
 
