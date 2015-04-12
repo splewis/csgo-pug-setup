@@ -385,6 +385,10 @@
 	{
 		"en"		"Set captains"
 	}
+	"AimWarmupMenuOption"
+	{
+		"en"		"Use aim map warmup"
+	}
 	"ChangeMapMenuOption"
 	{
 		"en"		"Change map"

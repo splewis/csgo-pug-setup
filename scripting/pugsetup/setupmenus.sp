@@ -56,18 +56,18 @@
         }
 
         // 4. demo option
-        if (g_DisplayRecordDemo) {
-            char demoString[128];
-            GetEnabledString(demoString, sizeof(demoString), g_RecordGameOption, client);
-            Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", client, demoString);
+        if (g_DisplayRecordDemo && IsTVEnabled()) {
+            char enabledString[128];
+            GetEnabledString(enabledString, sizeof(enabledString), g_RecordGameOption, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "DemoOption", client, enabledString);
             AddMenuItem(menu, "demo", buffer, style);
         }
 
         // 5. knife round option
         if (g_DisplayKnifeRound) {
-            char knifeString[128];
-            GetEnabledString(knifeString, sizeof(knifeString), g_DoKnifeRound, client);
-            Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", client, knifeString);
+            char enabledString[128];
+            GetEnabledString(enabledString, sizeof(enabledString), g_DoKnifeRound, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "KnifeRoundOption", client, enabledString);
             AddMenuItem(menu, "knife", buffer, style);
         }
 
@@ -79,13 +79,21 @@
             AddMenuItem(menu, "autolive", buffer, style);
         }
 
-        // 7. set captains
+        // 7. use aim_ map warmup
+        if (g_DisplayAimWarmup && g_AimMapList.Length >= 1) {
+            char enabledString[128];
+            GetEnabledString(enabledString, sizeof(enabledString), g_DoAimWarmup, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "AimWarmupMenuOption", client, enabledString);
+            AddMenuItem(menu, "aim_warmup", buffer, style);
+        }
+
+        // 8. set captains
         if (g_GameState ==  GameState_Warmup && UsingCaptains()) {
             Format(buffer, sizeof(buffer), "%T", "SetCaptainsMenuOption", client);
             AddMenuItem(menu, "set_captains", buffer, style);
         }
 
-        // 8. change map
+        // 9. change map
         if (g_DisplayMapChange) {
             Format(buffer, sizeof(buffer), "%T", "ChangeMapMenuOption", client);
             AddMenuItem(menu, "change_map", buffer, style);
@@ -150,6 +158,10 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "cancel_setup")) {
             FakeClientCommand(client, "sm_endgame");
+
+        } else if (StrEqual(buffer, "aim_warmup")) {
+            g_DoAimWarmup = !g_DoAimWarmup;
+            GiveSetupMenu(client);
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);
@@ -286,7 +298,7 @@ public void SetupFinished() {
     Call_StartForward(g_hOnSetup);
     Call_Finish();
 
-    if (!g_OnDecidedMap && g_UseAimMapWarmupCvar.IntValue != 0 && !OnAimMap()) {
+    if (!g_OnDecidedMap && g_DoAimWarmup && !OnAimMap()) {
         ChangeToAimMap();
     }
 }

@@ -54,7 +54,6 @@ ConVar g_RandomizeMapOrderCvar;
 ConVar g_RandomOptionInMapVoteCvar;
 ConVar g_SnakeCaptainsCvar;
 ConVar g_StartDelayCvar;
-ConVar g_UseAimMapWarmupCvar;
 ConVar g_UseGameWarmupCvar;
 ConVar g_WarmupCfgCvar;
 ConVar g_WarmupMoneyOnSpawnCvar;
@@ -67,6 +66,7 @@ bool g_DisplayKnifeRound = true;
 bool g_DisplayTeamSize = true;
 bool g_DisplayRecordDemo = true;
 bool g_DisplayMapChange = false;
+bool g_DisplayAimWarmup = true;
 
 /** Setup info **/
 int g_Leader = -1;
@@ -81,6 +81,7 @@ MapType g_MapType = MapType_Vote;
 bool g_RecordGameOption = false;
 bool g_DoKnifeRound = false;
 bool g_AutoLive = true;
+bool g_DoAimWarmup = false;
 
 /** Other important variables about the state of the game **/
 TeamBalancerFunction g_BalancerFunction = INVALID_FUNCTION;
@@ -212,7 +213,6 @@ public void OnPluginStart() {
     g_RandomOptionInMapVoteCvar = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
     g_SnakeCaptainsCvar = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_StartDelayCvar = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds of a countdown phase right before the lo3 process begins.", _, true, 0.0, true, 60.0);
-    g_UseAimMapWarmupCvar = CreateConVar("sm_pugsetup_use_aim_map_warmup", "0", "Whether to change map to a random map from sm_pugsetup_maplist_aim_maps during warmup periods");
     g_UseGameWarmupCvar = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality. The warmup config (sm_pugsetup_warmup_cfg) will be executed regardless of this setting.");
     g_WarmupCfgCvar = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_WarmupMoneyOnSpawnCvar = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
@@ -396,7 +396,7 @@ public Action Timer_CheckReady(Handle timer) {
         return Plugin_Stop;
     }
 
-    if (g_UseAimMapWarmupCvar.IntValue != 0) {
+    if (g_DoAimWarmup) {
         EnsurePausedWarmup();
     }
 
@@ -1624,7 +1624,7 @@ public void ScrambleTeams() {
 
 public void ExecWarmupConfigs() {
     ExecCfg(g_WarmupCfgCvar);
-    if (OnAimMap() && g_UseAimMapWarmupCvar.IntValue != 0 && !g_OnDecidedMap) {
+    if (OnAimMap() && g_DoAimWarmup && !g_OnDecidedMap) {
         ServerCommand("exec sourcemod/pugsetup/aim_warmup.cfg");
     }
 }
