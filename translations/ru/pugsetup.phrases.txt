@@ -326,7 +326,7 @@
 	}
 	"AimWarmupMenuOption"
 	{
-		"ru"		"Использовать AIM карту в разминки"
+		"ru"		"Использовать AIM карту в разминке"
 	}
 	"ChangeMapMenuOption"
 	{
