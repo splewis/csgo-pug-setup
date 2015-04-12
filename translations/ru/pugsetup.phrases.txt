@@ -236,6 +236,10 @@
 	{
 		"ru"		"Случайный выбор"
 	}
+	"RandomMapVote"
+	{
+		"ru"		"случайно"
+	}
 	"NotLiveYet"
 	{
 		"ru"		"Матч еще не начался."
@@ -319,6 +323,10 @@
 	"SetCaptainsMenuOption"
 	{
 		"ru"		"Выбор капитанов"
+	}
+	"AimWarmupMenuOption"
+	{
+		"ru"		"Использовать AIM карту в разминке"
 	}
 	"ChangeMapMenuOption"
 	{
