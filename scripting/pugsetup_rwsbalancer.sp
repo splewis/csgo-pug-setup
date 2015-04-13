@@ -93,6 +93,9 @@ public void OnPluginStart() {
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
 
+    g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
+    g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
+
     // for keyvalues storage
     BuildPath(Path_SM, g_KeyValueFile, sizeof(g_KeyValueFile), KV_DATA_LOCATION);
 }
