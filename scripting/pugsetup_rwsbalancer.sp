@@ -40,14 +40,6 @@ char g_TableFormat[][] = {
     "PRIMARY KEY (auth)",
 };
 
-enum StorageMethod {
-    Storage_ClientPrefs = 0,
-    Storage_KeyValues = 1,
-    Storage_MySQL = 2,
-};
-
-StorageMethod g_StorageMethod = Storage_ClientPrefs;
-
 /** Client cookie handles **/
 Handle g_RWSCookie = INVALID_HANDLE;
 Handle g_RoundsPlayedCookie = INVALID_HANDLE;
@@ -65,7 +57,6 @@ ConVar g_AllowRWSCommandCvar;
 ConVar g_RecordRWSCvar;
 ConVar g_SetCaptainsByRWSCvar;
 ConVar g_ShowRWSOnMenuCvar;
-ConVar g_StorageMethodCvar;
 
 Handle g_Database = INVALID_HANDLE;
 bool g_ManuallySetCaptains = false;
@@ -99,14 +90,8 @@ public void OnPluginStart() {
     g_RecordRWSCvar = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
     g_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
     g_ShowRWSOnMenuCvar = CreateConVar("sm_pugsetup_rws_display_on_menu", "0", "Whether rws stats are to be displayed on captain-player selection menus");
-    g_StorageMethodCvar = CreateConVar("sm_pugsetup_rws_storage_method", "0", "Which storage method to use: 0=clientprefs database, 1=flat keyvalue file on disk, 2=MySQL table using the \"pugsetup\" database");
-    g_StorageMethodCvar.AddChangeHook(OnStorageMethodChanged);
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
-
-    // for clientprefs storage
-    g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
-    g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
 
     // for keyvalues storage
     BuildPath(Path_SM, g_KeyValueFile, sizeof(g_KeyValueFile), KV_DATA_LOCATION);
@@ -121,37 +106,12 @@ public void OnPluginEnd() {
         ClearTeamBalancer();
 }
 
-public int OnStorageMethodChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
-    g_StorageMethod = view_as<StorageMethod>(StringToInt(newValue));
-
-    if (g_StorageMethod == Storage_MySQL) {
-        InitSqlConnection();
-    }
-
-    for (int i = 1; i <= MaxClients; i++) {
-        g_PlayerHasStats[i] = false;
-        if (!IsClientConnected(i) || IsFakeClient(i)) {
-            continue;
-        }
-        if (IsClientAuthorized(i)) {
-            OnClientAuthorized(i, "");
-        }
-        if (AreClientCookiesCached(i)) {
-            OnClientCookiesCached(i);
-        }
-    }
-}
-
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
     g_RwsKV = new KeyValues("RWSBalancerStats");
     char path[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
     g_RwsKV.ImportFromFile(path);
-
-    if (g_StorageMethod == Storage_MySQL && g_Database == INVALID_HANDLE) {
-        InitSqlConnection();
-    }
 }
 
 public void InitSqlConnection() {
@@ -184,10 +144,9 @@ public void OnPermissionCheck(int client, const char[] command, Permission p, bo
 }
 
 public int OnClientCookiesCached(int client) {
-    if (IsFakeClient(client) || g_StorageMethod != Storage_ClientPrefs)
+    if (IsFakeClient(client))
         return;
 
-    LogDebug("set %L rws from cookies, g_StorageMethod = %d", client, g_StorageMethod);
     g_PlayerRWS[client] = GetCookieFloat(client, g_RWSCookie);
     g_PlayerRounds[client] = GetCookieInt(client, g_RoundsPlayedCookie);
     g_PlayerHasStats[client] = true;
@@ -213,63 +172,11 @@ public void OnClientAuthorized(int client, const char[] engineAuth) {
     char auth[64];
     GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
 
-    LogDebug("OnClientAuthorized with engineAuth = %s, auth = %s", engineAuth, auth);
-
-    if (g_StorageMethod == Storage_KeyValues) {
-        g_RwsKV.JumpToKey(auth, true);
-        g_PlayerRWS[client] = g_RwsKV.GetFloat("rws", 0.0);
-        g_PlayerRounds[client] = g_RwsKV.GetNum("roundsplayed", 0);
-        g_RwsKV.GoBack();
-        g_PlayerHasStats[client] = true;
-        LogDebug("set %L rws from keyvalues, g_StorageMethod = %d", client, g_StorageMethod);
-
-    } else if (g_StorageMethod == Storage_MySQL && g_Database != INVALID_HANDLE) {
-        char query[2048];
-        Format(query, sizeof(query),
-               "INSERT IGNORE INTO %s (auth,rws,roundsplayed) VALUES ('%s', 0.0, 0)",
-               TABLE_NAME, auth);
-        LogDebug("Inserting player, query: %s", query);
-        SQL_TQuery(g_Database, Callback_Insert, query, GetClientSerial(client));
-    }
-}
-
-public void Callback_Insert(Handle owner, Handle hndl, const char[] error, int serial) {
-    int client = GetClientFromSerial(serial);
-    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client] || g_StorageMethod != Storage_MySQL)
-        return;
-
-    char auth[64];
-    GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
-
-    char query[2048];
-    Format(query, sizeof(query),
-           "SELECT rws, roundsplayed FROM %s WHERE auth = '%s'",
-           TABLE_NAME, auth);
-    LogDebug("Fetching rws stats, query=%s", query);
-    SQL_TQuery(g_Database, Callback_FetchStats, query, GetClientSerial(client));
-}
-
-public void Callback_FetchStats(Handle owner, Handle hndl, const char[] error, int serial) {
-    int client = GetClientFromSerial(serial);
-    if (client < 0 || IsFakeClient(client) || g_PlayerHasStats[client] || g_StorageMethod != Storage_MySQL)
-        return;
-
-    if (hndl == INVALID_HANDLE) {
-        LogError("Query failed: (error: %s)", error);
-    } else if (SQL_FetchRow(hndl)) {
-        LogDebug("set %L rws from sql, g_StorageMethod = %d", client, g_StorageMethod);
-        g_PlayerRWS[client] = SQL_FetchFloat(hndl, 0);
-        g_PlayerRounds[client] = SQL_FetchInt(hndl, 1);
-        g_PlayerHasStats[client] = true;
-    } else {
-        g_PlayerHasStats[client] = true;
-    }
-}
-
-public void Callback_CheckError(Handle owner, Handle hndl, const char[] error, int data) {
-    if (!StrEqual("", error)) {
-        LogError("Last SQL Error: %s", error);
-    }
+    g_RwsKV.JumpToKey(auth, true);
+    g_PlayerRWS[client] = g_RwsKV.GetFloat("rws", 0.0);
+    g_PlayerRounds[client] = g_RwsKV.GetNum("roundsplayed", 0);
+    g_RwsKV.GoBack();
+    g_PlayerHasStats[client] = true;
 }
 
 public bool HasStats(int client) {
@@ -280,35 +187,8 @@ public void WriteStats(int client) {
     if (!IsValidClient(client) || IsFakeClient(client) || !g_PlayerHasStats[client])
         return;
 
-    LogDebug("Writing player stats(%L), rws=%f, roundsplayed=%d", client, g_PlayerRWS[client], g_PlayerRounds[client]);
-
-    if (g_StorageMethod == Storage_ClientPrefs) {
-        SetCookieInt(client, g_RoundsPlayedCookie, g_PlayerRounds[client]);
-        SetCookieFloat(client, g_RWSCookie, g_PlayerRWS[client]);
-
-    } else if (g_StorageMethod == Storage_KeyValues) {
-        char auth[64];
-        GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
-
-        g_RwsKV.DeleteKey(auth);
-        g_RwsKV.JumpToKey(auth, true);
-        g_RwsKV.SetFloat("rws", g_PlayerRWS[client]);
-        g_RwsKV.SetNum("roundsplayed", g_PlayerRounds[client]);
-        g_RwsKV.GoBack();
-        g_RwsKV.ExportToFile(g_KeyValueFile);
-
-    } else if (g_StorageMethod == Storage_MySQL && g_Database != INVALID_HANDLE) {
-        char auth[64];
-        GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
-        char query[1024];
-        Format(query, sizeof(query), "UPDATE %s SET roundsplayed = %d, rws = %f where auth = '%s'",
-               TABLE_NAME, g_PlayerRounds[client], g_PlayerRWS[client], auth);
-        LogDebug("Updating sql stats, query=%s", query);
-        SQL_TQuery(g_Database, Callback_CheckError, query);
-
-    } else {
-        LogError("[WriteStats(%L)] unknown storage method or invalid database connection, m=%d", g_StorageMethodCvar.IntValue);
-    }
+    SetCookieInt(client, g_RoundsPlayedCookie, g_PlayerRounds[client]);
+    SetCookieFloat(client, g_RWSCookie, g_PlayerRWS[client]);
 }
 
 /**
