@@ -36,13 +36,13 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
     if (action == MenuAction_Select && GetCvarIntSafe("sm_vote_progress_chat") != 0) {
         int client = param1;
         char clientName[MAX_NAME_LENGTH];
-        Format(clientName, sizeof(clientName), "%N", client);
+        GetClientName(client, clientName, sizeof(clientName));
 
         int mapIndex = GetMenuInt(menu, param2);
         char mapName[255];
 
         if (mapIndex >= 0) {
-            FormatMapName(g_MapList, mapIndex, mapName, sizeof(mapName));
+            FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
         } else {
             Format(mapName, sizeof(mapName), "%T", "RandomMapVote");
         }
@@ -66,9 +66,9 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
     } else if (action == MenuAction_VoteEnd) {
         int winner = GetMenuInt(menu, param1);
         if (winner == StringToInt(RANDOM_MAP_VOTE)) {
-            ChangeMap(g_MapList,  GetArrayRandomIndex(mapList));
+            ChangeMap(mapList,  GetArrayRandomIndex(mapList));
         } else {
-            ChangeMap(g_MapList, GetMenuInt(menu, param1));
+            ChangeMap(mapList, GetMenuInt(menu, param1));
         }
 
     } else if (action == MenuAction_End) {

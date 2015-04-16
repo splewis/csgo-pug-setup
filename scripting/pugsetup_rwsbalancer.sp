@@ -32,14 +32,6 @@ KeyValues g_RwsKV;
 #define ROUNDS_FINAL 250.0
 #define AUTH_METHOD AuthId_Steam2
 
-#define TABLE_NAME "pugsetup_rwsbalancer"
-char g_TableFormat[][] = {
-    "auth varchar(72) NOT NULL default ''",
-    "roundsplayed INT NOT NULL default 0",
-    "rws FLOAT NOT NULL default 0.0",
-    "PRIMARY KEY (auth)",
-};
-
 /** Client cookie handles **/
 Handle g_RWSCookie = INVALID_HANDLE;
 Handle g_RoundsPlayedCookie = INVALID_HANDLE;
@@ -58,7 +50,6 @@ ConVar g_RecordRWSCvar;
 ConVar g_SetCaptainsByRWSCvar;
 ConVar g_ShowRWSOnMenuCvar;
 
-Handle g_Database = INVALID_HANDLE;
 bool g_ManuallySetCaptains = false;
 bool g_SetTeamBalancer = false;
 
@@ -115,25 +106,6 @@ public void OnMapStart() {
     char path[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
     g_RwsKV.ImportFromFile(path);
-}
-
-public void InitSqlConnection() {
-    // check if already connected
-    if (g_Database != INVALID_HANDLE) {
-        return;
-    }
-
-    LogDebug("Connecting to database");
-    char error[255];
-    g_Database = SQL_Connect("pugsetup", true, error, sizeof(error));
-    if (g_Database == INVALID_HANDLE) {
-        LogError("Could not connect: %s", error);
-    } else {
-        SQL_LockDatabase(g_Database);
-        SQL_CreateTable(g_Database, TABLE_NAME, g_TableFormat, sizeof(g_TableFormat));
-        SQL_UnlockDatabase(g_Database);
-        LogDebug("Succesfully connected to database");
-    }
 }
 
 public void OnMapEnd() {
