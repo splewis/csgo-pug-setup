@@ -552,6 +552,11 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
  ***********************/
 
 public Action Command_Pugstatus(int client, int args) {
+    ReplyToCommand(client, "Pugsetup version: %s", PLUGIN_VERSION);
+    #if defined COMMIT_STRING
+    ReplyToCommand(client, "Compiled from commit %s", COMMIT_STRING);
+    #endif
+
     char stateString[64];
     switch (g_GameState) {
         case GameState_None: Format(stateString, sizeof(stateString), "None");
