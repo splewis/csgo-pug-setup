@@ -96,9 +96,11 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_grenadeback", Command_GrenadeBack);
     RegConsoleCmd("sm_grenadeforward", Command_GrenadeForward);
     RegConsoleCmd("sm_clearnades", Command_ClearNades);
+    RegConsoleCmd("sm_gotogrenade", Command_GotoNade);
     AddChatAlias(".back", "sm_grenadeback");
     AddChatAlias(".forward", "sm_grenadeforward");
     AddChatAlias(".clearnades", "sm_clearnades");
+    AddChatAlias(".goto", "sm_gotogrenade");
 
     // New cvars
     g_InfiniteMoneyCvar = CreateConVar("sm_infinite_money", "0", "Whether clients recieve infinite money");
@@ -595,6 +597,26 @@ public Action Command_ClearNades(int client, int args) {
         ClearArray(g_GrenadeHistoryPositions[client]);
         ClearArray(g_GrenadeHistoryAngles[client]);
         PugSetupMessage(client, "Grenade history cleared.");
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_GotoNade(int client, int args) {
+    if (g_InPracticeMode) {
+        char arg[32];
+        if (args >= 1 && GetCmdArg(1, arg, sizeof(arg))) {
+            int index = StringToInt(arg) - 1;
+            if (index >= 0 && index < g_GrenadeHistoryPositions[client].Length) {
+                g_GrenadeHistoryIndex[client] = index;
+                TeleportToGrenadePosition(client, index);
+                PugSetupMessage(client, "Teleporting to %d position in grenade history.", index + 1);
+            } else {
+                PugSetupMessage(client, "Invalid grenade position number.");
+            }
+        } else {
+            PugSetupMessage(client, "Usage: .goto <number>");
+        }
     }
 
     return Plugin_Handled;
