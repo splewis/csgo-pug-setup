@@ -317,7 +317,8 @@ static void AddPugSetupCommand(const char[] command, ConCmd callback, const char
 }
 
 public void OnConfigsExecuted() {
-    InitMapSettings();
+    FillMapList(g_MapListCvar, g_MapList);
+    FillMapList(g_AimMapListCvar, g_AimMapList);
     ReadPermissions();
 }
 
@@ -928,7 +929,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
     if (index == -1) {
         strcopy(chatCommand, sizeof(chatCommand), sArgs);
-    } else if (index + 1 < strlen(sArgs)) {
+    } else if (index < strlen(sArgs)) {
         strcopy(chatArgs, sizeof(chatArgs), sArgs[index]);
     }
 

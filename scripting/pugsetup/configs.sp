@@ -12,12 +12,7 @@ public bool UsingWorkshopCollection() {
     return collectionID != 0;
 }
 
-public void InitMapSettings() {
-    FillMapList(g_MapListCvar, g_MapList);
-    FillMapList(g_AimMapListCvar, g_AimMapList);
-}
-
-static void FillMapList(ConVar cvar, ArrayList list) {
+public void FillMapList(ConVar cvar, ArrayList list) {
     ClearArray(list);
 
     char maplist[PLATFORM_MAX_PATH];
