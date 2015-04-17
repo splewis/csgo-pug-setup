@@ -210,7 +210,7 @@ static int AddPlayersToMenu(Menu menu) {
             Call_StartForward(g_hOnPlayerAddedToCaptainMenu);
             Call_PushCell(menu);
             Call_PushCell(client);
-            Call_PushString(displayString);
+            Call_PushStringEx(displayString, sizeof(displayString), SM_PARAM_STRING_COPY, SM_PARAM_COPYBACK);
             Call_PushCell(sizeof(displayString));
             Call_Finish();
 
