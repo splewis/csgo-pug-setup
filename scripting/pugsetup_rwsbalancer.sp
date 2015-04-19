@@ -118,7 +118,7 @@ public void OnPermissionCheck(int client, const char[] command, Permission p, bo
     }
 }
 
-public int OnClientCookiesCached(int client) {
+public void OnClientCookiesCached(int client) {
     if (IsFakeClient(client))
         return;
 

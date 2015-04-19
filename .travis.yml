@@ -10,8 +10,8 @@ install:
     - cd ..
 
 before_script:
-    - wget http://y4kstudios.com/sourcemod/mirror/sourcemod-1.7.0-linux.tar.gz
-    - tar -xzf sourcemod-1.7.0-linux.tar.gz
+    - wget http://y4kstudios.com/sourcemod/mirror/sourcemod-1.7.1-linux.tar.gz
+    - tar -xzf sourcemod-1.7.1-linux.tar.gz
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
