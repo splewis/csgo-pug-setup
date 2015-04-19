@@ -10,7 +10,7 @@ install:
     - cd ..
 
 before_script:
-    - wget http://y4kstudios.com/sourcemod/mirror/sourcemod-1.7.1-linux.tar.gz
+    - wget http://www.gsptalk.com/mirror/sourcemod/sourcemod-1.7.1-linux.tar.gz
     - tar -xzf sourcemod-1.7.1-linux.tar.gz
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
