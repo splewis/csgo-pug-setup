@@ -956,6 +956,10 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
         PugSetupMessage(client, "  {LIGHT_GREEN}.ready/.notready {NORMAL}mark you as ready");
         PugSetupMessage(client, "  {LIGHT_GREEN}.pause/.unpause {NORMAL}pause the match");
     }
+
+    if (StrEqual(sArgs[0], ".map") && IsVoteInProgress() && IsClientInVotePool(client)) {
+        RedrawClientVoteMenu(client);
+    }
 }
 
 public Action Command_EndGame(int client, int args) {
