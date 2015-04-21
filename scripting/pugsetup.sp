@@ -261,9 +261,7 @@ public void OnPluginStart() {
     HookEvent("round_start", Event_RoundStart);
     HookEvent("round_end", Event_RoundEnd);
     HookEvent("player_spawn", Event_PlayerSpawn);
-
     HookEvent("server_cvar", Event_CvarChanged, EventHookMode_Pre);
-
     HookEvent("player_connect", Event_PlayerConnect);
     HookEvent("player_disconnect", Event_PlayerDisconnect);
 
@@ -362,10 +360,6 @@ public void OnMapStart() {
     g_WorkshopCache = new KeyValues("Workshop");
     g_WorkshopCache.ImportFromFile(g_CacheFile);
 
-    for (int i = 1; i <= MaxClients; i++) {
-        g_Ready[i] = false;
-        g_Teams[i] = CS_TEAM_NONE;
-    }
 
     if (g_GameState == GameState_Warmup) {
         ExecWarmupConfigs();
@@ -377,6 +371,10 @@ public void OnMapStart() {
         g_capt1 = -1;
         g_capt2 = -1;
         g_Leader = -1;
+        for (int i = 1; i <= MaxClients; i++) {
+            g_Ready[i] = false;
+            g_Teams[i] = CS_TEAM_NONE;
+        }
     }
 }
 
@@ -442,8 +440,7 @@ public Action Timer_CheckReady(Handle timer) {
         } else {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
-                    PugSetupMessageToAll("%t", "VetoMessage");
-                    CreateTimer(2.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
+                    CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
                     return Plugin_Stop;
                 } else {
@@ -1758,6 +1755,7 @@ public Action FinishPicking(Handle timer) {
     Unpause();
 
     if (!g_OnDecidedMap && g_MapType == MapType_Veto) {
+        PugSetupMessageToAll("%t", "VetoMessage");
         CreateTimer(2.0, MapSetup);
     } else {
         ReadyToStart();
