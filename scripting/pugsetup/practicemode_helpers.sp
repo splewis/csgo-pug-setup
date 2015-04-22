@@ -64,15 +64,25 @@ public void GetColor(ClientColor c, int array[4]) {
     array[3] = 255;
 }
 
-public void TeleportToSavedGrenadePosition(int client, const char[] auth, const char[] nadeIdStr) {
+public bool TeleportToSavedGrenadePosition(int client, const char[] auth, const char[] nadeIdStr) {
     float origin[3];
     float angles[3];
     float velocity[3];
     char description[GRENADE_DESCRIPTION_LENGTH];
-    g_CurrentSavedGrenadeId[client] = StringToInt(nadeIdStr);
+    bool success = false;
+
+    // update the client's current grenade id, if it was their grenade
+    char clientAuth[AUTH_LENGTH];
+    GetClientAuthId(client, AuthId_Steam2, clientAuth, sizeof(clientAuth));
+    if (StrEqual(clientAuth, auth)) {
+        g_CurrentSavedGrenadeId[client] = StringToInt(nadeIdStr);
+    } else {
+        g_CurrentSavedGrenadeId[client] = -1;
+    }
 
     if (g_GrenadeLocationsKv.JumpToKey(auth)) {
         if (g_GrenadeLocationsKv.JumpToKey(nadeIdStr)) {
+            success = true;
             g_GrenadeLocationsKv.GetVector("origin", origin);
             g_GrenadeLocationsKv.GetVector("angles", angles);
             g_GrenadeLocationsKv.GetString("description", description, sizeof(description));
@@ -84,6 +94,8 @@ public void TeleportToSavedGrenadePosition(int client, const char[] auth, const 
         }
         g_GrenadeLocationsKv.GoBack();
     }
+
+    return success;
 }
 
 public int SaveGrenadeToKv(int client, const float origin[3], const float angles[3], const char[] name) {
@@ -121,7 +133,6 @@ public bool DeleteGrenadeFromKv(int client, const char[] nadeIdStr) {
         deleted = g_GrenadeLocationsKv.DeleteKey(nadeIdStr);
         g_GrenadeLocationsKv.GoBack();
         PugSetupMessage(client, "Deleted grenade id %s, \"%s\"", nadeIdStr, name);
-
     }
     return deleted;
 }
@@ -177,5 +188,16 @@ public void UpdateGrenadeDescription(int client, int index, const char[] descrip
             g_GrenadeLocationsKv.GoBack();
         }
         g_GrenadeLocationsKv.GoBack();
+    }
+}
+
+public bool FindGrenadeTarget(const char[] nameInput, char[] name, int nameLen, char[] auth, int authLen) {
+    int target = AttemptFindTarget(nameInput);
+    if (IsPlayer(target) && GetClientAuthId(target, AuthId_Steam2, auth, authLen)) {
+        GetClientName(target, name, nameLen);
+        GetClientAuthId(target, AuthId_Steam2, auth, authLen);
+        return true;
+    } else {
+        return FindTargetInGrenadesKvByName(nameInput, name, nameLen, auth, authLen);
     }
 }

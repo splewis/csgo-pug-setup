@@ -29,10 +29,11 @@ API changes:
 Optional plugin changes:
 - correct bugs with pugsetup_damageprint plugin and make ``sm_pugsetup_damageprint_format`` cvar configurable
 - new rws balancers features (off by default): ``sm_pugsetup_rws_allow_rws_command``, ``sm_pugsetup_rws_display_on_menu``
-- correct how the rwsbalancer writes stats when using non-clientprefs storage (keyvalues & mysql)
+- remove non-clientprefs storage mechanisms in the rwsbalancer
 - various improvements to pugsetup_practicemode plugin: new cvars ``sm_infinite_money``, ``sm_grenade_trajectory_use_player_color``, ``sm_allow_noclip``,
   reimplement grenade trajectories using ``sv_grenade_trajectory`` value, ``sv_cheats`` is no longer required to be on
 - practicemode will save the origin/angles a client is facing when throwing grenades and can be revisited using .back, .forward commands
+- practicemode will let clients save persistent angles/locations per map for grenades using .save <name of grenade/position> and .nades [playername]
 
 ### 1.3.3:
 - fix the rwsbalancer being totally broken with team balancing

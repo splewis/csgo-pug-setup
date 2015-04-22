@@ -561,8 +561,9 @@ public int OnEntitySpawned(int entity) {
 }
 
 public Action Event_WeaponFired(Handle event, const char[] name, bool dontBroadcast) {
-    if (!g_InPracticeMode)
+    if (!g_InPracticeMode) {
         return;
+    }
 
     int userid = GetEventInt(event, "userid");
     int client = GetClientOfUserId(userid);
@@ -618,18 +619,31 @@ public Action Command_ClearNades(int client, int args) {
 
 public Action Command_GotoNade(int client, int args) {
     if (g_InPracticeMode) {
-        char arg[32];
-        if (args >= 1 && GetCmdArg(1, arg, sizeof(arg))) {
-            int index = StringToInt(arg) - 1;
-            if (index >= 0 && index < g_GrenadeHistoryPositions[client].Length) {
-                g_GrenadeHistoryIndex[client] = index;
-                TeleportToGrenadeHistoryPosition(client, index);
-                PugSetupMessage(client, "Teleporting to %d position in grenade history.", index + 1);
-            } else {
-                PugSetupMessage(client, "Invalid grenade position number.");
+        char arg1[32];
+        char arg2[32];
+        char name[MAX_NAME_LENGTH];
+        char auth[AUTH_LENGTH];
+
+        if (args >= 2 && GetCmdArg(1, arg1, sizeof(arg1)) && GetCmdArg(2, arg2, sizeof(arg2))) {
+            if (!FindGrenadeTarget(arg1, name, sizeof(name), auth, sizeof(auth))) {
+                PugSetupMessage(client, "Player not found.");
+                return Plugin_Handled;
             }
+            if (!TeleportToSavedGrenadePosition(client, auth, arg2)){
+                PugSetupMessage(client, "Grenade id %s not found.", arg2);
+                return Plugin_Handled;
+            }
+
+        } else if (args >= 1 && GetCmdArg(1, arg1, sizeof(arg1))) {
+            GetClientName(client, name, sizeof(name));
+            GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+            if (!TeleportToSavedGrenadePosition(client, auth, arg1)){
+                PugSetupMessage(client, "Grenade id %s not found.", arg1);
+                return Plugin_Handled;
+            }
+
         } else {
-            PugSetupMessage(client, "Usage: .goto <number>");
+            PugSetupMessage(client, "Usage: .goto [player] <grenadeid>");
         }
     }
 
@@ -637,20 +651,16 @@ public Action Command_GotoNade(int client, int args) {
 }
 
 public Action Command_Grenades(int client, int args) {
-    if (!g_InPracticeMode)
+    if (!g_InPracticeMode) {
         return Plugin_Handled;
+    }
 
     char arg[MAX_NAME_LENGTH];
     char auth[AUTH_LENGTH];
     char name[MAX_NAME_LENGTH];
 
     if (args >= 1 && GetCmdArg(1, arg, sizeof(arg))) {
-        int target = AttemptFindTarget(arg);
-        if (IsPlayer(target) && GetClientAuthId(target, AuthId_Steam2, auth, sizeof(auth))) {
-            GetClientName(target, name, sizeof(name));
-            GiveGrenadesForPlayer(client, name, auth);
-            return Plugin_Handled;
-        } else if (FindTargetInGrenadesKvByName(arg, name, sizeof(name), auth, sizeof(auth))) {
+        if (FindGrenadeTarget(arg, name, sizeof(name), auth, sizeof(auth))) {
             GiveGrenadesForPlayer(client, name, auth);
             return Plugin_Handled;
         }
@@ -770,8 +780,9 @@ public int GrenadeHandler_GrenadeSelection(Menu menu, MenuAction action, int par
 }
 
 public Action Command_SaveGrenade(int client, int args) {
-    if (!g_InPracticeMode)
+    if (!g_InPracticeMode) {
         return Plugin_Handled;
+    }
 
     char name[GRENADE_NAME_LENGTH];
     GetCmdArgString(name, sizeof(name));
@@ -802,15 +813,17 @@ public Action Command_GrenadeDescription(int client, int args) {
 }
 
 public Action Command_DeleteGrenade(int client, int args) {
-    if (!g_InPracticeMode)
+    if (!g_InPracticeMode) {
         return Plugin_Handled;
-
-    int index = g_CurrentSavedGrenadeId[client];
-    if (index >= 0) {
-        char indexStr[32];
-        IntToString(index, indexStr, sizeof(indexStr));
-        DeleteGrenadeFromKv(client, indexStr);
     }
 
+    // get the grenade id first
+    char grenadeIdStr[32];
+    if (args < 1 || !GetCmdArg(1, grenadeIdStr, sizeof(grenadeIdStr))) {
+        // if this fails, use the last grenade position
+        IntToString(g_CurrentSavedGrenadeId[client], grenadeIdStr, sizeof(grenadeIdStr));
+    }
+
+    DeleteGrenadeFromKv(client, grenadeIdStr);
     return Plugin_Handled;
 }

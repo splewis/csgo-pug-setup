@@ -225,5 +225,8 @@ It "patches" sv_grenade_trajectory to work on a dedicated server, and also creat
 
 Another feature is remembering a grenade history - the position each grenade is thrown from (when in practice mode) is saved and players can go back through the history of these positions using the commands sm_grenadeback and sm_grenadeforward (or more simply in chat: .back, .forward). This is intended for those experimentation moments when testing grenades and asking "that worked; wait, how did I throw that from?"
 
+Furthermore, it will let clients save persistent angles/locations per map for grenades using .save <name of grenade/position> and .nades [playername]. These are
+saved in a map-specific file under addons/sourcemod/pugsetup/practicemode_grenades/<mapname>.cfg. You can use .delete to delete a position and .desc to add a description.
+
 #### pugsetup_damageprinter
 This plugin adds a .dmg command that also prints damage done/taken from players on round ends. You can disable the usage of the .dmg command with ``sm_pugsetup_damageprint_allow_dmg_command 0`` and change the format of the messages with ``sm_pugsetup_damageprint_format`` by editing ``cfg/sourcemod/pugsetup_damageprint.cfg``.
