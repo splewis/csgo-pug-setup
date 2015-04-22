@@ -360,7 +360,6 @@ public void OnMapStart() {
     g_WorkshopCache = new KeyValues("Workshop");
     g_WorkshopCache.ImportFromFile(g_CacheFile);
 
-
     if (g_GameState == GameState_Warmup) {
         ExecWarmupConfigs();
         if (g_UseGameWarmupCvar.IntValue != 0) {
@@ -440,8 +439,8 @@ public Action Timer_CheckReady(Handle timer) {
         } else {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
-                    CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
-                    g_LiveTimerRunning = false;
+                    PugSetupMessageToAll("%t", "VetoMessage");
+                    CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     return Plugin_Stop;
                 } else {
                     StatusHint(readyPlayers, totalPlayers);
@@ -483,10 +482,10 @@ public Action Timer_CheckReady(Handle timer) {
 public void StatusHint(int readyPlayers, int totalPlayers) {
     char rdyCommand[ALIAS_LENGTH];
     FindAliasFromCommand("sm_ready", rdyCommand);
-    if (!g_OnDecidedMap && g_MapType != MapType_Veto) {
+    if (!g_OnDecidedMap) {
         PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     } else {
-        if (g_TeamType == TeamType_Captains || g_MapType == MapType_Veto) {
+        if (UsingCaptains()) {
             for (int i = 1; i <= MaxClients; i++) {
                 if (IsPlayer(i))
                     GiveCaptainHint(i, readyPlayers, totalPlayers);
@@ -731,7 +730,7 @@ public Action Command_Rand(int client, int args) {
     if (g_GameState != GameState_Warmup)
         return Plugin_Handled;
 
-    if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
+    if (!UsingCaptains()) {
         PugSetupMessage(client, "%t", "NotUsingCaptains");
         return Plugin_Handled;
     }
@@ -745,7 +744,7 @@ public Action Command_Capt(int client, int args) {
     if (g_GameState != GameState_Warmup)
         return Plugin_Handled;
 
-    if (g_TeamType != TeamType_Captains && g_MapType != MapType_Veto) {
+    if (!UsingCaptains()) {
         PugSetupMessage(client, "%t", "NotUsingCaptains");
         return Plugin_Handled;
     }
@@ -1430,18 +1429,6 @@ public void PrintSetupInfo(int client) {
 }
 
 public void ReadyToStart() {
-    if (g_MapType == MapType_Veto && g_TeamType == TeamType_Captains) {
-        for (int i = 1; i <= MaxClients; i++) {
-            if (!IsPlayer(i))
-                continue;
-
-            if (g_PlayerAtStart[i])
-                ChangeClientTeam(i, g_Teams[i]);
-            else
-                ChangeClientTeam(i, CS_TEAM_SPECTATOR);
-        }
-    }
-
     Call_StartForward(g_hOnReadyToStart);
     Call_Finish();
 
@@ -1753,13 +1740,7 @@ public Action FinishPicking(Handle timer) {
     }
 
     Unpause();
-
-    if (!g_OnDecidedMap && g_MapType == MapType_Veto) {
-        PugSetupMessageToAll("%t", "VetoMessage");
-        CreateTimer(2.0, MapSetup);
-    } else {
-        ReadyToStart();
-    }
+    ReadyToStart();
 
     return Plugin_Handled;
 }
