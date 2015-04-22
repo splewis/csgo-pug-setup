@@ -56,6 +56,7 @@ float g_GrenadeSpecTime = 4.0;
 char g_GrenadeLocationsFile[PLATFORM_MAX_PATH];
 KeyValues g_GrenadeLocationsKv;
 int g_CurrentSavedGrenadeId[MAXPLAYERS+1];
+bool g_UpdatedGrenadeKv = false; // whether there has been any changed the kv structure this map
 
 // Grenade history data
 int g_GrenadeHistoryIndex[MAXPLAYERS+1];
@@ -226,10 +227,12 @@ public void OnMapStart() {
     Format(g_GrenadeLocationsFile, sizeof(g_GrenadeLocationsFile), "%s/%s.cfg", dir, map);
     g_GrenadeLocationsKv = new KeyValues("Grenades");
     g_GrenadeLocationsKv.ImportFromFile(g_GrenadeLocationsFile);
+    g_UpdatedGrenadeKv = false;
 }
 
 public void OnMapEnd() {
-    g_GrenadeLocationsKv.ExportToFile(g_GrenadeLocationsFile);
+    if (g_UpdatedGrenadeKv)
+        g_GrenadeLocationsKv.ExportToFile(g_GrenadeLocationsFile);
 
     if (g_InPracticeMode)
         DisablePracticeMode();
@@ -806,9 +809,7 @@ public Action Command_DeleteGrenade(int client, int args) {
     if (index >= 0) {
         char indexStr[32];
         IntToString(index, indexStr, sizeof(indexStr));
-        if (DeleteGrenadeFromKv(client, indexStr)) {
-            PugSetupMessage(client, "Deleted current grenade.");
-        }
+        DeleteGrenadeFromKv(client, indexStr);
     }
 
     return Plugin_Handled;

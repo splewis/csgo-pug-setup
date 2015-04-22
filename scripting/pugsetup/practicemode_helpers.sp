@@ -87,6 +87,7 @@ public void TeleportToSavedGrenadePosition(int client, const char[] auth, const 
 }
 
 public int SaveGrenadeToKv(int client, const float origin[3], const float angles[3], const char[] name) {
+    g_UpdatedGrenadeKv = true;
     char auth[AUTH_LENGTH];
     char clientName[MAX_NAME_LENGTH];
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
@@ -110,12 +111,17 @@ public int SaveGrenadeToKv(int client, const float origin[3], const float angles
 }
 
 public bool DeleteGrenadeFromKv(int client, const char[] nadeIdStr) {
+    g_UpdatedGrenadeKv = true;
     char auth[AUTH_LENGTH];
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
     bool deleted = false;
     if (g_GrenadeLocationsKv.JumpToKey(auth)) {
+        char name[GRENADE_NAME_LENGTH];
+        g_GrenadeLocationsKv.GetString("name", name, sizeof(name));
         deleted = g_GrenadeLocationsKv.DeleteKey(nadeIdStr);
         g_GrenadeLocationsKv.GoBack();
+        PugSetupMessage(client, "Deleted grenade id %s, \"%s\"", nadeIdStr, name);
+
     }
     return deleted;
 }
@@ -159,6 +165,7 @@ public bool FindTargetInGrenadesKvByName(const char[] inputName, char[] name, in
 }
 
 public void UpdateGrenadeDescription(int client, int index, const char[] description) {
+    g_UpdatedGrenadeKv = true;
     char auth[AUTH_LENGTH];
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
     char nadeIdStr[32];
