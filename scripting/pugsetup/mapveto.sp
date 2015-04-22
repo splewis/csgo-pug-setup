@@ -57,7 +57,7 @@ public int VetoHandler(Menu menu, MenuAction action, int param1, int param2) {
         int client = param1;
         int index = GetMenuInt(menu, param2);
         char map[PLATFORM_MAX_PATH];
-        mapList.GetString(index, map, sizeof(map));
+        FormatMapName(mapList, index, map, sizeof(map));
 
         char captString[64];
         FormatPlayerName(client, client, captString);
@@ -89,9 +89,7 @@ static void VetoStatusDisplay(int client) {
     SetMenuTitle(menu, "%T", "MapsLeft", client);
     for (int i = 0; i < mapList.Length; i++) {
         if (!g_MapVetoed.Get(i)) {
-            char map[PLATFORM_MAX_PATH];
-            mapList.GetString(i, map, sizeof(map));
-            AddMenuItem(menu, "", map, ITEMDRAW_DISABLED);
+            AddMapIndexToMenu(menu ,mapList, i, true);
         }
     }
     DisplayMenu(menu, client, 30);

@@ -30,6 +30,14 @@ stock void AddMenuInt(Menu menu, int value, const char[] display, any:...) {
     menu.AddItem(buffer, formattedDisplay);
 }
 
+stock void AddMenuIntDisabled(Menu menu, int value, const char[] display, any:...) {
+    char formattedDisplay[128];
+    VFormat(formattedDisplay, sizeof(formattedDisplay), display, 4);
+    char buffer[MAX_INTEGER_STRING_LENGTH];
+    IntToString(value, buffer, sizeof(buffer));
+    menu.AddItem(buffer, formattedDisplay, ITEMDRAW_DISABLED);
+}
+
 /**
  * Adds an integer to a menu, named by the integer itself.
  */
@@ -406,7 +414,6 @@ stock bool SplitSpace(const char[] str, char[] buf1, int len1, char[] buf2, int 
         if (str[i] == ' ') {
             strcopy(buf1, min(len1, i + 1), str);
             strcopy(buf2, len2, str[i+1]);
-            LogDebug("=%s,%s", buf1, buf2);
             return true;
         }
     }

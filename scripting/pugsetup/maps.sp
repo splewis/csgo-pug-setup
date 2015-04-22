@@ -188,10 +188,13 @@ public void FormatMapName(ArrayList mapList, int mapIndex, char[] buffer, int le
     strcopy(buffer, len, buffers[mapStringIndex]);
 }
 
-public void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex) {
+stock void AddMapIndexToMenu(Menu menu, ArrayList mapList, int mapIndex, bool disabled=false) {
     char mapName[128];
     FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
-    AddMenuInt(menu, mapIndex, mapName);
+    if (disabled)
+        AddMenuIntDisabled(menu, mapIndex, mapName);
+    else
+        AddMenuInt(menu, mapIndex, mapName);
 }
 
 public bool OnAimMap() {
