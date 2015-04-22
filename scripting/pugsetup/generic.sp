@@ -380,3 +380,56 @@ stock int FindStringInArray2(const char[][] array, int len, const char[] string,
 
     return -1;
 }
+
+stock void GetCleanMapName(char[] buffer, int size) {
+    char mapName[128];
+    GetCurrentMap(mapName, sizeof(mapName));
+    int last_slash = 0;
+    int len = strlen(mapName);
+    for (int i = 0;  i < len; i++) {
+        if (mapName[i] == '/' || mapName[i] == '\\')
+            last_slash = i + 1;
+    }
+    strcopy(buffer, size, mapName[last_slash]);
+}
+
+stock void RemoveCvarFlag(Handle cvar, int flag) {
+    SetConVarFlags(cvar, GetConVarFlags(cvar) & ~flag);
+}
+
+stock int min(int x, int y) {
+    return (x < y) ? x : y;
+}
+
+stock bool SplitSpace(const char[] str, char[] buf1, int len1, char[] buf2, int len2) {
+    for (int i = 0; i < strlen(str); i++){
+        if (str[i] == ' ') {
+            strcopy(buf1, min(len1, i + 1), str);
+            strcopy(buf2, len2, str[i+1]);
+            LogDebug("=%s,%s", buf1, buf2);
+            return true;
+        }
+    }
+    return false;
+}
+
+stock bool SplitOnSpaceFirstPart(const char[] str, char[] buf1, int len1) {
+    for (int i = 0; i < strlen(str); i++){
+        if (str[i] == ' ') {
+            strcopy(buf1, min(len1, i + 1), str);
+            return true;
+        }
+    }
+    return false;
+}
+
+stock bool SplitOnSpace(const char[] str, char[] buf1, int len1, char[] buf2, int len2) {
+    for (int i = 0; i < strlen(str); i++){
+        if (str[i] == ' ') {
+            strcopy(buf1, min(len1, i + 1), str);
+            strcopy(buf2, len2, str[i+1]);
+            return true;
+        }
+    }
+    return false;
+}
