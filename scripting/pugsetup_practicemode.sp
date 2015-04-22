@@ -55,7 +55,7 @@ float g_GrenadeSpecTime = 4.0;
 #define AUTH_LENGTH 64
 char g_GrenadeLocationsFile[PLATFORM_MAX_PATH];
 KeyValues g_GrenadeLocationsKv;
-int g_WaitingForGrenadeDescIndex[MAXPLAYERS+1];
+int g_CurrentSavedGrenadeId[MAXPLAYERS+1];
 
 // Grenade history data
 int g_GrenadeHistoryIndex[MAXPLAYERS+1];
@@ -85,7 +85,6 @@ public Plugin myinfo = {
 public void OnPluginStart() {
     InitDebugLog(DEBUG_CVAR, "practice");
     LoadTranslations("pugsetup.phrases");
-    LoadTranslations("common.phrases");
     g_InPracticeMode = false;
     AddCommandListener(Command_TeamJoin, "jointeam");
 
@@ -120,14 +119,14 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_grenades", Command_Grenades);
     RegConsoleCmd("sm_savegrenade", Command_SaveGrenade);
     RegConsoleCmd("sm_adddescription", Command_GrenadeDescription);
+    RegConsoleCmd("sm_deletegrenade", Command_DeleteGrenade);
     AddChatAlias(".nades", "sm_grenades");
     AddChatAlias(".grenades", "sm_grenades");
     AddChatAlias(".addnade", "sm_savegrenade");
     AddChatAlias(".savenade", "sm_savegrenade");
     AddChatAlias(".save", "sm_savegrenade");
     AddChatAlias(".desc", "sm_adddescription");
-    AddChatAlias(".adddescription", "sm_adddescription");
-    AddChatAlias(".setdescription", "sm_adddescription");
+    AddChatAlias(".delete", "sm_deletegrenade");
 
     // New cvars
     g_InfiniteMoneyCvar = CreateConVar("sm_infinite_money", "0", "Whether clients recieve infinite money");
@@ -206,7 +205,7 @@ public Action Event_CvarChanged(Handle event, const char[] name, bool dontBroadc
 
 public void OnClientConnected(int client) {
     g_GrenadeHistoryIndex[client] = -1;
-    g_WaitingForGrenadeDescIndex[client] = -1;
+    g_CurrentSavedGrenadeId[client] = -1;
     ClearArray(g_GrenadeHistoryPositions[client]);
     ClearArray(g_GrenadeHistoryAngles[client]);
 }
@@ -644,7 +643,7 @@ public Action Command_Grenades(int client, int args) {
 
     if (args >= 1 && GetCmdArg(1, arg, sizeof(arg))) {
         int target = AttemptFindTarget(arg);
-        if (IsPlayer(target) && GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth))) {
+        if (IsPlayer(target) && GetClientAuthId(target, AuthId_Steam2, auth, sizeof(auth))) {
             GetClientName(target, name, sizeof(name));
             GiveGrenadesForPlayer(client, name, auth);
             return Plugin_Handled;
@@ -660,18 +659,27 @@ public Action Command_Grenades(int client, int args) {
 
     if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
         do {
+            int nadeCount = 0;
+            if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
+                do {
+                    nadeCount++;
+                } while (g_GrenadeLocationsKv.GotoNextKey());
+                g_GrenadeLocationsKv.GoBack();
+            }
+
             g_GrenadeLocationsKv.GetSectionName(auth, sizeof(auth));
             g_GrenadeLocationsKv.GetString("name", name, sizeof(name));
-            int numGrenades = g_GrenadeLocationsKv.GetNum("numgrenades");
-
             char info[256];
             Format(info, sizeof(info), "%s %s", auth, name);
 
             char display[256];
-            Format(display, sizeof(display), "%s (%d saved)", name, numGrenades);
+            Format(display, sizeof(display), "%s (%d saved)", name, nadeCount);
 
-            menu.AddItem(info, display);
-            count++;
+            if (nadeCount > 0) {
+                menu.AddItem(info, display);
+                count++;
+            }
+
         } while (g_GrenadeLocationsKv.GotoNextKey());
     }
     g_GrenadeLocationsKv.Rewind();
@@ -708,37 +716,34 @@ public void GiveGrenadesForPlayer(int client, const char[] ownerName, const char
     char description[GRENADE_DESCRIPTION_LENGTH];
     char name[GRENADE_NAME_LENGTH];
 
-    int count = 0;
+    int userCount = 0;
     Menu menu = new Menu(GrenadeHandler_GrenadeSelection);
     menu.SetTitle("Grenades for %s", ownerName);
 
     if (g_GrenadeLocationsKv.JumpToKey(ownerAuth)) {
-        int numGrenades = g_GrenadeLocationsKv.GetNum("numgrenades");
-        for (int i = 0; i < numGrenades; i++) {
-            char nadeSectionName[32];
-            IntToString(i, nadeSectionName, sizeof(nadeSectionName));
-            if (g_GrenadeLocationsKv.JumpToKey(nadeSectionName)) {
+        if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
+            do {
+                char strId[32];
+                g_GrenadeLocationsKv.GetSectionName(strId, sizeof(strId));
                 g_GrenadeLocationsKv.GetVector("origin", origin);
                 g_GrenadeLocationsKv.GetVector("angles", angles);
                 g_GrenadeLocationsKv.GetString("description", description, sizeof(description));
                 g_GrenadeLocationsKv.GetString("name", name, sizeof(name));
 
                 char info[128];
-                Format(info, sizeof(info), "%s %d", ownerAuth, i);
+                Format(info, sizeof(info), "%s %s", ownerAuth, strId);
                 char display[128];
-                Format(display, sizeof(display), "%s (%d)", name, i+1);
+                Format(display, sizeof(display), "%s (id %s)", name, strId);
 
                 menu.AddItem(info, display);
-                count++;
-
-                g_GrenadeLocationsKv.GoBack();
-            }
+                userCount++;
+            } while (g_GrenadeLocationsKv.GotoNextKey());
+            g_GrenadeLocationsKv.GoBack();
         }
-
         g_GrenadeLocationsKv.GoBack();
     }
 
-    if (count == 0) {
+    if (userCount == 0) {
         PugSetupMessage(client, "No grenades found.");
         delete menu;
     } else {
@@ -752,16 +757,10 @@ public int GrenadeHandler_GrenadeSelection(Menu menu, MenuAction action, int par
         char buffer[128];
         menu.GetItem(param2, buffer, sizeof(buffer));
         char auth[AUTH_LENGTH];
-        char indexStr[MAX_INTEGER_STRING_LENGTH];
-        // split buffer from form "<auth> <index>" (seperated by a space)
-        SplitOnSpace(buffer, auth, sizeof(auth), indexStr, sizeof(indexStr));
-        TeleportToSavedGrenadePosition(client, auth, indexStr);
-
-        // TODO: add another menu here to:
-        // - delete this nade
-        // - rename this name
-        // - change/add the description
-
+        char idStr[MAX_INTEGER_STRING_LENGTH];
+        // split buffer from form "<auth> <id>" (seperated by a space)
+        SplitOnSpace(buffer, auth, sizeof(auth), idStr, sizeof(idStr));
+        TeleportToSavedGrenadePosition(client, auth, idStr);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -779,22 +778,38 @@ public Action Command_SaveGrenade(int client, int args) {
     GetClientAbsOrigin(client, origin);
     GetClientEyeAngles(client, angles);
 
-    int index = SaveGrenadeToKv(client, origin, angles, name);
-    g_WaitingForGrenadeDescIndex[client] = index;
-    PugSetupMessage(client, "Saved grenade. Type .desc <description> to add a description.");
+    int nadeId = SaveGrenadeToKv(client, origin, angles, name);
+    g_CurrentSavedGrenadeId[client] = nadeId;
+    PugSetupMessage(client, "Saved grenade. Type .desc <description> to add a description or .delete to delete this position.");
     return Plugin_Handled;
 }
 
 public Action Command_GrenadeDescription(int client, int args) {
-    int index = g_WaitingForGrenadeDescIndex[client];
-    if (index < 0 || !g_InPracticeMode) {
+    int nadeId = g_CurrentSavedGrenadeId[client];
+    if (nadeId < 0 || !g_InPracticeMode) {
         return Plugin_Handled;
     }
 
     char description[GRENADE_DESCRIPTION_LENGTH];
     GetCmdArgString(description, sizeof(description));
 
-    UpdateGrenadeDescription(client, index, description);
+    UpdateGrenadeDescription(client, nadeId, description);
     PugSetupMessage(client, "Added grenade description.");
+    return Plugin_Handled;
+}
+
+public Action Command_DeleteGrenade(int client, int args) {
+    if (!g_InPracticeMode)
+        return Plugin_Handled;
+
+    int index = g_CurrentSavedGrenadeId[client];
+    if (index >= 0) {
+        char indexStr[32];
+        IntToString(index, indexStr, sizeof(indexStr));
+        if (DeleteGrenadeFromKv(client, indexStr)) {
+            PugSetupMessage(client, "Deleted current grenade.");
+        }
+    }
+
     return Plugin_Handled;
 }

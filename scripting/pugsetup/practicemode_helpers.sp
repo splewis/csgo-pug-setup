@@ -64,14 +64,15 @@ public void GetColor(ClientColor c, int array[4]) {
     array[3] = 255;
 }
 
-public void TeleportToSavedGrenadePosition(int client, const char[] auth, const char[] index) {
+public void TeleportToSavedGrenadePosition(int client, const char[] auth, const char[] nadeIdStr) {
     float origin[3];
     float angles[3];
     float velocity[3];
     char description[GRENADE_DESCRIPTION_LENGTH];
+    g_CurrentSavedGrenadeId[client] = StringToInt(nadeIdStr);
 
     if (g_GrenadeLocationsKv.JumpToKey(auth)) {
-        if (g_GrenadeLocationsKv.JumpToKey(index)) {
+        if (g_GrenadeLocationsKv.JumpToKey(nadeIdStr)) {
             g_GrenadeLocationsKv.GetVector("origin", origin);
             g_GrenadeLocationsKv.GetVector("angles", angles);
             g_GrenadeLocationsKv.GetString("description", description, sizeof(description));
@@ -92,12 +93,12 @@ public int SaveGrenadeToKv(int client, const float origin[3], const float angles
     GetClientName(client, clientName, sizeof(clientName));
     g_GrenadeLocationsKv.JumpToKey(auth, true);
     g_GrenadeLocationsKv.SetString("name", clientName);
-    int numGrenades = g_GrenadeLocationsKv.GetNum("numgrenades");
-    g_GrenadeLocationsKv.SetNum("numgrenades", numGrenades + 1);
+    int nadeId = g_GrenadeLocationsKv.GetNum("nextid", 1);
+    g_GrenadeLocationsKv.SetNum("nextid", nadeId + 1);
 
-    char indexStr[32];
-    IntToString(numGrenades, indexStr, sizeof(indexStr));
-    g_GrenadeLocationsKv.JumpToKey(indexStr, true);
+    char idStr[32];
+    IntToString(nadeId, idStr, sizeof(idStr));
+    g_GrenadeLocationsKv.JumpToKey(idStr, true);
 
     g_GrenadeLocationsKv.SetString("name", name);
     g_GrenadeLocationsKv.SetVector("origin", origin);
@@ -105,7 +106,18 @@ public int SaveGrenadeToKv(int client, const float origin[3], const float angles
 
     g_GrenadeLocationsKv.GoBack();
     g_GrenadeLocationsKv.GoBack();
-    return numGrenades;
+    return nadeId;
+}
+
+public bool DeleteGrenadeFromKv(int client, const char[] nadeIdStr) {
+    char auth[AUTH_LENGTH];
+    GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+    bool deleted = false;
+    if (g_GrenadeLocationsKv.JumpToKey(auth)) {
+        deleted = g_GrenadeLocationsKv.DeleteKey(nadeIdStr);
+        g_GrenadeLocationsKv.GoBack();
+    }
+    return deleted;
 }
 
 public int AttemptFindTarget(const char[] target) {
@@ -149,12 +161,12 @@ public bool FindTargetInGrenadesKvByName(const char[] inputName, char[] name, in
 public void UpdateGrenadeDescription(int client, int index, const char[] description) {
     char auth[AUTH_LENGTH];
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
-    char indexStr[32];
-    IntToString(index, indexStr, sizeof(indexStr));
+    char nadeIdStr[32];
+    IntToString(index, nadeIdStr, sizeof(nadeIdStr));
 
     if (g_GrenadeLocationsKv.JumpToKey(auth)) {
-        if (g_GrenadeLocationsKv.JumpToKey(indexStr)) {
-            g_GrenadeLocationsKv.SetString("desc", description);
+        if (g_GrenadeLocationsKv.JumpToKey(nadeIdStr)) {
+            g_GrenadeLocationsKv.SetString("description", description);
             g_GrenadeLocationsKv.GoBack();
         }
         g_GrenadeLocationsKv.GoBack();
