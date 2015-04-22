@@ -33,7 +33,7 @@ static void ShowMapVote() {
 public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) {
     ArrayList mapList = GetCurrentMapList();
 
-    if (action == MenuAction_Select && GetCvarIntSafe("sm_vote_progress_chat") != 0) {
+    if (action == MenuAction_Select && GetCvarIntSafe("sm_vote_progress_chat") == 0) {
         int client = param1;
         char clientName[MAX_NAME_LENGTH];
         GetClientName(client, clientName, sizeof(clientName));
