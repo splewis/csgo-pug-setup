@@ -129,10 +129,14 @@ public bool DeleteGrenadeFromKv(int client, const char[] nadeIdStr) {
     bool deleted = false;
     if (g_GrenadeLocationsKv.JumpToKey(auth)) {
         char name[GRENADE_NAME_LENGTH];
-        g_GrenadeLocationsKv.GetString("name", name, sizeof(name));
+        if (g_GrenadeLocationsKv.JumpToKey(nadeIdStr)) {
+            g_GrenadeLocationsKv.GetString("name", name, sizeof(name));
+            g_GrenadeLocationsKv.GoBack();
+        }
+
         deleted = g_GrenadeLocationsKv.DeleteKey(nadeIdStr);
         g_GrenadeLocationsKv.GoBack();
-        PugSetupMessage(client, "Deleted grenade id %s, \"%s\"", nadeIdStr, name);
+        PugSetupMessage(client, "Deleted grenade id %s, \"%s\".", nadeIdStr, name);
     }
     return deleted;
 }
