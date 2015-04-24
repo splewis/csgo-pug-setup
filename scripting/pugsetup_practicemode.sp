@@ -52,6 +52,7 @@ float g_GrenadeSpecTime = 4.0;
 // Saved grenade locations data
 #define GRENADE_DESCRIPTION_LENGTH 256
 #define GRENADE_NAME_LENGTH 128
+#define GRENADE_ID_LENGTH MAX_INTEGER_STRING_LENGTH
 #define AUTH_LENGTH 64
 char g_GrenadeLocationsFile[PLATFORM_MAX_PATH];
 KeyValues g_GrenadeLocationsKv;
@@ -230,9 +231,19 @@ public void OnMapStart() {
     g_UpdatedGrenadeKv = false;
 }
 
-public void OnMapEnd() {
-    if (g_UpdatedGrenadeKv)
+public void OnClientDisconnect(int client) {
+    // always update the grenades file so user's saved grenades are never lost
+    if (g_UpdatedGrenadeKv) {
         g_GrenadeLocationsKv.ExportToFile(g_GrenadeLocationsFile);
+        g_UpdatedGrenadeKv = false;
+    }
+}
+
+public void OnMapEnd() {
+    if (g_UpdatedGrenadeKv) {
+        g_GrenadeLocationsKv.ExportToFile(g_GrenadeLocationsFile);
+        g_UpdatedGrenadeKv = false;
+    }
 
     if (g_InPracticeMode)
         DisablePracticeMode();

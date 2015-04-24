@@ -221,7 +221,7 @@ public void OnPluginStart() {
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
 
     g_CvarVersionCvar = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
-    SetConVarString(g_CvarVersionCvar, PLUGIN_VERSION);
+    g_CvarVersionCvar.SetString(PLUGIN_VERSION);
 
     /** Commands **/
     g_Commands = new ArrayList(COMMAND_LENGTH);

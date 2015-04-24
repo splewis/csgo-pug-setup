@@ -38,6 +38,7 @@ public void TeleportToGrenadeHistoryPosition(int client, int index) {
     g_GrenadeHistoryPositions[client].GetArray(index, origin, sizeof(origin));
     g_GrenadeHistoryAngles[client].GetArray(index, angles, sizeof(angles));
     TeleportEntity(client, origin, angles, velocity);
+    SetEntityMoveType(client, MOVETYPE_WALK);
 }
 
 public void UpdatePlayerColor(int client) {
@@ -64,7 +65,7 @@ public void GetColor(ClientColor c, int array[4]) {
     array[3] = 255;
 }
 
-public bool TeleportToSavedGrenadePosition(int client, const char[] auth, const char[] nadeIdStr) {
+public bool TeleportToSavedGrenadePosition(int client, const char[] targetAuth, const char[] id) {
     float origin[3];
     float angles[3];
     float velocity[3];
@@ -72,24 +73,39 @@ public bool TeleportToSavedGrenadePosition(int client, const char[] auth, const 
     bool success = false;
 
     // update the client's current grenade id, if it was their grenade
+    bool myGrenade;
     char clientAuth[AUTH_LENGTH];
     GetClientAuthId(client, AuthId_Steam2, clientAuth, sizeof(clientAuth));
-    if (StrEqual(clientAuth, auth)) {
-        g_CurrentSavedGrenadeId[client] = StringToInt(nadeIdStr);
+    if (StrEqual(clientAuth, targetAuth)) {
+        g_CurrentSavedGrenadeId[client] = StringToInt(id);
+        myGrenade = true;
     } else {
         g_CurrentSavedGrenadeId[client] = -1;
+        myGrenade = false;
     }
 
-    if (g_GrenadeLocationsKv.JumpToKey(auth)) {
-        if (g_GrenadeLocationsKv.JumpToKey(nadeIdStr)) {
+    if (g_GrenadeLocationsKv.JumpToKey(targetAuth)) {
+        char targetName[MAX_NAME_LENGTH];
+        g_GrenadeLocationsKv.GetString("name", targetName, sizeof(targetName));
+
+        if (g_GrenadeLocationsKv.JumpToKey(id)) {
             success = true;
             g_GrenadeLocationsKv.GetVector("origin", origin);
             g_GrenadeLocationsKv.GetVector("angles", angles);
             g_GrenadeLocationsKv.GetString("description", description, sizeof(description));
             TeleportEntity(client, origin, angles, velocity);
+            SetEntityMoveType(client, MOVETYPE_WALK);
 
-            if (!StrEqual(description, ""))
+            if (myGrenade) {
+                PugSetupMessage(client, "Teleporting to your grenade id %s", id);
+            } else {
+                PugSetupMessage(client, "Teleporting to %s's grenade id %s", targetName, id);
+            }
+
+            if (!StrEqual(description, "")) {
                 PugSetupMessage(client, "Description: %s", description);
+            }
+
             g_GrenadeLocationsKv.GoBack();
         }
         g_GrenadeLocationsKv.GoBack();
