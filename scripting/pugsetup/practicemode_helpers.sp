@@ -1,3 +1,57 @@
+/**
+ * Natives.
+ */
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
+    CreateNative("AddPracticeModeSetting", Native_AddPracticeModeSetting);
+    CreateNative("IsPracticeModeEnabled", Native_IsPracticeModeEnabled);
+    CreateNative("IsPracticeModeSettingEnabled", Native_IsPracticeModeSettingEnabled);
+}
+
+public int Native_AddPracticeModeSetting(Handle plugin, int numParams) {
+    char settingId[OPTION_NAME_LENGTH];
+    char name[OPTION_NAME_LENGTH];
+
+    GetNativeString(1, settingId, sizeof(settingId));
+    GetNativeString(2, name, sizeof(name));
+    ArrayList enabledCvars = view_as<ArrayList>(GetNativeCell(3));
+    ArrayList enabledValues = view_as<ArrayList>(GetNativeCell(4));
+    bool enabled = GetNativeCell(5);
+    bool changeable = GetNativeCell(6);
+
+    if (enabledCvars.Length != enabledValues.Length) {
+        ThrowNativeError(SP_ERROR_PARAM,
+                         "Cvar name list size (%d) mismatch with cvar value list (%d)",
+                         enabledCvars.Length, enabledValues.Length);
+    }
+
+    g_BinaryOptionIds.PushString(settingId);
+    g_BinaryOptionNames.PushString(name);
+    g_BinaryOptionEnabled.Push(enabled);
+    g_BinaryOptionChangeable.Push(changeable);
+    g_BinaryOptionEnabledCvars.Push(enabledCvars);
+    g_BinaryOptionEnabledValues.Push(enabledValues);
+    g_BinaryOptionCvarRestore.Push(INVALID_HANDLE);
+
+    return g_BinaryOptionIds.Length - 1;
+}
+
+public int Native_IsPracticeModeEnabled(Handle plugin, int numParams) {
+    return g_InPracticeMode;
+}
+
+public int Native_IsPracticeModeSettingEnabled(Handle plugin, int numParams) {
+    int index = GetNativeCell(1);
+    if (index < 0 || index >= g_BinaryOptionIds.Length) {
+        ThrowNativeError(SP_ERROR_PARAM, "Setting %d is not valid", index);
+    }
+    return g_BinaryOptionEnabled.Get(index);
+}
+
+
+/**
+ * Some generic helpers functions.
+ */
+
 public ConVar GetCvar(const char[] name) {
     ConVar cvar = FindConVar(name);
     if (cvar == null) {

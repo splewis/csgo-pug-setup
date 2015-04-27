@@ -4,6 +4,7 @@
 #include <sourcemod>
 #include "include/logdebug.inc"
 #include "include/pugsetup.inc"
+#include "include/pugsetup_practicemode.inc"
 #include "include/restorecvars.inc"
 #include "pugsetup/generic.sp"
 
@@ -11,9 +12,6 @@
 #pragma newdecls required
 
 bool g_InPracticeMode = false;
-
-#define OPTION_NAME_LENGTH 128 // length of a setting name
-#define CVAR_NAME_LENGTH 64 // length of a cvar
 
 // These data structures maintain a list of settings for a toggle-able option:
 // the name, the cvar/value for the enabled option, and the cvar/value for the disabled option.
@@ -73,13 +71,19 @@ enum ClientColor {
     ClientColor_Orange = 4,
 };
 
+// Forwards
+Handle g_OnPracticeModeDisabled = INVALID_HANDLE;
+Handle g_OnPracticeModeEnabled = INVALID_HANDLE;
+Handle g_OnPracticeModeSettingChanged = INVALID_HANDLE;
+Handle g_OnPracticeModeSettingsRead = INVALID_HANDLE;
+
 #include "pugsetup/practicemode_helpers.sp"
 
 
 public Plugin myinfo = {
     name = "CS:GO PugSetup: practice mode",
     author = "splewis",
-    description = "A relatively simple practice mode that can be launched through the setup menu",
+    description = "A practice mode that can be launched through the .setup menu",
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
@@ -161,6 +165,11 @@ public void OnPluginStart() {
     RemoveCvarFlag(g_GrenadeTrajectoryCvar, FCVAR_CHEAT);
 
     HookEvent("server_cvar", Event_CvarChanged, EventHookMode_Pre);
+
+    g_OnPracticeModeDisabled = CreateGlobalForward("OnPracticeModeDisabled", ET_Ignore);
+    g_OnPracticeModeEnabled = CreateGlobalForward("OnPracticeModeEnabled", ET_Ignore);
+    g_OnPracticeModeSettingChanged = CreateGlobalForward("OnPracticeModeSettingChanged", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
+    g_OnPracticeModeSettingsRead = CreateGlobalForward("OnPracticeModeSettingsRead", ET_Ignore);
 }
 
 public int OnInfiniteMoneyChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
@@ -314,11 +323,11 @@ public void ReadPracticeSettings() {
                 bool changeable = (kv.GetNum("changeable", 1) != 0);
 
                 char cvarName[CVAR_NAME_LENGTH];
-                char cvarValue[CVAR_NAME_LENGTH];
+                char cvarValue[CVAR_VALUE_LENGTH];
 
                 // read the enabled cvar list
                 ArrayList enabledCvars = new ArrayList(CVAR_NAME_LENGTH);
-                ArrayList enabledValues = new ArrayList(CVAR_NAME_LENGTH);
+                ArrayList enabledValues = new ArrayList(CVAR_VALUE_LENGTH);
                 if (kv.JumpToKey("enabled")) {
                     if (kv.GotoFirstSubKey(false)) {
                         do {
@@ -332,18 +341,15 @@ public void ReadPracticeSettings() {
                     kv.GoBack();
                 }
 
-                g_BinaryOptionIds.PushString(id);
-                g_BinaryOptionNames.PushString(name);
-                g_BinaryOptionEnabled.Push(enabled);
-                g_BinaryOptionChangeable.Push(changeable);
-                g_BinaryOptionEnabledCvars.Push(enabledCvars);
-                g_BinaryOptionEnabledValues.Push(enabledValues);
-                g_BinaryOptionCvarRestore.Push(INVALID_HANDLE);
+                AddPracticeModeSetting(id, name, enabledCvars, enabledValues, enabled, changeable);
 
             } while (kv.GotoNextKey());
         }
     }
     kv.Rewind();
+
+    Call_StartForward(g_OnPracticeModeSettingsRead);
+    Call_Finish();
 
     delete kv;
 }
@@ -381,15 +387,15 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
         g_InPracticeMode = !g_InPracticeMode;
         if (g_InPracticeMode) {
             for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
-                bool enabled = view_as<bool>(g_BinaryOptionEnabled.Get(i));
-                ChangeSetting(i, enabled, false);
+                ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
             }
 
             ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
             GivePracticeMenu(client, ITEMDRAW_DEFAULT);
             PugSetupMessageToAll("Practice mode is now enabled.");
-        } else {
-            ServerCommand("exec sourcemod/pugsetup/practice_end.cfg");
+
+            Call_StartForward(g_OnPracticeModeEnabled);
+            Call_Finish();
         }
     }
 }
@@ -401,7 +407,7 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
         g_BinaryOptionCvarRestore.Set(index, SaveCvars(cvars));
 
         char cvar[CVAR_NAME_LENGTH];
-        char value[CVAR_NAME_LENGTH];
+        char value[CVAR_VALUE_LENGTH];
 
         for (int i = 0; i < cvars.Length; i++) {
             cvars.GetString(i, cvar, sizeof(cvar));
@@ -417,12 +423,12 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
         }
     }
 
-    if (print) {
-        char id[OPTION_NAME_LENGTH];
-        char name[OPTION_NAME_LENGTH];
-        g_BinaryOptionIds.GetString(index, id, sizeof(id));
-        g_BinaryOptionNames.GetString(index, name, sizeof(name));
+    char id[OPTION_NAME_LENGTH];
+    char name[OPTION_NAME_LENGTH];
+    g_BinaryOptionIds.GetString(index, id, sizeof(id));
+    g_BinaryOptionNames.GetString(index, name, sizeof(name));
 
+    if (print) {
         char enabledString[32];
         GetEnabledString(enabledString, sizeof(enabledString), enabled);
 
@@ -430,6 +436,13 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
         if (!StrEqual(name, ""))
             PugSetupMessageToAll("%s is now %s.", name, enabledString);
     }
+
+    Call_StartForward(g_OnPracticeModeSettingChanged);
+    Call_PushCell(index);
+    Call_PushString(id);
+    Call_PushString(name);
+    Call_PushCell(enabled);
+    Call_Finish();
 }
 
 static void GivePracticeMenu(int client, int style, int pos=-1) {
@@ -492,6 +505,9 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
 }
 
 public void DisablePracticeMode() {
+    Call_StartForward(g_OnPracticeModeDisabled);
+    Call_Finish();
+
     for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
         ChangeSetting(i, false, false);
     }
@@ -504,6 +520,7 @@ public void DisablePracticeMode() {
             SetEntityMoveType(i, MOVETYPE_WALK);
     }
 
+    ServerCommand("exec sourcemod/pugsetup/practice_end.cfg");
     PugSetupMessageToAll("Practice mode is now disabled.");
 }
 
