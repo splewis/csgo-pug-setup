@@ -199,11 +199,11 @@ public void UpdateGrenadeDescription(int client, int index, const char[] descrip
     g_UpdatedGrenadeKv = true;
     char auth[AUTH_LENGTH];
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
-    char nadeIdStr[32];
-    IntToString(index, nadeIdStr, sizeof(nadeIdStr));
+    char nadeId[32];
+    IntToString(index, nadeId, sizeof(nadeId));
 
     if (g_GrenadeLocationsKv.JumpToKey(auth)) {
-        if (g_GrenadeLocationsKv.JumpToKey(nadeIdStr)) {
+        if (g_GrenadeLocationsKv.JumpToKey(nadeId)) {
             g_GrenadeLocationsKv.SetString("description", description);
             g_GrenadeLocationsKv.GoBack();
         }
@@ -213,9 +213,7 @@ public void UpdateGrenadeDescription(int client, int index, const char[] descrip
 
 public bool FindGrenadeTarget(const char[] nameInput, char[] name, int nameLen, char[] auth, int authLen) {
     int target = AttemptFindTarget(nameInput);
-    if (IsPlayer(target) && GetClientAuthId(target, AuthId_Steam2, auth, authLen)) {
-        GetClientName(target, name, nameLen);
-        GetClientAuthId(target, AuthId_Steam2, auth, authLen);
+    if (IsPlayer(target) && GetClientAuthId(target, AuthId_Steam2, auth, authLen) && GetClientName(target, name, nameLen)) {
         return true;
     } else {
         return FindTargetInGrenadesKvByName(nameInput, name, nameLen, auth, authLen);

@@ -9,10 +9,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define KV_DATA_LOCATION "data/pugsetup/rws.cfg"
-char g_KeyValueFile[PLATFORM_MAX_PATH];
-KeyValues g_RwsKV;
-
 /*
  * This isn't meant to be a comprehensive stats system, it's meant to be a simple
  * way to balance teams to replace manual stuff using a (exponentially) weighted moving average.
@@ -86,9 +82,6 @@ public void OnPluginStart() {
 
     g_RWSCookie = RegClientCookie("pugsetup_rws", "Pugsetup RWS rating", CookieAccess_Protected);
     g_RoundsPlayedCookie = RegClientCookie("pugsetup_roundsplayed", "Pugsetup rounds played", CookieAccess_Protected);
-
-    // for keyvalues storage
-    BuildPath(Path_SM, g_KeyValueFile, sizeof(g_KeyValueFile), KV_DATA_LOCATION);
 }
 
 public void OnAllPluginsLoaded() {
@@ -102,14 +95,6 @@ public void OnPluginEnd() {
 
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
-    g_RwsKV = new KeyValues("RWSBalancerStats");
-    char path[PLATFORM_MAX_PATH];
-    BuildPath(Path_SM, path, sizeof(path), KV_DATA_LOCATION);
-    g_RwsKV.ImportFromFile(path);
-}
-
-public void OnMapEnd() {
-    delete g_RwsKV;
 }
 
 public void OnPermissionCheck(int client, const char[] command, Permission p, bool& allow) {
@@ -136,22 +121,6 @@ public void OnClientConnected(int client) {
 
 public void OnClientDisconnect(int client) {
     WriteStats(client);
-}
-
-public void OnClientAuthorized(int client, const char[] engineAuth) {
-    if (StrEqual(engineAuth, "bot", false))
-        return;
-
-    // To ensure consistency the auth is refetched here so we don't rely
-    // on which auth types is passed to OnClientAuthorized.
-    char auth[64];
-    GetClientAuthId(client, AUTH_METHOD, auth, sizeof(auth));
-
-    g_RwsKV.JumpToKey(auth, true);
-    g_PlayerRWS[client] = g_RwsKV.GetFloat("rws", 0.0);
-    g_PlayerRounds[client] = g_RwsKV.GetNum("roundsplayed", 0);
-    g_RwsKV.GoBack();
-    g_PlayerHasStats[client] = true;
 }
 
 public bool HasStats(int client) {

@@ -390,7 +390,7 @@ stock int FindStringInArray2(const char[][] array, int len, const char[] string,
 }
 
 stock void GetCleanMapName(char[] buffer, int size) {
-    char mapName[128];
+    char mapName[PLATFORM_MAX_PATH];
     GetCurrentMap(mapName, sizeof(mapName));
     int last_slash = 0;
     int len = strlen(mapName);

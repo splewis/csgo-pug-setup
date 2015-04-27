@@ -223,7 +223,7 @@ It "patches" sv_grenade_trajectory to work on a dedicated server, and also creat
 - sm_grenade_trajectory_use_player_color (sets player grenade trajectories to their cl_color setting)
 - sm_allow_noclip (allows .noclip in chat to use noclip)
 
-Another feature is remembering a grenade history - the position each grenade is thrown from (when in practice mode) is saved and players can go back through the history of these positions using the commands sm_grenadeback and sm_grenadeforward (or more simply in chat: .back, .forward). This is intended for those experimentation moments when testing grenades and asking "that worked; wait, how did I throw that from?"
+Another feature is remembering a grenade history - the position each grenade is thrown from (when in practice mode) is saved and players can go back through the history of these positions using the commands sm_grenadeback and sm_grenadeforward (or more simply in chat: .back, .forward). This is intended for those experimentation moments when testing grenades and asking "that worked; wait, how did I throw that last grenade?"
 
 Furthermore, it will let clients save persistent angles/locations per map for grenades using .save <name of grenade/position> and .nades [playername]. These are
 saved in a map-specific file under addons/sourcemod/pugsetup/practicemode_grenades/<mapname>.cfg. You can use .delete to delete a position and .desc to add a description.
