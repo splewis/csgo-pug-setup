@@ -67,7 +67,7 @@ public void OnGoingLive() {
     g_HostnameCvar.SetString(hostname);
 }
 
-public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
     if (g_hEnabled.IntValue == 0 || !IsMatchLive())
         return Plugin_Continue;
 

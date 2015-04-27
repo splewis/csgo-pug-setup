@@ -178,12 +178,12 @@ public void BalancerFunction(ArrayList players) {
 /**
  * These events update player "rounds points" for computing rws at the end of each round.
  */
-public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive())
         return;
 
-    int victim = GetClientOfUserId(GetEventInt(event, "userid"));
-    int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
+    int victim = GetClientOfUserId(event.GetInt("userid"));
+    int attacker = GetClientOfUserId(event.GetInt("attacker"));
 
     bool validAttacker = IsValidClient(attacker);
     bool validVictim = IsValidClient(victim);
@@ -193,25 +193,25 @@ public Action Event_PlayerDeath(Handle event, const char[] name, bool dontBroadc
     }
 }
 
-public Action Event_Bomb(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_Bomb(Event event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive())
         return;
 
-    int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    int client = GetClientOfUserId(event.GetInt("userid"));
     g_RoundPoints[client] += 50;
 }
 
-public Action Event_DamageDealt(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive())
         return;
 
-    int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
-    int victim = GetClientOfUserId(GetEventInt(event, "userid"));
+    int attacker = GetClientOfUserId(event.GetInt("attacker"));
+    int victim = GetClientOfUserId(event.GetInt("userid"));
     bool validAttacker = IsValidClient(attacker);
     bool validVictim = IsValidClient(victim);
 
     if (validAttacker && validVictim && HelpfulAttack(attacker, victim) ) {
-        int damage = GetEventInt(event, "dmg_PlayerHealth");
+        int damage = event.GetInt("dmg_PlayerHealth");
         g_RoundPoints[attacker] += damage;
     }
 }
@@ -228,11 +228,11 @@ public bool HelpfulAttack(int attacker, int victim) {
 /**
  * Round end event, updates rws values for everyone.
  */
-public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive() || g_RecordRWSCvar.IntValue == 0)
         return;
 
-    int winner = GetEventInt(event, "winner");
+    int winner = event.GetInt("winner");
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && HasStats(i)) {
             int team = GetClientTeam(i);

@@ -58,7 +58,7 @@ public Action Timer_CheckIfSpectator(Handle timer, int serial) {
     return Plugin_Handled;
 }
 
-public Action Event_OnPlayerTeam(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_OnPlayerTeam(Event event, const char[] name, bool dontBroadcast) {
     return Plugin_Continue;
 }
 

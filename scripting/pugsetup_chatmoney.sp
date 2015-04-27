@@ -23,7 +23,7 @@ public void OnPluginStart() {
     HookEvent("round_start", Event_Round_Start);
 }
 
-public Action Event_Round_Start(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_Round_Start(Event event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive() || g_hEnabled.IntValue == 0)
         return;
 

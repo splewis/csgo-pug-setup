@@ -80,7 +80,7 @@ public Action Command_Damage(int client, int args) {
     return Plugin_Handled;
 }
 
-public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
     if (!IsMatchLive() || g_hEnabled.IntValue == 0)
         return;
 
@@ -91,7 +91,7 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
     }
 }
 
-public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
     for (int i = 1; i <= MaxClients; i++) {
         for (int j = 1; j <= MaxClients; j++) {
             g_DamageDone[i][j] = 0;
@@ -100,16 +100,16 @@ public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadca
     }
 }
 
-public Action Event_DamageDealt(Handle event, const char[] name, bool dontBroadcast) {
-    int attacker = GetClientOfUserId(GetEventInt(event, "attacker"));
-    int victim = GetClientOfUserId(GetEventInt(event, "userid"));
+public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadcast) {
+    int attacker = GetClientOfUserId(event.GetInt("attacker"));
+    int victim = GetClientOfUserId(event.GetInt("userid"));
     bool validAttacker = IsValidClient(attacker);
     bool validVictim = IsValidClient(victim);
 
     if (validAttacker && validVictim) {
         int preDamageHealth = GetClientHealth(victim);
-        int damage = GetEventInt(event, "dmg_health");
-        int postDamageHealth = GetEventInt(event, "health");
+        int damage = event.GetInt("dmg_health");
+        int postDamageHealth = event.GetInt("health");
 
         // this maxes the damage variables at 100,
         // so doing 50 damage when the player had 2 health

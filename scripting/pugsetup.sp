@@ -1306,7 +1306,7 @@ public Action Command_SetDisplay(int client, int args) {
  *                     *
  ***********************/
 
-public Action Event_MatchOver(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_MatchOver(Event event, const char[] name, bool dontBroadcast) {
     if (g_GameState == GameState_Live) {
         CreateTimer(15.0, Timer_EndMatch);
         ExecCfg(g_WarmupCfgCvar);
@@ -1320,12 +1320,12 @@ public Action Timer_EndMatch(Handle timer) {
     EndMatch(false, false);
 }
 
-public Action Event_RoundStart(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
     CheckAutoSetup();
 }
 
-public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast) {
-    int winner = GetEventInt(event, "winner");
+public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
+    int winner = event.GetInt("winner");
     if (g_GameState == GameState_KnifeRound) {
         ChangeState(GameState_WaitingForKnifeRoundDecision);
         g_KnifeWinner = winner;
@@ -1345,25 +1345,25 @@ public Action Event_RoundEnd(Handle event, const char[] name, bool dontBroadcast
     }
 }
 
-public Action Event_PlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
     if (g_GameState != GameState_Warmup)
         return;
 
-    int client = GetClientOfUserId(GetEventInt(event, "userid"));
+    int client = GetClientOfUserId(event.GetInt("userid"));
     if (IsPlayer(client) && OnActiveTeam(client) && g_WarmupMoneyOnSpawnCvar.IntValue != 0) {
         SetEntProp(client, Prop_Send, "m_iAccount", GetCvarIntSafe("mp_maxmoney"));
     }
 }
 
-public Action Event_PlayerConnect(Handle event, const char[] name, bool dontBroadcast) {
-    int userid = GetEventInt(event, "userid");
+public Action Event_PlayerConnect(Event event, const char[] name, bool dontBroadcast) {
+    int userid = event.GetInt("userid");
     int client = GetClientOfUserId(userid);
     g_Teams[client] = CS_TEAM_NONE;
     g_PlayerAtStart[client] = false;
 }
 
-public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontBroadcast) {
-    int userid = GetEventInt(event, "userid");
+public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast) {
+    int userid = event.GetInt("userid");
     int client = GetClientOfUserId(userid);
     if (g_Leader == client)
         g_Leader = -1;
@@ -1376,10 +1376,10 @@ public Action Event_PlayerDisconnect(Handle event, const char[] name, bool dontB
 /**
  * Silences cvar changes when executing live/knife/warmup configs, *unless* it's sv_cheats.
  */
-public Action Event_CvarChanged(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_CvarChanged(Event event, const char[] name, bool dontBroadcast) {
     if (g_GameState != GameState_None) {
         char cvarName[128];
-        GetEventString(event, "cvarname", cvarName, sizeof(cvarName));
+        event.GetString("cvarname", cvarName, sizeof(cvarName));
         if (!StrEqual(cvarName, "sv_cheats")) {
             SetEventBroadcast(event, true);
         }

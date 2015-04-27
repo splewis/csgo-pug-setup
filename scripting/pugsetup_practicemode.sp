@@ -198,9 +198,9 @@ public int OnAllowNoclipChanged(Handle cvar, const char[] oldValue, const char[]
 /**
  * Silences all cvar changes in practice mode.
  */
-public Action Event_CvarChanged(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_CvarChanged(Event event, const char[] name, bool dontBroadcast) {
     if (g_InPracticeMode) {
-        SetEventBroadcast(event, true);
+        event.BroadcastDisabled = true;
     }
     return Plugin_Continue;
 }
@@ -571,15 +571,15 @@ public int OnEntitySpawned(int entity) {
     }
 }
 
-public Action Event_WeaponFired(Handle event, const char[] name, bool dontBroadcast) {
+public Action Event_WeaponFired(Event event, const char[] name, bool dontBroadcast) {
     if (!g_InPracticeMode) {
         return;
     }
 
-    int userid = GetEventInt(event, "userid");
+    int userid = event.GetInt("userid");
     int client = GetClientOfUserId(userid);
     char weapon[64];
-    GetEventString(event, "weapon", weapon, sizeof(weapon));
+    event.GetString("weapon", weapon, sizeof(weapon));
 
     if (IsGrenadeWeapon(weapon) && IsPlayer(client)) {
         float position[3];
