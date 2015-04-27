@@ -143,6 +143,7 @@ Handle g_hOnMatchOver = INVALID_HANDLE;
 Handle g_hOnNotPicked = INVALID_HANDLE;
 Handle g_hOnPermissionCheck = INVALID_HANDLE;
 Handle g_hOnPlayerAddedToCaptainMenu = INVALID_HANDLE;
+Handle g_hOnPostGameCfg = INVALID_HANDLE;
 Handle g_hOnReady = INVALID_HANDLE;
 Handle g_hOnReadyToStart = INVALID_HANDLE;
 Handle g_hOnSetup = INVALID_HANDLE;
@@ -274,6 +275,7 @@ public void OnPluginStart() {
     g_hOnNotPicked = CreateGlobalForward("OnNotPicked", ET_Ignore, Param_Cell);
     g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
     g_hOnPlayerAddedToCaptainMenu = CreateGlobalForward("OnPlayerAddedToCaptainMenu", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_Cell);
+    g_hOnPostGameCfg = CreateGlobalForward("OnPostGameCfgExecuted", ET_Ignore);
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
     g_hOnReadyToStart = CreateGlobalForward("OnReadyToStart", ET_Ignore);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
@@ -1784,6 +1786,9 @@ public void ExecCfg(ConVar cvar) {
         Call_Finish();
     } else if (cvar == g_WarmupCfgCvar) {
         Call_StartForward(g_hOnWarmupCfg);
+        Call_Finish();
+    } else if (cvar == g_PostGameCfgCvar) {
+        Call_StartForward(g_hOnPostGameCfg);
         Call_Finish();
     }
 }

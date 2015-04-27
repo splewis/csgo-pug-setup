@@ -23,7 +23,7 @@ Minor core plugin changes:
 - new cvar ``sm_pugsetup_postgame_cfg`` (default sourcemod/pugsetup/warmup.cfg)
 
 API changes:
-- new fowards: ``OnGameStateChanged``, ``OnPlayerAddedToCaptainMenu``
+- new fowards: ``OnGameStateChanged``, ``OnPlayerAddedToCaptainMenu``, ``OnPostGameCfgExecuted``
 - new natives: ``IsTeamBalancerAvaliable``, ``IsTeamBalancerAvaliable``, ``ClearTeamBalancer``, ``GetGameState``, ``IsValidCommand``, ``GetPermissions``, ``SetPermissions``
 
 Optional plugin changes:

@@ -103,6 +103,11 @@ forward void OnWarmupCfgExecuted();
 forward void OnLiveCfgExecuted();
 
 /**
+ * Called after the postgame config is executed.
+ */
+forward void OnPostGameCfgExecuted();
+
+/**
  * Called when the match is over.
  * If you plan on using the result of the demo file,
  * I'd suggest adding a slight delay from when this is called
