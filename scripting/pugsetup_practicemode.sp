@@ -547,7 +547,7 @@ public Action Timer_GivePlayersMoney(Handle timer) {
     return Plugin_Continue;
 }
 
-public int OnEntityCreated(int entity, const char[] className) {
+public void OnEntityCreated(int entity, const char[] className) {
     if (!g_GrenadeTrajectory || !IsValidEntity(entity) || !IsGrenadeProjectile(className))
         return;
 
