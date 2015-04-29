@@ -94,6 +94,12 @@ public void OnPluginStart() {
     g_InPracticeMode = false;
     AddCommandListener(Command_TeamJoin, "jointeam");
 
+    // forwards
+    g_OnPracticeModeDisabled = CreateGlobalForward("OnPracticeModeDisabled", ET_Ignore);
+    g_OnPracticeModeEnabled = CreateGlobalForward("OnPracticeModeEnabled", ET_Ignore);
+    g_OnPracticeModeSettingChanged = CreateGlobalForward("OnPracticeModeSettingChanged", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
+    g_OnPracticeModeSettingsRead = CreateGlobalForward("OnPracticeModeSettingsRead", ET_Ignore);
+
     // Init data structures to be read from the config file
     g_BinaryOptionIds = new ArrayList(OPTION_NAME_LENGTH);
     g_BinaryOptionNames = new ArrayList(OPTION_NAME_LENGTH);
@@ -165,11 +171,6 @@ public void OnPluginStart() {
     RemoveCvarFlag(g_GrenadeTrajectoryCvar, FCVAR_CHEAT);
 
     HookEvent("server_cvar", Event_CvarChanged, EventHookMode_Pre);
-
-    g_OnPracticeModeDisabled = CreateGlobalForward("OnPracticeModeDisabled", ET_Ignore);
-    g_OnPracticeModeEnabled = CreateGlobalForward("OnPracticeModeEnabled", ET_Ignore);
-    g_OnPracticeModeSettingChanged = CreateGlobalForward("OnPracticeModeSettingChanged", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
-    g_OnPracticeModeSettingsRead = CreateGlobalForward("OnPracticeModeSettingsRead", ET_Ignore);
 }
 
 public int OnInfiniteMoneyChanged(Handle cvar, const char[] oldValue, const char[] newValue) {
