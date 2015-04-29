@@ -151,9 +151,9 @@ public bool TeleportToSavedGrenadePosition(int client, const char[] targetAuth, 
             SetEntityMoveType(client, MOVETYPE_WALK);
 
             if (myGrenade) {
-                PugSetupMessage(client, "Teleporting to your grenade id %s", id);
+                PugSetupMessage(client, "Teleporting to your grenade id %s, \"%s\".", id);
             } else {
-                PugSetupMessage(client, "Teleporting to %s's grenade id %s", targetName, id);
+                PugSetupMessage(client, "Teleporting to %s's grenade id %s, \"%s\".", targetName, id);
             }
 
             if (!StrEqual(description, "")) {
@@ -272,4 +272,25 @@ public bool FindGrenadeTarget(const char[] nameInput, char[] name, int nameLen, 
     } else {
         return FindTargetInGrenadesKvByName(nameInput, name, nameLen, auth, authLen);
     }
+}
+
+public bool FindGrenadeByName(const char[] auth, const char[] lookupName, char grenadeId[GRENADE_ID_LENGTH]) {
+    char name[GRENADE_NAME_LENGTH];
+    if (g_GrenadeLocationsKv.JumpToKey(auth)) {
+        if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
+            do {
+                g_GrenadeLocationsKv.GetSectionName(grenadeId, sizeof(grenadeId));
+                g_GrenadeLocationsKv.GetString("name", name, sizeof(name));
+                if (StrEqual(name, lookupName)) {
+                    g_GrenadeLocationsKv.GoBack();
+                    g_GrenadeLocationsKv.GoBack();
+                    return true;
+                }
+            } while (g_GrenadeLocationsKv.GotoNextKey());
+
+            g_GrenadeLocationsKv.GoBack();
+        }
+        g_GrenadeLocationsKv.GoBack();
+    }
+    return false;
 }

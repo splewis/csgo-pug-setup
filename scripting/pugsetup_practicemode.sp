@@ -49,7 +49,7 @@ float g_GrenadeSpecTime = 4.0;
 
 // Saved grenade locations data
 #define GRENADE_DESCRIPTION_LENGTH 256
-#define GRENADE_NAME_LENGTH 128
+#define GRENADE_NAME_LENGTH 64
 #define GRENADE_ID_LENGTH MAX_INTEGER_STRING_LENGTH
 #define AUTH_LENGTH 64
 char g_GrenadeLocationsFile[PLATFORM_MAX_PATH];
@@ -94,7 +94,7 @@ public void OnPluginStart() {
     g_InPracticeMode = false;
     AddCommandListener(Command_TeamJoin, "jointeam");
 
-    // forwards
+    // Forwards
     g_OnPracticeModeDisabled = CreateGlobalForward("OnPracticeModeDisabled", ET_Ignore);
     g_OnPracticeModeEnabled = CreateGlobalForward("OnPracticeModeEnabled", ET_Ignore);
     g_OnPracticeModeSettingChanged = CreateGlobalForward("OnPracticeModeSettingChanged", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
@@ -815,6 +815,20 @@ public Action Command_SaveGrenade(int client, int args) {
 
     char name[GRENADE_NAME_LENGTH];
     GetCmdArgString(name, sizeof(name));
+    TrimString(name);
+
+    if (strlen(name) == 0)  {
+        PugSetupMessage(client, "Usage: .save <name>");
+        return Plugin_Handled;
+    }
+
+    char auth[AUTH_LENGTH];
+    GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
+    char grenadeId[GRENADE_ID_LENGTH];
+    if (FindGrenadeByName(auth, name, grenadeId)) {
+        PugSetupMessage(client, "You have already used that name.");
+        return Plugin_Handled;
+    }
 
     float origin[3];
     float angles[3];
