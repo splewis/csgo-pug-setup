@@ -34,6 +34,7 @@ Optional plugin changes:
   reimplement grenade trajectories using ``sv_grenade_trajectory`` value, ``sv_cheats`` is no longer required to be on
 - practicemode will save the origin/angles a client is facing when throwing grenades and can be revisited using .back, .forward commands
 - practicemode will let clients save persistent angles/locations per map for grenades using .save <name of grenade/position> and .nades [playername]
+- autokicker has new cvars to kick players that don't ready up after a given time period, ``sm_pugsetup_autokicker_ready_time``, ``sm_pugsetup_autokicker_ready_time_kick_message`` (off by default)
 
 ### 1.3.3:
 - fix the rwsbalancer being totally broken with team balancing
