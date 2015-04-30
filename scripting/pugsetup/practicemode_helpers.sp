@@ -140,20 +140,22 @@ public bool TeleportToSavedGrenadePosition(int client, const char[] targetAuth, 
 
     if (g_GrenadeLocationsKv.JumpToKey(targetAuth)) {
         char targetName[MAX_NAME_LENGTH];
+        char grenadeName[GRENADE_NAME_LENGTH];
         g_GrenadeLocationsKv.GetString("name", targetName, sizeof(targetName));
 
         if (g_GrenadeLocationsKv.JumpToKey(id)) {
             success = true;
             g_GrenadeLocationsKv.GetVector("origin", origin);
             g_GrenadeLocationsKv.GetVector("angles", angles);
+            g_GrenadeLocationsKv.GetString("name", grenadeName, sizeof(grenadeName));
             g_GrenadeLocationsKv.GetString("description", description, sizeof(description));
             TeleportEntity(client, origin, angles, velocity);
             SetEntityMoveType(client, MOVETYPE_WALK);
 
             if (myGrenade) {
-                PugSetupMessage(client, "Teleporting to your grenade id %s, \"%s\".", id);
+                PugSetupMessage(client, "Teleporting to your grenade id %s, \"%s\".", id, grenadeName);
             } else {
-                PugSetupMessage(client, "Teleporting to %s's grenade id %s, \"%s\".", targetName, id);
+                PugSetupMessage(client, "Teleporting to %s's grenade id %s, \"%s\".", targetName, id, grenadeName);
             }
 
             if (!StrEqual(description, "")) {
