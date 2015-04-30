@@ -376,6 +376,8 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
         return isCapt || isLeader || isAdmin;
     else if (p == Permission_All)
         return true;
+    else if (p == Permission_None)
+        return false;
     else
         ThrowNativeError(SP_ERROR_PARAM, "Unknown permission value: %d", p);
 

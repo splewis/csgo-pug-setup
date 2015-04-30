@@ -24,6 +24,7 @@ enum Permission {
     Permission_Captains,                    // only captains (and higher) can use the command (note: reverts to Permission_All when not using captains)
     Permission_Leader,                      // only the pug leader (and higher) can use the command
     Permission_Admin,                       // only pug admins can use the command
+    Permission_None,                        // this command is disabled
 };
 
 // Pug game state
@@ -366,9 +367,11 @@ stock bool PermissionFromString(const char[] permissionString, Permission& p, bo
         p = Permission_Leader;
     } else if (StrEqual(permissionString, "admin", false)) {
         p = Permission_Admin;
+    } else if (StrEqual(permissionString, "none", false)) {
+        p = Permission_None;
     } else {
         if (logError)
-            LogError("Invalid permission type: \"%s\", allowed values: \"all\", \"captain\", \"leader\", \"admin\"", permissionString);
+            LogError("Invalid permission type: \"%s\", allowed values: \"all\", \"captain\", \"leader\", \"admin\", \"none\"", permissionString);
         return false;
     }
 
