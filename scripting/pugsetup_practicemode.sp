@@ -355,6 +355,22 @@ public void ReadPracticeSettings() {
     delete kv;
 }
 
+public void OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSize, bool& block) {
+    if (g_InPracticeMode) {
+        block = true;
+        PugSetupMessage(client, "{LIGHT_GREEN}.setup {NORMAL}to change/view practicemode settings");
+        if (g_AllowNoclip)
+            PugSetupMessage(client, "{LIGHT_GREEN}.noclip {NORMAL}to enter/exit noclip mode");
+        PugSetupMessage(client, "{LIGHT_GREEN}.back {NORMAL}to go to your last grenade position");
+        PugSetupMessage(client, "{LIGHT_GREEN}.forward {NORMAL}to go to your next grenade position");
+        PugSetupMessage(client, "{LIGHT_GREEN}.save <name> {NORMAL}to save a grenade position");
+        PugSetupMessage(client, "{LIGHT_GREEN}.nades [player] {NORMAL}to view all saved grenades");
+        PugSetupMessage(client, "{LIGHT_GREEN}.desc <description> {NORMAL}to add a nade description");
+        PugSetupMessage(client, "{LIGHT_GREEN}.delete {NORMAL}to delete your current grenade position");
+        PugSetupMessage(client, "{LIGHT_GREEN}.goto [player] <id> {NORMAL}to go to a grenadeid");
+    }
+}
+
 public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
     int leader = GetLeader();
     if (!IsPlayer(leader)) {

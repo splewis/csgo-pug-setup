@@ -160,6 +160,16 @@ forward void OnStartRecording(char[] demoName);
 forward void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length);
 
 /**
+ * Called when a client issues a .help command in chat.
+ *
+ * @param client The client issuing the command
+ * @param replyMessages An ArrayList of Strings to reply with (in chat)
+ * @param maxMessageSize The max length of a string in the replyMessages list
+ * @param block Whether to block the reply message (set to true to have no reply)
+ */
+forward void OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSize, bool& block);
+
+/**
  * Called during any game state change.
  */
 forward void OnGameStateChanged(GameState before, GameState after);

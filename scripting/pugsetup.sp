@@ -153,6 +153,7 @@ Handle g_hOnStartRecording = INVALID_HANDLE;
 Handle g_hOnStateChange = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 Handle g_hOnWarmupCfg = INVALID_HANDLE;
+Handle g_hOnHelpCommand = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configs.sp"
@@ -272,6 +273,7 @@ public void OnPluginStart() {
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
+    g_hOnHelpCommand = CreateGlobalForward("OnHelpCommand", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_CellByRef);
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
     g_hOnLiveCfg = CreateGlobalForward("OnLiveCfgExecuted", ET_Ignore);
     g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
@@ -854,14 +856,34 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
     }
 
     if (StrEqual(sArgs[0], ".help")) {
-        PugSetupMessage(client, "{GREEN}Useful commands:");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.setup {NORMAL}begins the setup phase");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.endgame {NORMAL}ends the match");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.leader {NORMAL}allows you to set the pug leader");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.capt {NORMAL}allows you to set team captains");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.rand {NORMAL}selects random captains");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.ready/.notready {NORMAL}mark you as ready");
-        PugSetupMessage(client, "  {LIGHT_GREEN}.pause/.unpause {NORMAL}pause the match");
+        const int msgSize = 128;
+        ArrayList msgs = new ArrayList(msgSize);
+
+        msgs.PushString("{LIGHT_GREEN}.setup {NORMAL}begins the setup phase");
+        msgs.PushString("{LIGHT_GREEN}.endgame {NORMAL}ends the match");
+        msgs.PushString("{LIGHT_GREEN}.leader {NORMAL}allows you to set the pug leader");
+        msgs.PushString("{LIGHT_GREEN}.capt {NORMAL}allows you to set team captains");
+        msgs.PushString("{LIGHT_GREEN}.rand {NORMAL}selects random captains");
+        msgs.PushString("{LIGHT_GREEN}.ready/.notready {NORMAL}mark you as ready");
+        msgs.PushString("{LIGHT_GREEN}.pause/.unpause {NORMAL}pause the match");
+
+        bool block = false;
+        Call_StartForward(g_hOnHelpCommand);
+        Call_PushCell(client);
+        Call_PushCell(msgs);
+        Call_PushCell(msgSize);
+        Call_PushCellRef(block);
+        Call_Finish();
+
+        if (!block) {
+            char msg[msgSize];
+            for (int i = 0; i < msgs.Length; i++) {
+                msgs.GetString(i, msg, sizeof(msg));
+                PugSetupMessage(client, msg);
+            }
+        }
+
+        delete msgs;
     }
 
     if (StrEqual(sArgs[0], ".map") && IsVoteInProgress() && IsClientInVotePool(client)) {
@@ -1557,11 +1579,6 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
         Call_Finish();
     }
 
-    Unpause();
-    if (execConfigs) {
-        ExecWarmupConfigs();
-    }
-
     g_LiveTimerRunning = false;
     g_Leader = -1;
     g_capt1 = -1;
@@ -1584,11 +1601,12 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
     if (execConfigs) {
         ExecCfg(g_PostGameCfgCvar);
     }
-
+    if (IsPaused()) {
+        Unpause();
+    }
     if (InWarmup()) {
         EndWarmup();
     }
-
     if (doRestart) {
         RestartGame(1);
     }
@@ -1596,7 +1614,7 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
 
 public ArrayList GetCurrentMapList() {
     if (g_MapList.Length == 0) {
-        AddBackupMaps();
+        AddBackupMaps(g_MapList);
     }
     return g_MapList;
 }

@@ -39,7 +39,7 @@ public Action Timer_DelayedChangeMap(Handle timer, Handle pack) {
     return Plugin_Handled;
 }
 
-public void AddBackupMaps() {
+public void AddBackupMaps(ArrayList maplist) {
     char backupMaps[][] = {
         "de_cache",
         "de_cbble",
@@ -52,7 +52,7 @@ public void AddBackupMaps() {
     };
 
     for (int i = 0; i < sizeof(backupMaps); i++)
-        AddMap(backupMaps[i], g_MapList);
+        AddMap(backupMaps[i], maplist);
 }
 
 public bool GetMapList(const char[] fileName, ArrayList mapList) {
