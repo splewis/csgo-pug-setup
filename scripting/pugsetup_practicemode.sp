@@ -853,7 +853,7 @@ public Action Command_SaveGrenade(int client, int args) {
 
     int nadeId = SaveGrenadeToKv(client, origin, angles, name);
     g_CurrentSavedGrenadeId[client] = nadeId;
-    PugSetupMessage(client, "Saved grenade. Type .desc <description> to add a description or .delete to delete this position.");
+    PugSetupMessage(client, "Saved grenade (id %d). Type .desc <description> to add a description or .delete to delete this position.", nadeId);
     return Plugin_Handled;
 }
 
