@@ -45,7 +45,7 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
         if (mapIndex >= 0) {
             FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
         } else {
-            Format(mapName, sizeof(mapName), "%T", "RandomMapVote");
+            Format(mapName, sizeof(mapName), "%T", "RandomMapVote", LANG_SERVER);
         }
 
         PugSetupMessageToAll("%t", "Voted For", clientName, mapName);
