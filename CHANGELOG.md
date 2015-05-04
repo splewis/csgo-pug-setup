@@ -1,4 +1,4 @@
-## 1.4.0 (unreleased):
+## 1.4.0:
 
 Major core plugin changes:
 - complete rework on how the setup menu is configured, instead of 2 cvars per option (default/whether it is display), these options
