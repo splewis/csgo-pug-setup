@@ -3,7 +3,7 @@
 
 #tryinclude "manual_version.sp"
 #if !defined PLUGIN_VERSION
-#define PLUGIN_VERSION "1.4.0"
+#define PLUGIN_VERSION "1.4.1-dev"
 #endif
 
 #define DEBUG_CVAR "sm_pugsetup_debug"
