@@ -21,6 +21,7 @@ Minor core plugin changes:
 - new cvar ``sm_pugsetup_pausing_enabled`` (default 1)
 - new cvar ``sm_pugsetup_random_map_vote_option`` (default 1)
 - new cvar ``sm_pugsetup_postgame_cfg`` (default sourcemod/pugsetup/warmup.cfg)
+- new cvar ``sm_pugsetup_setup_enabled`` (default 1)
 
 API changes:
 - new fowards: ``OnGameStateChanged``, ``OnPlayerAddedToCaptainMenu``, ``OnPostGameCfgExecuted``, ``OnHelpCommand``

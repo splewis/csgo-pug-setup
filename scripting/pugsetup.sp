@@ -52,6 +52,7 @@ ConVar g_PostGameCfgCvar;
 ConVar g_QuickRestartsCvar;
 ConVar g_RandomizeMapOrderCvar;
 ConVar g_RandomOptionInMapVoteCvar;
+ConVar g_SetupEnabledCvar;
 ConVar g_SnakeCaptainsCvar;
 ConVar g_StartDelayCvar;
 ConVar g_UseGameWarmupCvar;
@@ -214,6 +215,7 @@ public void OnPluginStart() {
     g_QuickRestartsCvar = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
     g_RandomizeMapOrderCvar = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
     g_RandomOptionInMapVoteCvar = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
+    g_SetupEnabledCvar = CreateConVar("sm_pugsetup_setup_enabled", "1", "Whether the sm_setup and sm_10man commands are enabled");
     g_SnakeCaptainsCvar = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
     g_StartDelayCvar = CreateConVar("sm_pugsetup_start_delay", "5", "How many seconds of a countdown phase right before the lo3 process begins.", _, true, 0.0, true, 60.0);
     g_UseGameWarmupCvar = CreateConVar("sm_pugsetup_use_game_warmup", "1", "Whether to use csgo's built-in warmup functionality. The warmup config (sm_pugsetup_warmup_cfg) will be executed regardless of this setting.");
@@ -581,6 +583,10 @@ public bool DoPermissionCheck(int client, const char[] command) {
 }
 
 public Action Command_Setup(int client, int args) {
+    if (g_SetupEnabledCvar.IntValue == 0) {
+        return Plugin_Handled;
+    }
+
     if (g_GameState > GameState_Warmup) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
@@ -614,6 +620,10 @@ public Action Command_Setup(int client, int args) {
 }
 
 public Action Command_10man(int client, int args) {
+    if (g_SetupEnabledCvar.IntValue == 0) {
+        return Plugin_Handled;
+    }
+
     if (g_GameState > GameState_Warmup) {
         PugSetupMessage(client, "%t", "AlreadyLive");
         return Plugin_Handled;
