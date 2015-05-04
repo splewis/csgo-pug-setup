@@ -346,23 +346,6 @@ stock void GetTrueString(char[] buffer, int length, bool variable, int client=LA
         Format(buffer, length, "false");
 }
 
-stock void SQL_CreateTable(Handle db_connection, const char[] table_name, const char[][] fields, int num_fields) {
-    char buffer[1024];
-    Format(buffer, sizeof(buffer), "CREATE TABLE IF NOT EXISTS %s (", table_name);
-    for (int i = 0; i < num_fields; i++) {
-        StrCat(buffer, sizeof(buffer), fields[i]);
-        if (i != num_fields - 1)
-            StrCat(buffer, sizeof(buffer), ", ");
-    }
-    StrCat(buffer, sizeof(buffer), ")");
-
-    if (!SQL_FastQuery(db_connection, buffer)) {
-        char err[255];
-        SQL_GetError(db_connection, err, sizeof(err));
-        LogError(err);
-    }
-}
-
 stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace, int value, bool caseSensitive=true) {
     char intString[MAX_INTEGER_STRING_LENGTH];
     IntToString(value, intString, sizeof(intString));
@@ -407,17 +390,6 @@ stock void RemoveCvarFlag(Handle cvar, int flag) {
 
 stock int min(int x, int y) {
     return (x < y) ? x : y;
-}
-
-stock bool SplitSpace(const char[] str, char[] buf1, int len1, char[] buf2, int len2) {
-    for (int i = 0; i < strlen(str); i++){
-        if (str[i] == ' ') {
-            strcopy(buf1, min(len1, i + 1), str);
-            strcopy(buf2, len2, str[i+1]);
-            return true;
-        }
-    }
-    return false;
 }
 
 stock bool SplitOnSpaceFirstPart(const char[] str, char[] buf1, int len1) {
