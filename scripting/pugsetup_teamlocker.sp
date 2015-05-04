@@ -64,14 +64,14 @@ public Action Event_OnPlayerTeam(Event event, const char[] name, bool dontBroadc
 
 public Action Command_JoinTeam(int client, const char[] command, int argc) {
     if (!IsValidClient(client))
-        return Plugin_Handled;
+        return Plugin_Stop;
 
     if (g_hLockTeamsEnabled.IntValue == 0)
         return Plugin_Continue;
 
     // blocks changes during team-selection/lo3-process
     if (IsPendingStart())
-        return Plugin_Handled;
+        return Plugin_Stop;
 
     // don't do anything if not live/not in startup phase
     if (!IsMatchLive())
@@ -85,10 +85,10 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
 
     // don't let someone change to a "none" team (e.g. using auto-select)
     if (team_to == CS_TEAM_NONE)
-        return Plugin_Handled;
+        return Plugin_Stop;
 
     if (team_to == CS_TEAM_SPECTATOR && !IsPugAdmin(client) && g_hBlockSpecJoins.IntValue != 0)
-        return Plugin_Handled;
+        return Plugin_Stop;
 
     int playerCount = 0;
     for (int i = 1; i <= MaxClients; i++) {
@@ -101,7 +101,7 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
 
     if (playerCount >= GetPugMaxPlayers() / 2) {
         LogDebug("blocking jointeam");
-        return Plugin_Handled;
+        return Plugin_Stop;
     } else {
         LogDebug("allowing jointeam");
         return Plugin_Continue;
