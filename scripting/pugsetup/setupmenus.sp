@@ -351,20 +351,13 @@ public void ChangeMapMenu(int client) {
         AddMapIndexToMenu(menu, mapList, i);
     }
 
-    AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
-        int client = param1;
         int choice = GetMenuInt(menu, param2);
-
-        if (choice == -1) {
-            GiveSetupMenu(client);
-        } else {
-            ChangeMap(g_MapList, GetMenuInt(menu, param2));
-        }
+        ChangeMap(g_MapList, choice);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
