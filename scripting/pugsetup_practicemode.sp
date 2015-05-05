@@ -72,6 +72,7 @@ enum ClientColor {
 };
 
 // Forwards
+Handle g_OnGrenadeSaved = INVALID_HANDLE;
 Handle g_OnPracticeModeDisabled = INVALID_HANDLE;
 Handle g_OnPracticeModeEnabled = INVALID_HANDLE;
 Handle g_OnPracticeModeSettingChanged = INVALID_HANDLE;
@@ -95,6 +96,7 @@ public void OnPluginStart() {
     AddCommandListener(Command_TeamJoin, "jointeam");
 
     // Forwards
+    g_OnGrenadeSaved = CreateGlobalForward("OnGrenadeSaved", ET_Event, Param_Cell, Param_Array, Param_Array, Param_String);
     g_OnPracticeModeDisabled = CreateGlobalForward("OnPracticeModeDisabled", ET_Ignore);
     g_OnPracticeModeEnabled = CreateGlobalForward("OnPracticeModeEnabled", ET_Ignore);
     g_OnPracticeModeSettingChanged = CreateGlobalForward("OnPracticeModeSettingChanged", ET_Ignore, Param_Cell, Param_String, Param_String, Param_Cell);
@@ -851,9 +853,20 @@ public Action Command_SaveGrenade(int client, int args) {
     GetClientAbsOrigin(client, origin);
     GetClientEyeAngles(client, angles);
 
-    int nadeId = SaveGrenadeToKv(client, origin, angles, name);
-    g_CurrentSavedGrenadeId[client] = nadeId;
-    PugSetupMessage(client, "Saved grenade (id %d). Type .desc <description> to add a description or .delete to delete this position.", nadeId);
+    Action ret = Plugin_Continue;
+    Call_StartForward(g_OnGrenadeSaved);
+    Call_PushCell(client);
+    Call_PushArray(origin, sizeof(origin));
+    Call_PushArray(angles, sizeof(angles));
+    Call_PushString(name);
+    Call_Finish(ret);
+
+    if (ret < Plugin_Handled) {
+        int nadeId = SaveGrenadeToKv(client, origin, angles, name);
+        g_CurrentSavedGrenadeId[client] = nadeId;
+        PugSetupMessage(client, "Saved grenade (id %d). Type .desc <description> to add a description or .delete to delete this position.", nadeId);
+    }
+
     return Plugin_Handled;
 }
 
