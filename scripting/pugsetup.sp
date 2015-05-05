@@ -68,6 +68,7 @@ bool g_DisplayTeamSize = true;
 bool g_DisplayRecordDemo = true;
 bool g_DisplayMapChange = false;
 bool g_DisplayAimWarmup = true;
+bool g_DisplayPlayout = false;
 
 /** Setup info **/
 int g_Leader = -1;
@@ -83,6 +84,7 @@ bool g_RecordGameOption = false;
 bool g_DoKnifeRound = false;
 bool g_AutoLive = true;
 bool g_DoAimWarmup = false;
+bool g_DoPlayout = false;
 
 /** Other important variables about the state of the game **/
 TeamBalancerFunction g_BalancerFunction = INVALID_FUNCTION;
@@ -1573,6 +1575,12 @@ public void ExecGameConfigs() {
     ExecCfg(g_LiveCfgCvar);
     if (InWarmup())
         EndWarmup();
+
+    // if force playout selected, set that cvar now
+    if (g_DoPlayout)
+        ServerCommand("mp_match_can_clinch 0");
+    else
+        ServerCommand("mp_match_can_clinch 1");
 }
 
 stock void EndMatch(bool execConfigs=true, bool doRestart=true) {

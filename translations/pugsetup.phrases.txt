@@ -419,4 +419,8 @@
 		"#format"		"{1:N}"
 		"en"		"{1} is no longer ready."
 	}
+	"PlayoutOption"
+	{
+		"en"		"Play out maxrounds"
+	}
 }

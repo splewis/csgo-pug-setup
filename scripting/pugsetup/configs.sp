@@ -74,7 +74,7 @@ stock bool RemoveChatAliasFromFile(const char[] alias) {
 /**
  * Dealing with the setup options config file.
  */
-static char g_SetupKeys[][] = {"maptype", "teamtype", "autolive", "kniferound", "teamsize", "record", "mapchange"};
+static char g_SetupKeys[][] = {"maptype", "teamtype", "autolive", "kniferound", "teamsize", "record", "mapchange", "playout"};
 static char g_SetupCoercions[][][] = {
     {"map", "maptype"},
     {"teams", "teamtype"},
@@ -178,6 +178,12 @@ stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] val
         }
         return true;
 
+    } else if (StrEqual(setting, "playout", false)) {
+        if (setDisplay) {
+            g_DoPlayout = CheckEnabledFromString(value);
+        }
+        return true;
+
     } else {
         char allSettings[128] = "\0";
         for (int i = 0; i < sizeof(g_SetupKeys); i++) {
@@ -239,6 +245,11 @@ stock void ReadSetupOptions() {
 
             } else if (StrEqual(setting, "mapchange", false)) {
                 g_DisplayMapChange = display;
+
+            } else if (StrEqual(setting, "playout", false)) {
+                kv.GetString("default", buffer, sizeof(buffer), "0");
+                g_DoPlayout = CheckEnabledFromString(buffer);
+                g_DisplayPlayout = display;
 
             } else {
                 LogError("Unknown section name in %s: \"%s\"", configFile, setting);

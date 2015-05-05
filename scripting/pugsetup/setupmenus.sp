@@ -93,7 +93,15 @@
             AddMenuItem(menu, "set_captains", buffer, style);
         }
 
-        // 9. change map
+        // 9. play out maxrounds
+        if (g_DisplayPlayout) {
+            char playOutString[128];
+            GetEnabledString(playOutString, sizeof(playOutString), g_DoPlayout, client);
+            Format(buffer, sizeof(buffer), "%T: %s", "PlayoutOption", client, playOutString);
+            AddMenuItem(menu, "playout", buffer, style);
+        }
+
+        // 10. change map
         if (g_DisplayMapChange) {
             Format(buffer, sizeof(buffer), "%T", "ChangeMapMenuOption", client);
             AddMenuItem(menu, "change_map", buffer, style);
@@ -123,6 +131,7 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         int client = param1;
         char buffer[64];
         menu.GetItem(param2, buffer, sizeof(buffer));
+        int pos = GetMenuSelectionPosition();
 
         if (StrEqual(buffer, "start_match")) {
             FakeClientCommand(client, "sm_start");
@@ -153,6 +162,10 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         } else if (StrEqual(buffer, "change_map")) {
             ChangeMapMenu(client);
 
+        } else if (StrEqual(buffer, "playout")) {
+            g_DoPlayout = !g_DoPlayout;
+            GiveSetupMenu(client, false, pos);
+
         } else if (StrEqual(buffer, "finish_setup")) {
             SetupFinished();
 
@@ -161,7 +174,7 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "aim_warmup")) {
             g_DoAimWarmup = !g_DoAimWarmup;
-            GiveSetupMenu(client);
+            GiveSetupMenu(client, false, pos);
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);
