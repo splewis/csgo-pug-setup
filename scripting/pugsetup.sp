@@ -1371,6 +1371,11 @@ public void PrintSetupInfo(int client) {
         GetEnabledString(buffer, sizeof(buffer), g_AutoLive, client);
         PugSetupMessage(client, "%t: {GREEN}%s", "AutoLiveOption", buffer);
     }
+
+    if (g_DisplayPlayout) {
+        GetEnabledString(buffer, sizeof(buffer), g_DoPlayout, client);
+        PugSetupMessage(client, "%t: {GREEN}%s", "PlayoutOption", buffer);
+    }
 }
 
 public void ReadyToStart() {
