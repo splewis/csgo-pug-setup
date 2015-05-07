@@ -168,6 +168,8 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "finish_setup")) {
             SetupFinished();
+            if (!IsPlayer(g_Leader))
+                g_Leader = client;
 
         } else if (StrEqual(buffer, "cancel_setup")) {
             FakeClientCommand(client, "sm_endgame");
