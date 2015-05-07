@@ -606,7 +606,7 @@ public Action Command_Setup(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (IsPlayer(client) && !IsPlayer(GetLeader())) {
+    if (IsPlayer(client) && !IsPossibleLeader(g_Leader)) {
         g_Leader = client;
     }
 
@@ -643,7 +643,7 @@ public Action Command_10man(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (IsPlayer(client) && !IsPlayer(GetLeader())) {
+    if (IsPlayer(client) && !IsPossibleLeader(g_Leader)) {
         g_Leader = client;
     }
 

@@ -126,6 +126,10 @@ stock bool IsPlayer(int client) {
     return IsValidClient(client) && !IsFakeClient(client);
 }
 
+stock bool IsPossibleLeader(int client) {
+    return client > 0 && client <= MaxClients && IsClientConnected(client) && !IsFakeClient(client);
+}
+
 /**
  * Returns the number of clients that are actual players in the game.
  */
