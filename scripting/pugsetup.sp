@@ -606,7 +606,7 @@ public Action Command_Setup(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (IsPlayer(client) && !IsPossibleLeader(g_Leader)) {
+    if (IsPlayer(client)) {
         g_Leader = client;
     }
 
@@ -643,7 +643,7 @@ public Action Command_10man(int client, int args) {
         return Plugin_Handled;
     }
 
-    if (IsPlayer(client) && !IsPossibleLeader(g_Leader)) {
+    if (IsPlayer(client)) {
         g_Leader = client;
     }
 
@@ -1340,8 +1340,8 @@ public Action Event_CvarChanged(Event event, const char[] name, bool dontBroadca
  ***********************/
 
 public void PrintSetupInfo(int client) {
-    if (IsPlayer(GetLeader()))
-        PugSetupMessage(client, "%t", "SetupBy", GetLeader());
+    if (IsPlayer(g_Leader))
+        PugSetupMessage(client, "%t", "SetupBy", g_Leader);
 
     // print each setup option avaliable
     char buffer[128];

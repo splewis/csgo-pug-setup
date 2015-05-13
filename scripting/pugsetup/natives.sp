@@ -208,6 +208,12 @@ public int Native_GetLeader(Handle plugin, int numParams) {
     if (g_Leader > 0 && IsClientConnected(g_Leader) && !IsFakeClient(g_Leader))
         return g_Leader;
 
+    if (numParams >= 1) {
+        bool doReassign = GetNativeCell(1);
+        if (!doReassign)
+            return -1;
+    }
+
     // then check if we have someone with admin permissions
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && IsPugAdmin(i)) {
@@ -363,9 +369,13 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
 
     CHECK_CLIENT(client);
 
+    bool allowLeaderReassignment = true;
+    if (numParams >= 3)
+        allowLeaderReassignment = GetNativeCell(3);
+
     Permission p = view_as<Permission>(GetNativeCell(2));
     bool isAdmin = IsPugAdmin(client);
-    bool isLeader = GetLeader() == client;
+    bool isLeader = GetLeader(allowLeaderReassignment) == client;
     bool isCapt = (client == g_capt1) || (client == g_capt2);
 
     if (p == Permission_Admin)

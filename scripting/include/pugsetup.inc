@@ -237,7 +237,7 @@ native bool IsPendingStart();
 native void SetLeader(int client);
 
 // Returns the pug leader, or -1 if not set.
-native int GetLeader();
+native int GetLeader(bool allowLeaderReassignment=true);
 
 // Sets who is a captain.
 // A captain number is either 1 or 2.
@@ -265,7 +265,7 @@ native bool PlayerAtStart(int client);
 native bool IsPugAdmin(int client);
 
 // Returns if a client satisfies a permission check.
-native bool HasPermissions(int client, Permission p);
+native bool HasPermissions(int client, Permission p, bool allowLeaderReassignment=true);
 
 // Sets random captains.
 native void SetRandomCaptains();
