@@ -374,7 +374,7 @@ public void OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSiz
 }
 
 public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
-    int leader = GetLeader();
+    int leader = GetLeader(false);
     if (!IsPlayer(leader)) {
         SetLeader(client);
     }
