@@ -1,6 +1,8 @@
+## 1.4.2:
+- correct a bug where the pug leader was not being assigned correctly when a client finished the .setup menu
+
 ## 1.4.1:
 - add "playout" setup option (default to off & not displayed) that wraps mp_match_can_clinch
-- correct a bug where the pug leader was not being assigned when a client finished the .setup menu
 
 ## 1.4.0:
 
