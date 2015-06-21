@@ -38,12 +38,10 @@
 	}
 	"ReadyStatus"
 	{
-		"#format"	"{1:i},{2:i},{3:s}"
 		"pl"		"{1} z {2} graczy jest gotowych\nWpisz {3} aby zgłosić gotowość."
 	}
 	"ReadyStatusCaptains"
 	{
-		"#format"	"{1:i},{2:i},{3:s},{4:s}"
 		"pl"		"{1} z {2} graczy jest gotowych\nKapitan 1: {3}\nKapitan 2: {4}"
 	}
 	"CaptainNotSelected"
@@ -52,12 +50,10 @@
 	}
 	"SetCaptainsHint"
 	{
-		"#format"		"{1:N},{2:s}"
 		"pl"		"Oczekiwanie na {GREEN}{1} {NORMAL}aby wpisać {GREEN}{2} {NORMAL}by wybrać kapitanów."
 	}
 	"ReadyCommandHint"
 	{
-		"#format"		"{1:s}"
 		"pl"		"Nadal musisz zgłosić gotowość wpisując {GREEN}{1}"
 	}
 	"NoPermission"
@@ -74,32 +70,26 @@
 	}
 	"ForceEnd"
 	{
-		"#format"	"{1:N}"
 		"pl"		"Mecz został przerwany przez {GREEN}{1}{NORMAL}."
 	}
 	"Pause"
 	{
-		"#format"	"{1:N}"
 		"pl"		"{GREEN}{1} {NORMAL}poprosił o pauzę."
 	}
 	"Unpause"
 	{
-		"#format"	"{1:N}"
 		"pl"		"{GREEN}{1} {NORMAL}usunął pauzę."
 	}
 	"SetupBy"
 	{
-		"#format"	"{1:N}"
 		"pl"		"Lider PUGa: {GREEN}{1}"
 	}
 	"NewLeader"
 	{
-		"#format"		"{1:N}"
 		"pl"		"Nowym liderem jest {GREEN}{1}"
 	}
 	"CaptMessage"
 	{
-		"#format"		"{1:d},{2:s}"
 		"pl"		"Kapitan {1} będzie {2}"
 	}
 	"TeamSetupMenuTitle"
@@ -192,12 +182,10 @@
 	}
 	"InitialPickPlayerChoice"
 	{
-		"#format"	"{1:s}"
 		"pl"		"{1} został wylosowany do wybrania {GREEN}pierwszego gracza."
 	}
 	"InitialPickSideChoice"
 	{
-		"#format"	"{1:s}"
 		"pl"		"{1} został wylosowany do wybrania {GREEN}rozpoczynających stron."
 	}
 	"SideChoiceTitle"
@@ -206,7 +194,6 @@
 	}
 	"SideChoiceSelected"
 	{
-		"#format"	"{1:s},{2:s}"
 		"pl"		"{1} wybrał {GREEN}{2} {NORMAL}pierwszego."
 	}
 	"PlayerPickTitle"
@@ -215,7 +202,6 @@
 	}
 	"PlayerPickChoice"
 	{
-		"#format"	"{1:s},{2:s}"
 		"pl"		"{1} wybrał {2}."
 	}
 	"SpecCantReady"
@@ -224,7 +210,6 @@
 	}
 	"RestartCounter"
 	{
-		"#format"	"{1:d}"
 		"pl"		"Restart {1}/3"
 	}
 	"Live"
@@ -237,7 +222,6 @@
 	}
 	"PlayerVetoed"
 	{
-		"#format"	"{1:s},{2:s}"
 		"pl"		"{1} {NORMAL}odrzucił {LIGHT_RED}{2}."
 	}
 	"MapsLeft"
@@ -274,7 +258,6 @@
 	}
 	"MutualUnpauseMessage"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"pl"		"Drużyna {1} chce usunąć pauzę, czekanie na drużynę {2} do wpisania {GREEN}{3}"
 	}
 	"CancelCountdownMessage"
@@ -283,7 +266,6 @@
 	}
 	"Countdown"
 	{
-		"#format"	"{1:d}"
 		"pl"		"Odliczanie: {GREEN}{1} {NORMAL}sek."
 	}
 	"Ready"
@@ -304,7 +286,6 @@
 	}
 	"KnifeRoundWinner"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"pl"		"Drużyna {1} Wygrała rundę nożową. Czekanie na wpisanie {GREEN}{2} {NORMAL}lub {GREEN}{3}"
 	}
 	"TVDisabled"
@@ -365,7 +346,6 @@
 	}
 	"ChooseCaptainTitle"
 	{
-		"#format"	"{1:d}"
 		"pl"		"Wybierz kapitana {1}:"
 	}
 	"ChooseLeaderTitle"
@@ -374,7 +354,6 @@
 	}
 	"WaitingForStart"
 	{
-		"#format"		"{1:N},{2:s}"
 		"pl"		"Wszyscy gracze są gotowi, czekanie na {GREEN}{1} {NORMAL}by wpisał {GREEN}{2}"
 	}
 	"StartMatchMenuOption"
@@ -411,12 +390,10 @@
 	}
 	"IsNowReady"
 	{
-		"#format"		"{1:N}"
 		"pl"		"{1} jest już gotowy."
 	}
 	"IsNoLongerReady"
 	{
-		"#format"		"{1:N}"
 		"pl"		"{1} nie jest już gotowy."
 	}
 	"PlayoutOption"
