@@ -130,7 +130,7 @@ Some commands that are important are (all of these are actually sm_ commands for
 - **.notready**
 - **.pause** requests a pause (which takes effect next freezetime)
 - **.unpause** request an unpause
-- **.start**  stats the game if auto-live has been disabled
+- **.start**  starts the game if auto-live has been disabled
 - **.capt** gives the pug leader a menu to select captains
 - **.rand** selects random captains
 - **.leader** gives a menu to change the game leader
