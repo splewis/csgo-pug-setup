@@ -494,17 +494,17 @@ public Action Timer_CheckReady(Handle timer) {
 public void StatusHint(int readyPlayers, int totalPlayers) {
     char rdyCommand[ALIAS_LENGTH];
     FindAliasFromCommand("sm_ready", rdyCommand);
-    if (!g_OnDecidedMap) {
-        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
-    } else {
-        if (UsingCaptains()) {
-            for (int i = 1; i <= MaxClients; i++) {
-                if (IsPlayer(i))
-                    GiveCaptainHint(i, readyPlayers, totalPlayers);
+    bool captainsNeeded = (!g_OnDecidedMap && g_MapType == MapType_Veto) ||
+                          (g_OnDecidedMap && g_TeamType == TeamType_Captains);
+
+    if (captainsNeeded) {
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsPlayer(i)) {
+                GiveCaptainHint(i, readyPlayers, totalPlayers);
             }
-        } else {
-            PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
         }
+    } else {
+        PrintHintTextToAll("%t", "ReadyStatus", readyPlayers, totalPlayers, rdyCommand);
     }
 }
 
