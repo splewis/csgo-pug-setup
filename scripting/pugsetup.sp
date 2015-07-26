@@ -830,10 +830,15 @@ public bool FindComandFromAlias(const char[] alias, char command[COMMAND_LENGTH]
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] chatCommand, const char[] chatArgs, int client) {
     if (StrEqual(chatCommand, alias, false)) {
-        // This is so any ReplyToCommand logic goes into the chat area and stripts the sm_
+        // Get the original cmd reply source so it can be restored after the fake client command.
+        // This means and ReplyToCommand will go into the chat area, rather than console, since
+        // *chat* aliases are for *chat* commands.
+        ReplySource replySource = GetCmdReplySource();
+        SetCmdReplySource(SM_REPLY_TO_CHAT);
         char fakeCommand[256];
         Format(fakeCommand, sizeof(fakeCommand), "%s %s", command, chatArgs);
         FakeClientCommand(client, fakeCommand);
+        SetCmdReplySource(replySource);
         return true;
     }
     return false;
