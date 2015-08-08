@@ -1,15 +1,18 @@
-language: c
+sudo: false
 
-install:
-    - sudo apt-get update
-    - sudo apt-get install -y gcc-multilib lynx git lib32stdc++6
-    - git clone https://github.com/splewis/sm-builder
-    - cd sm-builder
-    - sudo pip install -r requirements.txt
-    - sudo python setup.py install
-    - cd ..
+addons:
+    apt_packages:
+        - lib32stdc++6  # needed for spcomp
 
 before_script:
+    # install smbuilder
+    - git clone https://github.com/splewis/sm-builder
+    - cd sm-builder
+    - pip install --user -r requirements.txt
+    - python setup.py install --prefix=~/.local
+    - cd ..
+
+    # install the sourcemod compiler
     - wget http://www.gsptalk.com/mirror/sourcemod/sourcemod-1.7.2-linux.tar.gz
     - tar -xzf sourcemod-1.7.2-linux.tar.gz
     - cd addons/sourcemod/scripting/
@@ -19,3 +22,6 @@ before_script:
 
 script:
     - smbuilder --flags="-E"
+
+notifications:
+    email: false
