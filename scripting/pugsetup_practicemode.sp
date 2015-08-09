@@ -418,18 +418,17 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
     char buffer[64];
     menu.GetItem(param2, buffer, sizeof(buffer));
     if (StrEqual(buffer, "launch_practice")) {
-        g_InPracticeMode = !g_InPracticeMode;
-        if (g_InPracticeMode) {
-            for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
-                ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
-            }
-            StartPracticeMode();
-            GivePracticeMenu(client, ITEMDRAW_DEFAULT);
+        g_InPracticeMode = true;
+        for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
+            ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
         }
+        StartPracticeMode();
+        GivePracticeMenu(client, ITEMDRAW_DEFAULT);
     }
 }
 
 public void StartPracticeMode() {
+    g_InPracticeMode = true;
     ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
     PugSetupMessageToAll("Practice mode is now enabled.");
     Call_StartForward(g_OnPracticeModeEnabled);
