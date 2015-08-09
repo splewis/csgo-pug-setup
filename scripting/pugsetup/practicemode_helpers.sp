@@ -296,3 +296,18 @@ public bool FindGrenadeByName(const char[] auth, const char[] lookupName, char g
     }
     return false;
 }
+
+public int CountGrenadesForPlayer(const char[] auth) {
+    int count = 0;
+    if (g_GrenadeLocationsKv.JumpToKey(auth)) {
+        if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
+            do {
+                count++;
+            } while (g_GrenadeLocationsKv.GotoNextKey());
+
+            g_GrenadeLocationsKv.GoBack();
+        }
+        g_GrenadeLocationsKv.GoBack();
+    }
+    return count;
+}

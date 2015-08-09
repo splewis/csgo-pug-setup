@@ -25,6 +25,11 @@ ArrayList g_BinaryOptionEnabledCvars;
 ArrayList g_BinaryOptionEnabledValues;
 ArrayList g_BinaryOptionCvarRestore;
 
+// Plugin cvars
+ConVar g_AutostartCvar;
+ConVar g_MaxHistorySizeCvar;
+ConVar g_MaxGrenadesSavedCvar;
+
 // Infinite money data
 ConVar g_InfiniteMoneyCvar;
 bool g_InfiniteMoney = false;
@@ -142,7 +147,13 @@ public void OnPluginStart() {
     AddChatAlias(".desc", "sm_adddescription");
     AddChatAlias(".delete", "sm_deletegrenade");
 
-    // New cvars
+    // New Plugin cvars
+    g_AutostartCvar = CreateConVar("sm_pugsetup_practicemode_autostart", "0", "Whether the plugin is automatically started on mapstart");
+    g_MaxHistorySizeCvar = CreateConVar("sm_pugsetup_practicemode_max_grenade_history_size", "1000", "Maximum number of grenades throws saved in history per-client");
+    g_MaxGrenadesSavedCvar = CreateConVar("sm_pugsetup_practicemode_max_grenades_saved", "256", "Maximum number of grenades saved per-map per-client");
+    AutoExecConfig(true, "pugsetup_practicemode", "sourcemod/pugsetup");
+
+    // New cvars we don't want saved in the autoexec'd file
     g_InfiniteMoneyCvar = CreateConVar("sm_infinite_money", "0", "Whether clients recieve infinite money");
     g_InfiniteMoneyCvar.AddChangeHook(OnInfiniteMoneyChanged);
     g_AllowNoclipCvar = CreateConVar("sm_allow_noclip", "0", "Whether players may use .noclip in chat to toggle noclip");
@@ -241,6 +252,10 @@ public void OnMapStart() {
     g_GrenadeLocationsKv = new KeyValues("Grenades");
     g_GrenadeLocationsKv.ImportFromFile(g_GrenadeLocationsFile);
     g_UpdatedGrenadeKv = false;
+
+    if (g_AutostartCvar.IntValue != 0) {
+        StartPracticeMode();
+    }
 }
 
 public void OnClientDisconnect(int client) {
@@ -408,15 +423,17 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
             for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
                 ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
             }
-
-            ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
+            StartPracticeMode();
             GivePracticeMenu(client, ITEMDRAW_DEFAULT);
-            PugSetupMessageToAll("Practice mode is now enabled.");
-
-            Call_StartForward(g_OnPracticeModeEnabled);
-            Call_Finish();
         }
     }
+}
+
+public void StartPracticeMode() {
+    ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
+    PugSetupMessageToAll("Practice mode is now enabled.");
+    Call_StartForward(g_OnPracticeModeEnabled);
+    Call_Finish();
 }
 
 static void ChangeSetting(int index, bool enabled, bool print=true) {
@@ -618,6 +635,11 @@ public Action Event_WeaponFired(Event event, const char[] name, bool dontBroadca
     event.GetString("weapon", weapon, sizeof(weapon));
 
     if (IsGrenadeWeapon(weapon) && IsPlayer(client)) {
+        if (GetArraySize(g_GrenadeHistoryPositions[client]) >= g_MaxHistorySizeCvar.IntValue) {
+            RemoveFromArray(g_GrenadeHistoryPositions[client], 0);
+            RemoveFromArray(g_GrenadeHistoryAngles[client], 0);
+        }
+
         float position[3];
         float angles[3];
         GetClientAbsOrigin(client, position);
@@ -845,6 +867,13 @@ public Action Command_SaveGrenade(int client, int args) {
     char grenadeId[GRENADE_ID_LENGTH];
     if (FindGrenadeByName(auth, name, grenadeId)) {
         PugSetupMessage(client, "You have already used that name.");
+        return Plugin_Handled;
+    }
+
+
+    if (CountGrenadesForPlayer(auth) >= g_MaxGrenadesSavedCvar.IntValue) {
+        PugSetupMessage(client, "You have reached the maximum number of grenades you can save (%d).",
+                        g_MaxGrenadesSavedCvar.IntValue);
         return Plugin_Handled;
     }
 
