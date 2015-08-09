@@ -25,7 +25,7 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_hEnabled = CreateConVar("sm_pugsetup_damageprint_enabled", "1", "Whether the plugin is enabled");
     g_hAllowDmgCommand = CreateConVar("sm_pugsetup_damageprint_allow_dmg_command", "1", "Whether players can type .dmg to see damage done");
-    g_hMessageFormat = CreateConVar("sm_pugsetup_damageprint_format", "--> ({DMG_TO} dmg / {HITS_TO} hits) to ({DMG_FROM} dmg / {HITS_FROM} hits) from {NAME} ({HEALTH} HP)", "Format of the damage output string");
+    g_hMessageFormat = CreateConVar("sm_pugsetup_damageprint_format", "--> ({DMG_TO} dmg / {HITS_TO} hits) to ({DMG_FROM} dmg / {HITS_FROM} hits) from {NAME} ({HEALTH} HP)", "Format of the damage output string. Avaliable tags are in the default, color tags such as {LIGHT_RED} and {GREEN} also work.");
 
     AutoExecConfig(true, "pugsetup_damageprint", "sourcemod/pugsetup");
 
@@ -45,7 +45,7 @@ static void PrintDamageInfo(int client) {
     if (team != CS_TEAM_T && team != CS_TEAM_CT)
         return;
 
-    char messageFormat[256];
+    char message[256];
 
     int otherTeam = (team == CS_TEAM_T) ? CS_TEAM_CT : CS_TEAM_T;
     for (int i = 1; i <= MaxClients; i++) {
@@ -54,15 +54,16 @@ static void PrintDamageInfo(int client) {
             char name[64];
             GetClientName(i, name, sizeof(name));
 
-            g_hMessageFormat.GetString(messageFormat, sizeof(messageFormat));
-            ReplaceStringWithInt(messageFormat, sizeof(messageFormat), "{DMG_TO}", g_DamageDone[client][i], false);
-            ReplaceStringWithInt(messageFormat, sizeof(messageFormat), "{HITS_TO}", g_DamageDoneHits[client][i], false);
-            ReplaceStringWithInt(messageFormat, sizeof(messageFormat), "{DMG_FROM}", g_DamageDone[i][client], false);
-            ReplaceStringWithInt(messageFormat, sizeof(messageFormat), "{HITS_FROM}", g_DamageDoneHits[i][client], false);
-            ReplaceString(messageFormat, sizeof(messageFormat), "{NAME}", name, false);
-            ReplaceStringWithInt(messageFormat, sizeof(messageFormat), "{HEALTH}", health, false);
+            g_hMessageFormat.GetString(message, sizeof(message));
+            ReplaceStringWithInt(message, sizeof(message), "{DMG_TO}", g_DamageDone[client][i], false);
+            ReplaceStringWithInt(message, sizeof(message), "{HITS_TO}", g_DamageDoneHits[client][i], false);
+            ReplaceStringWithInt(message, sizeof(message), "{DMG_FROM}", g_DamageDone[i][client], false);
+            ReplaceStringWithInt(message, sizeof(message), "{HITS_FROM}", g_DamageDoneHits[i][client], false);
+            ReplaceString(message, sizeof(message), "{NAME}", name, false);
+            ReplaceStringWithInt(message, sizeof(message), "{HEALTH}", health, false);
 
-            PrintToChat(client, messageFormat);
+            Colorize(message, sizeof(message));
+            PrintToChat(client, message);
         }
     }
 }
