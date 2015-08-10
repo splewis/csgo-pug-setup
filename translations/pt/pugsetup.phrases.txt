@@ -1,0 +1,339 @@
+"Phrases"
+{
+
+	"ReadyStatusCaptains"
+	{
+		"pt"		"{1} de {2} jogadores deram pronto\nCaptain 1: {3}\nCaptain 2: {4}"
+	}
+
+	"Countdown"
+	{
+		"pt"		"Contagem regressiva: {GREEN}%d {NORMAL}segundos"
+	}
+
+	"Scrambling"
+	{
+		"pt"		"{GREEN}Embaralhando os times!"
+	}
+
+	"InitialPickTitle"
+	{
+		"pt"		"Qual você prefere:"
+	}
+
+	"AutoLO3MenuTitle"
+	{
+		"pt"		"Iniciar automaticamente a partida quando estiver pronto?"
+	}
+
+	"Enabled"
+	{
+		"pt"		"ativado"
+	}
+
+	"TeamSetupRandomShort"
+	{
+		"pt"		"times aleatórios"
+	}
+
+	"ReadyStatus"
+	{
+		"pt"		"{1} de {2} jogadores estão prontos\nDigite .ready para ficar pronto"
+	}
+
+	"SideChoiceSelected"
+	{
+		"pt"		"{1} escolheu {GREEN}{2} {NORMAL}primeiro."
+	}
+
+	"TeamSetupMenuTitle"
+	{
+		"pt"		"Como as equipes serão criadas?"
+	}
+
+	"PlayerPickChoice"
+	{
+		"pt"		"{1} escolheu {2}."
+	}
+
+	"InitialPickSideChoice"
+	{
+		"pt"		"{1} optou por escolher o {GREEN}lado que inicia."
+	}
+
+	"VetoMenuTitle"
+	{
+		"pt"		"Selecione um mapa para vetar"
+	}
+
+	"CaptMessage"
+	{
+		"pt"		"Capitão {1} será {2}"
+	}
+
+	"RestartCounter"
+	{
+		"pt"		"Reiniciar {1}/3"
+	}
+
+	"TeamSetupMenuManual"
+	{
+		"pt"		"Jogadores manualmente trocam de times"
+	}
+
+	"Yes"
+	{
+		"pt"		"Sim"
+	}
+
+	"InitialPickPlayerChoice"
+	{
+		"pt"		"{1} selecionou para {GREEN}escolher o primeiro jogador."
+	}
+
+	"GameType"
+	{
+		"pt"		"Tipo de jogo: {GREEN}{1}"
+	}
+
+	"PlayerPickTitle"
+	{
+		"pt"		"Escolha os seus jogadores"
+	}
+
+	"MapChoiceVoteShort"
+	{
+		"pt"		"vote em um mapa"
+	}
+
+	"TeamType"
+	{
+		"pt"		"Times: ({GREEN}{1} vs {2}) {GREEN}{3}"
+	}
+
+	"HowManyPlayers"
+	{
+		"pt"		"Quantos jogadores por time?"
+	}
+
+	"CaptainNotSelected"
+	{
+		"pt"		"não selecionado"
+	}
+
+	"ContinueMatch"
+	{
+		"pt"		"Não, continue o jogo"
+	}
+
+	"NotLiveYet"
+	{
+		"pt"		"O jogo ainda não começou."
+	}
+
+	"InitialPickPlayer"
+	{
+		"pt"		"Escolha o primeiro jogador"
+	}
+
+	"Live"
+	{
+		"pt"		"O jogos está {GREEN}VALENDO"
+	}
+
+	"MutualUnpauseMessage"
+	{
+		"pt"		"O time do(a) {1} que retomar a partida, esperando o time do(a) {2} digitar {GREEN}!unpause"
+	}
+
+	"SetupBy"
+	{
+		"pt"		"O jogo foi configurado por {GREEN}{1}"
+	}
+
+	"Unpause"
+	{
+		"pt"		"{GREEN}{1} {NORMAL}tirou de pausa."
+	}
+
+	"PlayerVetoed"
+	{
+		"pt"		"{1} {NORMAL}vetou {LIGHT_RED}{2}."
+	}
+
+	"EndMatch"
+	{
+		"pt"		"Sim, acabe com a partida"
+	}
+
+	"ForceEnd"
+	{
+		"pt"		"A partida foi forçada a acabar por {GREEN}{1}{NORMAL}."
+	}
+
+	"MapChoiceMenuTitle"
+	{
+		"pt"		"Como deve ser o mapa ser escolhido?"
+	}
+
+	"AlreadyLive"
+	{
+		"pt"		"A partida já começou!"
+	}
+
+	"CancelCountdownMessage"
+	{
+		"pt"		"A partida foi cancelada."
+	}
+
+	"MapType"
+	{
+		"pt"		"Mapa: {GREEN}{1}"
+	}
+
+	"MapChoiceVote"
+	{
+		"pt"		"Vote para um mapa"
+	}
+
+	"InitialPickSides"
+	{
+		"pt"		"Escolha os lados a partir"
+	}
+
+	"SpecCantReady"
+	{
+		"pt"		"Você não pode dar pronto, você está de espectador."
+	}
+
+	"NoPermission"
+	{
+		"pt"		"Você não tem permissão para fazer isso."
+	}
+
+	"GameTypeTitle"
+	{
+		"pt"		"Que tipo de jogo deve ser usado?"
+	}
+
+	"ReadyToStart"
+	{
+		"pt"		"Todos estão pronto! Esperando por {GREEN}{1} {NORMAL}digitar {PINK}!start{NORMAL}."
+	}
+
+	"NewLeader"
+	{
+		"pt"		"O novo líder é {GREEN}{1}"
+	}
+
+	"NotUsingCaptains"
+	{
+		"pt"		"Este jogo não está usando os capitães dos times."
+	}
+
+	"MapChoiceCurrent"
+	{
+		"pt"		"Use o mapa atual"
+	}
+
+	"MapChoiceVetoShort"
+	{
+		"pt"		"capitães vetam mapas"
+	}
+
+	"SideChoiceTitle"
+	{
+		"pt"		"De que lado você quer primeiro:"
+	}
+
+	"MapsLeft"
+	{
+		"pt"		"Mapas faltando:"
+	}
+
+	"MapChoiceVeto"
+	{
+		"pt"		"Capitães vetam mapas até restar 1"
+	}
+
+	"VoteMenuTitle"
+	{
+		"pt"		"Vote para um mapa"
+	}
+
+	"Disabled"
+	{
+		"pt"		"desabilitado"
+	}
+
+	"VoteMessage"
+	{
+		"pt"		"A votação do mapa começará em poucos segundos."
+	}
+
+	"EndMatchMenuTitle"
+	{
+		"pt"		"Tem certeza de que quer terminar a partida?"
+	}
+
+	"TeamSetupMenuCaptains"
+	{
+		"pt"		"Capitães escolhem sua equipe"
+	}
+
+	"TeamSetupMenuTitle"
+	{
+		"pt"		"Como as equipes serão criados?"
+	}
+
+	"MapChoiceCurrentShort"
+	{
+		"pt"		"usar o mapa atual"
+	}
+
+	"Random"
+	{
+		"pt"		"Randômico "
+	}
+
+	"TeamSetupMenuRandom"
+	{
+		"pt"		"Times randômicos "
+	}
+
+	"TeamSetupCaptainsShort"
+	{
+		"pt"		"capitães escolhem jogadores"
+	}
+
+	"Pause"
+	{
+		"pt"		"{GREEN}{1} {NORMAL}pediu por uma pausa."
+	}
+
+	"LO3Setting"
+	{
+		"pt"		"Auto inicio-em-3: {GREEN}{1}"
+	}
+
+	"VetoMessage"
+	{
+		"pt"		"O processo de vetar mapa vai começar em poucos segundos."
+	}
+
+	"TeamSetupManualShort"
+	{
+		"pt"		"troca manual"
+	}
+
+	"No"
+	{
+		"pt"		"Não"
+	}
+
+	"PlayerPickTitle"
+	{
+		"pt"		"Escolha os seus jogadores:"
+	}
+
+}
