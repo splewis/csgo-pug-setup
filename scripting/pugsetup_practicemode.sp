@@ -423,7 +423,7 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
             ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
         }
         StartPracticeMode();
-        GivePracticeMenu(client, ITEMDRAW_DEFAULT);
+        GivePracticeMenu(client);
     }
 }
 
@@ -480,7 +480,7 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
     Call_Finish();
 }
 
-static void GivePracticeMenu(int client, int style, int pos=-1) {
+static void GivePracticeMenu(int client, int style=ITEMDRAW_DEFAULT, int pos=-1) {
     Menu menu = new Menu(PracticeMenuHandler);
     SetMenuTitle(menu, "Practice Settings");
     SetMenuExitButton(menu, true);
