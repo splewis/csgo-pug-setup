@@ -9,7 +9,6 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-
 /** Client cookie handles **/
 Handle g_teamNameCookie = INVALID_HANDLE;
 Handle g_teamFlagCookie = INVALID_HANDLE;
@@ -106,9 +105,9 @@ public Action Command_Name(int client, int args) {
                     SetClientCookie(target, g_teamFlagCookie, flag);
             }
             SetClientCookie(target, g_teamFlagCookie, flag);
+            ReplyToCommand(client, "Set team data for %L: name = %s, flag = %s", target, arg2, flag);
         }
 
-        ReplyToCommand(client, "Set team data for %L: name = %s, flag = %s", target, arg2, flag);
 
     } else {
         ReplyToCommand(client, "Usage: sm_name <player> <team name> [team flag code]");
