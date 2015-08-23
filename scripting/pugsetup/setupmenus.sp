@@ -308,6 +308,7 @@ public void SetupFinished() {
 
     UpdateMapStatus();
 
+    ServerCommand("exec sourcemod/pugsetup/on_setup.cfg");
     Call_StartForward(g_hOnSetup);
     Call_Finish();
 
