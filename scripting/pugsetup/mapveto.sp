@@ -89,7 +89,7 @@ static void VetoStatusDisplay(int client) {
     SetMenuTitle(menu, "%T", "MapsLeft", client);
     for (int i = 0; i < mapList.Length; i++) {
         if (!g_MapVetoed.Get(i)) {
-            AddMapIndexToMenu(menu ,mapList, i, true);
+            AddMapIndexToMenu(menu, mapList, i, true);
         }
     }
     DisplayMenu(menu, client, 30);

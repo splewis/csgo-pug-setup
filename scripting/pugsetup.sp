@@ -436,14 +436,16 @@ public Action Timer_CheckReady(Handle timer) {
         if (g_OnDecidedMap) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
-                    CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
                     g_LiveTimerRunning = false;
+                    ClearAllHintTexts();
+                    CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
                     return Plugin_Stop;
                 } else {
                     StatusHint(readyPlayers, totalPlayers);
                 }
             } else {
                 g_LiveTimerRunning = false;
+                ClearAllHintTexts();
                 ReadyToStart();
                 return Plugin_Stop;
             }
@@ -451,6 +453,8 @@ public Action Timer_CheckReady(Handle timer) {
         } else {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
+                    g_LiveTimerRunning = false;
+                    ClearAllHintTexts();
                     PugSetupMessageToAll("%t", "VetoMessage");
                     CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     return Plugin_Stop;
@@ -459,9 +463,10 @@ public Action Timer_CheckReady(Handle timer) {
                 }
 
             } else {
+                g_LiveTimerRunning = false;
+                ClearAllHintTexts();
                 PugSetupMessageToAll("%t", "VoteMessage");
                 CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
-                g_LiveTimerRunning = false;
                 return Plugin_Stop;
             }
         }
@@ -1329,7 +1334,7 @@ public Action Event_CvarChanged(Event event, const char[] name, bool dontBroadca
         char cvarName[128];
         event.GetString("cvarname", cvarName, sizeof(cvarName));
         if (!StrEqual(cvarName, "sv_cheats")) {
-            SetEventBroadcast(event, true);
+            event.BroadcastDisabled = true;
         }
     }
 
@@ -1659,8 +1664,7 @@ public Action MapSetup(Handle timer) {
 }
 
 public Action StartPicking(Handle timer) {
-    g_GameState = GameState_PickingPlayers;
-
+    ChangeState(GameState_PickingPlayers);
     Pause();
     RestartGame(1);
 
