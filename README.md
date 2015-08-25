@@ -70,7 +70,7 @@ For quick help, also check the [FAQ](https://github.com/splewis/csgo-pug-setup/w
 
 After installing the plugin, start the server and check ``cfg/sourcemod/pugsetup``. There will be a file called ``pugsetup.cfg`` that you can edit to change the cvars the plugin uses. I recommend skimming this file at least to see if there's anything you want to change.
 
-You can also modify the behavior of the setup menu: each option has a default value and a display setting. The display setting controls whether the option is displayed at all - if the display for an option is turned off the default is used. You can edit [addons/sourcemod/configs/pugsetup/setupoptions.cfg](addons/sourcemod/configs/pugsetup/setupoptions.cfg) to do this.
+You can also modify the behavior of the setup menu: each option has a default value and a display setting. The display setting controls whether the option is displayed at all - if the display for an option is turned off the default is used. You can edit [addons/sourcemod/configs/pugsetup/setupoptions.cfg](configs/pugsetup/setupoptions.cfg) to do this.
 
 Alternatively, you can edit these options ingame. For example, to turn demo recording to be always on and remove it from the setup menu, you can type:
 ```
