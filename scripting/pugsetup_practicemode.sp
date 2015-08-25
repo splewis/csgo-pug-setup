@@ -255,7 +255,7 @@ public void OnMapStart() {
 }
 
 public void OnConfigsExecuted() {
-    if (g_AutostartCvar.IntValue != 0) {
+    if (g_AutostartCvar.IntValue != 0 && GetGameState() == GameState_None) {
         StartPracticeMode();
     }
 }
