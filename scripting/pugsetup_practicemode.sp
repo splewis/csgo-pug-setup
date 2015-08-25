@@ -252,7 +252,9 @@ public void OnMapStart() {
     g_GrenadeLocationsKv = new KeyValues("Grenades");
     g_GrenadeLocationsKv.ImportFromFile(g_GrenadeLocationsFile);
     g_UpdatedGrenadeKv = false;
+}
 
+public void OnConfigsExecuted() {
     if (g_AutostartCvar.IntValue != 0) {
         StartPracticeMode();
     }
@@ -418,10 +420,6 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
     char buffer[64];
     menu.GetItem(param2, buffer, sizeof(buffer));
     if (StrEqual(buffer, "launch_practice")) {
-        g_InPracticeMode = true;
-        for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
-            ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
-        }
         StartPracticeMode();
         GivePracticeMenu(client);
     }
@@ -429,6 +427,10 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
 
 public void StartPracticeMode() {
     g_InPracticeMode = true;
+    for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
+        ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
+    }
+
     ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
     PugSetupMessageToAll("Practice mode is now enabled.");
     Call_StartForward(g_OnPracticeModeEnabled);
