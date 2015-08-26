@@ -1672,6 +1672,8 @@ public Action StartPicking(Handle timer) {
         if (IsPlayer(i)) {
             g_Teams[i] = CS_TEAM_SPECTATOR;
             SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
+        } else  {
+            g_Teams[i] = CS_TEAM_NONE;
         }
     }
 
