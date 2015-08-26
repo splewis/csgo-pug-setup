@@ -83,7 +83,7 @@ public int SideMenuHandler(Menu menu, MenuAction action, int param1, int param2)
         SwitchPlayerTeam(otherCaptain, otherTeam);
 
         g_PickCounter = 0;
-        RestartGame(1);
+        ServerCommand("mp_restartgame 1");
         CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(otherCaptain));
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -167,9 +167,8 @@ static void MoreMenuPicks(int client) {
 static bool IsPickingFinished() {
     int numSelected = 0;
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && g_PlayerAtStart[i] && IsPlayerPicked(i)) {
+        if (IsPlayerPicked(i))
             numSelected++;
-        }
     }
 
     return numSelected >= 2 * g_PlayersPerTeam;
