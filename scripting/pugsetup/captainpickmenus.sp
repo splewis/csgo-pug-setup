@@ -1,11 +1,6 @@
 // Counter for tracking whose turn it is to pick based on the # of players picked.
 // Tracking the "number of picks left" for the current captain.
-// This is used for snaking player selection instead of alternating it.
 int g_PickCounter = 0;
-
-// Number of player selections still needed to be made.
-// This is set before any picking menus are presented.
-int g_NumPicksLeft = 0;
 
 public Action Timer_InitialChoiceMenu(Handle timer) {
     int client = g_capt1;
@@ -49,7 +44,7 @@ public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int pa
             LogError("[InitialChoiceHandler] unknown intial choice=%s", choice);
         }
     } else if (action == MenuAction_End) {
-        delete menu;
+        CloseHandle(menu);
     }
 }
 
@@ -91,7 +86,7 @@ public int SideMenuHandler(Menu menu, MenuAction action, int param1, int param2)
         RestartGame(1);
         CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(otherCaptain));
     } else if (action == MenuAction_End) {
-        delete menu;
+        CloseHandle(menu);
     }
 }
 
@@ -103,29 +98,34 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
         return Plugin_Handled;
 
     int client = GetClientFromSerial(serial);
-    if (IsValidClient(client)) {
-        LogDebug("Gave player selection menu to %L", client);
-
-        Menu menu = new Menu(PlayerMenuHandler);
-        SetMenuTitle(menu, "%T", "PlayerPickTitle", client);
-        SetMenuExitButton(menu, false);
-        if (AddPlayersToMenu(menu) > 0) {
-            DisplayMenu(menu, client, MENU_TIME_FOREVER);
-        } else {
-            PugSetupMessageToAll("Not enough players for picking, aborting the game.");
-            EndMatch(false);
-            delete menu;
-        }
+    if (IsPickingFinished()) {
+        CreateTimer(1.0, FinishPicking);
     } else {
-        PugSetupMessageToAll("A captain is missing, aborting the game.");
-        EndMatch(false);
+        if (IsValidClient(client)) {
+            Menu menu = new Menu(PlayerMenuHandler);
+            SetMenuTitle(menu, "%T", "PlayerPickTitle", client);
+            SetMenuExitButton(menu, false);
+            if (AddPlayersToMenu(menu) > 0) {
+                DisplayMenu(menu, client, MENU_TIME_FOREVER);
+            } else {
+                CloseHandle(menu);
+                PugSetupMessageToAll("Not enough players for picking, aborting the game.");
+                EndMatch(false);
+            }
+        } else {
+            PugSetupMessageToAll("A captain is missing, aborting the game.");
+            EndMatch(false);
+        }
     }
 
     return Plugin_Handled;
 }
 
 public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
-    if (action == MenuAction_Select && g_GameState != GameState_PickingPlayers) {
+    if (g_GameState != GameState_PickingPlayers)
+        return;
+
+    if (action == MenuAction_Select) {
         int client = param1;
         int selected = GetClientFromSerial(GetMenuInt(menu, param2));
 
@@ -138,28 +138,46 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
             FormatPlayerName(client, client, captName);
             FormatPlayerName(client, selected, selectedName);
             PugSetupMessageToAll("%t", "PlayerPickChoice", captName, selectedName);
-            g_NumPicksLeft--;
 
             if (!IsPickingFinished()) {
                 MoreMenuPicks(GetNextCaptain(client));
             } else {
-                CreateTimer(3.0, FinishPicking);
+                CreateTimer(1.0, FinishPicking);
             }
         } else {
             MoreMenuPicks(client);
         }
 
     } else if (action == MenuAction_End) {
-        delete menu;
+        CloseHandle(menu);
     }
 }
 
 static void MoreMenuPicks(int client) {
     if (IsPickingFinished() || !IsValidClient(client) || !IsClientInGame(client)) {
-        CreateTimer(3.0, FinishPicking);
+        CreateTimer(5.0, FinishPicking);
         return;
     }
     CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(client));
+}
+
+/**
+ * Helper functions for the player menus.
+ */
+static bool IsPickingFinished() {
+    int numSelected = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && g_PlayerAtStart[i] && IsPlayerPicked(i)) {
+            numSelected++;
+        }
+    }
+
+    return numSelected >= 2 * g_PlayersPerTeam;
+}
+
+static bool IsPlayerPicked(int client) {
+    int team = g_Teams[client];
+    return team == CS_TEAM_T || team == CS_TEAM_CT;
 }
 
 static int GetNextCaptain(int captain) {
@@ -187,7 +205,7 @@ static int AddPlayersToMenu(Menu menu) {
     char displayString[128];
     int count = 0;
     for (int client = 1; client <= MaxClients; client++) {
-        if (IsPlayer(client) && g_Teams[client] == CS_TEAM_SPECTATOR && g_Ready[client]) {
+        if (IsValidClient(client) && !IsFakeClient(client) && g_Teams[client] == CS_TEAM_SPECTATOR && g_Ready[client]) {
             GetClientName(client, displayString, sizeof(displayString));
 
             Call_StartForward(g_hOnPlayerAddedToCaptainMenu);
@@ -210,8 +228,4 @@ public void FormatPlayerName(int capt, int client, char buffer[64]) {
     } else {
         Format(buffer, sizeof(buffer), "{LIGHT_GREEN}%N{NORMAL}", client);
     }
-}
-
-public bool IsPickingFinished() {
-    return g_NumPicksLeft <= 0;
 }

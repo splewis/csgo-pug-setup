@@ -1672,8 +1672,6 @@ public Action StartPicking(Handle timer) {
         if (IsPlayer(i)) {
             g_Teams[i] = CS_TEAM_SPECTATOR;
             SwitchPlayerTeam(i, CS_TEAM_SPECTATOR);
-        } else {
-            g_Teams[i] = CS_TEAM_NONE;
         }
     }
 
@@ -1683,8 +1681,6 @@ public Action StartPicking(Handle timer) {
 
     SwitchPlayerTeam(g_capt1, CS_TEAM_T);
     g_Teams[g_capt1] = CS_TEAM_T;
-
-    g_NumPicksLeft = 2 * g_PlayersPerTeam - 2;
 
     CreateTimer(2.0, Timer_InitialChoiceMenu);
     return Plugin_Handled;
