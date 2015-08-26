@@ -133,6 +133,11 @@ int g_Teams[MAXPLAYERS+1];
 bool g_Ready[MAXPLAYERS+1];
 bool g_PlayerAtStart[MAXPLAYERS+1];
 
+/** Clan tag data **/
+#define CLANTAG_LENGTH 16
+bool g_SavedClanTag[MAXPLAYERS+1];
+char g_ClanTag[MAXPLAYERS+1][CLANTAG_LENGTH];
+
 /** Knife round data **/
 int g_KnifeWinner = -1;
 
@@ -342,6 +347,7 @@ public void OnLibraryAdded(const char[] name) {
 
 public bool OnClientConnect(int client, char[] rejectmsg, int maxlen) {
     g_Ready[client] = false;
+    g_SavedClanTag[client] = false;
     CheckAutoSetup();
     return true;
 }
@@ -1774,9 +1780,14 @@ public void ExecFromFile(const char[] path) {
 stock void UpdateClanTag(int client, bool strip=false) {
     if (IsPlayer(client)) {
 
+        if (!g_SavedClanTag[client]) {
+            CS_GetClientClanTag(client, g_ClanTag[client], CLANTAG_LENGTH);
+            g_SavedClanTag[client] = true;
+        }
+
         // don't bother with crazy things when the plugin isn't active
         if (g_GameState == GameState_Live || g_GameState == GameState_None || strip) {
-            CS_SetClientClanTag(client, "");
+            RestoreClanTag(client);
             return;
         }
 
@@ -1790,8 +1801,17 @@ stock void UpdateClanTag(int client, bool strip=false) {
             }
             CS_SetClientClanTag(client, tag);
         } else {
-            CS_SetClientClanTag(client, "");
+            RestoreClanTag(client);
         }
+    }
+}
+
+// Restores the clan tag to a client's original setting, or the empty string if it was never saved.
+public void RestoreClanTag(int client) {
+    if (g_SavedClanTag[client]) {
+        CS_SetClientClanTag(client, g_ClanTag[client]);
+    } else {
+        CS_SetClientClanTag(client, "");
     }
 }
 
