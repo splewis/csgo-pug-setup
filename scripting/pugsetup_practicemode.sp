@@ -535,7 +535,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
         }
 
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 
     return 0;
@@ -789,7 +789,7 @@ public int GrenadeHandler_PlayerSelection(Menu menu, MenuAction action, int para
         SplitOnSpace(buffer, ownerAuth, sizeof(ownerAuth), ownerName, sizeof(ownerName));
         GiveGrenadesForPlayer(client, ownerName, ownerAuth);
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 
@@ -845,7 +845,7 @@ public int GrenadeHandler_GrenadeSelection(Menu menu, MenuAction action, int par
         SplitOnSpace(buffer, auth, sizeof(auth), idStr, sizeof(idStr));
         TeleportToSavedGrenadePosition(client, auth, idStr);
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 

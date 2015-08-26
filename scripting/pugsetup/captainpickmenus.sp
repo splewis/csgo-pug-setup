@@ -44,7 +44,7 @@ public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int pa
             LogError("[InitialChoiceHandler] unknown intial choice=%s", choice);
         }
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 
@@ -86,7 +86,7 @@ public int SideMenuHandler(Menu menu, MenuAction action, int param1, int param2)
         ServerCommand("mp_restartgame 1");
         CreateTimer(1.0, GivePlayerSelectionMenu, GetClientSerial(otherCaptain));
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 
@@ -108,9 +108,9 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
             if (AddPlayersToMenu(menu) > 0) {
                 DisplayMenu(menu, client, MENU_TIME_FOREVER);
             } else {
-                CloseHandle(menu);
                 PugSetupMessageToAll("Not enough players for picking, aborting the game.");
                 EndMatch(false);
+                delete menu;
             }
         } else {
             PugSetupMessageToAll("A captain is missing, aborting the game.");
@@ -148,8 +148,12 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
             MoreMenuPicks(client);
         }
 
+    } else if (action == MenuAction_Cancel) {
+        PugSetupMessageToAll("Failed to get captain pick. Aborting the game.");
+        EndMatch(false);
+
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 

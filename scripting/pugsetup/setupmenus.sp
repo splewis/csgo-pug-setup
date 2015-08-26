@@ -3,8 +3,8 @@
  */
  public void SetupMenu(int client, bool displayOnly, int menuPosition) {
         Menu menu = new Menu(SetupMenuHandler);
-        SetMenuTitle(menu, "%T", "SetupMenuTitle", client);
-        SetMenuExitButton(menu, true);
+        menu.SetTitle("%T", "SetupMenuTitle", client);
+        menu.ExitButton = true;
 
         int style = ITEMDRAW_DEFAULT;
         if ((g_ForceDefaultsCvar.IntValue != 0 && !IsPugAdmin(client)) || displayOnly) {
@@ -122,7 +122,7 @@
             }
 
         } else {
-            CloseHandle(menu);
+            delete menu;
         }
 }
 
@@ -185,59 +185,59 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         Call_Finish();
 
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 
 public void TeamTypeMenu(int client) {
     Menu menu = new Menu(TeamTypeMenuHandler);
-    SetMenuTitle(menu, "%T", "TeamSetupMenuTitle", client);
-    SetMenuExitButton(menu, false);
+    menu.SetTitle("%T", "TeamSetupMenuTitle", client);
+    menu.ExitButton = false;
+    menu.ExitBackButton = true;
     AddMenuInt(menu, view_as<int>(TeamType_Captains), "%T", "TeamSetupMenuCaptains", client);
     AddMenuInt(menu, view_as<int>(TeamType_Random), "%T", "TeamSetupMenuRandom", client);
     AddMenuInt(menu, view_as<int>(TeamType_Manual), "%T", "TeamSetupMenuManual", client);
     if (IsTeamBalancerAvaliable())
         AddMenuInt(menu, view_as<int>(TeamType_Autobalanced), "%T", "Autobalanced", client);
 
-    AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        int choice = GetMenuInt(menu, param2);
-        if (choice != -1) {
-            g_TeamType = view_as<TeamType>(GetMenuInt(menu, param2));
-        }
+        g_TeamType = view_as<TeamType>(GetMenuInt(menu, param2));
+        GiveSetupMenu(client);
+    }  else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        int client = param1;
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 
 public void TeamSizeMenu(int client) {
     Menu menu = new Menu(TeamSizeHandler);
-    SetMenuTitle(menu, "%T", "HowManyPlayers", client);
-    SetMenuExitButton(menu, false);
+    menu.SetTitle("%T", "HowManyPlayers", client);
+    menu.ExitButton = false;
+    menu.ExitBackButton = true;
 
     for (int i = 1; i <= g_MaxTeamSizeCvar.IntValue; i++)
         AddMenuInt(menu, i, "");
 
-    AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        int choice = GetMenuInt(menu, param2);
-        if (choice > 0) {
-            g_PlayersPerTeam = choice;
-        }
+        g_PlayersPerTeam = GetMenuInt(menu, param2);
+        GiveSetupMenu(client);
+    } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        int client = param1;
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 
@@ -246,26 +246,26 @@ public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2)
  */
 public void MapTypeMenu(int client) {
     Menu menu = new Menu(MapTypeHandler);
-    SetMenuTitle(menu, "%T", "MapChoiceMenuTitle", client);
-    SetMenuExitButton(menu, false);
+    menu.SetTitle("%T", "MapChoiceMenuTitle", client);
+    menu.ExitButton = false;
+    menu.ExitBackButton = true;
     AddMenuInt(menu, view_as<int>(MapType_Current), "%T", "MapChoiceCurrent", client);
     AddMenuInt(menu, view_as<int>(MapType_Vote), "%T", "MapChoiceVote", client);
     AddMenuInt(menu, view_as<int>(MapType_Veto), "%T", "MapChoiceVeto", client);
-    AddMenuInt(menu, -1, "%T", "Back", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        int choice = GetMenuInt(menu, param2);
-        if (choice != -1) {
-            g_MapType = view_as<MapType>(choice);
-            UpdateMapStatus();
-        }
+        g_MapType = view_as<MapType>(GetMenuInt(menu, param2));
+        UpdateMapStatus();
+        GiveSetupMenu(client);
+    } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        int client = param1;
         GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
 
@@ -373,6 +373,6 @@ public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2
         int choice = GetMenuInt(menu, param2);
         ChangeMap(g_MapList, choice);
     } else if (action == MenuAction_End) {
-        CloseHandle(menu);
+        delete menu;
     }
 }
