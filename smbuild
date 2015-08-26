@@ -1,8 +1,23 @@
-GlobPlugins('scripting/*.sp')
+Plugin(source='scripting/pugsetup.sp')
+
+addon_plugins = [
+    'pugsetup_autokicker',
+    'pugsetup_chatmoney',
+    'pugsetup_damageprint',
+    'pugsetup_hostname',
+    'pugsetup_practicemode',
+    'pugsetup_rwsbalancer',
+    'pugsetup_teamlocker',
+    'pugsetup_teamnames',
+]
+pugsetup_plugins = ['pugsetup'] + addon_plugins
+
+for p in addon_plugins:
+    Plugin(source='scripting/' + p + '.sp')
 
 Package(name='pugsetup',
-        plugins=Plugins('pugsetup*'),
-        disabled_plugins=Plugins('pugsetup_*'),
+        plugins=pugsetup_plugins,
+        disabled_plugins=addon_plugins,
         filegroups={
             '.': ['LICENSE' , 'CHANGELOG.md', 'README.md'],
         },
