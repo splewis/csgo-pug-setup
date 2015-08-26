@@ -76,6 +76,8 @@ enum ClientColor {
     ClientColor_Orange = 4,
 };
 
+int g_LastNoclipCommand[MAXPLAYERS+1];
+
 // Forwards
 Handle g_OnGrenadeSaved = INVALID_HANDLE;
 Handle g_OnPracticeModeDisabled = INVALID_HANDLE;
@@ -99,6 +101,7 @@ public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
     g_InPracticeMode = false;
     AddCommandListener(Command_TeamJoin, "jointeam");
+    AddCommandListener(Command_Noclip, "noclip");
 
     // Forwards
     g_OnGrenadeSaved = CreateGlobalForward("OnGrenadeSaved", ET_Event, Param_Cell, Param_Array, Param_Array, Param_String);
@@ -299,12 +302,32 @@ public Action Command_TeamJoin(int client, const char[] command, int argc) {
     return Plugin_Continue;
 }
 
+public Action Command_Noclip(int client, const char[] command, int argc) {
+    PerformNoclipAction(client);
+    return Plugin_Handled;
+}
+
 public Action OnClientSayCommand(int client, const char[] command, const char[] text) {
     if (g_AllowNoclip && StrEqual(text, ".noclip") && IsPlayer(client)) {
-        MoveType t = GetEntityMoveType(client);
-        MoveType next = (t == MOVETYPE_WALK) ? MOVETYPE_NOCLIP : MOVETYPE_WALK;
-        SetEntityMoveType(client, next);
+        PerformNoclipAction(client);
     }
+}
+
+public void PerformNoclipAction(int client) {
+    // The move type is also set on the next frame. This is a dirty trick to deal
+    // with clients that have a double-bind of "noclip; say .noclip" to work on both
+    // ESEA-practice and local sv_cheats servers. Since this plugin can have both enabled
+    // (sv_cheats and allow noclip), this double bind would cause the noclip type to be toggled twice.
+    // Therefore the fix is to only perform 1 noclip action per-frame per-client at most, implemented
+    // by saving the frame count of each use in g_LastNoclipCommand.
+    if (g_LastNoclipCommand[client] == GetGameTickCount() || (!g_AllowNoclip && GetCvarIntSafe("sv_cheats") == 0)) {
+        return;
+    }
+
+    g_LastNoclipCommand[client] = GetGameTickCount();
+    MoveType t = GetEntityMoveType(client);
+    MoveType next = (t == MOVETYPE_WALK) ? MOVETYPE_NOCLIP : MOVETYPE_WALK;
+    SetEntityMoveType(client, next);
 }
 
 public void ReadPracticeSettings() {
