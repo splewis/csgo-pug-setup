@@ -234,6 +234,14 @@ public int AttemptFindTarget(const char[] target) {
     }
 }
 
+public bool FindTargetNameByAuth(const char[] inputAuth, char[] name, int nameLen) {
+    if (g_GrenadeLocationsKv.JumpToKey(inputAuth, false)) {
+        g_GrenadeLocationsKv.GetString("name", name, nameLen);
+        g_GrenadeLocationsKv.GoBack();
+    }
+    return false;
+}
+
 public bool FindTargetInGrenadesKvByName(const char[] inputName, char[] name, int nameLen, char[] auth, int authLen) {
     if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
         do {

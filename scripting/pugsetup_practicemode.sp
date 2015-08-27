@@ -635,9 +635,9 @@ public int OnEntitySpawned(int entity) {
 
     if (IsValidEntity(entity)) {
         for (int i = 1; i <= MaxClients; i++) {
-
-            if (!IsClientConnected(i) || !IsClientInGame(i))
+            if (!IsClientConnected(i) || !IsClientInGame(i)) {
                 continue;
+            }
 
             // Note: the technique using temporary entities is taken from InternetBully's NadeTails plugin
             // which you can find at https://forums.alliedmods.net/showthread.php?t=240668
@@ -743,25 +743,11 @@ public Action Command_GotoNade(int client, int args) {
     return Plugin_Handled;
 }
 
-public Action Command_Grenades(int client, int args) {
-    if (!g_InPracticeMode) {
-        return Plugin_Handled;
-    }
-
-    char arg[MAX_NAME_LENGTH];
-    char auth[AUTH_LENGTH];
-    char name[MAX_NAME_LENGTH];
-
-    if (args >= 1 && GetCmdArg(1, arg, sizeof(arg))) {
-        if (FindGrenadeTarget(arg, name, sizeof(name), auth, sizeof(auth))) {
-            GiveGrenadesForPlayer(client, name, auth);
-            return Plugin_Handled;
-        }
-    }
-
+public void GiveGrenadesMenu(int client) {
     int count = 0;
     Menu menu = new Menu(GrenadeHandler_PlayerSelection);
     menu.SetTitle("Select a player:");
+    menu.ExitButton = true;
 
     if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
         do {
@@ -773,8 +759,11 @@ public Action Command_Grenades(int client, int args) {
                 g_GrenadeLocationsKv.GoBack();
             }
 
+            char auth[AUTH_LENGTH];
+            char name[MAX_NAME_LENGTH];
             g_GrenadeLocationsKv.GetSectionName(auth, sizeof(auth));
             g_GrenadeLocationsKv.GetString("name", name, sizeof(name));
+
             char info[256];
             Format(info, sizeof(info), "%s %s", auth, name);
 
@@ -796,6 +785,25 @@ public Action Command_Grenades(int client, int args) {
     } else {
         menu.Display(client, MENU_TIME_FOREVER);
     }
+}
+
+public Action Command_Grenades(int client, int args) {
+    if (!g_InPracticeMode) {
+        return Plugin_Handled;
+    }
+
+    char arg[MAX_NAME_LENGTH];
+    char auth[AUTH_LENGTH];
+    char name[MAX_NAME_LENGTH];
+
+    if (args >= 1 && GetCmdArg(1, arg, sizeof(arg))) {
+        if (FindGrenadeTarget(arg, name, sizeof(name), auth, sizeof(auth))) {
+            GiveGrenadesForPlayer(client, name, auth);
+            return Plugin_Handled;
+        }
+    } else {
+        GiveGrenadesMenu(client);
+    }
 
     return Plugin_Handled;
 }
@@ -816,7 +824,7 @@ public int GrenadeHandler_PlayerSelection(Menu menu, MenuAction action, int para
     }
 }
 
-public void GiveGrenadesForPlayer(int client, const char[] ownerName, const char[] ownerAuth) {
+stock void GiveGrenadesForPlayer(int client, const char[] ownerName, const char[] ownerAuth, int menuPosition=0) {
     float origin[3];
     float angles[3];
     char description[GRENADE_DESCRIPTION_LENGTH];
@@ -825,6 +833,8 @@ public void GiveGrenadesForPlayer(int client, const char[] ownerName, const char
     int userCount = 0;
     Menu menu = new Menu(GrenadeHandler_GrenadeSelection);
     menu.SetTitle("Grenades for %s", ownerName);
+    menu.ExitButton = true;
+    menu.ExitBackButton = true;
 
     if (g_GrenadeLocationsKv.JumpToKey(ownerAuth)) {
         if (g_GrenadeLocationsKv.GotoFirstSubKey()) {
@@ -853,7 +863,7 @@ public void GiveGrenadesForPlayer(int client, const char[] ownerName, const char
         PugSetupMessage(client, "No grenades found.");
         delete menu;
     } else {
-        menu.Display(client, MENU_TIME_FOREVER);
+        menu.DisplayAt(client, menuPosition, MENU_TIME_FOREVER);
     }
 }
 
@@ -867,6 +877,11 @@ public int GrenadeHandler_GrenadeSelection(Menu menu, MenuAction action, int par
         // split buffer from form "<auth> <id>" (seperated by a space)
         SplitOnSpace(buffer, auth, sizeof(auth), idStr, sizeof(idStr));
         TeleportToSavedGrenadePosition(client, auth, idStr);
+
+    } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        int client = param1;
+        GiveGrenadesMenu(client);
+
     } else if (action == MenuAction_End) {
         delete menu;
     }
