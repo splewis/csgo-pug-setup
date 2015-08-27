@@ -358,7 +358,8 @@ public void ChangeMapMenu(int client) {
     ArrayList mapList = GetCurrentMapList();
 
     Menu menu = new Menu(ChangeMapHandler);
-    menu.ExitButton = true;
+    menu.ExitButton = false;
+    menu.ExitBackButton = true;
     menu.SetTitle("%T", "ChangeMapMenuTitle", client);
 
     for (int i = 0; i < mapList.Length; i++) {
@@ -372,6 +373,9 @@ public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2
     if (action == MenuAction_Select) {
         int choice = GetMenuInt(menu, param2);
         ChangeMap(g_MapList, choice);
+    } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        int client = param1;
+        GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         delete menu;
     }
