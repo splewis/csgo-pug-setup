@@ -784,6 +784,7 @@ public void LoadExtraAliases() {
     // Any extra chat aliases we want
     AddChatAlias(".captain", "sm_capt");
     AddChatAlias(".captains", "sm_capt");
+    AddChatAlias(".setcaptains", "sm_capt");
     AddChatAlias(".endmatch", "sm_endgame");
     AddChatAlias(".cancel", "sm_endgame");
     AddChatAlias(".gaben", "sm_ready");
