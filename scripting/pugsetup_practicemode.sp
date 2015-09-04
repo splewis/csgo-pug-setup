@@ -127,6 +127,9 @@ public void OnPluginStart() {
         g_GrenadeHistoryAngles[i] = new ArrayList(3);
     }
 
+    RegAdminCmd("sm_launchpractice", Command_LaunchPracticeMode, ADMFLAG_CHANGEMAP, "Launches practice mode");
+    RegAdminCmd("sm_exitpractice", Command_ExitPracticeMode, ADMFLAG_CHANGEMAP, "Exits practice mode");
+
     // Grenade history commands
     RegConsoleCmd("sm_grenadeback", Command_GrenadeBack);
     RegConsoleCmd("sm_grenadeforward", Command_GrenadeForward);
@@ -259,7 +262,7 @@ public void OnMapStart() {
 
 public void OnConfigsExecuted() {
     if (g_AutostartCvar.IntValue != 0 && GetGameState() == GameState_None) {
-        StartPracticeMode();
+        LaunchPracticeMode();
     }
 }
 
@@ -278,7 +281,7 @@ public void OnMapEnd() {
     }
 
     if (g_InPracticeMode)
-        DisablePracticeMode();
+        ExitPracticeMode();
 
     delete g_GrenadeLocationsKv;
 }
@@ -435,7 +438,7 @@ public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
 
 public void OnReadyToStart() {
     if (g_InPracticeMode)
-        DisablePracticeMode();
+        ExitPracticeMode();
 }
 
 public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int param2) {
@@ -443,12 +446,12 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
     char buffer[64];
     menu.GetItem(param2, buffer, sizeof(buffer));
     if (StrEqual(buffer, "launch_practice")) {
-        StartPracticeMode();
+        LaunchPracticeMode();
         GivePracticeMenu(client);
     }
 }
 
-public void StartPracticeMode() {
+public void LaunchPracticeMode() {
     g_InPracticeMode = true;
     for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
         ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
@@ -553,7 +556,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
         }
 
         if (StrEqual(buffer, "end_menu")) {
-            DisablePracticeMode();
+            ExitPracticeMode();
             GiveSetupMenu(client);
         }
 
@@ -564,7 +567,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
     return 0;
 }
 
-public void DisablePracticeMode() {
+public void ExitPracticeMode() {
     Call_StartForward(g_OnPracticeModeDisabled);
     Call_Finish();
 
@@ -672,6 +675,20 @@ public Action Event_WeaponFired(Event event, const char[] name, bool dontBroadca
         PushArrayArray(g_GrenadeHistoryAngles[client], angles, sizeof(angles));
         g_GrenadeHistoryIndex[client] = g_GrenadeHistoryPositions[client].Length;
     }
+}
+
+public Action Command_LaunchPracticeMode(int client, int args) {
+    if (!g_InPracticeMode) {
+        LaunchPracticeMode();
+    }
+    return Plugin_Handled;
+}
+
+public Action Command_ExitPracticeMode(int client, int args) {
+    if (g_InPracticeMode) {
+        ExitPracticeMode();
+    }
+    return Plugin_Handled;
 }
 
 public Action Command_GrenadeBack(int client, int args) {
