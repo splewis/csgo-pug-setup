@@ -211,7 +211,7 @@ public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadca
     bool validVictim = IsValidClient(victim);
 
     if (validAttacker && validVictim && HelpfulAttack(attacker, victim) ) {
-        int damage = event.GetInt("dmg_PlayerHealth");
+        int damage = event.GetInt("dmg_health");
         g_RoundPoints[attacker] += damage;
     }
 }
