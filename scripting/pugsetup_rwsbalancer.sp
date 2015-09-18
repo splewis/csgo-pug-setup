@@ -240,6 +240,11 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
                 RWSUpdate(i, team == winner);
         }
     }
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && HasStats(i)) {
+            g_RoundPoints[i] = 0;
+        }
+    }
 }
 
 /**
