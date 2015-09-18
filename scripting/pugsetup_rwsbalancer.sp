@@ -211,7 +211,7 @@ public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadca
     bool validVictim = IsValidClient(victim);
 
     if (validAttacker && validVictim && HelpfulAttack(attacker, victim) ) {
-        int damage = event.GetInt("dmg_PlayerHealth");
+        int damage = event.GetInt("dmg_health");
         g_RoundPoints[attacker] += damage;
     }
 }
@@ -238,6 +238,11 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
             int team = GetClientTeam(i);
             if (team == CS_TEAM_CT || team == CS_TEAM_T)
                 RWSUpdate(i, team == winner);
+        }
+    }
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && HasStats(i)) {
+            g_RoundPoints[i] = 0;
         }
     }
 }
