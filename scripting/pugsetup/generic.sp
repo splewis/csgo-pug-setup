@@ -350,9 +350,17 @@ stock void GetTrueString(char[] buffer, int length, bool variable, int client=LA
         Format(buffer, length, "false");
 }
 
-stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace, int value, bool caseSensitive=true) {
+stock void ReplaceStringWithInt(char[] buffer, int len, const char[] replace,
+                                int value, bool caseSensitive=false) {
     char intString[MAX_INTEGER_STRING_LENGTH];
     IntToString(value, intString, sizeof(intString));
+    ReplaceString(buffer, len, replace, intString, caseSensitive);
+}
+
+stock void ReplaceStringWithColoredInt(char[] buffer, int len, const char[] replace,
+                                      int value, const char[] color, bool caseSensitive=false) {
+    char intString[MAX_INTEGER_STRING_LENGTH + 32];
+    Format(intString, sizeof(intString), "{%s}%d{NORMAL}", color, value);
     ReplaceString(buffer, len, replace, intString, caseSensitive);
 }
 
