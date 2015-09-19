@@ -443,7 +443,6 @@ public Action Timer_CheckReady(Handle timer) {
             if (g_TeamType == TeamType_Captains) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     g_LiveTimerRunning = false;
-                    ClearAllHintTexts();
                     CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
                     return Plugin_Stop;
                 } else {
@@ -451,7 +450,6 @@ public Action Timer_CheckReady(Handle timer) {
                 }
             } else {
                 g_LiveTimerRunning = false;
-                ClearAllHintTexts();
                 ReadyToStart();
                 return Plugin_Stop;
             }
@@ -460,7 +458,6 @@ public Action Timer_CheckReady(Handle timer) {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     g_LiveTimerRunning = false;
-                    ClearAllHintTexts();
                     PugSetupMessageToAll("%t", "VetoMessage");
                     CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     return Plugin_Stop;
@@ -470,7 +467,6 @@ public Action Timer_CheckReady(Handle timer) {
 
             } else {
                 g_LiveTimerRunning = false;
-                ClearAllHintTexts();
                 PugSetupMessageToAll("%t", "VoteMessage");
                 CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                 return Plugin_Stop;

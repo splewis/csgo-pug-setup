@@ -416,15 +416,3 @@ stock bool SplitOnSpace(const char[] str, char[] buf1, int len1, char[] buf2, in
     }
     return false;
 }
-
-stock void ClearHintText(int client) {
-    PrintHintText(client, "");
-}
-
-stock void ClearAllHintTexts() {
-    for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i)) {
-            ClearHintText(i);
-        }
-    }
-}
