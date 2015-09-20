@@ -205,6 +205,10 @@ stock void StopRecording() {
     ServerCommand("tv_stoprecord");
 }
 
+stock bool InFreezeTime() {
+    return GameRules_GetProp("m_bFreezePeriod") != 0;
+}
+
 stock bool InWarmup() {
     return GameRules_GetProp("m_bWarmupPeriod") != 0;
 }

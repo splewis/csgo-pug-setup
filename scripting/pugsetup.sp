@@ -279,6 +279,7 @@ public void OnPluginStart() {
     HookEvent("server_cvar", Event_CvarChanged, EventHookMode_Pre);
     HookEvent("player_connect", Event_PlayerConnect);
     HookEvent("player_disconnect", Event_PlayerDisconnect);
+    HookEvent("player_team", Event_OnPlayerTeam, EventHookMode_Post);
 
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
@@ -1327,6 +1328,17 @@ public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBr
         g_capt1 = -1;
     if (g_capt2 == client)
         g_capt2 = -1;
+}
+
+public Action Event_OnPlayerTeam(Event event, const char[] name, bool dontBroadcast) {
+    if (g_GameState == GameState_Live && InFreezeTime()) {
+        int userid = event.GetInt("userid");
+        int client = GetClientOfUserId(userid);
+        if (IsValidClient(client) && !IsPlayerAlive(client)) {
+            CS_RespawnPlayer(client);
+        }
+    }
+    return Plugin_Continue;
 }
 
 /**
