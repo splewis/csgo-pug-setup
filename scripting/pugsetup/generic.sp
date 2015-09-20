@@ -106,7 +106,12 @@ stock void SwitchPlayerTeam(int client, int team) {
     if (GetClientTeam(client) == team)
         return;
 
-    if (team > CS_TEAM_SPECTATOR) {
+    if (team != CS_TEAM_SPECTATOR) {
+        // Move the client onto spectator so their color
+        // value will get reassigned when being put on T/CT.
+        ChangeClientTeam(client, CS_TEAM_SPECTATOR);
+
+        // Move the client to the actual team.
         CS_SwitchTeam(client, team);
         CS_UpdateClientModel(client);
         CS_RespawnPlayer(client);
