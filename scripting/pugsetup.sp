@@ -1307,7 +1307,7 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
         FindAliasFromCommand("sm_swap", swapCmd);
 
         if (g_DoVoteForKnifeRoundDecisionCvar.IntValue != 0) {
-            CreateTimer(15.0, Timer_HandleKnifeDecisionVote, _, TIMER_FLAG_NO_MAPCHANGE);
+            CreateTimer(20.0, Timer_HandleKnifeDecisionVote, _, TIMER_FLAG_NO_MAPCHANGE);
         }
 
         PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
