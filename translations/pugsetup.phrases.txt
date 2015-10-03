@@ -423,4 +423,12 @@
 	{
 		"en"		"Play out maxrounds"
 	}
+	"KnifeRoundVoteStay"
+	{
+		"en"		"Recorded vote to stay"
+	}
+	"KnifeRoundVoteSwap"
+	{
+		"en"		"Recorded vote to swap"
+	}
 }

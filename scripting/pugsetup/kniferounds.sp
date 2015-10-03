@@ -18,6 +18,10 @@ public Action StartKnifeRound(Handle timer) {
     }
 
     RestartGame(1);
+    g_KnifeRoundVotesCast = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        g_KnifeRoundVotes[i] = KnifeDecision_None;
+    }
 
     // This is done on a delay since the cvar changes from
     // the knife cfg execute have their own delay of when they are printed
@@ -35,7 +39,42 @@ public Action Timer_AnnounceKnife(Handle timer) {
     return Plugin_Handled;
 }
 
-public void EndKnifeRound() {
+public Action Timer_HandleKnifeDecisionVote(Handle timer) {
+    HandleKnifeDecisionVote();
+}
+
+public void HandleKnifeDecisionVote() {
+    if (g_GameState != GameState_WaitingForKnifeRoundDecision) {
+        return;
+    }
+
+    int stayCount = 0;
+    int swapCount = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsValidClient(i) && GetClientTeam(i) == g_KnifeWinner) {
+            if (g_KnifeRoundVotes[i] == KnifeDecision_Stay)
+                stayCount++;
+            else if (g_KnifeRoundVotes[i] == KnifeDecision_Swap)
+                swapCount++;
+        }
+    }
+    bool doSwap = (swapCount > stayCount);
+    EndKnifeRound(doSwap);
+}
+
+public void EndKnifeRound(bool swap) {
+    if (swap) {
+        for (int i = 1; i <= MaxClients; i++) {
+            if (IsValidClient(i)) {
+                int team = GetClientTeam(i);
+                if (team == CS_TEAM_T)
+                    SwitchPlayerTeam(i, CS_TEAM_CT);
+                else if (team == CS_TEAM_CT)
+                    SwitchPlayerTeam(i, CS_TEAM_T);
+            }
+        }
+    }
+
     ChangeState(GameState_GoingLive);
     if (g_KnifeCvarRestore != INVALID_HANDLE) {
         RestoreCvars(g_KnifeCvarRestore);
@@ -46,35 +85,50 @@ public void EndKnifeRound() {
 }
 
 static bool AwaitingDecision(int client, const char[] command) {
-    // always lets console make the decision
-    if (client == 0)
-        return true;
+    if (g_DoVoteForKnifeRoundDecisionCvar.IntValue != 0) {
+        return (g_GameState == GameState_WaitingForKnifeRoundDecision) &&
+            IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
+    } else {
+        // Always lets console make the decision
+        if (client == 0)
+            return true;
 
-    // check if they're on the winning team
-    bool canMakeDecision = g_GameState == GameState_WaitingForKnifeRoundDecision && IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
-    bool hasPermissions = DoPermissionCheck(client, command);
-    return canMakeDecision && hasPermissions;
+        // Check if they're on the winning team
+        bool canMakeDecision = (g_GameState == GameState_WaitingForKnifeRoundDecision) &&
+            IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
+        bool hasPermissions = DoPermissionCheck(client, command);
+        return canMakeDecision && hasPermissions;
+    }
 }
 
 public Action Command_Stay(int client, int args) {
     if (AwaitingDecision(client, "sm_stay")) {
-        EndKnifeRound();
+        if (g_DoVoteForKnifeRoundDecisionCvar.IntValue == 0) {
+            EndKnifeRound(false);
+        } else {
+            g_KnifeRoundVotes[client] = KnifeDecision_Stay;
+            PugSetupMessage(client, "%t", "KnifeRoundVoteStay");
+            g_KnifeRoundVotesCast++;
+            if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
+                HandleKnifeDecisionVote();
+            }
+        }
     }
     return Plugin_Handled;
 }
 
 public Action Command_Swap(int client, int args) {
     if (AwaitingDecision(client, "sm_swap")) {
-        for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i)) {
-                int team = GetClientTeam(i);
-                if (team == CS_TEAM_T)
-                    SwitchPlayerTeam(i, CS_TEAM_CT);
-                else if (team == CS_TEAM_CT)
-                    SwitchPlayerTeam(i, CS_TEAM_T);
+        if (g_DoVoteForKnifeRoundDecisionCvar.IntValue == 0) {
+            EndKnifeRound(true);
+        } else {
+            g_KnifeRoundVotes[client] = KnifeDecision_Swap;
+            PugSetupMessage(client, "%t", "KnifeRoundVoteSwap");
+            g_KnifeRoundVotesCast++;
+            if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
+                HandleKnifeDecisionVote();
             }
         }
-        EndKnifeRound();
     }
     return Plugin_Handled;
 }
