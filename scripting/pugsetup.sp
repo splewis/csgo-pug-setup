@@ -1308,9 +1308,11 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
         if (g_DoVoteForKnifeRoundDecisionCvar.IntValue != 0) {
             CreateTimer(20.0, Timer_HandleKnifeDecisionVote, _, TIMER_FLAG_NO_MAPCHANGE);
+            PugSetupMessageToAll("%t", "KnifeRoundWinnerVote", teamString, stayCmd, swapCmd);
+        } else {
+            PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
         }
 
-        PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
     }
 }
 

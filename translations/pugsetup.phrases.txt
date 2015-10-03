@@ -307,6 +307,11 @@
 		"#format"	"{1:s},{2:s},{3:s}"
 		"en"		"The {1} team won the knife round. Waiting for them to type {GREEN}{2} {NORMAL}or {GREEN}{3}"
 	}
+	"KnifeRoundWinnerVote"
+	{
+		"#format"	"{1:s},{2:s},{3:s}"
+		"en"		"The {1} team won the knife round. Waiting for them to vote by typing {GREEN}{2} {NORMAL}or {GREEN}{3}"
+	}
 	"TVDisabled"
 	{
 		"en"		"GOTV is disabled, so a demo cannot be recorded. Set {GREEN}tv_enable 1{NORMAL} to enable GOTV."
