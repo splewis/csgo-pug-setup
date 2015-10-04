@@ -95,11 +95,18 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     CHECK_CLIENT(client);
 
+    bool replyMessages = true;
+    // Backwards compatability check.
+    if (numParams >= 2) {
+        replyMessages = GetNativeCell(2);
+    }
+
     if (g_GameState != GameState_Warmup || !IsPlayer(client))
         return false;
 
     if (g_ExcludeSpectatorsCvar.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
-        PugSetupMessage(client, "%t", "SpecCantReady");
+        if (replyMessages)
+            PugSetupMessage(client, "%t", "SpecCantReady");
         return false;
     }
 
@@ -115,7 +122,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     g_Ready[client] = true;
     UpdateClanTag(client);
 
-    if (g_EchoReadyMessagesCvar.IntValue != 0) {
+    if (g_EchoReadyMessagesCvar.IntValue != 0 && replyMessages) {
         PugSetupMessage(client, "%t", "YouAreReady");
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i) && client != i)

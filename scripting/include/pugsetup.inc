@@ -201,9 +201,10 @@ native void SetSetupOptions(TeamType teamType, MapType mapType, int playersPerTe
 // @error If there is no game setup yet.
 native void GetSetupOptions(TeamType& teamType, MapType& mapType, int& playersPerTeam, bool& recordDemo, bool& knifeRound, bool& autoLive);
 
-// Readies up a player.
+// Readies up a player, optionally printing chat messages
+// to the client about readying up.
 // Returns if they were successfully readied.
-native bool ReadyPlayer(int client);
+native bool ReadyPlayer(int client, bool chatReply=true);
 
 // Unreadies a player.
 // Returns if they were successfully unreadied. (returns false if the client was already not-ready)

@@ -721,6 +721,12 @@ public Action Command_ForceStart(int client, int args) {
         return Plugin_Handled;
 
     PermissionCheck(client, "sm_forcestart")
+
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && !IsReady(i)) {
+            ReadyPlayer(i, false);
+        }
+    }
     g_ForceStartSignal = true;
     return Plugin_Handled;
 }
