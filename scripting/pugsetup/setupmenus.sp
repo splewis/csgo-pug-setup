@@ -1,3 +1,6 @@
+#define MAX_CONFIG_NAME 128 // Max length for a name in config files.
+#define MAX_CONFIG_PATH 128 // Max length for a path value in config files.
+
 /**
  * Main .setup menu
  */
@@ -107,6 +110,40 @@
             AddMenuItem(menu, "change_map", buffer, style);
         }
 
+        // 11. Change live cfg
+        if (CountKvEntires(g_LiveConfigsKv) >= 2) {
+            char currentLiveCfg[MAX_CONFIG_PATH];
+            g_LiveCfgCvar.GetString(currentLiveCfg, sizeof(currentLiveCfg));
+            char currentLiveCfgName[MAX_CONFIG_NAME];
+
+            if (FindValueInKv(g_LiveConfigsKv, currentLiveCfg, currentLiveCfgName, sizeof(currentLiveCfgName))) {
+                // If lookup of the config name succeeds, use that as the name displayed on the menu.
+                Format(buffer, sizeof(buffer), "%T", "LiveConfigOption", client, currentLiveCfgName);
+                AddMenuItem(menu, "livecfg", buffer, style);
+            } else {
+                // Otherwise, use the actual file path as the name displayed on the menu.
+                Format(buffer, sizeof(buffer), "%T", "LiveConfigOption", client, currentLiveCfg);
+                AddMenuItem(menu, "livecfg", buffer, style);
+            }
+        }
+
+        // 12. Change maplist
+        if (CountKvEntires(g_MapListsKv) >= 2) {
+            char currentMaplist[MAX_CONFIG_PATH];
+            g_MapListCvar.GetString(currentMaplist, sizeof(currentMaplist));
+            char currentMaplistName[MAX_CONFIG_NAME];
+
+            if (FindValueInKv(g_MapListsKv, currentMaplist, currentMaplistName, sizeof(currentMaplistName))) {
+                // If lookup of the maplist name succeeds, use that as the name displayed on the menu.
+                Format(buffer, sizeof(buffer), "%T", "MapListOption", client, currentMaplistName);
+                AddMenuItem(menu, "maplist", buffer, style);
+            } else {
+                // Otherwise, use the actual file path as the name displayed on the menu.
+                Format(buffer, sizeof(buffer), "%T", "MapListOption", client, currentMaplist);
+                AddMenuItem(menu, "maplist", buffer, style);
+            }
+        }
+
         bool showMenu = true;
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
@@ -116,7 +153,7 @@
 
         if (showMenu) {
             if (menuPosition == -1) {
-                DisplayMenu(menu, client, MENU_TIME_FOREVER);
+                menu.Display(client, MENU_TIME_FOREVER);
             } else {
                 DisplayMenuAtItem(menu, client, menuPosition, MENU_TIME_FOREVER);
             }
@@ -175,6 +212,12 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
         } else if (StrEqual(buffer, "aim_warmup")) {
             g_DoAimWarmup = !g_DoAimWarmup;
             GiveSetupMenu(client, false, pos);
+
+        } else if (StrEqual(buffer, "livecfg")) {
+            LiveConfigMenu(client);
+
+        } else if (StrEqual(buffer, "maplist")) {
+            MapListMenu(client);
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);
@@ -200,7 +243,7 @@ public void TeamTypeMenu(int client) {
     if (IsTeamBalancerAvaliable())
         AddMenuInt(menu, view_as<int>(TeamType_Autobalanced), "%T", "Autobalanced", client);
 
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    menu.Display(client, MENU_TIME_FOREVER);
 }
 
 public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
@@ -225,7 +268,7 @@ public void TeamSizeMenu(int client) {
     for (int i = 1; i <= g_MaxTeamSizeCvar.IntValue; i++)
         AddMenuInt(menu, i, "");
 
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    menu.Display(client, MENU_TIME_FOREVER);
 }
 
 public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2) {
@@ -252,7 +295,7 @@ public void MapTypeMenu(int client) {
     AddMenuInt(menu, view_as<int>(MapType_Current), "%T", "MapChoiceCurrent", client);
     AddMenuInt(menu, view_as<int>(MapType_Vote), "%T", "MapChoiceVote", client);
     AddMenuInt(menu, view_as<int>(MapType_Veto), "%T", "MapChoiceVeto", client);
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    menu.Display(client, MENU_TIME_FOREVER);
 }
 
 public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) {
@@ -366,7 +409,7 @@ public void ChangeMapMenu(int client) {
         AddMapIndexToMenu(menu, mapList, i);
     }
 
-    DisplayMenu(menu, client, MENU_TIME_FOREVER);
+    menu.Display(client, MENU_TIME_FOREVER);
 }
 
 public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2) {
@@ -379,4 +422,99 @@ public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2
     } else if (action == MenuAction_End) {
         delete menu;
     }
+}
+
+public void LiveConfigMenu(int client) {
+    Menu menu = new Menu(LiveConfigMenuHandler);
+    menu.ExitButton = false;
+    menu.ExitBackButton = true;
+    menu.SetTitle("%T", "LiveConfigMenuTitle", client);
+    AddKvEntriesToMenu(g_LiveConfigsKv, menu, MAX_CONFIG_NAME, MAX_CONFIG_PATH);
+    menu.Display(client, MENU_TIME_FOREVER);
+}
+
+public int LiveConfigMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
+    if (action == MenuAction_Select) {
+        int client = param1;
+        char value[MAX_CONFIG_PATH];
+        menu.GetItem(param2, value, sizeof(value));
+        g_LiveCfgCvar.SetString(value);
+        GiveSetupMenu(client);
+
+    } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        int client = param1;
+        GiveSetupMenu(client);
+    } else if (action == MenuAction_End) {
+        delete menu;
+    }
+}
+
+public void MapListMenu(int client) {
+    Menu menu = new Menu(MapListMenuHandler);
+    menu.ExitButton = false;
+    menu.ExitBackButton = true;
+    menu.SetTitle("%T", "MapListMenuTitle", client);
+    AddKvEntriesToMenu(g_LiveConfigsKv, menu, MAX_CONFIG_NAME, MAX_CONFIG_PATH);
+    menu.Display(client, MENU_TIME_FOREVER);
+}
+
+public int MapListMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
+    if (action == MenuAction_Select) {
+        int client = param1;
+        char value[MAX_CONFIG_PATH];
+        menu.GetItem(param2, value, sizeof(value));
+        g_MapListCvar.SetString(value);
+        GiveSetupMenu(client);
+
+    } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
+        int client = param1;
+        GiveSetupMenu(client);
+    } else if (action == MenuAction_End) {
+        delete menu;
+    }
+}
+
+stock int CountKvEntires(KeyValues kv) {
+    int count = 0;
+    if (kv.GotoFirstSubKey(false)) {
+        do {
+            count++;
+        } while (kv.GotoNextKey(false));
+        kv.GoBack();
+    }
+    return count;
+}
+
+stock void AddKvEntriesToMenu(KeyValues kv, Menu menu, int keylen, int valuelen) {
+    char[] key = new char[keylen];
+    char[] value = new char[valuelen];
+    if (kv.GotoFirstSubKey(false)) {
+        do {
+            kv.GetSectionName(key, keylen);
+            kv.GetString(NULL_STRING, value, valuelen);
+            if (StrEqual(value, "")) {
+                menu.AddItem(key, key);
+            } else {
+                menu.AddItem(value, key);
+            }
+        } while (kv.GotoNextKey(false));
+        kv.GoBack();
+    }
+}
+
+stock bool FindValueInKv(KeyValues kv, const char[] value, char[] key, int keylen) {
+    int valuelen = strlen(value) + 1;
+    char[] tmpValue = new char[valuelen];
+    if (kv.GotoFirstSubKey(false)) {
+        do {
+            kv.GetString(NULL_STRING, tmpValue, valuelen);
+            if (StrEqual(tmpValue, value, false)) {
+                kv.GetSectionName(key, keylen);
+                kv.GoBack();
+                return true;
+            }
+        } while (kv.GotoNextKey(false));
+        kv.GoBack();
+    }
+    return false;
 }

@@ -436,4 +436,22 @@
 	{
 		"en"		"Recorded vote to swap"
 	}
+	"LiveConfigMenuTitle"
+	{
+		"en"		"Change live config"
+	}
+	"MapListMenuTitle"
+	{
+		"en"		"Change maplist"
+	}
+	"LiveConfigOption"
+	{
+		"#format"		"{1:s}"
+		"en"		"Live cfg: {1}"
+	}
+	"MapListOption"
+	{
+		"#format"		"{1:s}"
+		"en"		"Maplist: {1}"
+	}
 }

@@ -116,6 +116,10 @@ char g_DataDir[PLATFORM_MAX_PATH]; // directory to leave cache files in
 char g_CacheFile[PLATFORM_MAX_PATH]; // filename of the keyvalue cache file
 KeyValues g_WorkshopCache; // keyvalue struct for the cache
 
+/** Optionally set keyvalues config/maplists **/
+KeyValues g_LiveConfigsKv;
+KeyValues g_MapListsKv;
+
 /** Chat aliases loaded **/
 ArrayList g_ChatAliases;
 ArrayList g_ChatAliasesCommands;
@@ -238,6 +242,9 @@ public void OnPluginStart() {
     g_WarmupCfgCvar = CreateConVar("sm_pugsetup_warmup_cfg", "sourcemod/pugsetup/warmup.cfg", "Config file to run before/after games; should be in the csgo/cfg directory.");
     g_WarmupMoneyOnSpawnCvar = CreateConVar("sm_pugsetup_money_on_warmup_spawn", "1", "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
 
+    g_AimMapListCvar.AddChangeHook(OnMapListChanged);
+    g_MapListCvar.AddChangeHook(OnMapListChanged);
+
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
 
@@ -340,6 +347,18 @@ static void AddPugSetupCommand(const char[] command, ConCmd callback, const char
     AddChatAlias(dotCommandBuffer, smCommandBuffer);
 }
 
+public void OnLiveCfgChanged(ConVar convar, const char[] oldValue, const char[] newValue) {
+    if (!FileExists(newValue)) {
+        LogError("Tried to change live cfg to non-existent file: %s", newValue);
+        convar.SetString(newValue);
+    }
+}
+
+public void OnMapListChanged(ConVar convar, const char[] oldValue, const char[] newValue) {
+    FillMapList(g_MapListCvar, g_MapList);
+    FillMapList(g_AimMapListCvar, g_AimMapList);
+}
+
 public void OnConfigsExecuted() {
     FillMapList(g_MapListCvar, g_MapList);
     FillMapList(g_AimMapListCvar, g_AimMapList);
@@ -387,6 +406,15 @@ public void OnMapStart() {
     g_WorkshopCache = new KeyValues("Workshop");
     g_WorkshopCache.ImportFromFile(g_CacheFile);
 
+    char tmpPath[PLATFORM_MAX_PATH+1];
+    BuildPath(Path_SM, tmpPath, sizeof(tmpPath), "configs/pugsetup/liveconfigs.cfg");
+    g_LiveConfigsKv = new KeyValues("LiveConfigs");
+    g_LiveConfigsKv.ImportFromFile(tmpPath);
+
+    BuildPath(Path_SM, tmpPath, sizeof(tmpPath), "configs/pugsetup/maplists.cfg");
+    g_MapListsKv = new KeyValues("MapLists");
+    g_MapListsKv.ImportFromFile(tmpPath);
+
     if (g_GameState == GameState_Warmup) {
         ExecWarmupConfigs();
         if (g_UseGameWarmupCvar.IntValue != 0) {
@@ -409,6 +437,8 @@ public void OnMapEnd() {
     g_WorkshopCache.Rewind();
     g_WorkshopCache.ExportToFile(g_CacheFile);
     delete g_WorkshopCache;
+    delete g_MapListsKv;
+    delete g_LiveConfigsKv;
 }
 
 public bool UsingCaptains() {
