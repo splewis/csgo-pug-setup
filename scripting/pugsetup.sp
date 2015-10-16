@@ -229,7 +229,7 @@ public void OnPluginStart() {
     g_PausingEnabledCvar = CreateConVar("sm_pugsetup_pausing_enabled", "1", "Whether pausing is allowed.");
     g_PostGameCfgCvar = CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg", "Config to execute after games finish; should be in the csgo/cfg directory.");
     g_QuickRestartsCvar = CreateConVar("sm_pugsetup_quick_restarts", "0", "If set to 1, going live won't restart 3 times and will just do a single restart.");
-    g_RandomizeMapOrderCvar = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order ise randomized.");
+    g_RandomizeMapOrderCvar = CreateConVar("sm_pugsetup_randomize_maps", "1", "When maps are shown in the map vote/veto, whether their order is randomized.");
     g_RandomOptionInMapVoteCvar = CreateConVar("sm_pugsetup_random_map_vote_option", "1", "Whether option 1 in a mapvote is the random map choice.");
     g_SetupEnabledCvar = CreateConVar("sm_pugsetup_setup_enabled", "1", "Whether the sm_setup and sm_10man commands are enabled");
     g_SnakeCaptainsCvar = CreateConVar("sm_pugsetup_snake_captain_picks", "0", "Whether captains will pick players in a \"snaked\" fashion rather than alternating, e.g. ABBAABBA rather than ABABABAB.");
