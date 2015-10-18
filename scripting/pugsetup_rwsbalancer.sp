@@ -198,7 +198,7 @@ public Action Event_Bomb(Event event, const char[] name, bool dontBroadcast) {
         return;
 
     int client = GetClientOfUserId(event.GetInt("userid"));
-    g_RoundPoints[client] += 50;
+    g_RoundPoints[client] += 25;
 }
 
 public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadcast) {
@@ -212,6 +212,9 @@ public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadca
 
     if (validAttacker && validVictim && HelpfulAttack(attacker, victim) ) {
         int damage = event.GetInt("dmg_health");
+        if (damage > 100) 
+            damage = 100;
+        
         g_RoundPoints[attacker] += damage;
     }
 }
@@ -237,14 +240,16 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
         if (IsPlayer(i) && HasStats(i)) {
             int team = GetClientTeam(i);
             if (team == CS_TEAM_CT || team == CS_TEAM_T)
-                RWSUpdate(i, team == winner);
+                RWSUpdate(i, true);
         }
     }
     for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && HasStats(i)) {
+            // Reset the round points for the next round
             g_RoundPoints[i] = 0;
         }
     }
+
 }
 
 /**
@@ -257,17 +262,15 @@ static void RWSUpdate(int client, bool winner) {
         int sum = 0;
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
-                if (GetClientTeam(i) == GetClientTeam(client)) {
-                    sum += g_RoundPoints[i];
-                    playerCount++;
-                }
+                sum += g_RoundPoints[i];
+                playerCount++;
             }
         }
 
         if (sum != 0) {
             // scaled so it's always considered "out of 5 players" so different team sizes
             // don't give inflated rws
-            rws = 100.0 * float(playerCount) / 5.0 * float(g_RoundPoints[client]) / float(sum);
+            rws = 100.0 * float(playerCount) / 10.0 * float(g_RoundPoints[client]) / float(sum);
         } else {
             return;
         }
@@ -279,7 +282,7 @@ static void RWSUpdate(int client, bool winner) {
     float alpha = GetAlphaFactor(client);
     g_PlayerRWS[client] = (1.0 - alpha) * g_PlayerRWS[client] + alpha * rws;
     g_PlayerRounds[client]++;
-    LogDebug("RoundUpdate(%L), alpha=%f, round_rws=%f, new_rws=%f", client, alpha, rws, g_PlayerRWS[client]);
+    LogDebug("RoundUpdate(%L), alpha=%f, round_points=%i, round_rws=%f, new_rws=%f", client, alpha, g_RoundPoints[client], rws, g_PlayerRWS[client]);
 }
 
 static float GetAlphaFactor(int client) {
