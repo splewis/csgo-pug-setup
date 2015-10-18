@@ -247,6 +247,9 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
         if (IsPlayer(i) && HasStats(i)) {
             // Reset the round points for the next round
             g_RoundPoints[i] = 0;
+
+            // Save the stats (this is done every round so the server doesn't crash and forget RWS)
+            WriteStats(i);
         }
     }
 
