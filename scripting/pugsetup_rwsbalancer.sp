@@ -152,12 +152,10 @@ public void BalancerFunction(ArrayList players) {
     float t_rws = 0;
     int ct_team_size = 0;
     int t_team_size = 0;
-    LogDebug("ct_rws=%f, t_rws=%f, ct_size=%d, t_size=%d", ct_rws, t_rws, ct_size, t_size);
+    LogDebug("Max players per team=%d", (GetPugMaxPlayers() / 2));
     while (!PQ_IsEmpty(pq) && count < GetPugMaxPlayers()) {
         int p1 = PQ_Dequeue(pq);
-        LogDebug("ct_rws=%f, t_rws=%f, ct_size=%d, t_size=%d", ct_rws, t_rws, ct_size, t_size);
-
-
+        LogDebug("ct_rws=%f, t_rws=%f, ct_team_size=%d, t_team_size=%d", ct_rws, t_rws, ct_team_size, t_team_size);
         if (t_rws < ct_rws || ct_team_size >= (GetPugMaxPlayers() / 2) ) {
             SwitchPlayerTeam(p1, CS_TEAM_T);
             t_team_size++;
@@ -168,17 +166,20 @@ public void BalancerFunction(ArrayList players) {
             SwitchPlayerTeam(p1, CS_TEAM_CT);
             ct_team_size++;
             ct_rws += g_PlayerRWS[p1];
-            LogDebug("T: PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
+            LogDebug("CT: PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
         }
         else {
             // Random team
-            SwitchPlayerTeam(p1, CS_TEAM_T);   
+            SwitchPlayerTeam(p1, CS_TEAM_T);
+            t_team_size++;
+            t_rws += g_PlayerRWS[p1];
+            LogDebug("T (Random): PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
         }
 
         count += 1;
     }
     LogDebug("Final team report:");
-    LogDebug("ct_rws=%f, t_rws=%f, ct_size=%d, t_size=%d", ct_rws, t_rws, ct_size, t_size);
+    LogDebug("ct_rws=%f, t_rws=%f, ct_team_size=%d, t_team_size=%d", ct_rws, t_rws, ct_team_size, t_team_size);
 
     while (!PQ_IsEmpty(pq)) {
         int client = PQ_Dequeue(pq);
