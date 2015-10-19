@@ -146,40 +146,59 @@ public void BalancerFunction(ArrayList players) {
         PQ_Enqueue(pq, client, g_PlayerRWS[client]);
         LogDebug("PQ_Enqueue(%L, %f)", client, g_PlayerRWS[client]);
     }
+    LogDebug("");
 
     int count = 0;
     float ct_rws = 0;
     float t_rws = 0;
     int ct_team_size = 0;
     int t_team_size = 0;
-    LogDebug("Max players per team=%d", (GetPugMaxPlayers() / 2));
+
     while (!PQ_IsEmpty(pq) && count < GetPugMaxPlayers()) {
-        int p1 = PQ_Dequeue(pq);
-        LogDebug("ct_rws=%f, t_rws=%f, ct_team_size=%d, t_team_size=%d", ct_rws, t_rws, ct_team_size, t_team_size);
+    	LogDebug("[Team Status] ct_rws=%f, t_rws=%f, ct_team_size=%d, t_team_size=%d", ct_rws, t_rws, ct_team_size, t_team_size);
+    	int p1 = PQ_Dequeue(pq);
+
+    	float player_rws = g_PlayerRWS[p1];
+
+    	if (player_rws < 1) {
+    		// Set new players RWS to a slightly below average value (8)
+    		player_rws = 8.0;
+    	}
+    	LogDebug("[Next Player] %L", p1);
+    	LogDebug("[RWS] %f", player_rws);        
         if (t_rws < ct_rws || ct_team_size >= (GetPugMaxPlayers() / 2) ) {
             SwitchPlayerTeam(p1, CS_TEAM_T);
             t_team_size++;
-            t_rws += g_PlayerRWS[p1];
-            LogDebug("T: PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
+            t_rws += player_rws;
+            LogDebug("[Assign] T");
         }
         else if (ct_rws < t_rws || t_team_size >= (GetPugMaxPlayers() / 2)) {
             SwitchPlayerTeam(p1, CS_TEAM_CT);
             ct_team_size++;
-            ct_rws += g_PlayerRWS[p1];
-            LogDebug("CT: PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
+            ct_rws += player_rws;
+            LogDebug("[Assign] CT");
         }
         else {
             // Random team
-            SwitchPlayerTeam(p1, CS_TEAM_T);
-            t_team_size++;
-            t_rws += g_PlayerRWS[p1];
-            LogDebug("T (Random): PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
+            if (GetRandomInt(0, 1)) {
+            	SwitchPlayerTeam(p1, CS_TEAM_T);
+	            t_team_size++;
+	            t_rws += player_rws;
+	            LogDebug("[Assign] T (Random)");
+            } else {
+            	SwitchPlayerTeam(p1, CS_TEAM_CT);
+            	ct_team_size++;
+            	ct_rws += player_rws;
+            	LogDebug("[Assign] CT (Random)");
+            }
         }
-
         count += 1;
+        LogDebug("");
+
     }
-    LogDebug("Final team report:");
-    LogDebug("ct_rws=%f, t_rws=%f, ct_team_size=%d, t_team_size=%d", ct_rws, t_rws, ct_team_size, t_team_size);
+    LogDebug("[Final Team Status]");
+    LogDebug("[CT RWS] %f", ct_rws);
+    LogDebug("[T  RWS] %f", t_rws);
 
     while (!PQ_IsEmpty(pq)) {
         int client = PQ_Dequeue(pq);
