@@ -135,78 +135,128 @@ public void WriteStats(int client) {
     SetCookieFloat(client, g_RWSCookie, g_PlayerRWS[client]);
 }
 
+public void SplitRemainingPlayers(int teamSize, ArrayList playerList, ArrayList &remainingTeamTwoOptions) {
+	if ( playerList.Length == teamSize ) {
+		remainingTeamTwoOptions.Push(playerList);
+	} else {
+		// Do recursion and stuff
+		for (int i = 0; i < playerList.Length; i++) {
+			ArrayList playerListClone = CloneArray(playerList);
+			RemoveFromArray(playerListClone, i);
+			SplitRemainingPlayers(teamSize, playerListClone, remainingTeamTwoOptions);
+		}
+	}
+}
+
+public void SortPlayers(int teamSize, ArrayList firstTeam, ArrayList playerList, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference) {
+
+	if (firstTeam.Length == teamSize) {
+			// Narrow down team two
+			ArrayList team_one = CloneArray(firstTeam);
+			ArrayList possibleTwos = new ArrayList();
+			ArrayList remainingPlayers = new ArrayList();
+
+			// Add the people that aren't in the first team to the 2nd team
+			for (int i = 0; i < playerList.Length; i++) {
+				if ( FindValueInArray(team_one, playerList.Get(i)) == -1 ) {
+					remainingPlayers.Push(playerList.Get(i));
+				} 
+			}
+			
+			SplitRemainingPlayers(teamSize, remainingPlayers, possibleTwos);
+
+			for(int i = 0; i < possibleTwos.Length; i++) {
+				ArrayList team_two = possibleTwos.Get(i);
+
+				// Get RWS of teams 1 and 2 and compare them
+				float team_one_rws = 0.0;
+				float team_two_rws = 0.0;
+				
+				for (int i = 0; i < team_one.Length; i++) {
+					int client = team_one.Get(i);
+					
+					float player_rws = g_PlayerRWS[client];
+			    	if (player_rws < 1) {
+			    		// Set new players RWS to a slightly below average value (8)
+			    		player_rws = 8.0;
+			    	}
+					team_one_rws += player_rws;
+				}
+				for (int i = 0; i < team_two.Length; i++) {
+					int client = team_two.Get(i);
+
+					float player_rws = g_PlayerRWS[client];
+			    	if (player_rws < 1) {
+			    		// Set new players RWS to a slightly below average value (8)
+			    		player_rws = 8.0;
+			    	}
+
+					team_two_rws += player_rws;
+				}
+
+				float localDifference = FloatAbs(team_one_rws - team_two_rws);
+
+				if (localDifference < minRwsDifference) {
+					final_team_one = CloneArray(team_one);
+					final_team_two = CloneArray(team_two);
+					minRwsDifference = localDifference;
+				}
+			}
+	} else {
+
+		// Do recursion and stuff
+		for (int i = 0; i < firstTeam.Length; i++) {
+			ArrayList firstTeamclone = CloneArray(firstTeam);
+			RemoveFromArray(firstTeamclone, i);
+			SortPlayers(teamSize, firstTeamclone, playerList, final_team_one, final_team_two, minRwsDifference);
+		}
+	}
+}
+
 /**
  * Here the teams are actually set to use the rws stuff.
  */
 public void BalancerFunction(ArrayList players) {
-    Handle pq = PQ_Init();
 
-    for (int i = 0; i < players.Length; i++) {
-        int client = players.Get(i);
-        PQ_Enqueue(pq, client, g_PlayerRWS[client]);
-        LogDebug("PQ_Enqueue(%L, %f)", client, g_PlayerRWS[client]);
-    }
-    LogDebug("");
+	ArrayList team_one = new ArrayList();
+	ArrayList team_two = new ArrayList();
+	float minRwsDifference = 9999.0;
+	SortPlayers((GetPugMaxPlayers() / 2), players, players, team_one, team_two, minRwsDifference);
+	LogDebug("[TEAM ONE]");
+	LogDebug("----------");
+	for(int i = 0; i < team_one.Length; i++) {
+		int t1player = team_one.Get(i);
+		LogDebug("-- %L", t1player);
+		SwitchPlayerTeam(t1player, CS_TEAM_CT);
+	}
 
-    int count = 0;
-    float ct_rws = 0;
-    float t_rws = 0;
-    int ct_team_size = 0;
-    int t_team_size = 0;
-
-    while (!PQ_IsEmpty(pq) && count < GetPugMaxPlayers()) {
-    	LogDebug("[Team Status] ct_rws=%f, t_rws=%f, ct_team_size=%d, t_team_size=%d", ct_rws, t_rws, ct_team_size, t_team_size);
-    	int p1 = PQ_Dequeue(pq);
-
-    	float player_rws = g_PlayerRWS[p1];
-
-    	if (player_rws < 1) {
-    		// Set new players RWS to a slightly below average value (8)
-    		player_rws = 8.0;
-    	}
-    	LogDebug("[Next Player] %L", p1);
-    	LogDebug("[RWS] %f", player_rws);        
-        if (t_rws < ct_rws || ct_team_size >= (GetPugMaxPlayers() / 2) ) {
-            SwitchPlayerTeam(p1, CS_TEAM_T);
-            t_team_size++;
-            t_rws += player_rws;
-            LogDebug("[Assign] T");
-        }
-        else if (ct_rws < t_rws || t_team_size >= (GetPugMaxPlayers() / 2)) {
-            SwitchPlayerTeam(p1, CS_TEAM_CT);
-            ct_team_size++;
-            ct_rws += player_rws;
-            LogDebug("[Assign] CT");
-        }
-        else {
-            // Random team
-            if (GetRandomInt(0, 1)) {
-            	SwitchPlayerTeam(p1, CS_TEAM_T);
-	            t_team_size++;
-	            t_rws += player_rws;
-	            LogDebug("[Assign] T (Random)");
-            } else {
-            	SwitchPlayerTeam(p1, CS_TEAM_CT);
-            	ct_team_size++;
-            	ct_rws += player_rws;
-            	LogDebug("[Assign] CT (Random)");
-            }
-        }
-        count += 1;
-        LogDebug("");
-
-    }
+	LogDebug("");
+	LogDebug("[TEAM TWO]");
+	LogDebug("----------");
+	for(int i = 0; i < team_two.Length; i++) {
+		int t2player = team_two.Get(i);
+		LogDebug("-- %L", t2player);
+		SwitchPlayerTeam(t2player, CS_TEAM_T);
+	}
+	LogDebug("");
     LogDebug("[Final Team Status]");
-    LogDebug("[CT RWS] %f", ct_rws);
-    LogDebug("[T  RWS] %f", t_rws);
+    LogDebug("[The RWS difference is: %f]", minRwsDifference);
 
-    while (!PQ_IsEmpty(pq)) {
-        int client = PQ_Dequeue(pq);
-        if (IsPlayer(client))
-            SwitchPlayerTeam(client, CS_TEAM_SPECTATOR);
-    }
+    // Sort out spectators
 
-    CloseHandle(pq);
+    LogDebug("");
+	LogDebug("[SPECTATORS]");
+	LogDebug("----------");
+	for (int i = 0; i < players.Length; i++) {
+		if ( FindValueInArray( team_one, players.Get(i) ) == -1 && FindValueInArray( team_two, players.Get(i) ) == -1 ) {
+			int spectator = players.Get(i);
+			if (IsPlayer(spectator)) {
+				LogDebug("-- %L", spectator);
+            	SwitchPlayerTeam(spectator, CS_TEAM_SPECTATOR);
+			}
+		} 
+	}
+			
 }
 
 /**
