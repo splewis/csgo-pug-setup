@@ -144,6 +144,7 @@ public void SplitRemainingPlayers(int teamSize, ArrayList playerList, ArrayList 
 			ArrayList playerListClone = CloneArray(playerList);
 			RemoveFromArray(playerListClone, i);
 			SplitRemainingPlayers(teamSize, playerListClone, remainingTeamTwoOptions);
+
 		}
 	}
 }
@@ -152,7 +153,7 @@ public void SortPlayers(int teamSize, ArrayList firstTeam, ArrayList playerList,
 
 	if (firstTeam.Length == teamSize) {
 			// Narrow down team two
-			ArrayList team_one = CloneArray(firstTeam);
+			ArrayList team_one = firstTeam;
 			ArrayList possibleTwos = new ArrayList();
 			ArrayList remainingPlayers = new ArrayList();
 
@@ -202,16 +203,111 @@ public void SortPlayers(int teamSize, ArrayList firstTeam, ArrayList playerList,
 					minRwsDifference = localDifference;
 				}
 			}
+			delete possibleTwos;
+			delete remainingPlayers;
 	} else {
 
 		// Do recursion and stuff
 		for (int i = 0; i < firstTeam.Length; i++) {
+			
 			ArrayList firstTeamclone = CloneArray(firstTeam);
 			RemoveFromArray(firstTeamclone, i);
 			SortPlayers(teamSize, firstTeamclone, playerList, final_team_one, final_team_two, minRwsDifference);
+			delete firstTeamclone;
+			
 		}
 	}
 }
+
+public void FindSecondTeam(ArrayList buffer, ArrayList remainingPlayers, int done, int begin, int end, ArrayList &seconds ) {
+	for (int i = begin; i < end; i++)
+    {
+    	buffer.Set(done, remainingPlayers.Get(i));
+
+      	if (done == buffer.Length - 1) {
+      		ArrayList bufferClone = CloneArray( buffer );
+        	seconds.Push(bufferClone);
+    	}
+
+      	else {
+        	FindSecondTeam(buffer, remainingPlayers, done+1, i+1, end, seconds);
+      	}
+    }
+}
+
+ public void FindCombosRec(ArrayList buffer, ArrayList players, int done, int begin, int end, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference)
+  {
+    for (int i = begin; i < end; i++)
+    {
+    	buffer.Set(done, players.Get(i));
+
+      	if (done == buffer.Length - 1) {
+      		// We have a possible team one ("buffer"), now find a team two
+
+        	ArrayList remainingPlayers = new ArrayList();
+
+			// Add the people that aren't in the first team to the 2nd team
+			for (int j = 0; j < players.Length; j++) {
+				if ( FindValueInArray(buffer, players.Get(j)) == -1 ) {
+					remainingPlayers.Push(players.Get(j));
+				} 
+			}
+
+
+        	ArrayList possibleSecondTeams = new ArrayList();
+        	FindSecondTeam(new ArrayList(1, buffer.Length), remainingPlayers, 0, 0, remainingPlayers.Length, possibleSecondTeams);
+        	float team_one_rws = 0.0;
+
+        	for (int j = 0; j < buffer.Length; j++) {
+        		int client = buffer.Get(j);
+					
+				float player_rws = g_PlayerRWS[client];
+		    	if (player_rws < 1) {
+		    		// Set new players RWS to a slightly below average value (8)
+		    		player_rws = 8.0;
+		    	}
+				team_one_rws += player_rws;
+			}
+
+        	for (int j = 0; j < possibleSecondTeams.Length; j++) {
+
+        		ArrayList secondteam = possibleSecondTeams.Get(j);
+        		float team_two_rws = 0.0;
+
+        		for (int k = 0; k < secondteam.Length; k++ ) {
+        			int client = secondteam.Get(k);
+					
+					float player_rws = g_PlayerRWS[client];
+			    	if (player_rws < 1) {
+			    		// Set new players RWS to a slightly below average value (8)
+			    		player_rws = 8.0;
+			    	}
+					team_two_rws += player_rws;
+        		}
+
+        		// Compare the RWS for team one and team two and if ti's less than the min then make them the new mins 
+        		float localDifference = FloatAbs(team_one_rws - team_two_rws);
+
+				if (localDifference < minRwsDifference) {
+					final_team_one = CloneArray(buffer);
+					final_team_two = CloneArray(secondteam);
+					minRwsDifference = localDifference;
+				}
+
+			}
+    	}
+
+      	else {
+        	FindCombosRec(buffer, players, done+1, i+1, end, final_team_one, final_team_two, minRwsDifference);
+      }
+    }
+  }
+
+
+public void FindCombinations(int m, ArrayList players, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference){
+	FindCombosRec(new ArrayList(1, m), players, 0, 0, players.Length, final_team_one, final_team_two, minRwsDifference);
+}
+
 
 /**
  * Here the teams are actually set to use the rws stuff.
@@ -221,7 +317,10 @@ public void BalancerFunction(ArrayList players) {
 	ArrayList team_one = new ArrayList();
 	ArrayList team_two = new ArrayList();
 	float minRwsDifference = 9999.0;
-	SortPlayers((GetPugMaxPlayers() / 2), players, players, team_one, team_two, minRwsDifference);
+
+	FindCombinations( (GetPugMaxPlayers() / 2), players, team_one, team_two, minRwsDifference);
+	
+	// SortPlayers((GetPugMaxPlayers() / 2), players, players, team_one, team_two, minRwsDifference);
 	LogDebug("[TEAM ONE]");
 	LogDebug("----------");
 	for(int i = 0; i < team_one.Length; i++) {
