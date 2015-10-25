@@ -4,6 +4,9 @@ addons:
     apt_packages:
         - lib32stdc++6  # needed for spcomp
 
+env:
+    - SMVERSION=1.7
+
 before_script:
     # install smbuilder
     - git clone https://github.com/splewis/sm-builder
@@ -13,8 +16,14 @@ before_script:
     - cd ..
 
     # install the sourcemod compiler
-    - wget http://www.gsptalk.com/mirror/sourcemod/sourcemod-1.7.2-linux.tar.gz
-    - tar -xzf sourcemod-1.7.2-linux.tar.gz
+    - SMPATTERN="http:.*sourcemod-.*-linux.*"
+    - SMURL="http://www.sourcemod.net/smdrop/$SMVERSION/"
+    - SMPACKAGE=`elinks -dump "$SMURL" | egrep -o "$SMPATTERN" | tail -1`
+    - TEST_SCRIPT="tests/test_compile-all.sp"
+
+    - wget $SMPACKAGE
+    - tar -xzf $(basename "$SMPACKAGE")
+    - cp -R scripting/ addons/sourcemod/
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
