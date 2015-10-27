@@ -17,14 +17,9 @@ before_script:
     - cd ..
 
     # install the sourcemod compiler
-    - SMPATTERN="http:.*sourcemod-.*-linux.*"
-    - SMURL="http://www.sourcemod.net/smdrop/$SMVERSION/"
-    - SMPACKAGE=`elinks -dump "$SMURL" | egrep -o "$SMPATTERN" | tail -1`
-    - TEST_SCRIPT="tests/test_compile-all.sp"
-
+    - SMPACKAGE="http://sourcemod.net/latest.php?os=linux&version=${SMVERSION}"
     - wget $SMPACKAGE
-    - tar -xzf $(basename "$SMPACKAGE")
-    - cp -R scripting/ addons/sourcemod/
+    - tar xfz $(basename $SMPACKAGE)
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
