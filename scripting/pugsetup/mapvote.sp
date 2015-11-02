@@ -33,8 +33,8 @@ static void ShowMapVote() {
 public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) {
     ArrayList mapList = GetCurrentMapList();
 
-    if (action == MenuAction_Select && GetCvarIntSafe("sm_vote_progress_chat") == 0) {
-        // only prints votes to chat if sourcemod isn't automatically printing votes in chat
+    if (action == MenuAction_Select && GetCvarIntSafe("sm_vote_progress_chat") == 0 && g_DisplayMapVotesCvar.IntValue != 0) {
+        // Only prints votes to chat if sourcemod isn't automatically printing votes in chat
         int client = param1;
         char clientName[MAX_NAME_LENGTH];
         GetClientName(client, clientName, sizeof(clientName));

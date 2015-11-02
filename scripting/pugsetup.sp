@@ -37,6 +37,7 @@ ConVar g_AutoUpdateCvar;
 ConVar g_CvarVersionCvar;
 ConVar g_DemoNameFormatCvar;
 ConVar g_DemoTimeFormatCvar;
+ConVar g_DisplayMapVotesCvar;
 ConVar g_DoVoteForKnifeRoundDecisionCvar;
 ConVar g_EchoReadyMessagesCvar;
 ConVar g_ExcludeSpectatorsCvar;
@@ -215,6 +216,7 @@ public void OnPluginStart() {
     g_AutoUpdateCvar = CreateConVar("sm_pugsetup_autoupdate", "1", "Whether the plugin may (if the \"Updater\" plugin is loaded) automatically update.");
     g_DemoNameFormatCvar = CreateConVar("sm_pugsetup_demo_name_format", "pug_{MAP}_{TIME}", "Naming scheme for demos. You may use {MAP}, {TIME}, and {TEAMSIZE}. Make sure there are no spaces or colons in this.");
     g_DemoTimeFormatCvar = CreateConVar("sm_pugsetup_time_format", "%Y-%m-%d_%H", "Time format to use when creating demo file names. Don't tweak this unless you know what you're doing! Avoid using spaces or colons.");
+    g_DisplayMapVotesCvar = CreateConVar("sm_pugsetup_display_map_votes", "1", "Whether votes cast by players will be displayed to everyone");
     g_DoVoteForKnifeRoundDecisionCvar = CreateConVar("sm_pugsetup_vote_for_knife_round_decision", "0", "If 0, the first player to type .stay/.swap/.t/.ct will decide the round round winner decision - otherwise a majority vote will be used");
     g_EchoReadyMessagesCvar = CreateConVar("sm_pugsetup_echo_ready_messages", "1", "Whether to print to chat when clients ready/unready.");
     g_ExcludeSpectatorsCvar = CreateConVar("sm_pugsetup_exclude_spectators", "0", "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains as well.");
