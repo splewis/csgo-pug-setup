@@ -1618,10 +1618,16 @@ public void ExecGameConfigs() {
         EndWarmup();
 
     // if force playout selected, set that cvar now
-    if (g_DoPlayout)
+    if (g_DoPlayout) {
         ServerCommand("mp_match_can_clinch 0");
-    else
+
+        // Note: the game will automatically go to overtime with playout enabled,
+        // (even if the score is 29-1, for example) which doesn't make sense generally,
+        // so we explicitly disable overtime here.
+        ServerCommand("mp_overtime_enable 0");
+    } else {
         ServerCommand("mp_match_can_clinch 1");
+    }
 }
 
 stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
