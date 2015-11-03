@@ -452,12 +452,13 @@ public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int para
 }
 
 public void LaunchPracticeMode() {
+    ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
+
     g_InPracticeMode = true;
     for (int i = 0; i < g_BinaryOptionNames.Length; i++) {
         ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
     }
 
-    ServerCommand("exec sourcemod/pugsetup/practice_start.cfg");
     PugSetupMessageToAll("Practice mode is now enabled.");
     Call_StartForward(g_OnPracticeModeEnabled);
     Call_Finish();
