@@ -436,4 +436,9 @@
 	{
 		"en"		"Recorded vote to swap"
 	}
+	"ChangeMapMessage"
+	{
+		"#format"		"{1:s}"
+		"en"		"Changing map to {GREEN}{1}{NORMAL}..."
+	}
 }
