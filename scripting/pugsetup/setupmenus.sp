@@ -82,9 +82,17 @@
         // 7. use aim_ map warmup
         if (g_DisplayAimWarmup && g_AimMapList.Length >= 1) {
             char enabledString[128];
-            GetEnabledString(enabledString, sizeof(enabledString), g_DoAimWarmup, client);
+            bool aim_enabled = g_DoAimWarmup;
+            int aim_style = style;
+
+            if (g_MapType == MapType_Current) {
+                aim_enabled = false;
+                aim_style = ITEMDRAW_DISABLED;
+            }
+
+            GetEnabledString(enabledString, sizeof(enabledString), aim_enabled, client);
             Format(buffer, sizeof(buffer), "%T: %s", "AimWarmupMenuOption", client, enabledString);
-            AddMenuItem(menu, "aim_warmup", buffer, style);
+            AddMenuItem(menu, "aim_warmup", buffer, aim_style);
         }
 
         // 8. set captains
