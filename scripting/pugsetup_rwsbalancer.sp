@@ -220,6 +220,7 @@ public void SortPlayers(int teamSize, ArrayList firstTeam, ArrayList playerList,
 }
 
 public void FindSecondTeam(ArrayList buffer, ArrayList remainingPlayers, int done, int begin, int end, ArrayList &seconds ) {
+
 	for (int i = begin; i < end; i++)
     {
     	buffer.Set(done, remainingPlayers.Get(i));
@@ -235,7 +236,7 @@ public void FindSecondTeam(ArrayList buffer, ArrayList remainingPlayers, int don
     }
 }
 
- public void FindCombosRec(ArrayList buffer, ArrayList players, int done, int begin, int end, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference)
+ public void FindFirstTeam(ArrayList buffer, ArrayList players, int done, int begin, int end, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference)
   {
     for (int i = begin; i < end; i++)
     {
@@ -255,7 +256,8 @@ public void FindSecondTeam(ArrayList buffer, ArrayList remainingPlayers, int don
 
 
         	ArrayList possibleSecondTeams = new ArrayList();
-        	FindSecondTeam(new ArrayList(1, buffer.Length), remainingPlayers, 0, 0, remainingPlayers.Length, possibleSecondTeams);
+        	ArrayList secondTeamBuffer = new ArrayList(1, buffer.Length);
+        	FindSecondTeam(secondTeamBuffer, remainingPlayers, 0, 0, remainingPlayers.Length, possibleSecondTeams);
         	float team_one_rws = 0.0;
 
         	for (int j = 0; j < buffer.Length; j++) {
@@ -293,19 +295,25 @@ public void FindSecondTeam(ArrayList buffer, ArrayList remainingPlayers, int don
 					final_team_two = CloneArray(secondteam);
 					minRwsDifference = localDifference;
 				}
+				delete secondteam;
 
 			}
+			delete possibleSecondTeams;
+			delete secondTeamBuffer;
+			delete remainingPlayers;
     	}
 
       	else {
-        	FindCombosRec(buffer, players, done+1, i+1, end, final_team_one, final_team_two, minRwsDifference);
+        	FindFirstTeam(buffer, players, done+1, i+1, end, final_team_one, final_team_two, minRwsDifference);
       }
     }
   }
 
 
 public void FindCombinations(int m, ArrayList players, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference){
-	FindCombosRec(new ArrayList(1, m), players, 0, 0, players.Length, final_team_one, final_team_two, minRwsDifference);
+	ArrayList buffer = new ArrayList(1, m);
+	FindFirstTeam(buffer, players, 0, 0, players.Length, final_team_one, final_team_two, minRwsDifference);
+	delete buffer;
 }
 
 
@@ -318,14 +326,24 @@ public void BalancerFunction(ArrayList players) {
 	ArrayList team_two = new ArrayList();
 	float minRwsDifference = 9999.0;
 
+	// Assign all players to spec to account for color bug
+	for(int i = 0; i < GetPugMaxPlayers(); i++) {
+		SwitchPlayerTeam(players.Get(i), CS_TEAM_SPECTATOR);
+	}
+
 	FindCombinations( (GetPugMaxPlayers() / 2), players, team_one, team_two, minRwsDifference);
+
 	
 	// SortPlayers((GetPugMaxPlayers() / 2), players, players, team_one, team_two, minRwsDifference);
 	LogDebug("[TEAM ONE]");
 	LogDebug("----------");
 	for(int i = 0; i < team_one.Length; i++) {
 		int t1player = team_one.Get(i);
-		LogDebug("-- %L", t1player);
+		float t1playerRWS = g_PlayerRWS[t1player];
+		if (t1playerRWS < 1 ) {
+			t1playerRWS = 8.0;
+		}
+		LogDebug("%L [%.2f RWS]", t1player, t1playerRWS);
 		SwitchPlayerTeam(t1player, CS_TEAM_CT);
 	}
 
@@ -334,12 +352,16 @@ public void BalancerFunction(ArrayList players) {
 	LogDebug("----------");
 	for(int i = 0; i < team_two.Length; i++) {
 		int t2player = team_two.Get(i);
-		LogDebug("-- %L", t2player);
+		float t2playerRWS = g_PlayerRWS[t2player];
+		if (t2playerRWS < 1) {
+			t2playerRWS = 8.0;
+		}
+		LogDebug("%L [%.2f RWS]", t2player, t2playerRWS);
 		SwitchPlayerTeam(t2player, CS_TEAM_T);
 	}
 	LogDebug("");
     LogDebug("[Final Team Status]");
-    LogDebug("[The RWS difference is: %f]", minRwsDifference);
+    LogDebug("[The RWS difference is: %.2f]", minRwsDifference);
 
     // Sort out spectators
 
@@ -355,6 +377,9 @@ public void BalancerFunction(ArrayList players) {
 			}
 		} 
 	}
+
+	delete team_one;
+	delete team_two;
 			
 }
 
@@ -430,9 +455,6 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
         if (IsPlayer(i) && HasStats(i)) {
             // Reset the round points for the next round
             g_RoundPoints[i] = 0;
-
-            // Save the stats (this is done every round so the server doesn't crash and forget RWS)
-            WriteStats(i);
         }
     }
 
@@ -457,6 +479,8 @@ static void RWSUpdate(int client, bool winner) {
             // scaled so it's always considered "out of 5 players" so different team sizes
             // don't give inflated rws
             rws = 100.0 * float(playerCount) / 10.0 * float(g_RoundPoints[client]) / float(sum);
+
+            
         } else {
             return;
         }
@@ -468,6 +492,7 @@ static void RWSUpdate(int client, bool winner) {
     float alpha = GetAlphaFactor(client);
     g_PlayerRWS[client] = (1.0 - alpha) * g_PlayerRWS[client] + alpha * rws;
     g_PlayerRounds[client]++;
+    
     LogDebug("RoundUpdate(%L), alpha=%f, round_points=%i, round_rws=%f, new_rws=%f", client, alpha, g_RoundPoints[client], rws, g_PlayerRWS[client]);
 }
 
