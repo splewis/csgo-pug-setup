@@ -149,76 +149,6 @@ public void SplitRemainingPlayers(int teamSize, ArrayList playerList, ArrayList 
 	}
 }
 
-public void SortPlayers(int teamSize, ArrayList firstTeam, ArrayList playerList, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference) {
-
-	if (firstTeam.Length == teamSize) {
-			// Narrow down team two
-			ArrayList team_one = firstTeam;
-			ArrayList possibleTwos = new ArrayList();
-			ArrayList remainingPlayers = new ArrayList();
-
-			// Add the people that aren't in the first team to the 2nd team
-			for (int i = 0; i < playerList.Length; i++) {
-				if ( FindValueInArray(team_one, playerList.Get(i)) == -1 ) {
-					remainingPlayers.Push(playerList.Get(i));
-				} 
-			}
-			
-			SplitRemainingPlayers(teamSize, remainingPlayers, possibleTwos);
-
-			for(int i = 0; i < possibleTwos.Length; i++) {
-				ArrayList team_two = possibleTwos.Get(i);
-
-				// Get RWS of teams 1 and 2 and compare them
-				float team_one_rws = 0.0;
-				float team_two_rws = 0.0;
-				
-				for (int i = 0; i < team_one.Length; i++) {
-					int client = team_one.Get(i);
-					
-					float player_rws = g_PlayerRWS[client];
-			    	if (player_rws < 1) {
-			    		// Set new players RWS to a slightly below average value (8)
-			    		player_rws = 8.0;
-			    	}
-					team_one_rws += player_rws;
-				}
-				for (int i = 0; i < team_two.Length; i++) {
-					int client = team_two.Get(i);
-
-					float player_rws = g_PlayerRWS[client];
-			    	if (player_rws < 1) {
-			    		// Set new players RWS to a slightly below average value (8)
-			    		player_rws = 8.0;
-			    	}
-
-					team_two_rws += player_rws;
-				}
-
-				float localDifference = FloatAbs(team_one_rws - team_two_rws);
-
-				if (localDifference < minRwsDifference) {
-					final_team_one = CloneArray(team_one);
-					final_team_two = CloneArray(team_two);
-					minRwsDifference = localDifference;
-				}
-			}
-			delete possibleTwos;
-			delete remainingPlayers;
-	} else {
-
-		// Do recursion and stuff
-		for (int i = 0; i < firstTeam.Length; i++) {
-			
-			ArrayList firstTeamclone = CloneArray(firstTeam);
-			RemoveFromArray(firstTeamclone, i);
-			SortPlayers(teamSize, firstTeamclone, playerList, final_team_one, final_team_two, minRwsDifference);
-			delete firstTeamclone;
-			
-		}
-	}
-}
-
 public void FindSecondTeam(ArrayList buffer, ArrayList remainingPlayers, int done, int begin, int end, ArrayList &seconds ) {
 
 	for (int i = begin; i < end; i++)
@@ -326,15 +256,14 @@ public void BalancerFunction(ArrayList players) {
 	ArrayList team_two = new ArrayList();
 	float minRwsDifference = 9999.0;
 
-	// Assign all players to spec to account for color bug
+	// Assign all players to spec fix same-color bug
 	for(int i = 0; i < GetPugMaxPlayers(); i++) {
 		SwitchPlayerTeam(players.Get(i), CS_TEAM_SPECTATOR);
 	}
 
 	FindCombinations( (GetPugMaxPlayers() / 2), players, team_one, team_two, minRwsDifference);
 
-	
-	// SortPlayers((GetPugMaxPlayers() / 2), players, players, team_one, team_two, minRwsDifference);
+	// Assign team one to CT
 	LogDebug("[TEAM ONE]");
 	LogDebug("----------");
 	for(int i = 0; i < team_one.Length; i++) {
@@ -347,6 +276,7 @@ public void BalancerFunction(ArrayList players) {
 		SwitchPlayerTeam(t1player, CS_TEAM_CT);
 	}
 
+	// Assign team two to T
 	LogDebug("");
 	LogDebug("[TEAM TWO]");
 	LogDebug("----------");
@@ -380,7 +310,6 @@ public void BalancerFunction(ArrayList players) {
 
 	delete team_one;
 	delete team_two;
-			
 }
 
 /**
