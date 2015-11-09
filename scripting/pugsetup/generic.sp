@@ -88,14 +88,22 @@ stock int GetNumHumansOnTeam(int team) {
 /**
  * Returns a random player client on the server.
  */
-stock int RandomPlayer() {
-    int client = -1;
-    while (!IsValidClient(client) || IsFakeClient(client)) {
-        if (GetRealClientCount() < 1)
-            return -1;
+stock int RandomPlayer(int exclude=-1) {
+    ArrayList clients = new ArrayList();
 
-        client = GetRandomInt(1, MaxClients);
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && i != exclude) {
+            clients.Push(i);
+        }
     }
+
+    if (clients.Length == 0) {
+        delete clients;
+        return -1;
+    }
+
+    int client = GetArrayCellRandom(clients);
+    delete clients;
     return client;
 }
 
