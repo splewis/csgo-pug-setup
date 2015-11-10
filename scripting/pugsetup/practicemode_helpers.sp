@@ -248,7 +248,7 @@ public bool FindTargetInGrenadesKvByName(const char[] inputName, char[] name, in
             g_GrenadeLocationsKv.GetSectionName(auth, authLen);
             g_GrenadeLocationsKv.GetString("name", name, nameLen);
 
-            if (StrContains(name, inputName) != -1) {
+            if (StrContains(name, inputName, false) != -1) {
                 g_GrenadeLocationsKv.GoBack();
                 return true;
             }
