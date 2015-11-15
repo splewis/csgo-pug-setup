@@ -246,6 +246,9 @@ public void OnPluginStart() {
     g_CvarVersionCvar = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     g_CvarVersionCvar.SetString(PLUGIN_VERSION);
 
+    HookConVarChange(g_MapListCvar, OnMapListChanged);
+    HookConVarChange(g_AimMapListCvar, OnAimMapListChanged);
+
     /** Commands **/
     g_Commands = new ArrayList(COMMAND_LENGTH);
     LoadTranslatedAliases();
@@ -340,6 +343,18 @@ static void AddPugSetupCommand(const char[] command, ConCmd callback, const char
     char dotCommandBuffer[64];
     Format(dotCommandBuffer, sizeof(dotCommandBuffer), ".%s", command);
     AddChatAlias(dotCommandBuffer, smCommandBuffer);
+}
+
+public void OnMapListChanged(ConVar convar, const char[] oldValue, const char[] newValue) {
+    if (!StrEqual(oldValue, newValue)) {
+        FillMapList(g_MapListCvar, g_MapList);
+    }
+}
+
+public void OnAimMapListChanged(ConVar convar, const char[] oldValue, const char[] newValue) {
+    if (!StrEqual(oldValue, newValue)) {
+        FillMapList(g_AimMapListCvar, g_AimMapList);
+    }
 }
 
 public void OnConfigsExecuted() {
