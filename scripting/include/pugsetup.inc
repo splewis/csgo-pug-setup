@@ -328,7 +328,7 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("GiveSetupMenu");
     MarkNativeAsOptional("IsValidCommand");
     MarkNativeAsOptional("GetPermissions");
-    MarkNativeAsOptional("SetPermissions");;
+    MarkNativeAsOptional("SetPermissions");
     MarkNativeAsOptional("SetTeamBalancer");
     MarkNativeAsOptional("IsTeamBalancerAvaliable")
     MarkNativeAsOptional("ClearTeamBalancer");
