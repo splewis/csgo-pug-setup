@@ -416,7 +416,7 @@ public void OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSiz
     }
 }
 
-public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
+public Action OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
     int leader = GetLeader(false);
     if (!IsPlayer(leader)) {
         SetLeader(client);
@@ -429,10 +429,10 @@ public bool OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
 
     if (g_InPracticeMode) {
         GivePracticeMenu(client, style);
-        return false;
+        return Plugin_Stop;
     } else {
         AddMenuItem(menu, "launch_practice", "Launch practice mode", style);
-        return true;
+        return Plugin_Continue;
     }
 }
 

@@ -308,7 +308,7 @@ public void OnPluginStart() {
     g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
     g_hOnReadyToStart = CreateGlobalForward("OnReadyToStart", ET_Ignore);
     g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-    g_hOnSetupMenuOpen = CreateGlobalForward("OnSetupMenuOpen", ET_Single, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnSetupMenuOpen = CreateGlobalForward("OnSetupMenuOpen", ET_Event, Param_Cell, Param_Cell, Param_Cell);
     g_hOnSetupMenuSelect = CreateGlobalForward("OnSetupMenuSelect", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
     g_hOnStartRecording = CreateGlobalForward("OnStartRecording", ET_Ignore, Param_String);
     g_hOnStateChange = CreateGlobalForward("OnGameStateChanged", ET_Ignore, Param_Cell, Param_Cell);

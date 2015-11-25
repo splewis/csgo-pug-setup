@@ -115,14 +115,14 @@
             AddMenuItem(menu, "change_map", buffer, style);
         }
 
-        bool showMenu = true;
+        Action action = Plugin_Continue;
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
         Call_PushCell(menu);
         Call_PushCell(displayOnly);
-        Call_Finish(showMenu);
+        Call_Finish(action);
 
-        if (showMenu) {
+        if (action == Plugin_Continue) {
             if (menuPosition == -1) {
                 DisplayMenu(menu, client, MENU_TIME_FOREVER);
             } else {
