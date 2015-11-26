@@ -137,7 +137,7 @@
 public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        char buffer[64];
+        char buffer[128];
         menu.GetItem(param2, buffer, sizeof(buffer));
         int pos = GetMenuSelectionPosition();
 
@@ -187,9 +187,9 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         Call_StartForward(g_hOnSetupMenuSelect);
         Call_PushCell(menu);
-        Call_PushCell(action);
-        Call_PushCell(param1);
-        Call_PushCell(param2);
+        Call_PushCell(client);
+        Call_PushString(buffer);
+        Call_PushCell(pos);
         Call_Finish();
 
     } else if (action == MenuAction_End) {

@@ -53,7 +53,7 @@ forward Action OnSetupMenuOpen(int client, Menu menu, bool displayOnly);
  * Called when a setup menu option is selected.
  * You should call GiveSetupMenu to the calling client at the end of this function.
  */
-forward void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int param2);
+forward void OnSetupMenuSelect(Menu menu, int client, const char[] selected_info, int selected_position);
 
 /**
  * Called when a setup is completed.

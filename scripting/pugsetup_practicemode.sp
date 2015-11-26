@@ -441,11 +441,8 @@ public void OnReadyToStart() {
         ExitPracticeMode();
 }
 
-public void OnSetupMenuSelect(Menu menu, MenuAction action, int param1, int param2) {
-    int client = param1;
-    char buffer[64];
-    menu.GetItem(param2, buffer, sizeof(buffer));
-    if (StrEqual(buffer, "launch_practice")) {
+public void OnSetupMenuSelect(Menu menu, int client, const char[] selected_info, int selected_position) {
+    if (StrEqual(selected_info, "launch_practice")) {
         LaunchPracticeMode();
         GivePracticeMenu(client);
     }
