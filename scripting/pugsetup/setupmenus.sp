@@ -158,11 +158,11 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "knife")) {
             g_DoKnifeRound = !g_DoKnifeRound;
-            GiveSetupMenu(client);
+            GiveSetupMenu(client, false, pos);
 
         } else if (StrEqual(buffer, "autolive")) {
             g_AutoLive = !g_AutoLive;
-            GiveSetupMenu(client);
+            GiveSetupMenu(client, false, pos);
 
         } else if (StrEqual(buffer, "set_captains")) {
             FakeClientCommand(client, "sm_capt");
