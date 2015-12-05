@@ -822,6 +822,7 @@ public void LoadExtraAliases() {
     AddChatAlias(".paws", "sm_pause");
     AddChatAlias(".unpaws", "sm_unpause");
     AddChatAlias(".switch", "sm_swap");
+    AddChatAlias(".forcestop", "sm_forceend");
 }
 
 static void AddTranslatedAlias(const char[] command) {
