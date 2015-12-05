@@ -64,8 +64,16 @@ public Action MatchLive(Handle timer) {
     Call_StartForward(g_hOnLive);
     Call_Finish();
 
-    for (int i = 0; i < 5; i++)
+    // Restore client clan tags since we're live.
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i)) {
+            RestoreClanTag(i);
+        }
+    }
+
+    for (int i = 0; i < 5; i++) {
         PugSetupMessageToAll("%t", "Live");
+    }
 
     return Plugin_Handled;
 }
