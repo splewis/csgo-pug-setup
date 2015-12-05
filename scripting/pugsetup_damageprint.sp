@@ -25,7 +25,7 @@ public Plugin myinfo = {
 
 public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
-    g_hAutoColorize = CreateConVar("sm_pugsetup_damageprint_auto_color", "1", "Whether colors are automatically inserted for damage values, changing depending on if the damage resulted in a kill");
+    g_hAutoColorize = CreateConVar("sm_pugsetup_damageprint_auto_color", "0", "Whether colors are automatically inserted for damage values, changing depending on if the damage resulted in a kill");
     g_hEnabled = CreateConVar("sm_pugsetup_damageprint_enabled", "1", "Whether the plugin is enabled");
     g_hAllowDmgCommand = CreateConVar("sm_pugsetup_damageprint_allow_dmg_command", "1", "Whether players can type .dmg to see damage done");
     g_hMessageFormat = CreateConVar("sm_pugsetup_damageprint_format", "--> ({DMG_TO} dmg / {HITS_TO} hits) to ({DMG_FROM} dmg / {HITS_FROM} hits) from {NAME} ({HEALTH} HP)", "Format of the damage output string. Avaliable tags are in the default, color tags such as {LIGHT_RED} and {GREEN} also work.");
