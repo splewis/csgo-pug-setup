@@ -63,6 +63,10 @@ public void HandleKnifeDecisionVote() {
 }
 
 public void EndKnifeRound(bool swap) {
+    Call_StartForward(g_hOnKnifeRoundDecision);
+    Call_PushCell(swap);
+    Call_Finish();
+
     if (swap) {
         for (int i = 1; i <= MaxClients; i++) {
             if (IsValidClient(i)) {

@@ -153,6 +153,8 @@ int g_KnifeRoundVotesCast = 0;
 /** Forwards **/
 Handle g_hOnForceEnd = INVALID_HANDLE;
 Handle g_hOnGoingLive = INVALID_HANDLE;
+Handle g_hOnHelpCommand = INVALID_HANDLE;
+Handle g_hOnKnifeRoundDecision = INVALID_HANDLE;
 Handle g_hOnLive = INVALID_HANDLE;
 Handle g_hOnLiveCfg = INVALID_HANDLE;
 Handle g_hOnLiveCheck = INVALID_HANDLE;
@@ -170,7 +172,6 @@ Handle g_hOnStartRecording = INVALID_HANDLE;
 Handle g_hOnStateChange = INVALID_HANDLE;
 Handle g_hOnUnready = INVALID_HANDLE;
 Handle g_hOnWarmupCfg = INVALID_HANDLE;
-Handle g_hOnHelpCommand = INVALID_HANDLE;
 
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configs.sp"
@@ -297,6 +298,7 @@ public void OnPluginStart() {
     g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
     g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
     g_hOnHelpCommand = CreateGlobalForward("OnHelpCommand", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_CellByRef);
+    g_hOnKnifeRoundDecision = CreateGlobalForward("OnKnifeRoundDecision", ET_Ignore, Param_Cell);
     g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
     g_hOnLiveCfg = CreateGlobalForward("OnLiveCfgExecuted", ET_Ignore);
     g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);

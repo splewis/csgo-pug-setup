@@ -84,6 +84,11 @@ forward void OnUnready(int client);
 forward void OnReadyToStart();
 
 /**
+ * Called when a team won the knife round and made their decision.
+ */
+forward void OnKnifeRoundDecision(bool swapping);
+
+/**
  * Called when the going-live process begins, before the lo3.
  */
 forward void OnGoingLive();
