@@ -1,6 +1,7 @@
+#include <clientprefs>
 #include <cstrike>
-#include <sourcemod>
 #include <sdktools>
+#include <sourcemod>
 #include "include/restorecvars.inc"
 #include "include/logdebug.inc"
 #include "include/pugsetup.inc"
@@ -30,6 +31,7 @@
 /** ConVar handles **/
 ConVar g_AdminFlagCvar;
 ConVar g_AimMapListCvar;
+ConVar g_AllowCustomReadyMessageCvar;
 ConVar g_AnnounceCountdownCvar;
 ConVar g_AutoRandomizeCaptainsCvar;
 ConVar g_AutoSetupCvar;
@@ -111,6 +113,9 @@ int g_LastReadyHintTime = 0;
 /** Pause information **/
 bool g_ctUnpaused = false;
 bool g_tUnpaused = false;
+
+/** Custom ready messages **/
+Handle g_ReadyMessageCookie = INVALID_HANDLE;
 
 /** Stuff for workshop map/collection cache **/
 char g_DataDir[PLATFORM_MAX_PATH]; // directory to leave cache files in
@@ -211,6 +216,7 @@ public void OnPluginStart() {
     /** ConVars **/
     g_AdminFlagCvar = CreateConVar("sm_pugsetup_admin_flag", "b", "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
     g_AimMapListCvar = CreateConVar("sm_pugsetup_maplist_aim_maps", "aim_maps.txt", "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
+    g_AllowCustomReadyMessageCvar = CreateConVar("sm_pugsetup_allow_custom_ready_messages", "1", "Whether users can set custom ready messages saved via a clientprefs cookie");
     g_AnnounceCountdownCvar = CreateConVar("sm_pugsetup_announce_countdown_timer", "1", "Whether to announce how long the countdown has left before the lo3 begins.");
     g_AutoRandomizeCaptainsCvar = CreateConVar("sm_pugsetup_auto_randomize_captains", "0", "When games are using captains, should they be automatically randomized once? Note you can still manually set them or use .rand/!rand to redo the randomization.");
     g_AutoSetupCvar = CreateConVar("sm_pugsetup_autosetup", "0", "Whether a pug is automatically setup using the default setup options or not.");
@@ -279,6 +285,7 @@ public void OnPluginStart() {
     AddPugSetupCommand("removealias", Command_RemoveAlias, "Removes a pugsetup alias", Permission_Admin);
     AddPugSetupCommand("setdefault", Command_SetDefault, "Sets a default setup option", Permission_Admin);
     AddPugSetupCommand("setdisplay", Command_SetDisplay, "Sets whether a setup option will be displayed", Permission_Admin);
+    AddPugSetupCommand("readymessage", Command_ReadyMessage, "Sets your ready message", Permission_All);
     LoadExtraAliases();
 
     RegConsoleCmd("pugstatus", Command_Pugstatus, "Dumps information about the pug game status");
@@ -316,6 +323,8 @@ public void OnPluginStart() {
     g_hOnStateChange = CreateGlobalForward("OnGameStateChanged", ET_Ignore, Param_Cell, Param_Cell);
     g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
     g_hOnWarmupCfg = CreateGlobalForward("OnWarmupCfgExecuted", ET_Ignore);
+
+    g_ReadyMessageCookie = RegClientCookie("pugsetup_ready", "Pugsetup ready message", CookieAccess_Protected);
 
     g_LiveTimerRunning = false;
     ReadSetupOptions();
@@ -1285,6 +1294,18 @@ public Action Command_SetDisplay(int client, int args) {
         }
     } else {
         PugSetupMessage(client, "Usage: .setdefault <setting> <0/1>");
+    }
+
+    return Plugin_Handled;
+}
+
+public Action Command_ReadyMessage(int client, int args) {
+    PermissionCheck(client, "sm_readymessage")
+    if (g_AllowCustomReadyMessageCvar.IntValue != 0) {
+        char message[256];
+        GetCmdArgString(message, sizeof(message));
+        SetClientCookie(client, g_ReadyMessageCookie, message);
+        PugSetupMessage(client, "%t", "SavedReadyMessage");
     }
 
     return Plugin_Handled;
