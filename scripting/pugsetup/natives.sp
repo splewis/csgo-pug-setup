@@ -129,10 +129,10 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
             if (!StrEqual(message, "")) {
                 PugSetupMessageToAll("%N %s", client, message);
             } else {
-                PugSetupMessageToAll("%T", "IsNowReady", client);
+                PugSetupMessageToAll("%t", "IsNowReady", client);
             }
         } else {
-            PugSetupMessageToAll("%T", "IsNowReady", client);
+            PugSetupMessageToAll("%t", "IsNowReady", client);
         }
     }
 
@@ -159,7 +159,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
     UpdateClanTag(client);
 
     if (g_EchoReadyMessagesCvar.IntValue != 0) {
-        PugSetupMessage(client, "%T", "IsNoLongerReady", client);
+        PugSetupMessageToAll("%t", "IsNoLongerReady", client);
     }
 
     return true;
