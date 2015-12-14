@@ -676,7 +676,7 @@ public Action Event_WeaponFired(Event event, const char[] name, bool dontBroadca
 }
 
 public Action Command_LaunchPracticeMode(int client, int args) {
-    if (!g_InPracticeMode) {
+    if (!g_InPracticeMode && GetGameState() <= GameState_Warmup) {
         LaunchPracticeMode();
     }
     return Plugin_Handled;
