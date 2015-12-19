@@ -1,3 +1,14 @@
+## 1.4.3:
+- add optional voting for stay/swap decisions after knife rounds (sm_pugsetup_vote_for_knife_round_decision)
+- add optional user-set ready echo messages set with .readymessage command
+- clean up setup menus to have an ExitBack option
+- practice mode: noclip command will work correctly even with a "noclip; say .noclip" command
+- practice mode: add commands to launch/exit practice mode: sm_launchpractice, sm_exitpractice
+- rwsbalancer: fix bugs with accuracy of the stored rws values
+- add Polish translations (thanks TheTolek14)
+- add Brazilian Portuguese translations (thanks marcelotk)
+- add Norwegian translations (thanks Bawls)
+
 ## 1.4.2:
 - correct a bug where the pug leader was not being assigned correctly when a client finished the .setup menu
 
