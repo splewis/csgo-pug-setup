@@ -135,44 +135,167 @@ public void WriteStats(int client) {
     SetCookieFloat(client, g_RWSCookie, g_PlayerRWS[client]);
 }
 
+public void FindSecondTeam(ArrayList buffer, ArrayList remainingPlayers, int done, int begin, int end, ArrayList &seconds ) {
+
+    for (int i = begin; i < end; i++)
+    {
+        buffer.Set(done, remainingPlayers.Get(i));
+
+        if (done == buffer.Length - 1) {
+            ArrayList bufferClone = CloneArray( buffer );
+            seconds.Push(bufferClone);
+        }
+
+        else {
+            FindSecondTeam(buffer, remainingPlayers, done+1, i+1, end, seconds);
+        }
+    }
+}
+
+ public void FindFirstTeam(ArrayList buffer, ArrayList players, int done, int begin, int end, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference)
+  {
+    for (int i = begin; i < end; i++)
+    {
+        buffer.Set(done, players.Get(i));
+
+        if (done == buffer.Length - 1) {
+            // We have a possible team one ("buffer"), now find a team two
+
+            ArrayList remainingPlayers = new ArrayList();
+
+            // Add the people that aren't in the first team to the 2nd team
+            for (int j = 0; j < players.Length; j++) {
+                if ( FindValueInArray(buffer, players.Get(j)) == -1 ) {
+                    remainingPlayers.Push(players.Get(j));
+                } 
+            }
+
+
+            ArrayList possibleSecondTeams = new ArrayList();
+            ArrayList secondTeamBuffer = new ArrayList(1, buffer.Length);
+            FindSecondTeam(secondTeamBuffer, remainingPlayers, 0, 0, remainingPlayers.Length, possibleSecondTeams);
+            float team_one_rws = 0.0;
+
+            for (int j = 0; j < buffer.Length; j++) {
+                int client = buffer.Get(j);
+                    
+                float player_rws = g_PlayerRWS[client];
+                if (player_rws < 1) {
+                    // Set new players RWS to a slightly below average value (8)
+                    player_rws = 8.0;
+                }
+                team_one_rws += player_rws;
+            }
+
+            for (int j = 0; j < possibleSecondTeams.Length; j++) {
+
+                ArrayList secondteam = possibleSecondTeams.Get(j);
+                float team_two_rws = 0.0;
+
+                for (int k = 0; k < secondteam.Length; k++ ) {
+                    int client = secondteam.Get(k);
+                    
+                    float player_rws = g_PlayerRWS[client];
+                    if (player_rws < 1) {
+                        // Set new players RWS to a slightly below average value (8)
+                        player_rws = 8.0;
+                    }
+                    team_two_rws += player_rws;
+                }
+
+                // Compare the RWS for team one and team two and if ti's less than the min then make them the new mins 
+                float localDifference = FloatAbs(team_one_rws - team_two_rws);
+
+                if (localDifference < minRwsDifference) {
+                    final_team_one = CloneArray(buffer);
+                    final_team_two = CloneArray(secondteam);
+                    minRwsDifference = localDifference;
+                }
+                delete secondteam;
+
+            }
+            delete possibleSecondTeams;
+            delete secondTeamBuffer;
+            delete remainingPlayers;
+        }
+
+        else {
+            FindFirstTeam(buffer, players, done+1, i+1, end, final_team_one, final_team_two, minRwsDifference);
+      }
+    }
+  }
+
+
+public void FindCombinations(int m, ArrayList players, ArrayList &final_team_one, ArrayList &final_team_two, float &minRwsDifference){
+    ArrayList buffer = new ArrayList(1, m);
+    FindFirstTeam(buffer, players, 0, 0, players.Length, final_team_one, final_team_two, minRwsDifference);
+    delete buffer;
+}
+
+
 /**
  * Here the teams are actually set to use the rws stuff.
  */
 public void BalancerFunction(ArrayList players) {
-    Handle pq = PQ_Init();
 
+    ArrayList team_one = new ArrayList();
+    ArrayList team_two = new ArrayList();
+    float minRwsDifference = 9999.0;
+
+    // Assign all players to spec fix same-color bug
+    for(int i = 0; i < GetPugMaxPlayers(); i++) {
+        SwitchPlayerTeam(players.Get(i), CS_TEAM_SPECTATOR);
+    }
+
+    FindCombinations( (GetPugMaxPlayers() / 2), players, team_one, team_two, minRwsDifference);
+
+    // Assign team one to CT
+    LogDebug("[TEAM ONE]");
+    LogDebug("----------");
+    for(int i = 0; i < team_one.Length; i++) {
+        int t1player = team_one.Get(i);
+        float t1playerRWS = g_PlayerRWS[t1player];
+        if (t1playerRWS < 1 ) {
+            t1playerRWS = 8.0;
+        }
+        LogDebug("%L [%.2f RWS]", t1player, t1playerRWS);
+        SwitchPlayerTeam(t1player, CS_TEAM_CT);
+    }
+
+    // Assign team two to T
+    LogDebug("");
+    LogDebug("[TEAM TWO]");
+    LogDebug("----------");
+    for(int i = 0; i < team_two.Length; i++) {
+        int t2player = team_two.Get(i);
+        float t2playerRWS = g_PlayerRWS[t2player];
+        if (t2playerRWS < 1) {
+            t2playerRWS = 8.0;
+        }
+        LogDebug("%L [%.2f RWS]", t2player, t2playerRWS);
+        SwitchPlayerTeam(t2player, CS_TEAM_T);
+    }
+    LogDebug("");
+    LogDebug("[Final Team Status]");
+    LogDebug("[The RWS difference is: %.2f]", minRwsDifference);
+
+    // Sort out spectators
+
+    LogDebug("");
+    LogDebug("[SPECTATORS]");
+    LogDebug("----------");
     for (int i = 0; i < players.Length; i++) {
-        int client = players.Get(i);
-        PQ_Enqueue(pq, client, g_PlayerRWS[client]);
-        LogDebug("PQ_Enqueue(%L, %f)", client, g_PlayerRWS[client]);
+        if ( FindValueInArray( team_one, players.Get(i) ) == -1 && FindValueInArray( team_two, players.Get(i) ) == -1 ) {
+            int spectator = players.Get(i);
+            if (IsPlayer(spectator)) {
+                LogDebug("-- %L", spectator);
+                SwitchPlayerTeam(spectator, CS_TEAM_SPECTATOR);
+            }
+        } 
     }
 
-    int count = 0;
-
-    while (!PQ_IsEmpty(pq) && count < GetPugMaxPlayers()) {
-        int p1 = PQ_Dequeue(pq);
-        int p2 = PQ_Dequeue(pq);
-
-        if (IsPlayer(p1)) {
-            SwitchPlayerTeam(p1, CS_TEAM_CT);
-            LogDebug("CT: PQ_Dequeue() = %L, rws=%f", p1, g_PlayerRWS[p1]);
-        }
-
-        if (IsPlayer(p2)) {
-            SwitchPlayerTeam(p2, CS_TEAM_T);
-            LogDebug("T : PQ_Dequeue() = %L, rws=%f", p2, g_PlayerRWS[p2]);
-        }
-
-        count += 2;
-    }
-
-    while (!PQ_IsEmpty(pq)) {
-        int client = PQ_Dequeue(pq);
-        if (IsPlayer(client))
-            SwitchPlayerTeam(client, CS_TEAM_SPECTATOR);
-    }
-
-    CloseHandle(pq);
+    delete team_one;
+    delete team_two;
 }
 
 /**
