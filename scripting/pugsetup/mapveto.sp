@@ -61,7 +61,7 @@ public int VetoHandler(Menu menu, MenuAction action, int param1, int param2) {
 
         char captString[64];
         FormatPlayerName(client, client, captString);
-        PugSetupMessageToAll("%t", "PlayerVetoed", captString, map);
+        PugSetup_MessageToAll("%t", "PlayerVetoed", captString, map);
 
         g_MapVetoed.Set(index, true);
         if (GetNumMapsLeft() == 1) {

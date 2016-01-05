@@ -35,7 +35,7 @@ public Action Timer_AnnounceKnife(Handle timer) {
         return Plugin_Handled;
 
     for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("%t", "KnifeRound");
+        PugSetup_MessageToAll("%t", "KnifeRound");
     return Plugin_Handled;
 }
 
@@ -111,7 +111,7 @@ public Action Command_Stay(int client, int args) {
             EndKnifeRound(false);
         } else {
             g_KnifeRoundVotes[client] = KnifeDecision_Stay;
-            PugSetupMessage(client, "%t", "KnifeRoundVoteStay");
+            PugSetup_Message(client, "%t", "KnifeRoundVoteStay");
             g_KnifeRoundVotesCast++;
             if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
                 HandleKnifeDecisionVote();
@@ -127,7 +127,7 @@ public Action Command_Swap(int client, int args) {
             EndKnifeRound(true);
         } else {
             g_KnifeRoundVotes[client] = KnifeDecision_Swap;
-            PugSetupMessage(client, "%t", "KnifeRoundVoteSwap");
+            PugSetup_Message(client, "%t", "KnifeRoundVoteSwap");
             g_KnifeRoundVotesCast++;
             if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
                 HandleKnifeDecisionVote();

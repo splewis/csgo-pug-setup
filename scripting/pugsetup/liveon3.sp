@@ -22,7 +22,7 @@ public Action BeginLO3(Handle timer) {
 
     if (GetConVarInt(g_QuickRestartsCvar) == 0) {
         // start lo3
-        PugSetupMessageToAll("%t", "RestartCounter", 1);
+        PugSetup_MessageToAll("%t", "RestartCounter", 1);
         RestartGame(1);
         CreateTimer(3.0, Restart2);
     } else {
@@ -38,7 +38,7 @@ public Action Restart2(Handle timer) {
     if (g_GameState == GameState_None)
         return Plugin_Handled;
 
-    PugSetupMessageToAll("%t", "RestartCounter", 2);
+    PugSetup_MessageToAll("%t", "RestartCounter", 2);
     RestartGame(1);
     CreateTimer(4.0, Restart3);
 
@@ -49,7 +49,7 @@ public Action Restart3(Handle timer) {
     if (g_GameState == GameState_None)
         return Plugin_Handled;
 
-    PugSetupMessageToAll("%t", "RestartCounter", 3);
+    PugSetup_MessageToAll("%t", "RestartCounter", 3);
     RestartGame(5);
     CreateTimer(5.1, MatchLive);
 
@@ -72,7 +72,7 @@ public Action MatchLive(Handle timer) {
     }
 
     for (int i = 0; i < 5; i++) {
-        PugSetupMessageToAll("%t", "Live");
+        PugSetup_MessageToAll("%t", "Live");
     }
 
     return Plugin_Handled;

@@ -32,7 +32,7 @@ public void OnPluginStart() {
 }
 
 public void OnClientPutInServer(int client) {
-    if (GetGameState() == GameState_None) {
+    if (PugSetup_GetGameState() == GameState_None) {
         return;
     }
 
@@ -43,12 +43,12 @@ public void OnClientPutInServer(int client) {
 }
 
 public Action Timer_CheckIfSpectator(Handle timer, int serial) {
-    if (GetGameState() == GameState_None) {
+    if (PugSetup_GetGameState() == GameState_None) {
         return Plugin_Handled;
     }
 
     int client = GetClientFromSerial(serial);
-    if (IsPlayer(client) && !IsPugAdmin(client)) {
+    if (IsPlayer(client) && !PugSetup_IsPugAdmin(client)) {
         int team = GetClientTeam(client);
         if (team == CS_TEAM_SPECTATOR || team == CS_TEAM_NONE) {
             KickClient(client, "You did not join a team in time");
@@ -70,11 +70,11 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
         return Plugin_Continue;
 
     // blocks changes during team-selection/lo3-process
-    if (IsPendingStart())
+    if (PugSetup_IsPendingStart())
         return Plugin_Stop;
 
     // don't do anything if not live/not in startup phase
-    if (!IsMatchLive())
+    if (!PugSetup_IsMatchLive())
         return Plugin_Continue;
 
     char arg[4];
@@ -87,7 +87,7 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
     if (team_to == CS_TEAM_NONE)
         return Plugin_Stop;
 
-    if (team_to == CS_TEAM_SPECTATOR && !IsPugAdmin(client) && g_hBlockSpecJoins.IntValue != 0)
+    if (team_to == CS_TEAM_SPECTATOR && !PugSetup_IsPugAdmin(client) && g_hBlockSpecJoins.IntValue != 0)
         return Plugin_Stop;
 
     int playerCount = 0;
@@ -99,7 +99,7 @@ public Action Command_JoinTeam(int client, const char[] command, int argc) {
 
     LogDebug("playerCount on team %d = %d", team_to, playerCount);
 
-    if (playerCount >= GetPugMaxPlayers() / 2) {
+    if (playerCount >= PugSetup_GetPugMaxPlayers() / 2) {
         LogDebug("blocking jointeam");
         return Plugin_Stop;
     } else {

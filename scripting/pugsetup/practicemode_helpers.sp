@@ -153,13 +153,13 @@ public bool TeleportToSavedGrenadePosition(int client, const char[] targetAuth, 
             SetEntityMoveType(client, MOVETYPE_WALK);
 
             if (myGrenade) {
-                PugSetupMessage(client, "Teleporting to your grenade id %s, \"%s\".", id, grenadeName);
+                PugSetup_Message(client, "Teleporting to your grenade id %s, \"%s\".", id, grenadeName);
             } else {
-                PugSetupMessage(client, "Teleporting to %s's grenade id %s, \"%s\".", targetName, id, grenadeName);
+                PugSetup_Message(client, "Teleporting to %s's grenade id %s, \"%s\".", targetName, id, grenadeName);
             }
 
             if (!StrEqual(description, "")) {
-                PugSetupMessage(client, "Description: %s", description);
+                PugSetup_Message(client, "Description: %s", description);
             }
 
             g_GrenadeLocationsKv.GoBack();
@@ -208,7 +208,7 @@ public bool DeleteGrenadeFromKv(int client, const char[] nadeIdStr) {
 
         deleted = g_GrenadeLocationsKv.DeleteKey(nadeIdStr);
         g_GrenadeLocationsKv.GoBack();
-        PugSetupMessage(client, "Deleted grenade id %s, \"%s\".", nadeIdStr, name);
+        PugSetup_Message(client, "Deleted grenade id %s, \"%s\".", nadeIdStr, name);
     }
     return deleted;
 }

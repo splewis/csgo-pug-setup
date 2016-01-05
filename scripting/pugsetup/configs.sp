@@ -41,13 +41,13 @@ stock void ReadChatConfig() {
             char command[COMMAND_LENGTH];
             kv.GetSectionName(alias, sizeof(alias));
             kv.GetString(NULL_STRING, command, sizeof(command));
-            AddChatAlias(alias, command);
+            PugSetup_AddChatAlias(alias, command);
         } while (kv.GotoNextKey(false));
     }
     delete kv;
 }
 
-stock bool AddChatAliasToFile(const char[] alias, const char[] command) {
+stock bool PugSetup_AddChatAliasToFile(const char[] alias, const char[] command) {
     char configFile[PLATFORM_MAX_PATH];
     BuildPath(Path_SM, configFile, sizeof(configFile), CHAT_ALIAS_FILE);
     KeyValues kv = new KeyValues("ChatAliases");
@@ -108,7 +108,7 @@ stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] val
 
     if (StrEqual(setting, "maptype", false)) {
         if (setDefault && !StrEqual(value, "vote") && !StrEqual(value, "veto") && !StrEqual(value, "manual")) {
-            PugSetupMessage(client, "%s is not a valid option for setting %s, valid options are vote, veto, manual", value, setting);
+            PugSetup_Message(client, "%s is not a valid option for setting %s, valid options are vote, veto, manual", value, setting);
             return false;
         } else if (setDefault) {
             MapTypeFromString(value, g_MapType);
@@ -120,7 +120,7 @@ stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] val
 
     } else if (StrEqual(setting, "teamtype", false)) {
         if (setDefault && !StrEqual(value, "captains") && !StrEqual(value, "manual") && !StrEqual(value, "random")) {
-            PugSetupMessage(client, "%s is not a valid option for setting %s, valid options are captains, manual, random", value, setting);
+            PugSetup_Message(client, "%s is not a valid option for setting %s, valid options are captains, manual, random", value, setting);
             return false;
         } else if (setDefault) {
             TeamTypeFromString(value, g_TeamType);
@@ -150,7 +150,7 @@ stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] val
         int teamsize = StringToInt(value);
         bool valid = teamsize >= 1;
         if (setDefault && !valid) {
-            PugSetupMessage(client, "Teamsize %s is not valid", teamsize);
+            PugSetup_Message(client, "Teamsize %s is not valid", teamsize);
             return false;
         }
 
@@ -192,8 +192,8 @@ stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] val
                 StrCat(allSettings, sizeof(allSettings), ", ");
         }
 
-        PugSetupMessage(client, "%s is not a valid option", setting);
-        PugSetupMessage(client, "Valid options are: %s", allSettings);
+        PugSetup_Message(client, "%s is not a valid option", setting);
+        PugSetup_Message(client, "Valid options are: %s", allSettings);
         return false;
     }
 }
@@ -301,10 +301,10 @@ stock void ReadPermissions() {
             char permission[128];
             kv.GetSectionName(command, sizeof(command));
             kv.GetString(NULL_STRING, permission, sizeof(permission));
-            if (IsValidCommand(command)) {
+            if (PugSetup_IsValidCommand(command)) {
                 Permission p = Permission_All;
                 if (PermissionFromString(permission, p, true)) {
-                    SetPermissions(command, p);
+                    PugSetup_SetPermissions(command, p);
                 }
             } else {
                 LogError("Can't assign permissions to invalid command: %s", command);

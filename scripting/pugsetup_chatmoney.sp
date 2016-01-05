@@ -24,7 +24,7 @@ public void OnPluginStart() {
 }
 
 public Action Event_Round_Start(Event event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive() || g_hEnabled.IntValue == 0)
+    if (!PugSetup_IsMatchLive() || g_hEnabled.IntValue == 0)
         return;
 
     ArrayList players = new ArrayList();
@@ -59,7 +59,7 @@ public Action Event_Round_Start(Event event, const char[] name, bool dontBroadca
                     has_weapon = "\0";
                 }
                 IntToMoney(GetClientMoney(moneyClient), player_money, sizeof(player_money));
-                PugSetupMessage(displayClient, "\x01$%s \x04%s> \x03%N", player_money, has_weapon, moneyClient);
+                PugSetup_Message(displayClient, "\x01$%s \x04%s> \x03%N", player_money, has_weapon, moneyClient);
             }
         }
     }

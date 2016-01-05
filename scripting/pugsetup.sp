@@ -156,7 +156,7 @@ KnifeDecision g_KnifeRoundVotes[MAXPLAYERS+1];
 int g_KnifeRoundVotesCast = 0;
 
 /** Forwards **/
-Handle g_hOnForceEnd = INVALID_HANDLE;
+Handle g_OnForceEnd = INVALID_HANDLE;
 Handle g_hOnGoingLive = INVALID_HANDLE;
 Handle g_hOnHelpCommand = INVALID_HANDLE;
 Handle g_hOnKnifeRoundDecision = INVALID_HANDLE;
@@ -302,27 +302,27 @@ public void OnPluginStart() {
     HookEvent("player_connect", Event_PlayerConnect);
     HookEvent("player_disconnect", Event_PlayerDisconnect);
 
-    g_hOnForceEnd = CreateGlobalForward("OnForceEnd", ET_Ignore, Param_Cell);
-    g_hOnGoingLive = CreateGlobalForward("OnGoingLive", ET_Ignore);
-    g_hOnHelpCommand = CreateGlobalForward("OnHelpCommand", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_CellByRef);
-    g_hOnKnifeRoundDecision = CreateGlobalForward("OnKnifeRoundDecision", ET_Ignore, Param_Cell);
-    g_hOnLive = CreateGlobalForward("OnLive", ET_Ignore);
-    g_hOnLiveCfg = CreateGlobalForward("OnLiveCfgExecuted", ET_Ignore);
-    g_hOnLiveCheck = CreateGlobalForward("OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
-    g_hOnMatchOver = CreateGlobalForward("OnMatchOver", ET_Ignore, Param_Cell, Param_String);
-    g_hOnNotPicked = CreateGlobalForward("OnNotPicked", ET_Ignore, Param_Cell);
-    g_hOnPermissionCheck = CreateGlobalForward("OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
-    g_hOnPlayerAddedToCaptainMenu = CreateGlobalForward("OnPlayerAddedToCaptainMenu", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_Cell);
-    g_hOnPostGameCfg = CreateGlobalForward("OnPostGameCfgExecuted", ET_Ignore);
-    g_hOnReady = CreateGlobalForward("OnReady", ET_Ignore, Param_Cell);
-    g_hOnReadyToStart = CreateGlobalForward("OnReadyToStart", ET_Ignore);
-    g_hOnSetup = CreateGlobalForward("OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
-    g_hOnSetupMenuOpen = CreateGlobalForward("OnSetupMenuOpen", ET_Event, Param_Cell, Param_Cell, Param_Cell);
-    g_hOnSetupMenuSelect = CreateGlobalForward("OnSetupMenuSelect", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_Cell);
-    g_hOnStartRecording = CreateGlobalForward("OnStartRecording", ET_Ignore, Param_String);
-    g_hOnStateChange = CreateGlobalForward("OnGameStateChanged", ET_Ignore, Param_Cell, Param_Cell);
-    g_hOnUnready = CreateGlobalForward("OnUnready", ET_Ignore, Param_Cell);
-    g_hOnWarmupCfg = CreateGlobalForward("OnWarmupCfgExecuted", ET_Ignore);
+    g_OnForceEnd = CreateGlobalForward("PugSetup_OnForceEnd", ET_Ignore, Param_Cell);
+    g_hOnGoingLive = CreateGlobalForward("PugSetup_OnGoingLive", ET_Ignore);
+    g_hOnHelpCommand = CreateGlobalForward("PugSetup_OnHelpCommand", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_CellByRef);
+    g_hOnKnifeRoundDecision = CreateGlobalForward("PugSetup_OnKnifeRoundDecision", ET_Ignore, Param_Cell);
+    g_hOnLive = CreateGlobalForward("PugSetup_OnLive", ET_Ignore);
+    g_hOnLiveCfg = CreateGlobalForward("PugSetup_OnLiveCfgExecuted", ET_Ignore);
+    g_hOnLiveCheck = CreateGlobalForward("PugSetup_OnReadyToStartCheck", ET_Ignore, Param_Cell, Param_Cell);
+    g_hOnMatchOver = CreateGlobalForward("PugSetup_OnMatchOver", ET_Ignore, Param_Cell, Param_String);
+    g_hOnNotPicked = CreateGlobalForward("PugSetup_OnNotPicked", ET_Ignore, Param_Cell);
+    g_hOnPermissionCheck = CreateGlobalForward("PugSetup_OnPermissionCheck", ET_Ignore, Param_Cell, Param_String, Param_Cell, Param_CellByRef);
+    g_hOnPlayerAddedToCaptainMenu = CreateGlobalForward("PugSetup_OnPlayerAddedToCaptainMenu", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_Cell);
+    g_hOnPostGameCfg = CreateGlobalForward("PugSetup_OnPostGameCfgExecuted", ET_Ignore);
+    g_hOnReady = CreateGlobalForward("PugSetup_OnReady", ET_Ignore, Param_Cell);
+    g_hOnReadyToStart = CreateGlobalForward("PugSetup_OnReadyToStart", ET_Ignore);
+    g_hOnSetup = CreateGlobalForward("PugSetup_OnSetup", ET_Ignore, Param_Cell, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnSetupMenuOpen = CreateGlobalForward("PugSetup_OnSetupMenuOpen", ET_Event, Param_Cell, Param_Cell, Param_Cell);
+    g_hOnSetupMenuSelect = CreateGlobalForward("PugSetup_OnSetupMenuSelect", ET_Ignore, Param_Cell, Param_Cell, Param_String, Param_Cell);
+    g_hOnStartRecording = CreateGlobalForward("PugSetup_OnStartRecording", ET_Ignore, Param_String);
+    g_hOnStateChange = CreateGlobalForward("PugSetup_OnGameStateChanged", ET_Ignore, Param_Cell, Param_Cell);
+    g_hOnUnready = CreateGlobalForward("PugSetup_OnUnready", ET_Ignore, Param_Cell);
+    g_hOnWarmupCfg = CreateGlobalForward("PugSetup_OnWarmupCfgExecuted", ET_Ignore);
 
     g_ReadyMessageCookie = RegClientCookie("pugsetup_ready", "Pugsetup ready message", CookieAccess_Protected);
 
@@ -349,11 +349,11 @@ static void AddPugSetupCommand(const char[] command, ConCmd callback, const char
     Format(smCommandBuffer, sizeof(smCommandBuffer), "sm_%s", command);
     g_Commands.PushString(smCommandBuffer);
     RegConsoleCmd(smCommandBuffer, callback, description);
-    SetPermissions(smCommandBuffer, p);
+    PugSetup_SetPermissions(smCommandBuffer, p);
 
     char dotCommandBuffer[64];
     Format(dotCommandBuffer, sizeof(dotCommandBuffer), ".%s", command);
-    AddChatAlias(dotCommandBuffer, smCommandBuffer);
+    PugSetup_AddChatAlias(dotCommandBuffer, smCommandBuffer);
 }
 
 public void OnMapListChanged(ConVar convar, const char[] oldValue, const char[] newValue) {
@@ -468,7 +468,7 @@ public Action Timer_CheckReady(Handle timer) {
         }
     }
 
-    if (totalPlayers >= GetPugMaxPlayers()) {
+    if (totalPlayers >= PugSetup_GetPugMaxPlayers()) {
         GiveReadyHints();
     }
 
@@ -495,7 +495,7 @@ public Action Timer_CheckReady(Handle timer) {
             if (g_MapType == MapType_Veto) {
                 if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
                     g_LiveTimerRunning = false;
-                    PugSetupMessageToAll("%t", "VetoMessage");
+                    PugSetup_MessageToAll("%t", "VetoMessage");
                     CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                     return Plugin_Stop;
                 } else {
@@ -504,7 +504,7 @@ public Action Timer_CheckReady(Handle timer) {
 
             } else {
                 g_LiveTimerRunning = false;
-                PugSetupMessageToAll("%t", "VoteMessage");
+                PugSetup_MessageToAll("%t", "VoteMessage");
                 CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
                 return Plugin_Stop;
             }
@@ -519,7 +519,7 @@ public Action Timer_CheckReady(Handle timer) {
     Call_PushCell(totalPlayers);
     Call_Finish();
 
-    if (g_TeamType == TeamType_Captains && g_AutoRandomizeCaptainsCvar.IntValue != 0 && totalPlayers >= GetPugMaxPlayers()) {
+    if (g_TeamType == TeamType_Captains && g_AutoRandomizeCaptainsCvar.IntValue != 0 && totalPlayers >= PugSetup_GetPugMaxPlayers()) {
         // re-randomize captains if they aren't set yet
         if (!IsPlayer(g_capt1)) {
             g_capt1 = RandomPlayer();
@@ -561,8 +561,8 @@ static void GiveReadyHints() {
         char cmd[ALIAS_LENGTH];
         FindAliasFromCommand("sm_ready", cmd);
         for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i) && !IsReady(i) && OnActiveTeam(i)) {
-                PugSetupMessage(i, "%t", "ReadyCommandHint", cmd);
+            if (IsPlayer(i) && !PugSetup_IsReady(i) && OnActiveTeam(i)) {
+                PugSetup_Message(i, "%t", "ReadyCommandHint", cmd);
             }
         }
     }
@@ -584,7 +584,7 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
     PrintHintTextToAll("%t", "ReadyStatusCaptains", readyPlayers, totalPlayers, cap1, cap2);
 
     // if there aren't any captains and we full players, print the hint telling the leader how to set captains
-    if (!IsPlayer(g_capt1) && !IsPlayer(g_capt2) && totalPlayers >= GetPugMaxPlayers()) {
+    if (!IsPlayer(g_capt1) && !IsPlayer(g_capt2) && totalPlayers >= PugSetup_GetPugMaxPlayers()) {
         // but only do it at most every CAPTAIN_COMMAND_HINT_TIME seconds so it doesn't get spammed
         int time = GetTime();
         int dt = time - g_LastCaptainHintTime;
@@ -592,7 +592,7 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
             g_LastCaptainHintTime = time;
             char cmd[ALIAS_LENGTH];
             FindAliasFromCommand("sm_capt", cmd);
-            PugSetupMessageToAll("%t", "SetCaptainsHint", GetLeader(), cmd);
+            PugSetup_MessageToAll("%t", "SetCaptainsHint", PugSetup_GetLeader(), cmd);
         }
     }
 }
@@ -606,8 +606,8 @@ static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
  ***********************/
 
 public bool DoPermissionCheck(int client, const char[] command) {
-    Permission p = GetPermissions(command);
-    bool result = HasPermissions(client, p);
+    Permission p = PugSetup_GetPermissions(command);
+    bool result = PugSetup_HasPermissions(client, p);
     char cmd[COMMAND_LENGTH];
     GetCmdArg(0, cmd, sizeof(cmd));
     Call_StartForward(g_hOnPermissionCheck);
@@ -623,7 +623,7 @@ public bool DoPermissionCheck(int client, const char[] command) {
 #define PermissionCheck(%1,%2) { \
     if (!DoPermissionCheck(%1, %2)) { \
         if (IsValidClient(%1)) \
-            PugSetupMessage(%1, "%t", "NoPermission"); \
+            PugSetup_Message(%1, "%t", "NoPermission"); \
         return Plugin_Handled; \
     } \
 }
@@ -634,19 +634,19 @@ public Action Command_Setup(int client, int args) {
     }
 
     if (g_GameState > GameState_Warmup) {
-        PugSetupMessage(client, "%t", "AlreadyLive");
+        PugSetup_Message(client, "%t", "AlreadyLive");
         return Plugin_Handled;
     }
 
     bool allowedToSetup = DoPermissionCheck(client, "sm_setup");
     if (g_GameState == GameState_None && !allowedToSetup) {
-        PugSetupMessage(client, "%t", "NoPermission");
+        PugSetup_Message(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
 
-    bool allowedToChangeSetup = HasPermissions(client, Permission_Leader);
+    bool allowedToChangeSetup = PugSetup_HasPermissions(client, Permission_Leader);
     if (g_GameState == GameState_Warmup && !allowedToChangeSetup) {
-        GiveSetupMenu(client, true);
+        PugSetup_GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
 
@@ -657,9 +657,9 @@ public Action Command_Setup(int client, int args) {
     if (client == 0) {
         // if we did the setup command from the console just use the default settings
         ReadSetupOptions();
-        SetupGame(g_TeamType, g_MapType, g_PlayersPerTeam, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
+        PugSetup_SetupGame(g_TeamType, g_MapType, g_PlayersPerTeam, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
     } else {
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     }
 
     return Plugin_Handled;
@@ -671,19 +671,19 @@ public Action Command_10man(int client, int args) {
     }
 
     if (g_GameState > GameState_Warmup) {
-        PugSetupMessage(client, "%t", "AlreadyLive");
+        PugSetup_Message(client, "%t", "AlreadyLive");
         return Plugin_Handled;
     }
 
     bool allowedToSetup = DoPermissionCheck(client, "sm_10man");
     if (g_GameState == GameState_None && !allowedToSetup) {
-        PugSetupMessage(client, "%t", "NoPermission");
+        PugSetup_Message(client, "%t", "NoPermission");
         return Plugin_Handled;
     }
 
-    bool allowedToChangeSetup = HasPermissions(client, Permission_Leader);
+    bool allowedToChangeSetup = PugSetup_HasPermissions(client, Permission_Leader);
     if (g_GameState == GameState_Warmup && !allowedToChangeSetup) {
-        GiveSetupMenu(client, true);
+        PugSetup_GiveSetupMenu(client, true);
         return Plugin_Handled;
     }
 
@@ -691,7 +691,7 @@ public Action Command_10man(int client, int args) {
         g_Leader = client;
     }
 
-    SetupGame(TeamType_Captains, MapType_Vote, 5, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
+    PugSetup_SetupGame(TeamType_Captains, MapType_Vote, 5, g_RecordGameOption, g_DoKnifeRound, g_AutoLive);
     return Plugin_Handled;
 }
 
@@ -700,12 +700,12 @@ public Action Command_Rand(int client, int args) {
         return Plugin_Handled;
 
     if (!UsingCaptains()) {
-        PugSetupMessage(client, "%t", "NotUsingCaptains");
+        PugSetup_Message(client, "%t", "NotUsingCaptains");
         return Plugin_Handled;
     }
 
     PermissionCheck(client, "sm_rand")
-    SetRandomCaptains();
+    PugSetup_SetRandomCaptains();
     return Plugin_Handled;
 }
 
@@ -714,7 +714,7 @@ public Action Command_Capt(int client, int args) {
         return Plugin_Handled;
 
     if (!UsingCaptains()) {
-        PugSetupMessage(client, "%t", "NotUsingCaptains");
+        PugSetup_Message(client, "%t", "NotUsingCaptains");
         return Plugin_Handled;
     }
 
@@ -725,14 +725,14 @@ public Action Command_Capt(int client, int args) {
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
-            SetCaptain(1, target, true);
+            PugSetup_SetCaptain(1, target, true);
 
         if (GetCmdArgs() >= 2) {
             GetCmdArg(2, buffer, sizeof(buffer));
             target = FindTarget(client, buffer, true, false);
 
             if (IsPlayer(target))
-                SetCaptain(2, target, true);
+                PugSetup_SetCaptain(2, target, true);
 
         } else {
             Captain2Menu(client);
@@ -751,8 +751,8 @@ public Action Command_ForceStart(int client, int args) {
     PermissionCheck(client, "sm_forcestart")
 
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && !IsReady(i)) {
-            ReadyPlayer(i, false);
+        if (IsPlayer(i) && !PugSetup_IsReady(i)) {
+            PugSetup_ReadyPlayer(i, false);
         }
     }
     g_ForceStartSignal = true;
@@ -762,12 +762,12 @@ public Action Command_ForceStart(int client, int args) {
 static void ListMapList(int client, ArrayList maplist) {
     int n = maplist.Length;
     if (n == 0) {
-        PugSetupMessage(client, "No maps found");
+        PugSetup_Message(client, "No maps found");
     } else {
         char buffer[PLATFORM_MAX_PATH];
         for (int i = 0; i < n; i++) {
             FormatMapName(maplist, i, buffer, sizeof(buffer));
-            PugSetupMessage(client, "Map %d: %s", i + 1, buffer);
+            PugSetup_Message(client, "Map %d: %s", i + 1, buffer);
         }
     }
 }
@@ -821,19 +821,19 @@ public void LoadExtraAliases() {
     ReadChatConfig();
 
     // Any extra chat aliases we want
-    AddChatAlias(".captain", "sm_capt");
-    AddChatAlias(".captains", "sm_capt");
-    AddChatAlias(".setcaptains", "sm_capt");
-    AddChatAlias(".endmatch", "sm_endgame");
-    AddChatAlias(".cancel", "sm_endgame");
-    AddChatAlias(".gaben", "sm_ready");
-    AddChatAlias(".gs4lyfe", "sm_ready");
-    AddChatAlias(".splewis", "sm_ready");
-    AddChatAlias(".unready", "sm_notready");
-    AddChatAlias(".paws", "sm_pause");
-    AddChatAlias(".unpaws", "sm_unpause");
-    AddChatAlias(".switch", "sm_swap");
-    AddChatAlias(".forcestop", "sm_forceend");
+    PugSetup_AddChatAlias(".captain", "sm_capt");
+    PugSetup_AddChatAlias(".captains", "sm_capt");
+    PugSetup_AddChatAlias(".setcaptains", "sm_capt");
+    PugSetup_AddChatAlias(".endmatch", "sm_endgame");
+    PugSetup_AddChatAlias(".cancel", "sm_endgame");
+    PugSetup_AddChatAlias(".gaben", "sm_ready");
+    PugSetup_AddChatAlias(".gs4lyfe", "sm_ready");
+    PugSetup_AddChatAlias(".splewis", "sm_ready");
+    PugSetup_AddChatAlias(".unready", "sm_notready");
+    PugSetup_AddChatAlias(".paws", "sm_pause");
+    PugSetup_AddChatAlias(".unpaws", "sm_unpause");
+    PugSetup_AddChatAlias(".switch", "sm_swap");
+    PugSetup_AddChatAlias(".forcestop", "sm_forceend");
 }
 
 static void AddTranslatedAlias(const char[] command) {
@@ -843,7 +843,7 @@ static void AddTranslatedAlias(const char[] command) {
     char alias[ALIAS_LENGTH];
     Format(alias, sizeof(alias), "%T", translationName, LANG_SERVER);
 
-    AddChatAlias(alias, command);
+    PugSetup_AddChatAlias(alias, command);
 }
 
 public bool FindAliasFromCommand(const char[] command, char alias[ALIAS_LENGTH]) {
@@ -948,7 +948,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
             char msg[msgSize];
             for (int i = 0; i < msgs.Length; i++) {
                 msgs.GetString(i, msg, sizeof(msg));
-                PugSetupMessage(client, msg);
+                PugSetup_Message(client, msg);
             }
         }
 
@@ -962,17 +962,17 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
 public Action Command_EndGame(int client, int args) {
     if (g_GameState == GameState_None) {
-        PugSetupMessage(client, "%t", "NotLiveYet");
+        PugSetup_Message(client, "%t", "NotLiveYet");
     } else {
         PermissionCheck(client, "sm_endgame")
 
         // bypass the menu if console does it
         if (client == 0) {
-            Call_StartForward(g_hOnForceEnd);
+            Call_StartForward(g_OnForceEnd);
             Call_PushCell(client);
             Call_Finish();
 
-            PugSetupMessageToAll("%t", "ForceEnd", client);
+            PugSetup_MessageToAll("%t", "ForceEnd", client);
             EndMatch(true);
             g_ForceEnded = true;
 
@@ -994,11 +994,11 @@ public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2)
         int client = param1;
         bool choice = GetMenuBool(menu, param2);
         if (choice) {
-            Call_StartForward(g_hOnForceEnd);
+            Call_StartForward(g_OnForceEnd);
             Call_PushCell(client);
             Call_Finish();
 
-            PugSetupMessageToAll("%t", "ForceEnd", client);
+            PugSetup_MessageToAll("%t", "ForceEnd", client);
             EndMatch(true);
             g_ForceEnded = true;
         }
@@ -1010,11 +1010,11 @@ public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2)
 public Action Command_ForceEnd(int client, int args) {
     PermissionCheck(client, "sm_forceend")
 
-    Call_StartForward(g_hOnForceEnd);
+    Call_StartForward(g_OnForceEnd);
     Call_PushCell(client);
     Call_Finish();
 
-    PugSetupMessageToAll("%t", "ForceEnd", client);
+    PugSetup_MessageToAll("%t", "ForceEnd", client);
     EndMatch(true);
     g_ForceEnded = true;
     return Plugin_Handled;
@@ -1027,9 +1027,9 @@ public Action Command_ForceReady(int client, int args) {
     if (args >= 1 && GetCmdArg(1, buffer, sizeof(buffer))) {
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
-            ReadyPlayer(target);
+            PugSetup_ReadyPlayer(target);
     } else {
-        PugSetupMessage(client, "Usage: .forceready <player>");
+        PugSetup_Message(client, "Usage: .forceready <player>");
     }
 
     return Plugin_Handled;
@@ -1044,7 +1044,7 @@ public Action Command_Pause(int client, int args) {
         return Plugin_Handled;
 
     if (g_MutualUnpauseCvar.IntValue != 0) {
-        SetPermissions("sm_pause", Permission_All);
+        PugSetup_SetPermissions("sm_pause", Permission_All);
     }
 
     PermissionCheck(client, "sm_pause")
@@ -1053,7 +1053,7 @@ public Action Command_Pause(int client, int args) {
     g_tUnpaused = false;
     Pause();
     if (IsPlayer(client)) {
-        PugSetupMessageToAll("%t", "Pause", client);
+        PugSetup_MessageToAll("%t", "Pause", client);
     }
 
     return Plugin_Handled;
@@ -1064,7 +1064,7 @@ public Action Command_Unpause(int client, int args) {
         return Plugin_Handled;
 
     if (g_MutualUnpauseCvar.IntValue != 0) {
-        SetPermissions("sm_unpause", Permission_All);
+        PugSetup_SetPermissions("sm_unpause", Permission_All);
     }
 
     PermissionCheck(client, "sm_unpause")
@@ -1075,7 +1075,7 @@ public Action Command_Unpause(int client, int args) {
     if (g_MutualUnpauseCvar.IntValue == 0) {
         Unpause();
         if (IsPlayer(client)) {
-            PugSetupMessageToAll("%t", "Unpause", client);
+            PugSetup_MessageToAll("%t", "Unpause", client);
         }
     } else {
         // Let console force unpause
@@ -1091,12 +1091,12 @@ public Action Command_Unpause(int client, int args) {
             if (g_tUnpaused && g_ctUnpaused)  {
                 Unpause();
                 if (IsPlayer(client)) {
-                    PugSetupMessageToAll("%t", "Unpause", client);
+                    PugSetup_MessageToAll("%t", "Unpause", client);
                 }
             } else if (g_tUnpaused && !g_ctUnpaused) {
-                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "T", "CT", unpauseCmd);
+                PugSetup_MessageToAll("%t", "MutualUnpauseMessage", "T", "CT", unpauseCmd);
             } else if (!g_tUnpaused && g_ctUnpaused) {
-                PugSetupMessageToAll("%t", "MutualUnpauseMessage", "CT", "T", unpauseCmd);
+                PugSetup_MessageToAll("%t", "MutualUnpauseMessage", "CT", "T", unpauseCmd);
             }
         }
     }
@@ -1106,13 +1106,13 @@ public Action Command_Unpause(int client, int args) {
 
 public Action Command_Ready(int client, int args) {
     PermissionCheck(client, "sm_ready")
-    ReadyPlayer(client);
+    PugSetup_ReadyPlayer(client);
     return Plugin_Handled;
 }
 
 public Action Command_NotReady(int client, int args) {
     PermissionCheck(client, "sm_notready")
-    UnreadyPlayer(client);
+    PugSetup_UnreadyPlayer(client);
     return Plugin_Handled;
 }
 
@@ -1127,7 +1127,7 @@ public Action Command_Leader(int client, int args) {
         GetCmdArg(1, buffer, sizeof(buffer));
         int target = FindTarget(client, buffer, true, false);
         if (IsPlayer(target))
-            SetLeader(target);
+            PugSetup_SetLeader(target);
     } else if (IsClientInGame(client)) {
         LeaderMenu(client);
     }
@@ -1152,15 +1152,15 @@ public Action Command_AddMap(int client, int args) {
         }
 
         if (AddMap(mapName, g_MapList)) {
-            PugSetupMessage(client, "Succesfully added map %s", mapName);
+            PugSetup_Message(client, "Succesfully added map %s", mapName);
             if (perm && !AddToMapList(mapName)) {
-                PugSetupMessage(client, "Failed to add map to maplist file.");
+                PugSetup_Message(client, "Failed to add map to maplist file.");
             }
         } else {
-            PugSetupMessage(client, "Map could not be found: %s", mapName);
+            PugSetup_Message(client, "Map could not be found: %s", mapName);
         }
     } else {
-        PugSetupMessage(client, "Usage: .addmap <map> [temp|perm] (default perm)");
+        PugSetup_Message(client, "Usage: .addmap <map> [temp|perm] (default perm)");
     }
 
     return Plugin_Handled;
@@ -1183,15 +1183,15 @@ public Action Command_RemoveMap(int client, int args) {
         }
 
         if (RemoveMap(mapName, g_MapList)) {
-            PugSetupMessage(client, "Succesfully removed map %s", mapName);
+            PugSetup_Message(client, "Succesfully removed map %s", mapName);
             if (perm && !RemoveMapFromList(mapName)) {
-                PugSetupMessage(client, "Failed to remove map from maplist file.");
+                PugSetup_Message(client, "Failed to remove map from maplist file.");
             }
         } else {
-            PugSetupMessage(client, "Map %s was not found", mapName);
+            PugSetup_Message(client, "Map %s was not found", mapName);
         }
     } else {
-        PugSetupMessage(client, "Usage: .addmap <map> [temp|perm] (default perm)");
+        PugSetup_Message(client, "Usage: .addmap <map> [temp|perm] (default perm)");
     }
 
     return Plugin_Handled;
@@ -1205,22 +1205,22 @@ public Action Command_AddAlias(int client, int args) {
 
     if (args >= 2 && GetCmdArg(1, alias, sizeof(alias)) && GetCmdArg(2, command, sizeof(command))) {
         // try a lookup to find a valid command, e.g., if command=.ready, replace .ready with sm_ready
-        if (!IsValidCommand(command))  {
+        if (!PugSetup_IsValidCommand(command))  {
             FindComandFromAlias(command, command);
         }
 
-        if (!IsValidCommand(command)) {
-            PugSetupMessage(client, "%s is not a valid pugsetup command.", command);
-            PugSetupMessage(client, "Usage: .addalias <alias> <command>");
+        if (!PugSetup_IsValidCommand(command)) {
+            PugSetup_Message(client, "%s is not a valid pugsetup command.", command);
+            PugSetup_Message(client, "Usage: .addalias <alias> <command>");
         } else {
-            AddChatAlias(alias, command);
-            if (AddChatAliasToFile(alias, command))
-                PugSetupMessage(client, "Succesfully added %s as an alias of commmand %s", alias, command);
+            PugSetup_AddChatAlias(alias, command);
+            if (PugSetup_AddChatAliasToFile(alias, command))
+                PugSetup_Message(client, "Succesfully added %s as an alias of commmand %s", alias, command);
             else
-                PugSetupMessage(client, "Failed to add chat alias");
+                PugSetup_Message(client, "Failed to add chat alias");
         }
     } else {
-        PugSetupMessage(client, "Usage: .addalias <alias> <command>");
+        PugSetup_Message(client, "Usage: .addalias <alias> <command>");
     }
 
     return Plugin_Handled;
@@ -1242,18 +1242,18 @@ public Action Command_RemoveAlias(int client, int args) {
         }
 
         if (index == -1) {
-            PugSetupMessage(client, "%s is not currently a chat alias", alias);
+            PugSetup_Message(client, "%s is not currently a chat alias", alias);
         } else {
             g_ChatAliasesCommands.Erase(index);
             g_ChatAliases.Erase(index);
 
             if (RemoveChatAliasFromFile(alias))
-                PugSetupMessage(client, "Succesfully removed alias %s", alias);
+                PugSetup_Message(client, "Succesfully removed alias %s", alias);
             else
-                PugSetupMessage(client, "Failed to remove chat alias");
+                PugSetup_Message(client, "Failed to remove chat alias");
         }
     } else {
-        PugSetupMessage(client, "Usage: .removealias <alias>");
+        PugSetup_Message(client, "Usage: .removealias <alias>");
     }
 
     return Plugin_Handled;
@@ -1268,12 +1268,12 @@ public Action Command_SetDefault(int client, int args) {
     if (args >= 2 && GetCmdArg(1, setting, sizeof(setting)) && GetCmdArg(2, value, sizeof(value))) {
         if (CheckSetupOptionValidity(client, setting, value, true, false)) {
             if (SetDefaultInFile(setting, value))
-                PugSetupMessage(client, "Succesfully set default option %s as %s", setting, value);
+                PugSetup_Message(client, "Succesfully set default option %s as %s", setting, value);
             else
-                PugSetupMessage(client, "Failed to write default setting to file");
+                PugSetup_Message(client, "Failed to write default setting to file");
         }
     } else {
-        PugSetupMessage(client, "Usage: .setdefault <setting> <default>");
+        PugSetup_Message(client, "Usage: .setdefault <setting> <default>");
     }
 
     return Plugin_Handled;
@@ -1288,12 +1288,12 @@ public Action Command_SetDisplay(int client, int args) {
     if (args >= 2 && GetCmdArg(1, setting, sizeof(setting)) && GetCmdArg(2, value, sizeof(value))) {
         if (CheckSetupOptionValidity(client, setting, value, false, true)) {
             if (SetDisplayInFile(setting, CheckEnabledFromString(value)))
-                PugSetupMessage(client, "Succesfully set display for setting %s as %s", setting, value);
+                PugSetup_Message(client, "Succesfully set display for setting %s as %s", setting, value);
             else
-                PugSetupMessage(client, "Failed to write display setting to file");
+                PugSetup_Message(client, "Failed to write display setting to file");
         }
     } else {
-        PugSetupMessage(client, "Usage: .setdefault <setting> <0/1>");
+        PugSetup_Message(client, "Usage: .setdefault <setting> <0/1>");
     }
 
     return Plugin_Handled;
@@ -1305,7 +1305,7 @@ public Action Command_ReadyMessage(int client, int args) {
         char message[256];
         GetCmdArgString(message, sizeof(message));
         SetClientCookie(client, g_ReadyMessageCookie, message);
-        PugSetupMessage(client, "%t", "SavedReadyMessage");
+        PugSetup_Message(client, "%t", "SavedReadyMessage");
     }
 
     return Plugin_Handled;
@@ -1355,9 +1355,9 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 
         if (g_DoVoteForKnifeRoundDecisionCvar.IntValue != 0) {
             CreateTimer(20.0, Timer_HandleKnifeDecisionVote, _, TIMER_FLAG_NO_MAPCHANGE);
-            PugSetupMessageToAll("%t", "KnifeRoundWinnerVote", teamString, stayCmd, swapCmd);
+            PugSetup_MessageToAll("%t", "KnifeRoundWinnerVote", teamString, stayCmd, swapCmd);
         } else {
-            PugSetupMessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
+            PugSetup_MessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
         }
 
     }
@@ -1416,40 +1416,40 @@ public Action Event_CvarChanged(Event event, const char[] name, bool dontBroadca
 
 public void PrintSetupInfo(int client) {
     if (IsPlayer(g_Leader))
-        PugSetupMessage(client, "%t", "SetupBy", g_Leader);
+        PugSetup_Message(client, "%t", "SetupBy", g_Leader);
 
     // print each setup option avaliable
     char buffer[128];
 
     if (g_DisplayMapType) {
         GetMapString(buffer, sizeof(buffer), g_MapType, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "MapTypeOption", buffer);
+        PugSetup_Message(client, "%t: {GREEN}%s", "MapTypeOption", buffer);
     }
 
     if (g_DisplayTeamSize || g_DisplayTeamType) {
         GetTeamString(buffer, sizeof(buffer), g_TeamType, client);
-        PugSetupMessage(client, "%t: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s",
+        PugSetup_Message(client, "%t: ({GREEN}%d vs %d{NORMAL}) {GREEN}%s",
                         "TeamTypeOption", g_PlayersPerTeam, g_PlayersPerTeam, buffer);
     }
 
     if (g_DisplayRecordDemo) {
         GetEnabledString(buffer, sizeof(buffer), g_RecordGameOption, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "DemoOption", buffer);
+        PugSetup_Message(client, "%t: {GREEN}%s", "DemoOption", buffer);
     }
 
     if (g_DisplayKnifeRound) {
         GetEnabledString(buffer, sizeof(buffer), g_DoKnifeRound, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "KnifeRoundOption", buffer);
+        PugSetup_Message(client, "%t: {GREEN}%s", "KnifeRoundOption", buffer);
     }
 
     if (g_DisplayAutoLive) {
         GetEnabledString(buffer, sizeof(buffer), g_AutoLive, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "AutoLiveOption", buffer);
+        PugSetup_Message(client, "%t: {GREEN}%s", "AutoLiveOption", buffer);
     }
 
     if (g_DisplayPlayout) {
         GetEnabledString(buffer, sizeof(buffer), g_DoPlayout, client);
-        PugSetupMessage(client, "%t: {GREEN}%s", "PlayoutOption", buffer);
+        PugSetup_Message(client, "%t: {GREEN}%s", "PlayoutOption", buffer);
     }
 }
 
@@ -1469,7 +1469,7 @@ public void ReadyToStart() {
 static void GiveStartCommandHint() {
     char startCmd[ALIAS_LENGTH];
     FindAliasFromCommand("sm_start", startCmd);
-    PugSetupMessageToAll("%t", "WaitingForStart", GetLeader(), startCmd);
+    PugSetup_MessageToAll("%t", "WaitingForStart", PugSetup_GetLeader(), startCmd);
 }
 
 public Action Timer_StartCommandHint(Handle timer) {
@@ -1489,7 +1489,7 @@ static void CreateCountDown() {
 public Action Timer_CountDown(Handle timer)  {
     if (g_GameState != GameState_Countdown) {
         // match cancelled
-        PugSetupMessageToAll("%t", "CancelCountdownMessage");
+        PugSetup_MessageToAll("%t", "CancelCountdownMessage");
         return Plugin_Stop;
     }
 
@@ -1499,7 +1499,7 @@ public Action Timer_CountDown(Handle timer)  {
     }
 
     if (g_AnnounceCountdownCvar.IntValue != 0 && (g_CountDownTicks < 5 || g_CountDownTicks % 5 == 0)) {
-        PugSetupMessageToAll("%t", "Countdown", g_CountDownTicks);
+        PugSetup_MessageToAll("%t", "Countdown", g_CountDownTicks);
     }
 
     g_CountDownTicks--;
@@ -1557,14 +1557,14 @@ public void StartGame() {
     }
 
     if (g_TeamType == TeamType_Autobalanced) {
-        if (!IsTeamBalancerAvaliable()) {
+        if (!PugSetup_IsTeamBalancerAvaliable()) {
             LogError("Match setup with autobalanced teams without a balancer avaliable - falling back to random teams");
             g_TeamType = TeamType_Random;
         } else {
             ArrayList players = new ArrayList();
             for (int i = 1; i <= MaxClients; i++) {
                 if (IsPlayer(i)) {
-                    if (IsReady(i))
+                    if (PugSetup_IsReady(i))
                         players.Push(i);
                     else
                         ChangeClientTeam(i, CS_TEAM_SPECTATOR);
@@ -1583,7 +1583,7 @@ public void StartGame() {
     }
 
     if (g_TeamType == TeamType_Random) {
-        PugSetupMessageToAll("%t", "Scrambling");
+        PugSetup_MessageToAll("%t", "Scrambling");
         ScrambleTeams();
     }
 
@@ -1887,4 +1887,58 @@ public void ChangeState(GameState state) {
     Call_PushCell(state);
     Call_Finish();
     g_GameState = state;
+}
+
+stock bool TeamTypeFromString(const char[] teamTypeString, TeamType& teamType, bool logError=false) {
+    if (StrEqual(teamTypeString, "captains", false) || StrEqual(teamTypeString, "captain", false)) {
+        teamType = TeamType_Captains;
+    } else if (StrEqual(teamTypeString, "manual", false)) {
+        teamType = TeamType_Manual;
+    } else if (StrEqual(teamTypeString, "random", false)) {
+        teamType = TeamType_Random;
+    } else if (StrEqual(teamTypeString, "autobalanced", false) || StrEqual(teamTypeString, "balanced", false)) {
+        teamType = TeamType_Autobalanced;
+    } else {
+        if (logError)
+            LogError("Invalid team type: \"%s\", allowed values: \"captains\", \"manual\", \"random\", \"autobalanced\"", teamTypeString);
+        return false;
+    }
+
+    return true;
+}
+
+stock bool MapTypeFromString(const char[] mapTypeString, MapType& mapType, bool logError=false) {
+    if (StrEqual(mapTypeString, "current", false)) {
+        mapType = MapType_Current;
+    } else if (StrEqual(mapTypeString, "vote", false)) {
+        mapType = MapType_Vote;
+    } else if (StrEqual(mapTypeString, "veto", false)) {
+        mapType = MapType_Veto;
+    } else {
+        if (logError)
+            LogError("Invalid map type: \"%s\", allowed values: \"current\", \"vote\", \"veto\"", mapTypeString);
+        return false;
+    }
+
+    return true;
+}
+
+stock bool PermissionFromString(const char[] permissionString, Permission& p, bool logError=false) {
+    if (StrEqual(permissionString, "all", false) || StrEqual(permissionString, "any", false)) {
+        p = Permission_All;
+    } else if (StrEqual(permissionString, "captains", false) || StrEqual(permissionString, "captain", false)) {
+        p = Permission_Captains;
+    } else if (StrEqual(permissionString, "leader", false)) {
+        p = Permission_Leader;
+    } else if (StrEqual(permissionString, "admin", false)) {
+        p = Permission_Admin;
+    } else if (StrEqual(permissionString, "none", false)) {
+        p = Permission_None;
+    } else {
+        if (logError)
+            LogError("Invalid permission type: \"%s\", allowed values: \"all\", \"captain\", \"leader\", \"admin\", \"none\"", permissionString);
+        return false;
+    }
+
+    return true;
 }

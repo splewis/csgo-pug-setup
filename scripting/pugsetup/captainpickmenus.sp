@@ -35,10 +35,10 @@ public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int pa
         FormatPlayerName(g_capt1, g_capt1, captString);
 
         if (StrEqual(choice, "player")) {
-            PugSetupMessageToAll("%T", "InitialPickPlayerChoice", client, captString);
+            PugSetup_MessageToAll("%T", "InitialPickPlayerChoice", client, captString);
             SideMenu(g_capt2);
         } else if (StrEqual(choice, "side")) {
-            PugSetupMessageToAll("%T", "InitialPickSideChoice", client, captString);
+            PugSetup_MessageToAll("%T", "InitialPickSideChoice", client, captString);
             SideMenu(g_capt1);
         } else {
             LogError("[InitialChoiceHandler] unknown intial choice=%s", choice);
@@ -71,7 +71,7 @@ public int SideMenuHandler(Menu menu, MenuAction action, int param1, int param2)
         else
             Format(teamString, sizeof(teamString), "T");
 
-        PugSetupMessageToAll("%t", "SideChoiceSelected", captString, teamString);
+        PugSetup_MessageToAll("%t", "SideChoiceSelected", captString, teamString);
 
         int otherTeam = (teamPick == CS_TEAM_CT) ? CS_TEAM_T : CS_TEAM_CT;
 
@@ -108,12 +108,12 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
             if (AddPlayersToMenu(menu) > 0) {
                 DisplayMenu(menu, client, MENU_TIME_FOREVER);
             } else {
-                PugSetupMessageToAll("Not enough players for picking, aborting the game.");
+                PugSetup_MessageToAll("Not enough players for picking, aborting the game.");
                 EndMatch(false);
                 delete menu;
             }
         } else {
-            PugSetupMessageToAll("A captain is missing, aborting the game.");
+            PugSetup_MessageToAll("A captain is missing, aborting the game.");
             EndMatch(false);
         }
     }
@@ -137,7 +137,7 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
             char selectedName[64];
             FormatPlayerName(client, client, captName);
             FormatPlayerName(client, selected, selectedName);
-            PugSetupMessageToAll("%t", "PlayerPickChoice", captName, selectedName);
+            PugSetup_MessageToAll("%t", "PlayerPickChoice", captName, selectedName);
 
             if (!IsPickingFinished()) {
                 MoreMenuPicks(GetNextCaptain(client));
@@ -149,7 +149,7 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
         }
 
     } else if (action == MenuAction_Cancel) {
-        PugSetupMessageToAll("Failed to get captain pick. Aborting the game.");
+        PugSetup_MessageToAll("Failed to get captain pick. Aborting the game.");
         EndMatch(false);
 
     } else if (action == MenuAction_End) {

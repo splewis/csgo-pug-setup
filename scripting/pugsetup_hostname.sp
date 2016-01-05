@@ -42,12 +42,12 @@ public void OnConfigsExecuted() {
     }
 }
 
-public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
+public void PugSetup_OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
     if (g_hEnabled.IntValue == 0)
         return;
 
     char hostname[MAX_HOST_LENGTH];
-    int need = GetPugMaxPlayers() - totalPlayers;
+    int need = PugSetup_GetPugMaxPlayers() - totalPlayers;
 
     if (need >= 1) {
         Format(hostname, sizeof(hostname), "%s [NEED %d]", g_HostName, need);
@@ -58,7 +58,7 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
     g_HostnameCvar.SetString(hostname);
 }
 
-public void OnGoingLive() {
+public void PugSetup_OnGoingLive() {
     if (g_hEnabled.IntValue == 0)
         return;
 
@@ -68,7 +68,7 @@ public void OnGoingLive() {
 }
 
 public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
-    if (g_hEnabled.IntValue == 0 || !IsMatchLive())
+    if (g_hEnabled.IntValue == 0 || !PugSetup_IsMatchLive())
         return Plugin_Continue;
 
     char hostname[MAX_HOST_LENGTH];
@@ -78,7 +78,7 @@ public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcas
     return Plugin_Continue;
 }
 
-public void OnMatchOver() {
+public void PugSetup_OnMatchOver() {
     if (GetConVarInt(g_hEnabled) == 0)
         return;
 

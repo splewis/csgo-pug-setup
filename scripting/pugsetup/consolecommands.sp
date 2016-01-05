@@ -22,7 +22,7 @@ public Action Command_Pugstatus(int client, int args) {
     ReplyToCommand(client, "Current pug game state: %s", stateString);
 
     if (g_GameState != GameState_None) {
-        int leader = GetLeader();
+        int leader = PugSetup_GetLeader();
         if (IsPlayer(leader))
             ReplyToCommand(client, "Pug leader: %L", leader);
         else
@@ -69,7 +69,7 @@ public Action Command_Pugstatus(int client, int args) {
 
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
-                if (IsReady(i))
+                if (PugSetup_IsReady(i))
                     ReplyToCommand(client, "  Player %L is READY", i);
                 else
                     ReplyToCommand(client, "  Player %L is NOT READY", i);

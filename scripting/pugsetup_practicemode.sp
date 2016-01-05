@@ -135,23 +135,23 @@ public void OnPluginStart() {
     RegConsoleCmd("sm_grenadeforward", Command_GrenadeForward);
     RegConsoleCmd("sm_clearnades", Command_ClearNades);
     RegConsoleCmd("sm_gotogrenade", Command_GotoNade);
-    AddChatAlias(".back", "sm_grenadeback");
-    AddChatAlias(".forward", "sm_grenadeforward");
-    AddChatAlias(".clearnades", "sm_clearnades");
-    AddChatAlias(".goto", "sm_gotogrenade");
+    PugSetup_AddChatAlias(".back", "sm_grenadeback");
+    PugSetup_AddChatAlias(".forward", "sm_grenadeforward");
+    PugSetup_AddChatAlias(".clearnades", "sm_clearnades");
+    PugSetup_AddChatAlias(".goto", "sm_gotogrenade");
 
     // Saved grenade location commands
     RegConsoleCmd("sm_grenades", Command_Grenades);
     RegConsoleCmd("sm_savegrenade", Command_SaveGrenade);
     RegConsoleCmd("sm_adddescription", Command_GrenadeDescription);
     RegConsoleCmd("sm_deletegrenade", Command_DeleteGrenade);
-    AddChatAlias(".nades", "sm_grenades");
-    AddChatAlias(".grenades", "sm_grenades");
-    AddChatAlias(".addnade", "sm_savegrenade");
-    AddChatAlias(".savenade", "sm_savegrenade");
-    AddChatAlias(".save", "sm_savegrenade");
-    AddChatAlias(".desc", "sm_adddescription");
-    AddChatAlias(".delete", "sm_deletegrenade");
+    PugSetup_AddChatAlias(".nades", "sm_grenades");
+    PugSetup_AddChatAlias(".grenades", "sm_grenades");
+    PugSetup_AddChatAlias(".addnade", "sm_savegrenade");
+    PugSetup_AddChatAlias(".savenade", "sm_savegrenade");
+    PugSetup_AddChatAlias(".save", "sm_savegrenade");
+    PugSetup_AddChatAlias(".desc", "sm_adddescription");
+    PugSetup_AddChatAlias(".delete", "sm_deletegrenade");
 
     // New Plugin cvars
     g_AutostartCvar = CreateConVar("sm_pugsetup_practicemode_autostart", "0", "Whether the plugin is automatically started on mapstart");
@@ -261,7 +261,7 @@ public void OnMapStart() {
 }
 
 public void OnConfigsExecuted() {
-    if (g_AutostartCvar.IntValue != 0 && GetGameState() == GameState_None) {
+    if (g_AutostartCvar.IntValue != 0 && PugSetup_GetGameState() == GameState_None) {
         LaunchPracticeMode();
     }
 }
@@ -400,30 +400,30 @@ public void ReadPracticeSettings() {
     delete kv;
 }
 
-public void OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSize, bool& block) {
+public void PugSetup_OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSize, bool& block) {
     if (g_InPracticeMode) {
         block = true;
-        PugSetupMessage(client, "{LIGHT_GREEN}.setup {NORMAL}to change/view practicemode settings");
+        PugSetup_Message(client, "{LIGHT_GREEN}.setup {NORMAL}to change/view practicemode settings");
         if (g_AllowNoclip)
-            PugSetupMessage(client, "{LIGHT_GREEN}.noclip {NORMAL}to enter/exit noclip mode");
-        PugSetupMessage(client, "{LIGHT_GREEN}.back {NORMAL}to go to your last grenade position");
-        PugSetupMessage(client, "{LIGHT_GREEN}.forward {NORMAL}to go to your next grenade position");
-        PugSetupMessage(client, "{LIGHT_GREEN}.save <name> {NORMAL}to save a grenade position");
-        PugSetupMessage(client, "{LIGHT_GREEN}.nades [player] {NORMAL}to view all saved grenades");
-        PugSetupMessage(client, "{LIGHT_GREEN}.desc <description> {NORMAL}to add a nade description");
-        PugSetupMessage(client, "{LIGHT_GREEN}.delete {NORMAL}to delete your current grenade position");
-        PugSetupMessage(client, "{LIGHT_GREEN}.goto [player] <id> {NORMAL}to go to a grenadeid");
+            PugSetup_Message(client, "{LIGHT_GREEN}.noclip {NORMAL}to enter/exit noclip mode");
+        PugSetup_Message(client, "{LIGHT_GREEN}.back {NORMAL}to go to your last grenade position");
+        PugSetup_Message(client, "{LIGHT_GREEN}.forward {NORMAL}to go to your next grenade position");
+        PugSetup_Message(client, "{LIGHT_GREEN}.save <name> {NORMAL}to save a grenade position");
+        PugSetup_Message(client, "{LIGHT_GREEN}.nades [player] {NORMAL}to view all saved grenades");
+        PugSetup_Message(client, "{LIGHT_GREEN}.desc <description> {NORMAL}to add a nade description");
+        PugSetup_Message(client, "{LIGHT_GREEN}.delete {NORMAL}to delete your current grenade position");
+        PugSetup_Message(client, "{LIGHT_GREEN}.goto [player] <id> {NORMAL}to go to a grenadeid");
     }
 }
 
-public Action OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
-    int leader = GetLeader(false);
+public Action PugSetup_OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
+    int leader = PugSetup_GetLeader(false);
     if (!IsPlayer(leader)) {
-        SetLeader(client);
+        PugSetup_SetLeader(client);
     }
 
     int style = ITEMDRAW_DEFAULT;
-    if (!HasPermissions(client, Permission_Leader) || displayOnly) {
+    if (!PugSetup_HasPermissions(client, Permission_Leader) || displayOnly) {
         style = ITEMDRAW_DISABLED;
     }
 
@@ -436,12 +436,12 @@ public Action OnSetupMenuOpen(int client, Menu menu, bool displayOnly) {
     }
 }
 
-public void OnReadyToStart() {
+public void PugSetup_OnReadyToStart() {
     if (g_InPracticeMode)
         ExitPracticeMode();
 }
 
-public void OnSetupMenuSelect(Menu menu, int client, const char[] selected_info, int selected_position) {
+public void PugSetup_OnSetupMenuSelect(Menu menu, int client, const char[] selected_info, int selected_position) {
     if (StrEqual(selected_info, "launch_practice")) {
         LaunchPracticeMode();
         GivePracticeMenu(client);
@@ -456,7 +456,7 @@ public void LaunchPracticeMode() {
         ChangeSetting(i, IsPracticeModeSettingEnabled(i), false);
     }
 
-    PugSetupMessageToAll("Practice mode is now enabled.");
+    PugSetup_MessageToAll("Practice mode is now enabled.");
     Call_StartForward(g_OnPracticeModeEnabled);
     Call_Finish();
 }
@@ -495,7 +495,7 @@ static void ChangeSetting(int index, bool enabled, bool print=true) {
 
         // don't display empty names
         if (!StrEqual(name, ""))
-            PugSetupMessageToAll("%s is now %s.", name, enabledString);
+            PugSetup_MessageToAll("%s is now %s.", name, enabledString);
     }
 
     Call_StartForward(g_OnPracticeModeSettingChanged);
@@ -555,7 +555,7 @@ public int PracticeMenuHandler(Menu menu, MenuAction action, int param1, int par
 
         if (StrEqual(buffer, "end_menu")) {
             ExitPracticeMode();
-            GiveSetupMenu(client);
+            PugSetup_GiveSetupMenu(client);
         }
 
     } else if (action == MenuAction_End) {
@@ -582,7 +582,7 @@ public void ExitPracticeMode() {
     }
 
     ServerCommand("exec sourcemod/pugsetup/practice_end.cfg");
-    PugSetupMessageToAll("Practice mode is now disabled.");
+    PugSetup_MessageToAll("Practice mode is now disabled.");
 }
 
 public void SetCvar(const char[] name, int value) {
@@ -676,7 +676,7 @@ public Action Event_WeaponFired(Event event, const char[] name, bool dontBroadca
 }
 
 public Action Command_LaunchPracticeMode(int client, int args) {
-    if (!g_InPracticeMode && GetGameState() <= GameState_Warmup) {
+    if (!g_InPracticeMode && PugSetup_GetGameState() <= GameState_Warmup) {
         LaunchPracticeMode();
     }
     return Plugin_Handled;
@@ -696,7 +696,7 @@ public Action Command_GrenadeBack(int client, int args) {
             g_GrenadeHistoryIndex[client] = 0;
 
         TeleportToGrenadeHistoryPosition(client, g_GrenadeHistoryIndex[client]);
-        PugSetupMessage(client, "Teleporting back to %d position in grenade history.", g_GrenadeHistoryIndex[client] + 1);
+        PugSetup_Message(client, "Teleporting back to %d position in grenade history.", g_GrenadeHistoryIndex[client] + 1);
     }
 
     return Plugin_Handled;
@@ -709,7 +709,7 @@ public Action Command_GrenadeForward(int client, int args) {
         if (g_GrenadeHistoryIndex[client] >= max)
             g_GrenadeHistoryIndex[client] = max - 1;
         TeleportToGrenadeHistoryPosition(client, g_GrenadeHistoryIndex[client]);
-        PugSetupMessage(client, "Teleporting forward to %d position in grenade history.", g_GrenadeHistoryIndex[client] + 1);
+        PugSetup_Message(client, "Teleporting forward to %d position in grenade history.", g_GrenadeHistoryIndex[client] + 1);
     }
 
     return Plugin_Handled;
@@ -719,7 +719,7 @@ public Action Command_ClearNades(int client, int args) {
     if (g_InPracticeMode) {
         ClearArray(g_GrenadeHistoryPositions[client]);
         ClearArray(g_GrenadeHistoryAngles[client]);
-        PugSetupMessage(client, "Grenade history cleared.");
+        PugSetup_Message(client, "Grenade history cleared.");
     }
 
     return Plugin_Handled;
@@ -734,11 +734,11 @@ public Action Command_GotoNade(int client, int args) {
 
         if (args >= 2 && GetCmdArg(1, arg1, sizeof(arg1)) && GetCmdArg(2, arg2, sizeof(arg2))) {
             if (!FindGrenadeTarget(arg1, name, sizeof(name), auth, sizeof(auth))) {
-                PugSetupMessage(client, "Player not found.");
+                PugSetup_Message(client, "Player not found.");
                 return Plugin_Handled;
             }
             if (!TeleportToSavedGrenadePosition(client, auth, arg2)){
-                PugSetupMessage(client, "Grenade id %s not found.", arg2);
+                PugSetup_Message(client, "Grenade id %s not found.", arg2);
                 return Plugin_Handled;
             }
 
@@ -746,12 +746,12 @@ public Action Command_GotoNade(int client, int args) {
             GetClientName(client, name, sizeof(name));
             GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
             if (!TeleportToSavedGrenadePosition(client, auth, arg1)){
-                PugSetupMessage(client, "Grenade id %s not found.", arg1);
+                PugSetup_Message(client, "Grenade id %s not found.", arg1);
                 return Plugin_Handled;
             }
 
         } else {
-            PugSetupMessage(client, "Usage: .goto [player] <grenadeid>");
+            PugSetup_Message(client, "Usage: .goto [player] <grenadeid>");
         }
     }
 
@@ -795,7 +795,7 @@ public void GiveGrenadesMenu(int client) {
     g_GrenadeLocationsKv.Rewind();
 
     if (count == 0) {
-        PugSetupMessage(client, "No players have grenade positions saved.");
+        PugSetup_Message(client, "No players have grenade positions saved.");
         delete menu;
     } else {
         menu.Display(client, MENU_TIME_FOREVER);
@@ -875,7 +875,7 @@ stock void GiveGrenadesForPlayer(int client, const char[] ownerName, const char[
     }
 
     if (userCount == 0) {
-        PugSetupMessage(client, "No grenades found.");
+        PugSetup_Message(client, "No grenades found.");
         delete menu;
     } else {
         menu.DisplayAt(client, menuPosition, MENU_TIME_FOREVER);
@@ -912,7 +912,7 @@ public Action Command_SaveGrenade(int client, int args) {
     TrimString(name);
 
     if (strlen(name) == 0)  {
-        PugSetupMessage(client, "Usage: .save <name>");
+        PugSetup_Message(client, "Usage: .save <name>");
         return Plugin_Handled;
     }
 
@@ -920,13 +920,13 @@ public Action Command_SaveGrenade(int client, int args) {
     GetClientAuthId(client, AuthId_Steam2, auth, sizeof(auth));
     char grenadeId[GRENADE_ID_LENGTH];
     if (FindGrenadeByName(auth, name, grenadeId)) {
-        PugSetupMessage(client, "You have already used that name.");
+        PugSetup_Message(client, "You have already used that name.");
         return Plugin_Handled;
     }
 
 
     if (CountGrenadesForPlayer(auth) >= g_MaxGrenadesSavedCvar.IntValue) {
-        PugSetupMessage(client, "You have reached the maximum number of grenades you can save (%d).",
+        PugSetup_Message(client, "You have reached the maximum number of grenades you can save (%d).",
                         g_MaxGrenadesSavedCvar.IntValue);
         return Plugin_Handled;
     }
@@ -947,7 +947,7 @@ public Action Command_SaveGrenade(int client, int args) {
     if (ret < Plugin_Handled) {
         int nadeId = SaveGrenadeToKv(client, origin, angles, name);
         g_CurrentSavedGrenadeId[client] = nadeId;
-        PugSetupMessage(client, "Saved grenade (id %d). Type .desc <description> to add a description or .delete to delete this position.", nadeId);
+        PugSetup_Message(client, "Saved grenade (id %d). Type .desc <description> to add a description or .delete to delete this position.", nadeId);
     }
 
     return Plugin_Handled;
@@ -963,7 +963,7 @@ public Action Command_GrenadeDescription(int client, int args) {
     GetCmdArgString(description, sizeof(description));
 
     UpdateGrenadeDescription(client, nadeId, description);
-    PugSetupMessage(client, "Added grenade description.");
+    PugSetup_Message(client, "Added grenade description.");
     return Plugin_Handled;
 }
 

@@ -7,7 +7,7 @@ stock void ChangeMap(ArrayList mapList, int mapIndex=-1, float delay=3.0, bool t
 
     // print the formatted name
     FormatMapName(mapList, mapIndex, map, sizeof(map));
-    PugSetupMessageToAll("%t", "ChangeMapMessage", map);
+    PugSetup_MessageToAll("%t", "ChangeMapMessage", map);
 
     // pass the "true" name to a timer to changelevel
     mapList.GetString(mapIndex, map, sizeof(map));
