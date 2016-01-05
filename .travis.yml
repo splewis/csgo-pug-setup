@@ -23,7 +23,10 @@ before_script:
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
-    - cd ../../..
+
+    - cd include
+    - wget https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc
+    - cd ../../../..
 
 script:
     - smbuilder --flags="-E"

@@ -8,7 +8,7 @@
 #include "pugsetup/generic.sp"
 
 #undef REQUIRE_EXTENSIONS
-#include "include/SteamWorks.inc"
+#include <SteamWorks>
 
 #undef REQUIRE_PLUGIN
 #include "include/updater.inc"
