@@ -17,7 +17,8 @@ for p in addon_plugins:
     Plugin(source='scripting/' + p + '.sp')
 
 Package(name='pugsetup',
-        plugins=pugsetup_plugins + ['practicemode'],
+        extends=['practicemode'],
+        plugins=pugsetup_plugins,
         disabled_plugins=addon_plugins + ['practicemode'],
         filegroups={
             '.': ['LICENSE' , 'CHANGELOG.md', 'README.md'],

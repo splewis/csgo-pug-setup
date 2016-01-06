@@ -216,18 +216,8 @@ the players with the 2 highest RWS values will be made captains. You can tweak i
 #### pugsetup_chatmoney
 This plugin prints out the team members' money to chat on round starts, you can tweak its behavior by editing ``cfg/sourcemod/pugsetup_chatmoney.cfg``.
 
-#### pugsetup_practicemode
-This plugin adds an option to the .setup menu to launch a practice mode with cheats/infinite ammo/respawning/etc., this is generally intended for learning maps/planning with a team. You can edit the ``addons/sourcemod/configs/pugsetup/practicemode.cfg`` file to add new enable/disable options and the cvars associated with the options.
-
-It "patches" sv_grenade_trajectory to work on a dedicated server, and also creates two new cvars:
-- sm_infinite_money (sets player cash to 16000 every second)
-- sm_grenade_trajectory_use_player_color (sets player grenade trajectories to their cl_color setting)
-- sm_allow_noclip (allows .noclip in chat to use noclip)
-
-Another feature is remembering a grenade history - the position each grenade is thrown from (when in practice mode) is saved and players can go back through the history of these positions using the commands sm_grenadeback and sm_grenadeforward (or more simply in chat: .back, .forward). This is intended for those experimentation moments when testing grenades and asking "that worked; wait, how did I throw that last grenade?"
-
-Furthermore, it will let clients save persistent angles/locations per map for grenades using .save <name of grenade/position> and .nades [playername]. These are
-saved in a map-specific file under addons/sourcemod/pugsetup/practicemode_grenades/<mapname>.cfg. You can use .delete to delete a position and .desc to add a description.
-
 #### pugsetup_damageprinter
 This plugin adds a .dmg command that also prints damage done/taken from players on round ends. You can disable the usage of the .dmg command with ``sm_pugsetup_damageprint_allow_dmg_command 0`` and change the format of the messages with ``sm_pugsetup_damageprint_format`` by editing ``cfg/sourcemod/pugsetup_damageprint.cfg``.
+
+#### practicemode
+This plugin was formerly a part of pugsetup, but has since been made separate. It is still included in the pugsetup releases, however. For a description, visit [its repository](https://github.com/splewis/csgo-practice-mode).
