@@ -46,8 +46,8 @@ ConVar g_RecordRWSCvar;
 ConVar g_PugSetup_SetCaptainsByRWSCvar;
 ConVar g_ShowRWSOnMenuCvar;
 
-bool g_ManuallyPugSetup_SetCaptains = false;
-bool g_PugSetup_SetTeamBalancer = false;
+bool g_ManuallySetCaptains = false;
+bool g_SetTeamBalancer = false;
 
 
 public Plugin myinfo = {
@@ -85,21 +85,21 @@ public void OnPluginStart() {
 }
 
 public void OnAllPluginsLoaded() {
-    g_PugSetup_SetTeamBalancer = PugSetup_SetTeamBalancer(BalancerFunction);
+    g_SetTeamBalancer = PugSetup_SetTeamBalancer(BalancerFunction);
 }
 
 public void OnPluginEnd() {
-    if (g_PugSetup_SetTeamBalancer)
+    if (g_SetTeamBalancer)
         PugSetup_ClearTeamBalancer();
 }
 
 public void OnMapStart() {
-    g_ManuallyPugSetup_SetCaptains = false;
+    g_ManuallySetCaptains = false;
 }
 
 public void PugSetup_OnPermissionCheck(int client, const char[] command, Permission p, bool& allow) {
     if (StrEqual(command, "sm_capt", false)) {
-        g_ManuallyPugSetup_SetCaptains = true;
+        g_ManuallySetCaptains = true;
     }
 }
 
@@ -298,7 +298,7 @@ public int rwsSortFunction(int index1, int index2, Handle array, Handle hndl) {
 }
 
 public void PugSetup_OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
-    if (!g_ManuallyPugSetup_SetCaptains &&
+    if (!g_ManuallySetCaptains &&
         g_PugSetup_SetCaptainsByRWSCvar.IntValue != 0 &&
         totalPlayers >= PugSetup_GetPugMaxPlayers() &&
         PugSetup_GetTeamType() == TeamType_Captains) {
