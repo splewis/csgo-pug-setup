@@ -25,6 +25,7 @@ before_script:
     - PATH+=":$PWD"
 
     - cd include
+    - cp ../../../../scripting/include/pugsetup.inc .
     - wget https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc
     - cd ../../../..
 
