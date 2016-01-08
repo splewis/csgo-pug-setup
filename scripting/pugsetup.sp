@@ -1337,10 +1337,9 @@ public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcas
 }
 
 public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
-    int winner = event.GetInt("winner");
     if (g_GameState == GameState_KnifeRound) {
         ChangeState(GameState_WaitingForKnifeRoundDecision);
-        g_KnifeWinner = winner;
+        g_KnifeWinner = GetKnifeRoundWinner();
 
         char teamString[4];
         if (g_KnifeWinner == CS_TEAM_CT)

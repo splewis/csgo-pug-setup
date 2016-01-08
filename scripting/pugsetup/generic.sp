@@ -151,6 +151,26 @@ stock int GetRealClientCount() {
     return clients;
 }
 
+stock int CountAlivePlayersOnTeam(int team) {
+    int count = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && IsPlayerAlive(i) && GetClientTeam(i) == team)
+            count++;
+    }
+    return count;
+}
+
+stock int SumHealthOfTeam(int team) {
+    int sum = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && IsPlayerAlive(i) && team == GetClientTeam(i)) {
+            sum += GetClientHealth(i);
+        }
+    }
+    return sum;
+}
+
+
 /**
  * Returns a random index from an array.
  */

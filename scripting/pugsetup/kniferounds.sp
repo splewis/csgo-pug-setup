@@ -156,3 +156,30 @@ public Action Command_T(int client, int args) {
     }
     return Plugin_Handled;
 }
+
+public int GetKnifeRoundWinner() {
+    int ctAlive = CountAlivePlayersOnTeam(CS_TEAM_CT);
+    int tAlive = CountAlivePlayersOnTeam(CS_TEAM_T);
+    int winningCSTeam = CS_TEAM_NONE;
+    if (ctAlive > tAlive) {
+        winningCSTeam = CS_TEAM_CT;
+    } else if (tAlive > ctAlive) {
+        winningCSTeam = CS_TEAM_T;
+    } else {
+        int ctHealth = SumHealthOfTeam(CS_TEAM_CT);
+        int tHealth = SumHealthOfTeam(CS_TEAM_T);
+        if (ctHealth > tHealth) {
+            winningCSTeam = CS_TEAM_CT;
+        } else if (tHealth > ctHealth) {
+            winningCSTeam = CS_TEAM_T;
+        } else {
+            if (GetRandomFloat(0.0, 1.0) < 0.5) {
+                winningCSTeam = CS_TEAM_CT;
+            } else {
+                winningCSTeam = CS_TEAM_T;
+            }
+        }
+    }
+
+    return winningCSTeam;
+}
