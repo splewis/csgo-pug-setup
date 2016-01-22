@@ -955,8 +955,14 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
         delete msgs;
     }
 
-    if (StrEqual(sArgs[0], ".map") && IsVoteInProgress() && IsClientInVotePool(client)) {
-        RedrawClientVoteMenu(client);
+    // Allow using .map as a map-vote revote alias and as a
+    // shortcut to the mapchange menu (if avaliable).
+    if (StrEqual(sArgs[0], ".map")) {
+        if (IsVoteInProgress() && IsClientInVotePool(client)) {
+            RedrawClientVoteMenu(client);
+        } else if (PugSetup_IsPugAdmin(client) && g_DisplayMapChange) {
+            PugSetup_GiveMapChangeMenu(client);
+        }
     }
 }
 
