@@ -283,6 +283,9 @@ native void PugSetup_AddChatAlias(const char[] alias, const char[] command);
 // This is intended to be called in the PugSetup_OnSetupMenuSelect forward.
 native void PugSetup_GiveSetupMenu(int client, bool displayOnly=false, int menuPosition=-1);
 
+// Displays the map change menu to a client (bypasses access checks).
+native void PugSetup_GiveMapChangeMenu(int client);
+
 // Returns if a console command is a valid pugsetup command.
 native bool PugSetup_IsValidCommand(const char[] command);
 
@@ -331,6 +334,7 @@ public __pl_pugsetup_SetNTVOptional() {
     MarkNativeAsOptional("PugSetup_SetRandomCaptains");
     MarkNativeAsOptional("PugSetup_AddChatAlias");
     MarkNativeAsOptional("PugSetup_GiveSetupMenu");
+    MarkNativeAsOptional("PugSetup_GiveMapChangeMenu");
     MarkNativeAsOptional("PugSetup_IsValidCommand");
     MarkNativeAsOptional("PugSetup_GetPermissions");
     MarkNativeAsOptional("PugSetup_SetPermissions");
