@@ -250,7 +250,7 @@ public void OnPluginStart() {
     /** Create and exec plugin's configuration file **/
     AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
 
-    g_CvarVersionCvar = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_PLUGIN|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
+    g_CvarVersionCvar = CreateConVar("sm_pugsetup_version", PLUGIN_VERSION, "Current pugsetup version", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
     g_CvarVersionCvar.SetString(PLUGIN_VERSION);
 
     HookConVarChange(g_MapListCvar, OnMapListChanged);
