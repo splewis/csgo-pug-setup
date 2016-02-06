@@ -12,7 +12,7 @@
 
 #undef REQUIRE_PLUGIN
 #include "include/updater.inc"
-#define UPDATE_URL "https://dl.dropboxusercontent.com/u/76035852/csgo-pug-setup/csgo-pug-setup.txt"
+#define UPDATE_URL "https://dl.dropboxusercontent.com/u/76035852/csgo-pug-setup2.x/csgo-pug-setup.txt"
 
 #define ALIAS_LENGTH 64
 #define COMMAND_LENGTH 64
