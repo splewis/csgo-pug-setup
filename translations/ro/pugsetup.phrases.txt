@@ -352,14 +352,6 @@
 	{
 		"ro"		"Echilibrare automată"
 	}
-	"YouAreReady"
-	{
-		"ro"		"Acum ești pregătit."
-	}
-	"YouAreNotReady"
-	{
-		"ro"		"Nu mai ești pregătit."
-	}
 	"IsNowReady"
 	{
 		"ro"		"{1} este acum pregătit."
