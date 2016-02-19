@@ -1,3 +1,9 @@
+## 2.0.0
+- knife rounds now take into account the number of players (then health in a tie) when roundtime runs out
+- pugsetup_practicemode addon has been moved into a subproject and renamed simply practicemode
+- natives and forwards have been renamed with a PugSetup_ prefix
+- default live.cfg cvars match new ESL ruleset
+
 ## 1.4.3:
 - add optional voting for stay/swap decisions after knife rounds (sm_pugsetup_vote_for_knife_round_decision)
 - add optional user-set ready echo messages set with .readymessage command
