@@ -83,7 +83,7 @@ public int SortMoneyFunction(int index1, int index2, Handle array, Handle hnd) {
 }
 
 public int GetClientMoney(int client) {
-    int offset = FindSendPropOffs("CCSPlayer", "m_iAccount");
+    int offset = FindSendPropInfo("CCSPlayer", "m_iAccount");
     return GetEntData(client, offset);
 }
 
