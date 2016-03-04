@@ -15,7 +15,7 @@ stock void ChangeMap(ArrayList mapList, int mapIndex=-1, float delay=3.0, bool t
     WritePackString(data, map);
     WritePackCell(data, toFinalMap);
 
-    CreateTimer(delay, Timer_DelayedChangeMap, data);
+    CreateDataTimer(delay, Timer_DelayedChangeMap, data);
 }
 
 public Action Timer_DelayedChangeMap(Handle timer, Handle pack) {
