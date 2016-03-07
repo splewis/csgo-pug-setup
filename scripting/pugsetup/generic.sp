@@ -238,16 +238,15 @@ stock bool InWarmup() {
 }
 
 stock void EnsurePausedWarmup() {
-    if (!InWarmup())
+    if (!InWarmup()) {
         StartWarmup();
-
-    ServerCommand("mp_warmuptime 60"); // just need it to be longer than 5 seconds to make the pausetimer below always work
-    ServerCommand("mp_warmup_pausetimer 1");
+    }
+    FindConVar("mp_warmup_pausetimer").IntValue = 1;
 }
 
 stock void StartWarmup(bool indefiniteWarmup=true, int warmupTime=60) {
     if (indefiniteWarmup) {
-        ServerCommand("mp_do_warmup_period 1");
+        FindConVar("mp_warmup_pausetimer").IntValue = 1;
     }
 
     ServerCommand("mp_warmuptime %d", warmupTime);
@@ -255,7 +254,7 @@ stock void StartWarmup(bool indefiniteWarmup=true, int warmupTime=60) {
 
     // for some reason this needs to get set multiple times to work correctly on occasion? (valve pls)
     if (indefiniteWarmup) {
-        ServerCommand("mp_warmup_pausetimer 1");
+        FindConVar("mp_warmup_pausetimer").IntValue = 1;
     }
 }
 
