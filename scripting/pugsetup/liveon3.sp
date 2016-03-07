@@ -17,6 +17,7 @@ public Action BeginLO3(Handle timer) {
         }
     }
 
+    SetConVarInt(FindConVar("sv_cheats"), 0);
     Call_StartForward(g_hOnGoingLive);
     Call_Finish();
 
