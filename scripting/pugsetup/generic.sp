@@ -3,7 +3,7 @@
 
 #tryinclude "manual_version.sp"
 #if !defined PLUGIN_VERSION
-#define PLUGIN_VERSION "1.4.3-dev"
+#define PLUGIN_VERSION "2.0.1-dev"
 #endif
 
 #define DEBUG_CVAR "sm_pugsetup_debug"
@@ -88,14 +88,22 @@ stock int GetNumHumansOnTeam(int team) {
 /**
  * Returns a random player client on the server.
  */
-stock int RandomPlayer() {
-    int client = -1;
-    while (!IsValidClient(client) || IsFakeClient(client)) {
-        if (GetRealClientCount() < 1)
-            return -1;
+stock int RandomPlayer(int exclude=-1) {
+    ArrayList clients = new ArrayList();
 
-        client = GetRandomInt(1, MaxClients);
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && i != exclude) {
+            clients.Push(i);
+        }
     }
+
+    if (clients.Length == 0) {
+        delete clients;
+        return -1;
+    }
+
+    int client = GetArrayCellRandom(clients);
+    delete clients;
     return client;
 }
 
@@ -142,6 +150,26 @@ stock int GetRealClientCount() {
     }
     return clients;
 }
+
+stock int CountAlivePlayersOnTeam(int team) {
+    int count = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && IsPlayerAlive(i) && GetClientTeam(i) == team)
+            count++;
+    }
+    return count;
+}
+
+stock int SumHealthOfTeam(int team) {
+    int sum = 0;
+    for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && IsPlayerAlive(i) && team == GetClientTeam(i)) {
+            sum += GetClientHealth(i);
+        }
+    }
+    return sum;
+}
+
 
 /**
  * Returns a random index from an array.
@@ -210,23 +238,23 @@ stock bool InWarmup() {
 }
 
 stock void EnsurePausedWarmup() {
-    if (!InWarmup())
+    if (!InWarmup()) {
         StartWarmup();
+    }
 
-    ServerCommand("mp_warmuptime 60"); // just need it to be longer than 5 seconds to make the pausetimer below always work
+    ServerCommand("mp_warmup_pausetimer 1");
+    ServerCommand("mp_do_warmup_period 1");
     ServerCommand("mp_warmup_pausetimer 1");
 }
 
 stock void StartWarmup(bool indefiniteWarmup=true, int warmupTime=60) {
-    if (indefiniteWarmup) {
-        ServerCommand("mp_do_warmup_period 1");
-    }
-
+    ServerCommand("mp_do_warmup_period 1");
     ServerCommand("mp_warmuptime %d", warmupTime);
     ServerCommand("mp_warmup_start");
 
-    // for some reason this needs to get set multiple times to work correctly on occasion? (valve pls)
+    // For some reason it needs to get sent twice. Ask Valve.
     if (indefiniteWarmup) {
+        ServerCommand("mp_warmup_pausetimer 1");
         ServerCommand("mp_warmup_pausetimer 1");
     }
 }

@@ -380,14 +380,6 @@
 	{
 		"pl"		"Zbalansowano"
 	}
-	"YouAreReady"
-	{
-		"pl"		"Jesteś teraz gotowy."
-	}
-	"YouAreNotReady"
-	{
-		"pl"		"Nie jesteś teraz gotowy."
-	}
 	"IsNowReady"
 	{
 		"pl"		"{1} jest już gotowy."

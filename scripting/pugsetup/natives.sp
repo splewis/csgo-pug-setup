@@ -2,7 +2,7 @@
 
 #define CHECK_CLIENT(%1) if (!IsValidClient(%1)) ThrowNativeError(SP_ERROR_PARAM, "Client %d is not connected", %1)
 #define CHECK_CAPTAIN(%1) if (%1 != 1 && %1 != 2) ThrowNativeError(SP_ERROR_PARAM, "Captain number %d is not valid", %1)
-#define CHECK_COMMAND(%1) if (!IsValidCommand(%1)) ThrowNativeError(SP_ERROR_PARAM, "Pugsetup command %s is not valid", %1)
+#define CHECK_COMMAND(%1) if (!PugSetup_IsValidCommand(%1)) ThrowNativeError(SP_ERROR_PARAM, "Pugsetup command %s is not valid", %1)
 
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
@@ -12,37 +12,38 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
     g_AimMapList = new ArrayList(PLATFORM_MAX_PATH);
     g_PermissionsMap = new StringMap();
 
-    CreateNative("SetupGame", Native_SetupGame);
-    CreateNative("SetSetupOptions", Native_SetSetupOptions);
-    CreateNative("GetSetupOptions", Native_GetSetupOptions);
-    CreateNative("ReadyPlayer", Native_ReadyPlayer);
-    CreateNative("UnreadyPlayer", Native_UnreadyPlayer);
-    CreateNative("IsReady", Native_IsReady);
-    CreateNative("IsSetup", Native_IsSetup);
-    CreateNative("GetTeamType", Native_GetTeamType);
-    CreateNative("GetMapType", Native_GetMapType);
-    CreateNative("GetGameState", Native_GetGameState);
-    CreateNative("IsMatchLive", Native_IsMatchLive);
-    CreateNative("IsPendingStart", Native_IsPendingStart);
-    CreateNative("SetLeader", Native_SetLeader);
-    CreateNative("GetLeader", Native_GetLeader);
-    CreateNative("GetCaptain", Native_GetCaptain);
-    CreateNative("SetCaptain", Native_SetCaptain);
-    CreateNative("PugSetupMessage", Native_PugSetupMessage);
-    CreateNative("PugSetupMessageToAll", Native_PugSetupMessageToAll);
-    CreateNative("GetPugMaxPlayers", Native_GetPugMaxPlayers);
-    CreateNative("PlayerAtStart", Native_PlayerAtStart);
-    CreateNative("IsPugAdmin", Native_IsPugAdmin);
-    CreateNative("HasPermissions", Native_HasPermissions);
-    CreateNative("SetRandomCaptains", Native_SetRandomCaptains);
-    CreateNative("AddChatAlias", Native_AddChatAlias);
-    CreateNative("GiveSetupMenu", Native_GiveSetupMenu);
-    CreateNative("IsValidCommand", Native_IsValidCommand);
-    CreateNative("GetPermissions", Native_GetPermissions);
-    CreateNative("SetPermissions", Native_SetPermissions);
-    CreateNative("IsTeamBalancerAvaliable", Native_IsTeamBalancerAvaliable);
-    CreateNative("SetTeamBalancer", Native_SetTeamBalancer);
-    CreateNative("ClearTeamBalancer", Native_ClearTeamBalancer);
+    CreateNative("PugSetup_SetupGame", Native_SetupGame);
+    CreateNative("PugSetup_SetSetupOptions", Native_SetSetupOptions);
+    CreateNative("PugSetup_GetSetupOptions", Native_GetSetupOptions);
+    CreateNative("PugSetup_ReadyPlayer", Native_ReadyPlayer);
+    CreateNative("PugSetup_UnreadyPlayer", Native_UnreadyPlayer);
+    CreateNative("PugSetup_IsReady", Native_IsReady);
+    CreateNative("PugSetup_IsSetup", Native_IsSetup);
+    CreateNative("PugSetup_GetTeamType", Native_GetTeamType);
+    CreateNative("PugSetup_GetMapType", Native_GetMapType);
+    CreateNative("PugSetup_GetGameState", Native_GetGameState);
+    CreateNative("PugSetup_IsMatchLive", Native_IsMatchLive);
+    CreateNative("PugSetup_IsPendingStart", Native_IsPendingStart);
+    CreateNative("PugSetup_SetLeader", Native_SetLeader);
+    CreateNative("PugSetup_GetLeader", Native_GetLeader);
+    CreateNative("PugSetup_GetCaptain", Native_GetCaptain);
+    CreateNative("PugSetup_SetCaptain", Native_SetCaptain);
+    CreateNative("PugSetup_Message", Native_Message);
+    CreateNative("PugSetup_MessageToAll", Native_MessageToAll);
+    CreateNative("PugSetup_GetPugMaxPlayers", Native_GetPugMaxPlayers);
+    CreateNative("PugSetup_PlayerAtStart", Native_PlayerAtStart);
+    CreateNative("PugSetup_IsPugAdmin", Native_IsPugAdmin);
+    CreateNative("PugSetup_HasPermissions", Native_HasPermissions);
+    CreateNative("PugSetup_SetRandomCaptains", Native_SetRandomCaptains);
+    CreateNative("PugSetup_AddChatAlias", Native_AddChatAlias);
+    CreateNative("PugSetup_GiveSetupMenu", Native_GiveSetupMenu);
+    CreateNative("PugSetup_GiveMapChangeMenu", Native_GiveMapChangeMenu);
+    CreateNative("PugSetup_IsValidCommand", Native_IsValidCommand);
+    CreateNative("PugSetup_GetPermissions", Native_GetPermissions);
+    CreateNative("PugSetup_SetPermissions", Native_SetPermissions);
+    CreateNative("PugSetup_IsTeamBalancerAvaliable", Native_IsTeamBalancerAvaliable);
+    CreateNative("PugSetup_SetTeamBalancer", Native_SetTeamBalancer);
+    CreateNative("PugSetup_ClearTeamBalancer", Native_ClearTeamBalancer);
     RegPluginLibrary("pugsetup");
     return APLRes_Success;
 }
@@ -70,7 +71,7 @@ public int Native_SetupGame(Handle plugin, int numParams) {
 }
 
 public int Native_GetSetupOptions(Handle plugin, int numParams) {
-    if (!IsSetup()) {
+    if (!PugSetup_IsSetup()) {
         ThrowNativeError(SP_ERROR_ABORTED, "Cannot get setup options when a match is not setup.");
     }
 
@@ -106,7 +107,7 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
 
     if (g_ExcludeSpectatorsCvar.IntValue != 0 && GetClientTeam(client) == CS_TEAM_SPECTATOR) {
         if (replyMessages)
-            PugSetupMessage(client, "%t", "SpecCantReady");
+            PugSetup_Message(client, "%t", "SpecCantReady");
         return false;
     }
 
@@ -123,10 +124,16 @@ public int Native_ReadyPlayer(Handle plugin, int numParams) {
     UpdateClanTag(client);
 
     if (g_EchoReadyMessagesCvar.IntValue != 0 && replyMessages) {
-        PugSetupMessage(client, "%t", "YouAreReady");
-        for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i) && client != i)
-                PugSetupMessage(i, "%t", "IsNowReady", client);
+        if (g_AllowCustomReadyMessageCvar.IntValue != 0) {
+            char message[256];
+            GetClientCookie(client, g_ReadyMessageCookie, message, sizeof(message));
+            if (!StrEqual(message, "")) {
+                PugSetup_MessageToAll("%N %s", client, message);
+            } else {
+                PugSetup_MessageToAll("%t", "IsNowReady", client);
+            }
+        } else {
+            PugSetup_MessageToAll("%t", "IsNowReady", client);
         }
     }
 
@@ -153,11 +160,7 @@ public int Native_UnreadyPlayer(Handle plugin, int numParams) {
     UpdateClanTag(client);
 
     if (g_EchoReadyMessagesCvar.IntValue != 0) {
-        PugSetupMessage(client, "%t", "YouAreNotReady");
-        for (int i = 1; i <= MaxClients; i++) {
-            if (IsPlayer(i) && client != i)
-                PugSetupMessage(i, "%t", "IsNoLongerReady", client);
-        }
+        PugSetup_MessageToAll("%t", "IsNoLongerReady", client);
     }
 
     return true;
@@ -205,7 +208,7 @@ public int Native_SetLeader(Handle plugin, int numParams) {
     CHECK_CLIENT(client);
 
     if (IsPlayer(client)) {
-        PugSetupMessageToAll("%t", "NewLeader", client);
+        PugSetup_MessageToAll("%t", "NewLeader", client);
         g_Leader = client;
     }
 }
@@ -223,7 +226,7 @@ public int Native_GetLeader(Handle plugin, int numParams) {
 
     // then check if we have someone with admin permissions
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && IsPugAdmin(i)) {
+        if (IsPlayer(i) && PugSetup_IsPugAdmin(i)) {
             g_Leader = i;
             return i;
         }
@@ -264,7 +267,7 @@ public int Native_SetCaptain(Handle plugin, int numParams) {
         if (printIfSame || client != originalCaptain) {
             char buffer[64];
             FormatPlayerName(client, client, buffer);
-            PugSetupMessageToAll("%t", "CaptMessage", captainNumber, buffer);
+            PugSetup_MessageToAll("%t", "CaptMessage", captainNumber, buffer);
         }
 
     }
@@ -282,7 +285,7 @@ public int Native_GetCaptain(Handle plugin, int numParams) {
         return -1;
 }
 
-public int Native_PugSetupMessage(Handle plugin, int numParams) {
+public int Native_Message(Handle plugin, int numParams) {
     int client = GetNativeCell(1);
     if (client != 0 && (!IsClientConnected(client) || !IsClientInGame(client)))
         return;
@@ -311,7 +314,7 @@ public int Native_PugSetupMessage(Handle plugin, int numParams) {
 
 }
 
-public int Native_PugSetupMessageToAll(Handle plugin, int numParams) {
+public int Native_MessageToAll(Handle plugin, int numParams) {
     char prefix[64];
     g_MessagePrefixCvar.GetString(prefix, sizeof(prefix));
     char buffer[1024];
@@ -381,8 +384,8 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
         allowLeaderReassignment = GetNativeCell(3);
 
     Permission p = view_as<Permission>(GetNativeCell(2));
-    bool isAdmin = IsPugAdmin(client);
-    bool isLeader = GetLeader(allowLeaderReassignment) == client;
+    bool isAdmin = PugSetup_IsPugAdmin(client);
+    bool isLeader = PugSetup_GetLeader(allowLeaderReassignment) == client;
     bool isCapt = (client == g_capt1) || (client == g_capt2);
 
     if (p == Permission_Admin)
@@ -414,10 +417,10 @@ public int Native_SetRandomCaptains(Handle plugin, int numParams) {
     }
 
     if (IsPlayer(c1))
-        SetCaptain(1, c1, true);
+        PugSetup_SetCaptain(1, c1, true);
 
     if (IsPlayer(c2))
-        SetCaptain(2, c2, true);
+        PugSetup_SetCaptain(2, c2, true);
 }
 
 public int Native_AddChatAlias(Handle plugin, int numParams) {
@@ -445,6 +448,12 @@ public int Native_GiveSetupMenu(Handle plugin, int numParams) {
     }
 
     SetupMenu(client, displayOnly, menuPosition);
+}
+
+public int Native_GiveMapChangeMenu(Handle plugin, int numParams) {
+    int client = GetNativeCell(1);
+    CHECK_CLIENT(client);
+    ChangeMapMenu(client);
 }
 
 public int Native_IsValidCommand(Handle plugin, int numParams) {
@@ -478,7 +487,7 @@ public int Native_IsTeamBalancerAvaliable(Handle plugin, int numParams) {
 
 public int Native_SetTeamBalancer(Handle plugin, int numParams) {
     bool override = GetNativeCell(2);
-    if (!IsTeamBalancerAvaliable() || override)  {
+    if (!PugSetup_IsTeamBalancerAvaliable() || override)  {
         g_BalancerFunctionPlugin = plugin;
         g_BalancerFunction = view_as<TeamBalancerFunction>(GetNativeFunction(1));
         return true;
@@ -487,7 +496,7 @@ public int Native_SetTeamBalancer(Handle plugin, int numParams) {
 }
 
 public int Native_ClearTeamBalancer(Handle plugin, int numParams) {
-    bool hadBalancer = IsTeamBalancerAvaliable();
+    bool hadBalancer = PugSetup_IsTeamBalancerAvaliable();
     g_BalancerFunction = INVALID_FUNCTION;
     g_BalancerFunctionPlugin = INVALID_HANDLE;
     return hadBalancer;

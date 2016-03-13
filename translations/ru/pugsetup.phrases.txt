@@ -344,14 +344,6 @@
 	{
 		"ru"		"Автобаланс"
 	}
-	"YouAreReady"
-	{
-		"ru"		"Вы готовы."
-	}
-	"YouAreNotReady"
-	{
-		"ru"		"Вы не готовы."
-	}
 	"IsNowReady"
 	{
 		"ru"		"{1} готов."
@@ -360,6 +352,10 @@
 	{
 		"ru"		"{1} не готов."
 	}
+	"SavedReadyMessage"
+	{
+		"ru"		"Сообщения готовности успешно сохранены."
+	}	
 	"PlayoutOption"
 	{
 		"ru"		"Играть все раунды"
@@ -371,5 +367,9 @@
 	"KnifeRoundVoteSwap"
 	{
 		"ru"		"Результат голосования - сменить сторону"
+	}
+	"ChangeMapMessage"
+	{
+		"ru"		"Смена карты на {GREEN}{1}{NORMAL}..."
 	}
 }

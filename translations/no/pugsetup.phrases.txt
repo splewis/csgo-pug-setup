@@ -38,7 +38,7 @@
 
 	"SpecCantReady"
 	{
-		"no"		"Du kan ikke "ready up" når du er i spectator."
+		"no"		"Du kan ikke 'ready up' når du er i spectator."
 	}
 
 	"ContinueMatch"
@@ -83,7 +83,7 @@
 
 	"GameTypeTitle"
 	{
-		"no"		"Vilken spill type skal brukes ? "
+		"no"		"Vilken spill type skal brukes?"
 	}
 
 	"SetupBy"
@@ -158,12 +158,12 @@
 
 	"MutualUnpauseMessage"
 	{
-		"no"		"Det {1} laget ønsker å unpause, venter på det {2} laget skal skrive {GREEN}!unpause"
+		"no"		"Det {1} laget ønsker å unpause, venter på det {2} laget skal skrive {GREEN}{3}"
 	}
 
 	"TeamSetupMenuTitle"
 	{
-		"no"		"Hvordan vil lag bli sattop? "
+		"no"		"Hvordan vil lag bli sattop?"
 	}
 
 	"InitialPickPlayer"
@@ -293,7 +293,7 @@
 
 	"HowManyPlayers"
 	{
-		"no"		"Hvor mange spillere for hvert lag ? "
+		"no"		"Hvor mange spillere for hvert lag?"
 	}
 
 	"CaptainNotSelected"

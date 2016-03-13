@@ -284,9 +284,21 @@
 	{
 		"ro"		"Runda de lame"
 	}
+	"KnifeRoundVoteStay"
+	{
+		"ro"		"S-a înregistrat un vot pentru a ramane"
+	}
+	"KnifeRoundVoteSwap"
+	{
+		"ro"		"S-a înregistrat un vot pentru a schimba echipele"
+	}
 	"KnifeRoundWinner"
 	{
-		"ro"		"Echipa {1} a câștigat runda de lame. Îi așteptam să scrie {GREEN}{2} {NORMAL}sau {GREEN}{3}"
+		"ro"		"Echipa {1} a câștigat runda de lame. Îi așteptăm să scrie {GREEN}{2} {NORMAL}sau {GREEN}{3}"
+	}
+	"KnifeRoundWinnerVote"
+	{
+		"ro"		"Echpa {1} a câștigat runda de lame. Îi așteptăm să voteze, scriind {GREEN}{2} {NORMAL}sau {GREEN}{3}"
 	}
 	"TVDisabled"
 	{
@@ -339,14 +351,6 @@
 	"Autobalanced"
 	{
 		"ro"		"Echilibrare automată"
-	}
-	"YouAreReady"
-	{
-		"ro"		"Acum ești pregătit."
-	}
-	"YouAreNotReady"
-	{
-		"ro"		"Nu mai ești pregătit."
 	}
 	"IsNowReady"
 	{

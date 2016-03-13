@@ -3,10 +3,10 @@ sudo: false
 addons:
     apt_packages:
         - lib32stdc++6  # needed for spcomp
-        - elinks
 
 env:
     - SMVERSION=1.7
+    - SMVERSION=1.8
 
 before_script:
     # install smbuilder
@@ -23,10 +23,11 @@ before_script:
     - cd addons/sourcemod/scripting/
     - chmod +x spcomp
     - PATH+=":$PWD"
-    - cd ../../..
+
+    - cd include
+    - cp ../../../../scripting/include/pugsetup.inc .
+    - wget https://raw.githubusercontent.com/KyleSanderson/SteamWorks/master/Pawn/includes/SteamWorks.inc
+    - cd ../../../..
 
 script:
     - smbuilder --flags="-E"
-
-notifications:
-    email: false

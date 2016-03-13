@@ -43,7 +43,7 @@ int g_RoundPoints[MAXPLAYERS+1];
 /** Cvars **/
 ConVar g_AllowRWSCommandCvar;
 ConVar g_RecordRWSCvar;
-ConVar g_SetCaptainsByRWSCvar;
+ConVar g_PugSetup_SetCaptainsByRWSCvar;
 ConVar g_ShowRWSOnMenuCvar;
 
 bool g_ManuallySetCaptains = false;
@@ -71,11 +71,11 @@ public void OnPluginStart() {
 
     RegAdminCmd("sm_showrws", Command_DumpRWS, ADMFLAG_KICK, "Dumps all player historical rws and rounds played");
     RegConsoleCmd("sm_rws", Command_RWS, "Show player's historical rws");
-    AddChatAlias(".rws", "sm_rws");
+    PugSetup_AddChatAlias(".rws", "sm_rws");
 
     g_AllowRWSCommandCvar = CreateConVar("sm_pugsetup_rws_allow_rws_command", "0", "Whether players can use the .rws or !rws command on other players");
     g_RecordRWSCvar = CreateConVar("sm_pugsetup_rws_record_stats", "1", "Whether rws should be recorded during live matches (set to 0 to disable changing players rws stats)");
-    g_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
+    g_PugSetup_SetCaptainsByRWSCvar = CreateConVar("sm_pugsetup_rws_set_captains", "1", "Whether to set captains to the highest-rws players in a game using captains. Note: this behavior can be overwritten by the pug-leader or admins.");
     g_ShowRWSOnMenuCvar = CreateConVar("sm_pugsetup_rws_display_on_menu", "0", "Whether rws stats are to be displayed on captain-player selection menus");
 
     AutoExecConfig(true, "pugsetup_rwsbalancer", "sourcemod/pugsetup");
@@ -85,19 +85,19 @@ public void OnPluginStart() {
 }
 
 public void OnAllPluginsLoaded() {
-    g_SetTeamBalancer = SetTeamBalancer(BalancerFunction);
+    g_SetTeamBalancer = PugSetup_SetTeamBalancer(BalancerFunction);
 }
 
 public void OnPluginEnd() {
     if (g_SetTeamBalancer)
-        ClearTeamBalancer();
+        PugSetup_ClearTeamBalancer();
 }
 
 public void OnMapStart() {
     g_ManuallySetCaptains = false;
 }
 
-public void OnPermissionCheck(int client, const char[] command, Permission p, bool& allow) {
+public void PugSetup_OnPermissionCheck(int client, const char[] command, Permission p, bool& allow) {
     if (StrEqual(command, "sm_capt", false)) {
         g_ManuallySetCaptains = true;
     }
@@ -247,7 +247,7 @@ public void BalancerFunction(ArrayList players) {
         SwitchPlayerTeam(players.Get(i), CS_TEAM_SPECTATOR);
     }
 
-    FindCombinations( (GetPugMaxPlayers() / 2), players, team_one, team_two, minRwsDifference);
+    FindCombinations( (PugSetup_GetPugMaxPlayers() / 2), players, team_one, team_two, minRwsDifference);
 
     // Assign team one to CT
     LogDebug("[TEAM ONE]");
@@ -302,7 +302,7 @@ public void BalancerFunction(ArrayList players) {
  * These events update player "rounds points" for computing rws at the end of each round.
  */
 public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive())
+    if (!PugSetup_IsMatchLive())
         return;
 
     int victim = GetClientOfUserId(event.GetInt("userid"));
@@ -317,7 +317,7 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
 }
 
 public Action Event_Bomb(Event event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive())
+    if (!PugSetup_IsMatchLive())
         return;
 
     int client = GetClientOfUserId(event.GetInt("userid"));
@@ -325,7 +325,7 @@ public Action Event_Bomb(Event event, const char[] name, bool dontBroadcast) {
 }
 
 public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive())
+    if (!PugSetup_IsMatchLive())
         return;
 
     int attacker = GetClientOfUserId(event.GetInt("attacker"));
@@ -352,7 +352,7 @@ public bool HelpfulAttack(int attacker, int victim) {
  * Round end event, updates rws values for everyone.
  */
 public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
-    if (!IsMatchLive() || g_RecordRWSCvar.IntValue == 0)
+    if (!PugSetup_IsMatchLive() || g_RecordRWSCvar.IntValue == 0)
         return;
 
     int winner = event.GetInt("winner");
@@ -420,11 +420,11 @@ public int rwsSortFunction(int index1, int index2, Handle array, Handle hndl) {
     return g_PlayerRWS[client1] < g_PlayerRWS[client2];
 }
 
-public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
+public void PugSetup_OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
     if (!g_ManuallySetCaptains &&
-        g_SetCaptainsByRWSCvar.IntValue != 0 &&
-        totalPlayers >= GetPugMaxPlayers() &&
-        GetTeamType() == TeamType_Captains) {
+        g_PugSetup_SetCaptainsByRWSCvar.IntValue != 0 &&
+        totalPlayers >= PugSetup_GetPugMaxPlayers() &&
+        PugSetup_GetTeamType() == TeamType_Captains) {
 
         // The idea is to set the captains to the 2 highest rws players,
         // so they are thrown into an array and sorted by rws,
@@ -440,10 +440,10 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
         SortADTArrayCustom(players, rwsSortFunction);
 
         if (players.Length >= 1)
-            SetCaptain(1, GetArrayCell(players, 0));
+            PugSetup_SetCaptain(1, GetArrayCell(players, 0));
 
         if (players.Length >= 2)
-            SetCaptain(2, GetArrayCell(players, 1));
+            PugSetup_SetCaptain(2, GetArrayCell(players, 1));
 
         delete players;
     }
@@ -469,19 +469,19 @@ public Action Command_RWS(int client, int args) {
         int target = FindTarget(client, arg1, true, false);
         if (target != -1) {
             if (HasStats(target))
-                PugSetupMessage(client, "%N has a RWS of %.1f with %d rounds played",
+                PugSetup_Message(client, "%N has a RWS of %.1f with %d rounds played",
                               target, g_PlayerRWS[target], g_PlayerRounds[target]);
             else
-                PugSetupMessage(client, "%N does not currently have stats stored", target);
+                PugSetup_Message(client, "%N does not currently have stats stored", target);
         }
     } else {
-        PugSetupMessage(client, "Usage: .rws <player>");
+        PugSetup_Message(client, "Usage: .rws <player>");
     }
 
     return Plugin_Handled;
 }
 
-public void OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length) {
+public void PugSetup_OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length) {
     if (g_ShowRWSOnMenuCvar.IntValue != 0 && HasStats(client)) {
         Format(menuString, length, "%N [%.1f RWS]", client, g_PlayerRWS[client]);
     }

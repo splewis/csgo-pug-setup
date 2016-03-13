@@ -7,7 +7,7 @@
         menu.ExitButton = true;
 
         int style = ITEMDRAW_DEFAULT;
-        if ((g_ForceDefaultsCvar.IntValue != 0 && !IsPugAdmin(client)) || displayOnly) {
+        if ((g_ForceDefaultsCvar.IntValue != 0 && !PugSetup_IsPugAdmin(client)) || displayOnly) {
             style = ITEMDRAW_DISABLED;
         }
 
@@ -29,7 +29,7 @@
         }
 
         // first do a sanity check if an autobalancer is avaliable
-        if (g_TeamType == TeamType_Autobalanced && !IsTeamBalancerAvaliable()) {
+        if (g_TeamType == TeamType_Autobalanced && !PugSetup_IsTeamBalancerAvaliable()) {
             g_TeamType = TeamType_Random;
         }
 
@@ -115,14 +115,14 @@
             AddMenuItem(menu, "change_map", buffer, style);
         }
 
-        bool showMenu = true;
+        Action action = Plugin_Continue;
         Call_StartForward(g_hOnSetupMenuOpen);
         Call_PushCell(client);
         Call_PushCell(menu);
         Call_PushCell(displayOnly);
-        Call_Finish(showMenu);
+        Call_Finish(action);
 
-        if (showMenu) {
+        if (action == Plugin_Continue) {
             if (menuPosition == -1) {
                 DisplayMenu(menu, client, MENU_TIME_FOREVER);
             } else {
@@ -137,7 +137,7 @@
 public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int client = param1;
-        char buffer[64];
+        char buffer[128];
         menu.GetItem(param2, buffer, sizeof(buffer));
         int pos = GetMenuSelectionPosition();
 
@@ -158,11 +158,11 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "knife")) {
             g_DoKnifeRound = !g_DoKnifeRound;
-            GiveSetupMenu(client);
+            PugSetup_GiveSetupMenu(client, false, pos);
 
         } else if (StrEqual(buffer, "autolive")) {
             g_AutoLive = !g_AutoLive;
-            GiveSetupMenu(client);
+            PugSetup_GiveSetupMenu(client, false, pos);
 
         } else if (StrEqual(buffer, "set_captains")) {
             FakeClientCommand(client, "sm_capt");
@@ -172,7 +172,7 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "playout")) {
             g_DoPlayout = !g_DoPlayout;
-            GiveSetupMenu(client, false, pos);
+            PugSetup_GiveSetupMenu(client, false, pos);
 
         } else if (StrEqual(buffer, "finish_setup")) {
             SetupFinished();
@@ -182,14 +182,14 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
 
         } else if (StrEqual(buffer, "aim_warmup")) {
             g_DoAimWarmup = !g_DoAimWarmup;
-            GiveSetupMenu(client, false, pos);
+            PugSetup_GiveSetupMenu(client, false, pos);
         }
 
         Call_StartForward(g_hOnSetupMenuSelect);
         Call_PushCell(menu);
-        Call_PushCell(action);
-        Call_PushCell(param1);
-        Call_PushCell(param2);
+        Call_PushCell(client);
+        Call_PushString(buffer);
+        Call_PushCell(pos);
         Call_Finish();
 
     } else if (action == MenuAction_End) {
@@ -205,7 +205,7 @@ public void TeamTypeMenu(int client) {
     AddMenuInt(menu, view_as<int>(TeamType_Captains), "%T", "TeamSetupMenuCaptains", client);
     AddMenuInt(menu, view_as<int>(TeamType_Random), "%T", "TeamSetupMenuRandom", client);
     AddMenuInt(menu, view_as<int>(TeamType_Manual), "%T", "TeamSetupMenuManual", client);
-    if (IsTeamBalancerAvaliable())
+    if (PugSetup_IsTeamBalancerAvaliable())
         AddMenuInt(menu, view_as<int>(TeamType_Autobalanced), "%T", "Autobalanced", client);
 
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -215,10 +215,10 @@ public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int par
     if (action == MenuAction_Select) {
         int client = param1;
         g_TeamType = view_as<TeamType>(GetMenuInt(menu, param2));
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     }  else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
         int client = param1;
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         delete menu;
     }
@@ -240,10 +240,10 @@ public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2)
     if (action == MenuAction_Select) {
         int client = param1;
         g_PlayersPerTeam = GetMenuInt(menu, param2);
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
         int client = param1;
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         delete menu;
     }
@@ -268,10 +268,10 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
         int client = param1;
         g_MapType = view_as<MapType>(GetMenuInt(menu, param2));
         UpdateMapStatus();
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
         int client = param1;
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         delete menu;
     }
@@ -280,10 +280,10 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
 public int DemoHandler(int client) {
     g_RecordGameOption = !g_RecordGameOption;
     if (!IsTVEnabled() && g_RecordGameOption) {
-        PugSetupMessage(client, "%t", "TVDisabled");
+        PugSetup_Message(client, "%t", "TVDisabled");
         g_RecordGameOption = false;
     }
-    GiveSetupMenu(client);
+    PugSetup_GiveSetupMenu(client);
 }
 
 /**
@@ -293,7 +293,7 @@ public void SetupFinished() {
     ExecWarmupConfigs();
 
     if (g_UseGameWarmupCvar.IntValue != 0)
-        EnsurePausedWarmup();
+        StartWarmup(true);
     else
         RestartGame(1);
 
@@ -311,7 +311,7 @@ public void SetupFinished() {
     StartLiveTimer();
 
     if (GetConVarInt(g_AutoRandomizeCaptainsCvar) != 0) {
-        SetRandomCaptains();
+        PugSetup_SetRandomCaptains();
     }
 
     UpdateMapStatus();
@@ -383,7 +383,7 @@ public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2
         ChangeMap(g_MapList, choice);
     } else if (action == MenuAction_Cancel && param2 == MenuCancel_ExitBack) {
         int client = param1;
-        GiveSetupMenu(client);
+        PugSetup_GiveSetupMenu(client);
     } else if (action == MenuAction_End) {
         delete menu;
     }

@@ -35,7 +35,7 @@ public Action Timer_AnnounceKnife(Handle timer) {
         return Plugin_Handled;
 
     for (int i = 0; i < 5; i++)
-        PugSetupMessageToAll("%t", "KnifeRound");
+        PugSetup_MessageToAll("%t", "KnifeRound");
     return Plugin_Handled;
 }
 
@@ -63,6 +63,10 @@ public void HandleKnifeDecisionVote() {
 }
 
 public void EndKnifeRound(bool swap) {
+    Call_StartForward(g_hOnKnifeRoundDecision);
+    Call_PushCell(swap);
+    Call_Finish();
+
     if (swap) {
         for (int i = 1; i <= MaxClients; i++) {
             if (IsValidClient(i)) {
@@ -107,7 +111,7 @@ public Action Command_Stay(int client, int args) {
             EndKnifeRound(false);
         } else {
             g_KnifeRoundVotes[client] = KnifeDecision_Stay;
-            PugSetupMessage(client, "%t", "KnifeRoundVoteStay");
+            PugSetup_Message(client, "%t", "KnifeRoundVoteStay");
             g_KnifeRoundVotesCast++;
             if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
                 HandleKnifeDecisionVote();
@@ -123,7 +127,7 @@ public Action Command_Swap(int client, int args) {
             EndKnifeRound(true);
         } else {
             g_KnifeRoundVotes[client] = KnifeDecision_Swap;
-            PugSetupMessage(client, "%t", "KnifeRoundVoteSwap");
+            PugSetup_Message(client, "%t", "KnifeRoundVoteSwap");
             g_KnifeRoundVotesCast++;
             if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
                 HandleKnifeDecisionVote();
@@ -151,4 +155,31 @@ public Action Command_T(int client, int args) {
             FakeClientCommand(client, "sm_swap");
     }
     return Plugin_Handled;
+}
+
+public int GetKnifeRoundWinner() {
+    int ctAlive = CountAlivePlayersOnTeam(CS_TEAM_CT);
+    int tAlive = CountAlivePlayersOnTeam(CS_TEAM_T);
+    int winningCSTeam = CS_TEAM_NONE;
+    if (ctAlive > tAlive) {
+        winningCSTeam = CS_TEAM_CT;
+    } else if (tAlive > ctAlive) {
+        winningCSTeam = CS_TEAM_T;
+    } else {
+        int ctHealth = SumHealthOfTeam(CS_TEAM_CT);
+        int tHealth = SumHealthOfTeam(CS_TEAM_T);
+        if (ctHealth > tHealth) {
+            winningCSTeam = CS_TEAM_CT;
+        } else if (tHealth > ctHealth) {
+            winningCSTeam = CS_TEAM_T;
+        } else {
+            if (GetRandomFloat(0.0, 1.0) < 0.5) {
+                winningCSTeam = CS_TEAM_CT;
+            } else {
+                winningCSTeam = CS_TEAM_T;
+            }
+        }
+    }
+
+    return winningCSTeam;
 }

@@ -33,7 +33,7 @@ public void OnPluginStart() {
     g_teamFlagCookie = RegClientCookie("pugsetup_teamflag", "Pugsetup team flag (2-letter country code)", CookieAccess_Protected);
 }
 
-public void OnGoingLive() {
+public void PugSetup_OnGoingLive() {
     ArrayList ctNames = new ArrayList(TEAM_NAME_LENGTH);
     ArrayList ctFlags = new ArrayList(TEAM_FLAG_LENGTH);
     ArrayList tNames = new ArrayList(TEAM_NAME_LENGTH);
@@ -154,7 +154,7 @@ public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
 }
 
 /** Clear the names/flags when the game is over **/
-public void OnMatchOver(bool hasDemo, const char[] demoFileName) {
+public void PugSetup_OnMatchOver(bool hasDemo, const char[] demoFileName) {
     LogDebug("Match over - resetting team names");
     SetTeamInfo(CS_TEAM_T, "", "");
     SetTeamInfo(CS_TEAM_CT, "", "");

@@ -46,9 +46,9 @@ public void OnClientConnected(int client) {
 public void OnClientPostAdminCheck(int client) {
     g_CompletedAdminCheck[client] = true;
     bool enabled = g_AutoKickerEnabledCvar.IntValue != 0 && g_KickWhenLiveCvar.IntValue != 0;
-    bool live = IsMatchLive() || IsPendingStart();
+    bool live = PugSetup_IsMatchLive() || PugSetup_IsPendingStart();
 
-    if (enabled && live && !PlayerAtStart(client)) {
+    if (enabled && live && !PugSetup_PlayerAtStart(client)) {
         int count = 0;
         for (int i = 1; i <= MaxClients; i++) {
             if (IsPlayer(i)) {
@@ -60,7 +60,7 @@ public void OnClientPostAdminCheck(int client) {
         }
 
         LogDebug("%L connected, count of players = %d", client, count);
-        if (count >= GetPugMaxPlayers()) {
+        if (count >= PugSetup_GetPugMaxPlayers()) {
             Kick(client, g_KickMessageCvar);
         }
     }
@@ -70,23 +70,23 @@ public void OnClientPostAdminCheck(int client) {
     }
 }
 
-public void OnSetup() {
+public void PugSetup_OnSetup() {
     for (int i = 1; i <= MaxClients; i++) {
         g_ClientReadyTime[i] = GetTime();
     }
 }
 
-public void OnNotPicked(int client) {
+public void PugSetup_OnNotPicked(int client) {
     if (g_AutoKickerEnabledCvar.IntValue != 0 && g_KickNotPickedCvar.IntValue != 0) {
         Kick(client, g_KickMessageCvar);
     }
 }
 
-public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
+public void PugSetup_OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
     if (g_AutoKickerEnabledCvar.IntValue != 0 && g_TimeToReadyCvar.IntValue != 0) {
         for (int i = 1; i <= MaxClients; i++) {
             int dt = GetTime() - g_ClientReadyTime[i];
-            if (g_CompletedAdminCheck[i] && IsPlayer(i) && !IsReady(i) && dt > g_TimeToReadyCvar.IntValue) {
+            if (g_CompletedAdminCheck[i] && IsPlayer(i) && !PugSetup_IsReady(i) && dt > g_TimeToReadyCvar.IntValue) {
                 Kick(i, g_TimeToReadyKickMessageCvar);
             }
         }
@@ -94,7 +94,7 @@ public void OnReadyToStartCheck(int readyPlayers, int totalPlayers) {
 }
 
 static void Kick(int client, ConVar msgCvar) {
-    if (g_UseAdminImmunityCvar.IntValue != 0 && IsPugAdmin(client)) {
+    if (g_UseAdminImmunityCvar.IntValue != 0 && PugSetup_IsPugAdmin(client)) {
         LogDebug("Blocking kick of %L since he is an admin", client);
         return;
     }

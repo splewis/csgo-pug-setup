@@ -20,10 +20,14 @@ public int Captain1MenuHandler(Menu menu, MenuAction action, int param1, int par
     if (action == MenuAction_Select) {
         int client = param1;
         int choice = GetMenuInt(menu, param2);
-        if (choice == -1)
-            SetCaptain(1, RandomPlayer(), true);
-        else if (IsPlayer(choice))
-            SetCaptain(1, choice, true);
+        if (choice == -1) {
+            int randomClient = RandomPlayer();
+            if (IsPlayer(randomClient))
+                PugSetup_SetCaptain(1, randomClient, true);
+        } else if (IsPlayer(choice)) {
+            PugSetup_SetCaptain(1, choice, true);
+        }
+
         Captain2Menu(client);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
@@ -48,10 +52,13 @@ public void Captain2Menu(int client) {
 public int Captain2MenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int choice = GetMenuInt(menu, param2);
-        if (choice == -1)
-            SetCaptain(2, RandomPlayer(), true);
-        else if (IsPlayer(choice))
-            SetCaptain(2, choice, true);
+        if (choice == -1) {
+            int randomClient = RandomPlayer(g_capt1);
+            if (IsPlayer(randomClient))
+                PugSetup_SetCaptain(2, randomClient, true);
+        } else if (IsPlayer(choice)) {
+            PugSetup_SetCaptain(2, choice, true);
+        }
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
@@ -68,7 +75,7 @@ static int CountPotentialCaptains(int otherCaptain) {
 }
 
 static bool IsPotentialCaptain(int client, int otherCaptain) {
-    return IsValidClient(client) && !IsFakeClient(client) && otherCaptain != client;
+    return IsPlayer(client) && otherCaptain != client;
 }
 
 static int AddPotentialCaptains(Menu menu, int otherCaptain) {
@@ -99,7 +106,7 @@ static int AddPotentialCaptains(Menu menu, int otherCaptain) {
 public int LeaderMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
     if (action == MenuAction_Select) {
         int choice = GetMenuInt(menu, param2);
-        SetLeader(choice);
+        PugSetup_SetLeader(choice);
     } else if (action == MenuAction_End) {
         CloseHandle(menu);
     }
