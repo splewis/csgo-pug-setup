@@ -366,7 +366,7 @@ public void ChangeMapMenu(int client) {
     ArrayList mapList = GetCurrentMapList();
 
     Menu menu = new Menu(ChangeMapHandler);
-    menu.ExitButton = false;
+    menu.ExitButton = true;
     menu.ExitBackButton = true;
     menu.SetTitle("%T", "ChangeMapMenuTitle", client);
 
