@@ -96,7 +96,7 @@
         }
 
         // 8. set captains
-        if (g_GameState ==  GameState_Warmup && UsingCaptains()) {
+        if (g_GameState == GameState_Warmup && UsingCaptains()) {
             Format(buffer, sizeof(buffer), "%T", "SetCaptainsMenuOption", client);
             AddMenuItem(menu, "set_captains", buffer, style);
         }
