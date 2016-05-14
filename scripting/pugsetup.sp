@@ -1046,6 +1046,9 @@ static bool Pauseable() {
 }
 
 public Action Command_Pause(int client, int args) {
+    if (g_GameState == GameState_None)
+        return Plugin_Handled;
+
     if (!Pauseable() || IsPaused())
         return Plugin_Handled;
 
@@ -1066,6 +1069,9 @@ public Action Command_Pause(int client, int args) {
 }
 
 public Action Command_Unpause(int client, int args) {
+    if (g_GameState == GameState_None)
+        return Plugin_Handled;
+
     if (!IsPaused())
         return Plugin_Handled;
 
