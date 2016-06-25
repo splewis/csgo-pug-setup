@@ -1,3 +1,9 @@
+## 2.0.1
+- update russian translations
+- update default cvars to shorter knife round / replace deprecated sv_alltalk
+- added exit button to .setup menu
+- disable pausing when no game is setup
+
 ## 2.0.0
 - knife rounds now take into account the number of players (then health in a tie) when roundtime runs out
 - pugsetup_practicemode addon has been moved into a subproject and renamed simply practicemode
