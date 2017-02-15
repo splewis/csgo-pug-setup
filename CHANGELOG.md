@@ -1,3 +1,6 @@
+## 2.0.2
+- update autoupdate url
+
 ## 2.0.1
 - update russian translations
 - update default cvars to shorter knife round / replace deprecated sv_alltalk
