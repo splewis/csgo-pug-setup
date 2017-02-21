@@ -1728,6 +1728,9 @@ stock void EndMatch(bool execConfigs=true, bool doRestart=true) {
 }
 
 public ArrayList GetCurrentMapList() {
+    char maplist[64];
+    g_hMapList.GetString(maplist, sizeof(maplist));
+    GetMapList(maplist);
     if (g_MapList.Length == 0) {
         AddBackupMaps(g_MapList);
     }
