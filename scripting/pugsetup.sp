@@ -525,7 +525,7 @@ public Action Timer_CheckReady(Handle timer) {
             g_capt1 = RandomPlayer();
         }
 
-        while (!IsPlayer(g_capt2) && g_capt1 != g_capt2) {
+        while (!IsPlayer(g_capt2) || g_capt1 == g_capt2) {
             if (GetRealClientCount() < 2)
                 break;
             g_capt2 = RandomPlayer();
