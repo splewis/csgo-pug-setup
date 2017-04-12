@@ -50,6 +50,7 @@ bool g_ManuallySetCaptains = false;
 bool g_SetTeamBalancer = false;
 
 
+// clang-format off
 public Plugin myinfo = {
     name = "CS:GO PugSetup: RWS balancer",
     author = "splewis",
@@ -57,6 +58,7 @@ public Plugin myinfo = {
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
+// clang-format on
 
 public void OnPluginStart() {
     InitDebugLog(DEBUG_CVAR, "rwsbalance");

@@ -15,6 +15,7 @@ Handle g_teamFlagCookie = INVALID_HANDLE;
 #define TEAM_NAME_LENGTH 128
 #define TEAM_FLAG_LENGTH 4
 
+// clang-format off
 public Plugin myinfo = {
     name = "CS:GO PugSetup: team names setter",
     author = "splewis",
@@ -22,6 +23,7 @@ public Plugin myinfo = {
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
+// clang-format on
 
 public void OnPluginStart() {
     InitDebugLog(DEBUG_CVAR, "teamnames");

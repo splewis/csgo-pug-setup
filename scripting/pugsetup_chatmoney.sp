@@ -8,6 +8,7 @@
 
 ConVar g_hEnabled;
 
+// clang-format off
 public Plugin myinfo = {
     name = "CS:GO PugSetup: write team money to chat",
     author = "Versatile_BFG/jkroepke",
@@ -15,6 +16,7 @@ public Plugin myinfo = {
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
+// clang-format on
 
 public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");

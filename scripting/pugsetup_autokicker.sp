@@ -18,6 +18,7 @@ ConVar g_UseAdminImmunityCvar;
 bool g_CompletedAdminCheck[MAXPLAYERS+1];
 int g_ClientReadyTime[MAXPLAYERS+1]; // first time (seconds) when the client was capable of readying up
 
+// clang-format off
 public Plugin myinfo = {
     name = "CS:GO PugSetup: autokicker",
     author = "splewis",
@@ -25,6 +26,7 @@ public Plugin myinfo = {
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
+// clang-format on
 
 public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");

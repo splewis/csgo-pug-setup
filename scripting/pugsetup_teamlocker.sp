@@ -11,6 +11,7 @@ ConVar g_hBlockSpecJoins;
 ConVar g_hKickTime;
 ConVar g_hLockTeamsEnabled;
 
+// clang-format off
 public Plugin myinfo = {
     name = "CS:GO PugSetup: team locker",
     author = "splewis",
@@ -18,6 +19,7 @@ public Plugin myinfo = {
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
+// clang-format on
 
 public void OnPluginStart() {
     InitDebugLog(DEBUG_CVAR, "teamlock");

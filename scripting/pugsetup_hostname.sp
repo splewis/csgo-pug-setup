@@ -14,6 +14,7 @@ ConVar g_HostnameCvar;
 bool g_GotHostName = false;  // keep track of it, so we only fetch it once
 char g_HostName[MAX_HOST_LENGTH];  // stores the original hostname
 
+// clang-format off
 public Plugin myinfo = {
     name = "CS:GO PugSetup: hostname setter",
     author = "splewis",
@@ -21,6 +22,7 @@ public Plugin myinfo = {
     version = PLUGIN_VERSION,
     url = "https://github.com/splewis/csgo-pug-setup"
 };
+// clang-format on
 
 public void OnPluginStart() {
     LoadTranslations("pugsetup.phrases");
