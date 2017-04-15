@@ -22,7 +22,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-/***********************811
+/***********************
  *                     *
  *   Global variables  *
  *                     *
@@ -45,6 +45,7 @@ ConVar g_EchoReadyMessagesCvar;
 ConVar g_ExcludeSpectatorsCvar;
 ConVar g_ExecDefaultConfigCvar;
 ConVar g_ForceDefaultsCvar;
+ConVar g_InstantRunoffVotingCvar;
 ConVar g_LiveCfgCvar;
 ConVar g_MapListCvar;
 ConVar g_MapVoteTimeCvar;
@@ -180,6 +181,7 @@ Handle g_hOnWarmupCfg = INVALID_HANDLE;
 #include "pugsetup/captainpickmenus.sp"
 #include "pugsetup/configs.sp"
 #include "pugsetup/consolecommands.sp"
+#include "pugsetup/instantrunoffvote.sp"
 #include "pugsetup/kniferounds.sp"
 #include "pugsetup/leadermenus.sp"
 #include "pugsetup/liveon3.sp"
@@ -257,13 +259,16 @@ public void OnPluginStart() {
   g_ForceDefaultsCvar = CreateConVar(
       "sm_pugsetup_force_defaults", "0",
       "Whether the default setup options are forced as the setup options (note that admins can override them still).");
+  g_InstantRunoffVotingCvar = CreateConVar(
+      "sm_pugsetup_instant_runoff_voting", "0",
+      "If set, map votes will run instant-runoff style where each client selects their top 3 maps in preference order.");
   g_LiveCfgCvar = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/live.cfg",
                                "Config to execute when the game goes live");
   g_MapListCvar = CreateConVar(
       "sm_pugsetup_maplist", "maps.txt",
       "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
   g_MapVoteTimeCvar =
-      CreateConVar("sm_pugsetup_mapvote_time", "20",
+      CreateConVar("sm_pugsetup_mapvote_time", "25",
                    "How long the map vote should last if using map-votes.", _, true, 10.0);
   g_MaxTeamSizeCvar =
       CreateConVar("sm_pugsetup_max_team_size", "5",

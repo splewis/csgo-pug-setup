@@ -7,10 +7,14 @@ public void CreateMapVote() {
   if (GetConVarInt(g_RandomizeMapOrderCvar) != 0)
     RandomizeArray(GetCurrentMapList());
 
-  ShowMapVote();
+  if (g_InstantRunoffVotingCvar.IntValue == 0) {
+    StartMapVote();
+  } else {
+    StartInstantRunoffMapVote();
+  }
 }
 
-static void ShowMapVote() {
+static void StartMapVote() {
   ArrayList mapList = GetCurrentMapList();
 
   Menu menu = new Menu(MapVoteHandler);
