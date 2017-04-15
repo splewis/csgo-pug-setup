@@ -2,6 +2,7 @@
 #include <cstrike>
 #include <geoip>
 #include <sourcemod>
+
 #include "include/logdebug.inc"
 #include "include/pugsetup.inc"
 #include "pugsetup/generic.sp"
@@ -26,138 +27,142 @@ public Plugin myinfo = {
 // clang-format on
 
 public void OnPluginStart() {
-    InitDebugLog(DEBUG_CVAR, "teamnames");
-    LoadTranslations("common.phrases");
-    LoadTranslations("pugsetup.phrases");
-    RegAdminCmd("sm_name", Command_Name, ADMFLAG_CHANGEMAP, "Sets a team name/flag to go with a player: sm_name <player> <teamname> <teamflag>, use quotes for the team name if it includes a space!");
-    RegAdminCmd("sm_listnames", Command_ListNames, ADMFLAG_CHANGEMAP, "Lists all players' and their team names/flag, if they have one set.");
-    g_teamNameCookie = RegClientCookie("pugsetup_teamname", "Pugsetup team name", CookieAccess_Protected);
-    g_teamFlagCookie = RegClientCookie("pugsetup_teamflag", "Pugsetup team flag (2-letter country code)", CookieAccess_Protected);
+  InitDebugLog(DEBUG_CVAR, "teamnames");
+  LoadTranslations("common.phrases");
+  LoadTranslations("pugsetup.phrases");
+  RegAdminCmd(
+      "sm_name", Command_Name, ADMFLAG_CHANGEMAP,
+      "Sets a team name/flag to go with a player: sm_name <player> <teamname> <teamflag>, use quotes for the team name if it includes a space!");
+  RegAdminCmd("sm_listnames", Command_ListNames, ADMFLAG_CHANGEMAP,
+              "Lists all players' and their team names/flag, if they have one set.");
+  g_teamNameCookie =
+      RegClientCookie("pugsetup_teamname", "Pugsetup team name", CookieAccess_Protected);
+  g_teamFlagCookie = RegClientCookie(
+      "pugsetup_teamflag", "Pugsetup team flag (2-letter country code)", CookieAccess_Protected);
 }
 
 public void PugSetup_OnGoingLive() {
-    ArrayList ctNames = new ArrayList(TEAM_NAME_LENGTH);
-    ArrayList ctFlags = new ArrayList(TEAM_FLAG_LENGTH);
-    ArrayList tNames = new ArrayList(TEAM_NAME_LENGTH);
-    ArrayList tFlags = new ArrayList(TEAM_FLAG_LENGTH);
+  ArrayList ctNames = new ArrayList(TEAM_NAME_LENGTH);
+  ArrayList ctFlags = new ArrayList(TEAM_FLAG_LENGTH);
+  ArrayList tNames = new ArrayList(TEAM_NAME_LENGTH);
+  ArrayList tFlags = new ArrayList(TEAM_FLAG_LENGTH);
 
-    FillPotentialNames(CS_TEAM_CT, ctNames, ctFlags);
-    FillPotentialNames(CS_TEAM_T, tNames, tFlags);
+  FillPotentialNames(CS_TEAM_CT, ctNames, ctFlags);
+  FillPotentialNames(CS_TEAM_T, tNames, tFlags);
 
-    int choice = -1;
-    char name[TEAM_NAME_LENGTH];
-    char flag[TEAM_FLAG_LENGTH];
+  int choice = -1;
+  char name[TEAM_NAME_LENGTH];
+  char flag[TEAM_FLAG_LENGTH];
 
-    if (GetArraySize(ctNames) > 0) {
-        choice = GetArrayRandomIndex(ctNames);
-        GetArrayString(ctNames, choice, name, sizeof(name));
-        GetArrayString(ctFlags, choice, flag, sizeof(flag));
-        LogDebug("Setting ct name, flag = %s, %s", name, flag);
-        SetTeamInfo(CS_TEAM_CT, name, flag);
-    }
+  if (GetArraySize(ctNames) > 0) {
+    choice = GetArrayRandomIndex(ctNames);
+    GetArrayString(ctNames, choice, name, sizeof(name));
+    GetArrayString(ctFlags, choice, flag, sizeof(flag));
+    LogDebug("Setting ct name, flag = %s, %s", name, flag);
+    SetTeamInfo(CS_TEAM_CT, name, flag);
+  }
 
-    if (GetArraySize(tNames) > 0) {
-        choice = GetArrayRandomIndex(tNames);
-        GetArrayString(tNames, choice, name, sizeof(name));
-        GetArrayString(tFlags, choice, flag, sizeof(flag));
-        LogDebug("Setting t name, flag = %s, %s", name, flag);
-        SetTeamInfo(CS_TEAM_T, name, flag);
-    }
+  if (GetArraySize(tNames) > 0) {
+    choice = GetArrayRandomIndex(tNames);
+    GetArrayString(tNames, choice, name, sizeof(name));
+    GetArrayString(tFlags, choice, flag, sizeof(flag));
+    LogDebug("Setting t name, flag = %s, %s", name, flag);
+    SetTeamInfo(CS_TEAM_T, name, flag);
+  }
 
-    delete ctNames;
-    delete ctFlags;
-    delete tNames;
-    delete tFlags;
+  delete ctNames;
+  delete ctFlags;
+  delete tNames;
+  delete tFlags;
 }
 
 public Action Command_ListNames(int client, int args) {
-    int count = 0;
-    for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && AreClientCookiesCached(i)) {
-            char name[TEAM_NAME_LENGTH];
-            char flag[TEAM_FLAG_LENGTH];
-            GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
-            GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
-            if (!StrEqual(name, "")) {
-                ReplyToCommand(client, "%N: %s (%s)", i, name, flag);
-                count++;
-            }
-        }
+  int count = 0;
+  for (int i = 1; i <= MaxClients; i++) {
+    if (IsPlayer(i) && AreClientCookiesCached(i)) {
+      char name[TEAM_NAME_LENGTH];
+      char flag[TEAM_FLAG_LENGTH];
+      GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
+      GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
+      if (!StrEqual(name, "")) {
+        ReplyToCommand(client, "%N: %s (%s)", i, name, flag);
+        count++;
+      }
     }
-    if (count == 0)
-        ReplyToCommand(client, "Nobody has a team name/flag set.");
+  }
+  if (count == 0)
+    ReplyToCommand(client, "Nobody has a team name/flag set.");
 
-    return Plugin_Handled;
+  return Plugin_Handled;
 }
 
 public Action Command_Name(int client, int args) {
-    char arg1[MAX_NAME_LENGTH];
-    char arg2[TEAM_NAME_LENGTH];
+  char arg1[MAX_NAME_LENGTH];
+  char arg2[TEAM_NAME_LENGTH];
 
-    if (args >= 2 && GetCmdArg(1, arg1, sizeof(arg1)) && GetCmdArg(2, arg2, sizeof(arg2))) {
-        int target = FindTarget(client, arg1, true, false);
-        char flag[3];
+  if (args >= 2 && GetCmdArg(1, arg1, sizeof(arg1)) && GetCmdArg(2, arg2, sizeof(arg2))) {
+    int target = FindTarget(client, arg1, true, false);
+    char flag[3];
 
-        if (IsPlayer(target)) {
-            SetClientCookie(target, g_teamNameCookie, arg2);
+    if (IsPlayer(target)) {
+      SetClientCookie(target, g_teamNameCookie, arg2);
 
-            // by default, use arg3 from the command, otherwise try to use the ip address
-            if (args <= 2 || !GetCmdArg(3, flag, sizeof(flag))) {
-                if (GetPlayerFlagFromIP(target, flag))
-                    SetClientCookie(target, g_teamFlagCookie, flag);
-            }
-            SetClientCookie(target, g_teamFlagCookie, flag);
-            ReplyToCommand(client, "Set team data for %L: name = %s, flag = %s", target, arg2, flag);
-        }
-
-
-    } else {
-        ReplyToCommand(client, "Usage: sm_name <player> <team name> [team flag code]");
+      // by default, use arg3 from the command, otherwise try to use the ip address
+      if (args <= 2 || !GetCmdArg(3, flag, sizeof(flag))) {
+        if (GetPlayerFlagFromIP(target, flag))
+          SetClientCookie(target, g_teamFlagCookie, flag);
+      }
+      SetClientCookie(target, g_teamFlagCookie, flag);
+      ReplyToCommand(client, "Set team data for %L: name = %s, flag = %s", target, arg2, flag);
     }
 
-    return Plugin_Handled;
+  } else {
+    ReplyToCommand(client, "Usage: sm_name <player> <team name> [team flag code]");
+  }
+
+  return Plugin_Handled;
 }
 
 static bool GetPlayerFlagFromIP(int client, char flag[3]) {
-    char ip[32];
-    if (!GetClientIP(client, ip, sizeof(ip)) || !GeoipCode2(ip, flag)) {
-        Format(flag, sizeof(flag), "");
-        return true;
-    }
-    return false;
+  char ip[32];
+  if (!GetClientIP(client, ip, sizeof(ip)) || !GeoipCode2(ip, flag)) {
+    Format(flag, sizeof(flag), "");
+    return true;
+  }
+  return false;
 }
 
 public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
+  for (int i = 1; i <= MaxClients; i++) {
+    if (IsPlayer(i) && GetClientTeam(i) == team && AreClientCookiesCached(i)) {
+      char name[TEAM_NAME_LENGTH];
+      char flag[TEAM_FLAG_LENGTH];
+      GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
+      GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
+
+      if (StrEqual(name, ""))
+        continue;
+
+      names.PushString(name);
+      flags.PushString(flag);
+    }
+  }
+
+  // if we have no results, might as well throw in some geo-ip flags with empty names
+  if (names.Length == 0) {
     for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && GetClientTeam(i) == team && AreClientCookiesCached(i)) {
-            char name[TEAM_NAME_LENGTH];
-            char flag[TEAM_FLAG_LENGTH];
-            GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
-            GetClientCookie(i, g_teamFlagCookie, flag, sizeof(flag));
-
-            if (StrEqual(name, ""))
-                continue;
-
-            names.PushString(name);
-            flags.PushString(flag);
-        }
+      char flag[3];
+      if (IsPlayer(i) && GetClientTeam(i) == team && GetPlayerFlagFromIP(i, flag)) {
+        names.PushString("");
+        flags.PushString(flag);
+      }
     }
-
-    // if we have no results, might as well throw in some geo-ip flags with empty names
-    if (names.Length == 0) {
-        for (int i = 1; i <= MaxClients; i++) {
-            char flag[3];
-            if (IsPlayer(i) && GetClientTeam(i) == team && GetPlayerFlagFromIP(i, flag)) {
-                names.PushString("");
-                flags.PushString(flag);
-            }
-        }
-    }
+  }
 }
 
 /** Clear the names/flags when the game is over **/
 public void PugSetup_OnMatchOver(bool hasDemo, const char[] demoFileName) {
-    LogDebug("Match over - resetting team names");
-    SetTeamInfo(CS_TEAM_T, "", "");
-    SetTeamInfo(CS_TEAM_CT, "", "");
+  LogDebug("Match over - resetting team names");
+  SetTeamInfo(CS_TEAM_T, "", "");
+  SetTeamInfo(CS_TEAM_CT, "", "");
 }

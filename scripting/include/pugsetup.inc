@@ -1,43 +1,45 @@
 #if defined _pugsetup_included
-  #endinput
+#endinput
 #endif
 #define _pugsetup_included
 
 // Different ways teams can be selected.
 enum TeamType {
-    TeamType_Manual,
-    TeamType_Random,
-    TeamType_Captains,
-    TeamType_Autobalanced,                  // only allowed if PugSetup_IsTeamBalancerAvaliable() is true
+  TeamType_Manual,
+  TeamType_Random,
+  TeamType_Captains,
+  TeamType_Autobalanced,  // only allowed if PugSetup_IsTeamBalancerAvaliable() is true
 };
 
 // Different ways the map can be selected.
 enum MapType {
-    MapType_Current,
-    MapType_Vote,
-    MapType_Veto,
+  MapType_Current,
+  MapType_Vote,
+  MapType_Veto,
 };
 
 // Permission checking values.
 enum Permission {
-    Permission_All,                         // anyone can use the command
-    Permission_Captains,                    // only captains (and higher) can use the command (note: reverts to Permission_All when not using captains)
-    Permission_Leader,                      // only the pug leader (and higher) can use the command
-    Permission_Admin,                       // only pug admins can use the command
-    Permission_None,                        // this command is disabled
+  Permission_All,       // anyone can use the command
+  Permission_Captains,  // only captains (and higher) can use the command (note: reverts to
+                        // Permission_All when not using captains)
+  Permission_Leader,    // only the pug leader (and higher) can use the command
+  Permission_Admin,     // only pug admins can use the command
+  Permission_None,      // this command is disabled
 };
 
 // Pug game state
 enum GameState {
-    GameState_None,                          // no setup has taken place
-    GameState_Warmup,                        // setup done, waiting for players to ready up
-    GameState_PickingPlayers,                // only used if TeamType_Captains is the teamtype
-    GameState_WaitingForStart,               // waiting for a .start if autolive is disabled
-    GameState_Countdown,                     // doing the countdown timer
-    GameState_KnifeRound,                    // in the knife round
-    GameState_WaitingForKnifeRoundDecision,  // waiting for a .stay/.swap command after the knife round
-    GameState_GoingLive,                     // in the lo3 process
-    GameState_Live,                          // the match is live
+  GameState_None,                          // no setup has taken place
+  GameState_Warmup,                        // setup done, waiting for players to ready up
+  GameState_PickingPlayers,                // only used if TeamType_Captains is the teamtype
+  GameState_WaitingForStart,               // waiting for a .start if autolive is disabled
+  GameState_Countdown,                     // doing the countdown timer
+  GameState_KnifeRound,                    // in the knife round
+  GameState_WaitingForKnifeRoundDecision,  // waiting for a .stay/.swap command after the knife
+                                           // round
+  GameState_GoingLive,                     // in the lo3 process
+  GameState_Live,                          // the match is live
 };
 
 /**
@@ -53,7 +55,8 @@ forward Action PugSetup_OnSetupMenuOpen(int client, Menu menu, bool displayOnly)
  * Called when a setup menu option is selected.
  * You should call PugSetup_GiveSetupMenu to the calling client at the end of this function.
  */
-forward void PugSetup_OnSetupMenuSelect(Menu menu, int client, const char[] selected_info, int selected_position);
+forward void PugSetup_OnSetupMenuSelect(Menu menu, int client, const char[] selected_info,
+                                        int selected_position);
 
 /**
  * Called when a setup is completed.
@@ -145,7 +148,8 @@ forward void PugSetup_OnReadyToStartCheck(int readyPlayers, int totalPlayers);
  * @param allow Result of the check
  * @note permissions-checking is only relevent for pugsetup commands.
  */
-forward void PugSetup_OnPermissionCheck(int client, const char[] command, Permission p, bool& allow);
+forward void PugSetup_OnPermissionCheck(int client, const char[] command, Permission p,
+                                        bool& allow);
 
 /**
  * Called when a tv_record command is about to be sent.
@@ -162,7 +166,8 @@ forward void PugSetup_OnStartRecording(char[] demoName);
  * @param menuString The menu display string being added for the client
  * @param length Length of the menuString
  */
-forward void PugSetup_OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString, int length);
+forward void PugSetup_OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] menuString,
+                                                 int length);
 
 /**
  * Called when a client issues a .help command in chat.
@@ -172,24 +177,26 @@ forward void PugSetup_OnPlayerAddedToCaptainMenu(Menu menu, int client, char[] m
  * @param maxMessageSize The max length of a string in the replyMessages list
  * @param block Whether to block the reply message (set to true to have no reply)
  */
-forward void PugSetup_OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSize, bool& block);
+forward void PugSetup_OnHelpCommand(int client, ArrayList replyMessages, int maxMessageSize,
+                                    bool& block);
 
 /**
  * Called during any game state change.
  */
 forward void PugSetup_OnGameStateChanged(GameState before, GameState after);
 
-typedef TeamBalancerFunction = function void (ArrayList players);
+typedef TeamBalancerFunction = function void(ArrayList players);
 
 /**
- * Returns if a team balancer function has been set for pugsetup to use, if selected in the setup menu.
+ * Returns if a team balancer function has been set for pugsetup to use, if selected in the setup
+ * menu.
  */
 native bool PugSetup_IsTeamBalancerAvaliable();
 
 /**
  * Sets a team balancer function, returning if the balancer function was set.
  */
-native bool PugSetup_SetTeamBalancer(TeamBalancerFunction balancerFunction, bool override=false);
+native bool PugSetup_SetTeamBalancer(TeamBalancerFunction balancerFunction, bool override = false);
 
 /**
  * Clears any team balancer function set, returning if there was one before clearing.
@@ -197,19 +204,25 @@ native bool PugSetup_SetTeamBalancer(TeamBalancerFunction balancerFunction, bool
 native bool PugSetup_ClearTeamBalancer();
 
 // Sets a game up with the given settings.
-native void PugSetup_SetupGame(TeamType teamType, MapType mapType=MapType_Vote, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);
+native void PugSetup_SetupGame(TeamType teamType, MapType mapType = MapType_Vote,
+                               int playersPerTeam = 5, bool recordDemo = false,
+                               bool knifeRound = false, bool autoLive = true);
 
-// Sets the current game options. These can still be overwritten by a user with access to the .setup menu.
-native void PugSetup_SetSetupOptions(TeamType teamType, MapType mapType, int playersPerTeam=5, bool recordDemo=false, bool knifeRound=false, bool autoLive=true);
+// Sets the current game options. These can still be overwritten by a user with access to the .setup
+// menu.
+native void PugSetup_SetSetupOptions(TeamType teamType, MapType mapType, int playersPerTeam = 5,
+                                     bool recordDemo = false, bool knifeRound = false,
+                                     bool autoLive = true);
 
 // Fetches the current game options.
 // @error If there is no game setup yet.
-native void PugSetup_GetSetupOptions(TeamType& teamType, MapType& mapType, int& playersPerTeam, bool& recordDemo, bool& knifeRound, bool& autoLive);
+native void PugSetup_GetSetupOptions(TeamType& teamType, MapType& mapType, int& playersPerTeam,
+                                     bool& recordDemo, bool& knifeRound, bool& autoLive);
 
 // Readies up a player, optionally printing chat messages
 // to the client about readying up.
 // Returns if they were successfully readied.
-native bool PugSetup_ReadyPlayer(int client, bool chatReply=true);
+native bool PugSetup_ReadyPlayer(int client, bool chatReply = true);
 
 // Unreadies a player.
 // Returns if they were successfully unreadied. (returns false if the client was already not-ready)
@@ -243,11 +256,11 @@ native bool PugSetup_IsPendingStart();
 native void PugSetup_SetLeader(int client);
 
 // Returns the pug leader, or -1 if not set.
-native int PugSetup_GetLeader(bool allowLeaderReassignment=true);
+native int PugSetup_GetLeader(bool allowLeaderReassignment = true);
 
 // Sets who is a captain.
 // A captain number is either 1 or 2.
-native void PugSetup_SetCaptain(int captainNumber, int client, bool printIfSame=false);
+native void PugSetup_SetCaptain(int captainNumber, int client, bool printIfSame = false);
 
 // Returns captain 1, or -1 if not set.
 // A captain number is either 1 or 2.
@@ -271,7 +284,7 @@ native bool PugSetup_PlayerAtStart(int client);
 native bool PugSetup_IsPugAdmin(int client);
 
 // Returns if a client satisfies a permission check.
-native bool PugSetup_HasPermissions(int client, Permission p, bool allowLeaderReassignment=true);
+native bool PugSetup_HasPermissions(int client, Permission p, bool allowLeaderReassignment = true);
 
 // Sets random captains.
 native void PugSetup_SetRandomCaptains();
@@ -281,7 +294,7 @@ native void PugSetup_AddChatAlias(const char[] alias, const char[] command);
 
 // Give a client the root setup menu again.
 // This is intended to be called in the PugSetup_OnSetupMenuSelect forward.
-native void PugSetup_GiveSetupMenu(int client, bool displayOnly=false, int menuPosition=-1);
+native void PugSetup_GiveSetupMenu(int client, bool displayOnly = false, int menuPosition = -1);
 
 // Displays the map change menu to a client (bypasses access checks).
 native void PugSetup_GiveMapChangeMenu(int client);
@@ -298,8 +311,7 @@ native Permission PugSetup_GetPermissions(const char[] command);
 native bool PugSetup_SetPermissions(const char[] command, Permission p);
 
 public SharedPlugin __pl_pugsetup = {
-    name = "pugsetup",
-    file = "pugsetup.smx",
+    name = "pugsetup", file = "pugsetup.smx",
 #if defined REQUIRE_PLUGIN
     required = 1,
 #else
@@ -309,37 +321,37 @@ public SharedPlugin __pl_pugsetup = {
 
 #if !defined REQUIRE_PLUGIN
 public __pl_pugsetup_SetNTVOptional() {
-    MarkNativeAsOptional("PugSetup_SetupGame");
-    MarkNativeAsOptional("PugSetup_GetSetupOptions");
-    MarkNativeAsOptional("PugSetup_SetSetupOptions");
-    MarkNativeAsOptional("PugSetup_ReadyPlayer");
-    MarkNativeAsOptional("PugSetup_UnreadyPlayer");
-    MarkNativeAsOptional("PugSetup_IsReady");
-    MarkNativeAsOptional("PugSetup_IsSetup");
-    MarkNativeAsOptional("PugSetup_GetTeamType");
-    MarkNativeAsOptional("PugSetup_GetMapType");
-    MarkNativeAsOptional("PugSetup_GetGameState");
-    MarkNativeAsOptional("PugSetup_IsMatchLive");
-    MarkNativeAsOptional("PugSetup_IsPendingStart");
-    MarkNativeAsOptional("PugSetup_SetLeader");
-    MarkNativeAsOptional("PugSetup_GetLeader");
-    MarkNativeAsOptional("PugSetup_SetCaptain");
-    MarkNativeAsOptional("PugSetup_GetCaptain");
-    MarkNativeAsOptional("PugSetup_Message");
-    MarkNativeAsOptional("PugSetup_MessageToAll");
-    MarkNativeAsOptional("PugSetup_GetPugMaxPlayers");
-    MarkNativeAsOptional("PugSetup_PlayerAtStart");
-    MarkNativeAsOptional("PugSetup_IsPugAdmin");
-    MarkNativeAsOptional("PugSetup_HasPermissions");
-    MarkNativeAsOptional("PugSetup_SetRandomCaptains");
-    MarkNativeAsOptional("PugSetup_AddChatAlias");
-    MarkNativeAsOptional("PugSetup_GiveSetupMenu");
-    MarkNativeAsOptional("PugSetup_GiveMapChangeMenu");
-    MarkNativeAsOptional("PugSetup_IsValidCommand");
-    MarkNativeAsOptional("PugSetup_GetPermissions");
-    MarkNativeAsOptional("PugSetup_SetPermissions");
-    MarkNativeAsOptional("PugSetup_SetTeamBalancer");
-    MarkNativeAsOptional("PugSetup_IsTeamBalancerAvaliable")
-    MarkNativeAsOptional("PugSetup_ClearTeamBalancer");
+  MarkNativeAsOptional("PugSetup_SetupGame");
+  MarkNativeAsOptional("PugSetup_GetSetupOptions");
+  MarkNativeAsOptional("PugSetup_SetSetupOptions");
+  MarkNativeAsOptional("PugSetup_ReadyPlayer");
+  MarkNativeAsOptional("PugSetup_UnreadyPlayer");
+  MarkNativeAsOptional("PugSetup_IsReady");
+  MarkNativeAsOptional("PugSetup_IsSetup");
+  MarkNativeAsOptional("PugSetup_GetTeamType");
+  MarkNativeAsOptional("PugSetup_GetMapType");
+  MarkNativeAsOptional("PugSetup_GetGameState");
+  MarkNativeAsOptional("PugSetup_IsMatchLive");
+  MarkNativeAsOptional("PugSetup_IsPendingStart");
+  MarkNativeAsOptional("PugSetup_SetLeader");
+  MarkNativeAsOptional("PugSetup_GetLeader");
+  MarkNativeAsOptional("PugSetup_SetCaptain");
+  MarkNativeAsOptional("PugSetup_GetCaptain");
+  MarkNativeAsOptional("PugSetup_Message");
+  MarkNativeAsOptional("PugSetup_MessageToAll");
+  MarkNativeAsOptional("PugSetup_GetPugMaxPlayers");
+  MarkNativeAsOptional("PugSetup_PlayerAtStart");
+  MarkNativeAsOptional("PugSetup_IsPugAdmin");
+  MarkNativeAsOptional("PugSetup_HasPermissions");
+  MarkNativeAsOptional("PugSetup_SetRandomCaptains");
+  MarkNativeAsOptional("PugSetup_AddChatAlias");
+  MarkNativeAsOptional("PugSetup_GiveSetupMenu");
+  MarkNativeAsOptional("PugSetup_GiveMapChangeMenu");
+  MarkNativeAsOptional("PugSetup_IsValidCommand");
+  MarkNativeAsOptional("PugSetup_GetPermissions");
+  MarkNativeAsOptional("PugSetup_SetPermissions");
+  MarkNativeAsOptional("PugSetup_SetTeamBalancer");
+  MarkNativeAsOptional("PugSetup_IsTeamBalancerAvaliable")
+      MarkNativeAsOptional("PugSetup_ClearTeamBalancer");
 }
 #endif
