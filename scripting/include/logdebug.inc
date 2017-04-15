@@ -39,11 +39,11 @@ int g_DebugAdminFlags;
 /**
  * Inits debug logging. You must call this in OnPluginStart().
  *
- * @param convarName		A name to use for the cvar which controls debug log output. Also
+ * @param convarName    A name to use for the cvar which controls debug log output. Also
  * used
  * as filename for logfile.
- * @param debugTag			Tag to prepend to messages, without []. Max 10 characters.
- * @param adminFlag			One or more admin flagbits which define whether a user is an
+ * @param debugTag      Tag to prepend to messages, without []. Max 10 characters.
+ * @param adminFlag     One or more admin flagbits which define whether a user is an
  * "admin". If you pass multiple flags, users will need ALL flags.
  * @noreturn
  */
@@ -61,7 +61,10 @@ stock void InitDebugLog(const char[] convarName, const char[] debugTag,
       len += StrCat(flagChars, sizeof(flagChars), ", ");
     }
 
-    FindFlagChar(flags[i], view_as<int>(flagChars[len]));
+    int flag = 0;
+    FindFlagChar(flags[i], flag);
+    flagChars[len] = view_as<char>(flag);
+
     flagChars[len + 1] = '\0';
   }
 
@@ -83,9 +86,9 @@ stock void InitDebugLog(const char[] convarName, const char[] debugTag,
 /**
  * Logs a message to all enabled debug output points
  *
- * @param format		Message text with formatting tokens
- * @param ...			Variable number of format parameters
- * @return				true if message was output to at least one place
+ * @param format    Message text with formatting tokens
+ * @param ...     Variable number of format parameters
+ * @return        true if message was output to at least one place
  */
 stock bool LogDebug(const char[] format, any...) {
   if (g_cvarDebugMode == null) {
@@ -144,7 +147,7 @@ stock bool LogDebug(const char[] format, any...) {
 /**
  * Returns a bitstring containing bits enabled for each output location (see DEBUG_ constants)
  *
- * @return				bitstring for enabled outputs
+ * @return        bitstring for enabled outputs
  */
 stock int GetDebugOutputs() {
   return g_cvarDebugMode.IntValue;
