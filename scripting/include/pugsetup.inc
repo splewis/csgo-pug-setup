@@ -352,6 +352,6 @@ public __pl_pugsetup_SetNTVOptional() {
   MarkNativeAsOptional("PugSetup_SetPermissions");
   MarkNativeAsOptional("PugSetup_SetTeamBalancer");
   MarkNativeAsOptional("PugSetup_IsTeamBalancerAvaliable")
-      MarkNativeAsOptional("PugSetup_ClearTeamBalancer");
+  MarkNativeAsOptional("PugSetup_ClearTeamBalancer");
 }
 #endif
