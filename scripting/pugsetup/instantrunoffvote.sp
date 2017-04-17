@@ -180,4 +180,5 @@ public Action Timer_CollectIRVResults(Handle timer) {
   char mapName[64];
   FormatMapName(g_MapList, winner, mapName, sizeof(mapName));
   PugSetup_MessageToAll("Vote over... {GREEN}%s {NORMAL}won!", mapName);
+  ChangeMap(g_MapList, winner);
 }
