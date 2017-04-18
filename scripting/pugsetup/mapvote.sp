@@ -4,8 +4,9 @@
  * Map voting functions
  */
 public void CreateMapVote() {
-  if (GetConVarInt(g_RandomizeMapOrderCvar) != 0)
+  if (g_RandomizeMapOrderCvar.IntValue != 0) {
     RandomizeArray(GetCurrentMapList());
+  }
 
   if (g_InstantRunoffVotingCvar.IntValue == 0) {
     StartMapVote();
@@ -18,8 +19,8 @@ static void StartMapVote() {
   ArrayList mapList = GetCurrentMapList();
 
   Menu menu = new Menu(MapVoteHandler);
-  SetMenuTitle(menu, "%T", "VoteMenuTitle", LANG_SERVER);
-  SetMenuExitButton(menu, false);
+  menu.SetTitle("%T", "VoteMenuTitle", LANG_SERVER);
+  menu.ExitButton = false;
 
   if (g_RandomOptionInMapVoteCvar.IntValue != 0) {
     char buffer[255];
@@ -27,11 +28,11 @@ static void StartMapVote() {
     AddMenuItem(menu, RANDOM_MAP_VOTE, buffer);
   }
 
-  for (int i = 0; i < GetArraySize(mapList); i++) {
+  for (int i = 0; i < mapList.Length; i++) {
     AddMapIndexToMenu(menu, mapList, i);
   }
 
-  VoteMenuToAll(menu, GetConVarInt(g_MapVoteTimeCvar));
+  VoteMenuToAll(menu, g_MapVoteTimeCvar.IntValue);
 }
 
 public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) {

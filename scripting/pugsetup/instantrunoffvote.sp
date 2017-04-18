@@ -43,8 +43,8 @@ public void ShowInstantRunoffMapVote(int client, int round) {
   ArrayList mapList = GetCurrentMapList();
 
   Menu menu = new Menu(MapSelectionHandler);
-  SetMenuTitle(menu, "Select your #%d choice", round + 1);
-  SetMenuExitButton(menu, false);
+  menu.SetTitle("Select your #%d choice", round + 1);
+  menu.ExitButton = false;
 
   for (int i = 0; i < mapList.Length; i++) {
     if (!HasClientPickedMap(client, i)) {
