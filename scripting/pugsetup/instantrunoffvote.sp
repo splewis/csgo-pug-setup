@@ -1,5 +1,6 @@
-bool g_IRVActive = false;
 const int kNumMapsToPick = 3;
+
+bool g_IRVActive = false;
 ArrayList g_MapAliveInVote;
 
 // Contains the votes (by map index) for each client, in the order selected.
@@ -9,14 +10,18 @@ int g_ClientMapPosition[MAXPLAYERS + 1];
 // Histogram of votes where map index -> current votes for that map.
 // ArrayList g_CurrentVoteTallies;
 
+public void ResetClientVote(int client) {
+  for (int j = 0; j < kNumMapsToPick; j++) {
+    g_ClientMapPicks[client][j] = -1;
+  }
+  g_ClientMapPosition[client] = 0;
+}
+
 public void StartInstantRunoffMapVote() {
   for (int i = 1; i <= MaxClients; i++) {
     g_ClientMapPosition[i] = -1;
     if (IsPlayer(i)) {
-      for (int j = 0; j < kNumMapsToPick; j++) {
-        g_ClientMapPicks[i][j] = -1;
-      }
-      g_ClientMapPosition[i] = 0;
+      ResetClientVote(i);
       ShowInstantRunoffMapVote(i, 0);
     }
   }

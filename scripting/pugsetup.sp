@@ -1087,7 +1087,12 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
   // shortcut to the mapchange menu (if avaliable).
   if (StrEqual(sArgs[0], ".map")) {
     if (IsVoteInProgress() && IsClientInVotePool(client)) {
-      RedrawClientVoteMenu(client);
+        if (g_IRVActive) {
+          ResetClientVote(client);
+          ShowInstantRunoffMapVote(client, 0);
+        } else {
+          RedrawClientVoteMenu(client);
+        }
     } else if (PugSetup_IsPugAdmin(client) && g_DisplayMapChange) {
       PugSetup_GiveMapChangeMenu(client);
     }
