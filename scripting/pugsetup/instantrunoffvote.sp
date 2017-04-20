@@ -4,6 +4,7 @@ bool g_IRVActive = false;
 ArrayList g_MapAliveInVote;
 
 // Contains the votes (by map index) for each client, in the order selected.
+int g_VoteStartTime;
 int g_ClientMapPicks[MAXPLAYERS + 1][kNumMapsToPick];
 int g_ClientMapPosition[MAXPLAYERS + 1];
 
@@ -26,8 +27,21 @@ public void StartInstantRunoffMapVote() {
     }
   }
 
+  g_VoteStartTime = GetTime();
   g_IRVActive = true;
+  CreateTimer(1.0, Timer_ShowVoteStatus, _, TIMER_REPEAT);
   CreateTimer(g_MapVoteTimeCvar.FloatValue, Timer_CollectIRVResults);
+}
+
+public Action Timer_ShowVoteStatus(Handle timer) {
+  int endTime = g_VoteStartTime + g_MapVoteTimeCvar.IntValue;
+  int timeLeft = endTime - GetTime();
+  if (timeLeft >= 1) {
+    PrintHintTextToAll("%t", "TimeLeftInVoteHint", timeLeft);
+    return Plugin_Continue;
+  } else {
+    return Plugin_Stop;
+  }
 }
 
 static bool HasClientPickedMap(int client, int mapIndex) {
@@ -43,7 +57,7 @@ public void ShowInstantRunoffMapVote(int client, int round) {
   ArrayList mapList = GetCurrentMapList();
 
   Menu menu = new Menu(MapSelectionHandler);
-  menu.SetTitle("Select your #%d choice", round + 1);
+  menu.SetTitle("%T", "IRVMenuTitle", client, round + 1);
   menu.ExitButton = false;
 
   for (int i = 0; i < mapList.Length; i++) {
@@ -70,7 +84,7 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
     int mapIndex = GetMenuInt(menu, param2);
     char mapName[255];
     FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
-    PugSetup_Message(client, "You picked {GREEN}%s {NORMAL}as your {GREEN}#%d {NORMAL}choice.",
+    PugSetup_Message(client, "%t", "IRVSelectionMessage",
                      mapName, g_ClientMapPosition[client] + 1);
 
     g_ClientMapPicks[client][g_ClientMapPosition[client]] = mapIndex;
@@ -184,6 +198,6 @@ public Action Timer_CollectIRVResults(Handle timer) {
 
   char mapName[64];
   FormatMapName(g_MapList, winner, mapName, sizeof(mapName));
-  PugSetup_MessageToAll("Vote over... {GREEN}%s {NORMAL}won!", mapName);
+  PrintHintTextToAll("%t", "MapVoteWinnerHintText", mapName);
   ChangeMap(g_MapList, winner);
 }

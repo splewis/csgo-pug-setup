@@ -437,4 +437,24 @@
 		"#format"		"{1:s}"
 		"en"		"Changing map to {GREEN}{1}{NORMAL}..."
 	}
+	"TimeLeftInVoteHint"
+	{
+		"#format"		"{1:d}"
+		"en"		"<font size='22'>{1} seconds left in vote...</font>"
+	}
+	"IRVMenuTitle"
+	{
+		"#format"		"{1:d}"
+		"en"		"Select your #{1} choice"
+	}
+	"IRVSelectionMessage"
+	{
+		"#format"		"{1:s},{2:d}"
+		"en"		"You picked {GREEN}{1} {NORMAL}as your {GREEN}#{2} {NORMAL}choice."
+	}
+	"MapVoteWinnerHintText"
+	{
+		"#format"		"{1:s}"
+		"en"		"<font size='22'>Vote over... {1} won!</font>"
+	}
 }
