@@ -1918,13 +1918,6 @@ stock void EndMatch(bool execConfigs = true, bool doRestart = true) {
   }
 }
 
-public ArrayList GetCurrentMapList() {
-  if (g_MapList.Length == 0) {
-    AddBackupMaps(g_MapList);
-  }
-  return g_MapList;
-}
-
 public Action MapSetup(Handle timer) {
   if (g_MapType == MapType_Vote) {
     CreateMapVote();

@@ -56,15 +56,13 @@ static bool HasClientPickedMap(int client, int mapIndex) {
 }
 
 public void ShowInstantRunoffMapVote(int client, int round) {
-  ArrayList mapList = GetCurrentMapList();
-
   Menu menu = new Menu(MapSelectionHandler);
   menu.SetTitle("%T", "IRVMenuTitle", client, round + 1);
   menu.ExitButton = false;
 
-  for (int i = 0; i < mapList.Length; i++) {
+  for (int i = 0; i < g_MapList.Length; i++) {
     if (!HasClientPickedMap(client, i)) {
-      AddMapIndexToMenu(menu, mapList, i);
+      AddMapIndexToMenu(menu, g_MapList, i);
     }
   }
 
@@ -72,8 +70,6 @@ public void ShowInstantRunoffMapVote(int client, int round) {
 }
 
 public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int param2) {
-  ArrayList mapList = GetCurrentMapList();
-
   if (action == MenuAction_Select) {
     if (!g_IRVActive) {
       return 0;
@@ -85,7 +81,7 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
 
     int mapIndex = GetMenuInt(menu, param2);
     char mapName[255];
-    FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
+    FormatMapName(g_MapList, mapIndex, mapName, sizeof(mapName));
     PugSetup_Message(client, "%t", "IRVSelectionMessage", mapName, g_ClientMapPosition[client] + 1);
 
     g_ClientMapPicks[client][g_ClientMapPosition[client]] = mapIndex;

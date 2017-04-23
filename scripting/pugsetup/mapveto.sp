@@ -2,38 +2,34 @@
  * Map vetoing functions
  */
 public void CreateMapVeto() {
-  ArrayList mapList = GetCurrentMapList();
-
-  if (GetConVarInt(g_RandomizeMapOrderCvar) != 0)
-    RandomizeArray(mapList);
+  if (GetConVarInt(g_RandomizeMapOrderCvar) != 0) {
+    RandomizeArray(g_MapList);
+  }
 
   ClearArray(g_MapVetoed);
-  for (int i = 0; i < mapList.Length; i++)
+  for (int i = 0; i < g_MapList.Length; i++) {
     g_MapVetoed.Push(false);
+  }
 
   GiveVetoMenu(g_capt1);
 }
 
 public void GiveVetoMenu(int client) {
-  ArrayList mapList = GetCurrentMapList();
-
   Menu menu = new Menu(VetoHandler);
   menu.ExitButton = false;
   menu.SetTitle("%T", "VetoMenuTitle", client);
 
-  for (int i = 0; i < mapList.Length; i++) {
+  for (int i = 0; i < g_MapList.Length; i++) {
     if (!g_MapVetoed.Get(i)) {
-      AddMapIndexToMenu(menu, mapList, i);
+      AddMapIndexToMenu(menu, g_MapList, i);
     }
   }
   DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 static int GetNumMapsLeft() {
-  ArrayList mapList = GetCurrentMapList();
-
   int count = 0;
-  for (int i = 0; i < mapList.Length; i++) {
+  for (int i = 0; i < g_MapList.Length; i++) {
     if (!g_MapVetoed.Get(i))
       count++;
   }
@@ -41,9 +37,7 @@ static int GetNumMapsLeft() {
 }
 
 static int GetFirstMapLeft() {
-  ArrayList mapList = GetCurrentMapList();
-
-  for (int i = 0; i < mapList.Length; i++) {
+  for (int i = 0; i < g_MapList.Length; i++) {
     if (!g_MapVetoed.Get(i))
       return i;
   }
@@ -51,13 +45,11 @@ static int GetFirstMapLeft() {
 }
 
 public int VetoHandler(Menu menu, MenuAction action, int param1, int param2) {
-  ArrayList mapList = GetCurrentMapList();
-
   if (action == MenuAction_Select) {
     int client = param1;
     int index = GetMenuInt(menu, param2);
     char map[PLATFORM_MAX_PATH];
-    FormatMapName(mapList, index, map, sizeof(map));
+    FormatMapName(g_MapList, index, map, sizeof(map));
 
     char captString[64];
     FormatPlayerName(client, client, captString);
@@ -82,14 +74,12 @@ public int VetoHandler(Menu menu, MenuAction action, int param1, int param2) {
 }
 
 static void VetoStatusDisplay(int client) {
-  ArrayList mapList = GetCurrentMapList();
-
   Menu menu = new Menu(VetoStatusHandler);
   SetMenuExitButton(menu, true);
   SetMenuTitle(menu, "%T", "MapsLeft", client);
-  for (int i = 0; i < mapList.Length; i++) {
+  for (int i = 0; i < g_MapList.Length; i++) {
     if (!g_MapVetoed.Get(i)) {
-      AddMapIndexToMenu(menu, mapList, i, true);
+      AddMapIndexToMenu(menu, g_MapList, i, true);
     }
   }
   DisplayMenu(menu, client, 30);

@@ -13,7 +13,7 @@ public bool UsingWorkshopCollection() {
 }
 
 public void FillMapList(ConVar cvar, ArrayList list) {
-  ClearArray(list);
+  list.Clear();
 
   char maplist[PLATFORM_MAX_PATH];
   cvar.GetString(maplist, sizeof(maplist));
@@ -25,6 +25,10 @@ public void FillMapList(ConVar cvar, ArrayList list) {
   } else {
     // it's a workshop collection id, setup the workshop cache
     UpdateWorkshopCache(maplist, list);
+  }
+
+  if (list.Length == 0) {
+    AddBackupMaps(list);
   }
 }
 

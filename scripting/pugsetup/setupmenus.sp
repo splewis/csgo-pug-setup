@@ -376,15 +376,13 @@ static void UpdateMapStatus() {
 }
 
 public void ChangeMapMenu(int client) {
-  ArrayList mapList = GetCurrentMapList();
-
   Menu menu = new Menu(ChangeMapHandler);
   menu.ExitButton = true;
   menu.ExitBackButton = true;
   menu.SetTitle("%T", "ChangeMapMenuTitle", client);
 
-  for (int i = 0; i < mapList.Length; i++) {
-    AddMapIndexToMenu(menu, mapList, i);
+  for (int i = 0; i < g_MapList.Length; i++) {
+    AddMapIndexToMenu(menu, g_MapList, i);
   }
 
   DisplayMenu(menu, client, MENU_TIME_FOREVER);

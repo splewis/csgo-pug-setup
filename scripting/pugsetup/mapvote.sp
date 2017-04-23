@@ -5,7 +5,7 @@
  */
 public void CreateMapVote() {
   if (g_RandomizeMapOrderCvar.IntValue != 0) {
-    RandomizeArray(GetCurrentMapList());
+    RandomizeArray(g_MapList);
   }
 
   if (g_InstantRunoffVotingCvar.IntValue == 0 || g_MapList.Length < 3) {
@@ -16,8 +16,6 @@ public void CreateMapVote() {
 }
 
 static void StartMapVote() {
-  ArrayList mapList = GetCurrentMapList();
-
   Menu menu = new Menu(MapVoteHandler);
   menu.SetTitle("%T", "VoteMenuTitle", LANG_SERVER);
   menu.ExitButton = false;
@@ -28,16 +26,14 @@ static void StartMapVote() {
     AddMenuItem(menu, RANDOM_MAP_VOTE, buffer);
   }
 
-  for (int i = 0; i < mapList.Length; i++) {
-    AddMapIndexToMenu(menu, mapList, i);
+  for (int i = 0; i < g_MapList.Length; i++) {
+    AddMapIndexToMenu(menu, g_MapList, i);
   }
 
   VoteMenuToAll(menu, g_MapVoteTimeCvar.IntValue);
 }
 
 public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) {
-  ArrayList mapList = GetCurrentMapList();
-
   if (action == MenuAction_Select && GetCvarIntSafe("sm_vote_progress_chat") == 0 &&
       g_DisplayMapVotesCvar.IntValue != 0) {
     // Only prints votes to chat if sourcemod isn't automatically printing votes in chat
@@ -49,7 +45,7 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
     char mapName[255];
 
     if (mapIndex >= 0) {
-      FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
+      FormatMapName(g_MapList, mapIndex, mapName, sizeof(mapName));
     } else {
       Format(mapName, sizeof(mapName), "%T", "RandomMapVote", LANG_SERVER);
     }
@@ -73,9 +69,9 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
   } else if (action == MenuAction_VoteEnd) {
     int winner = GetMenuInt(menu, param1);
     if (winner == StringToInt(RANDOM_MAP_VOTE)) {
-      ChangeMap(mapList, GetArrayRandomIndex(mapList));
+      ChangeMap(g_MapList, GetArrayRandomIndex(g_MapList));
     } else {
-      ChangeMap(mapList, GetMenuInt(menu, param1));
+      ChangeMap(g_MapList, GetMenuInt(menu, param1));
     }
 
   } else if (action == MenuAction_End) {
