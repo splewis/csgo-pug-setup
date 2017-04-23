@@ -14,7 +14,7 @@ int g_ClientMapPosition[MAXPLAYERS + 1];
 // ArrayList g_CurrentVoteTallies;
 
 public void ResetClientVote(int client) {
-  for (int j = 0; j < kNumMapsToPick; j++) {
+  for (int i = 0; i < kNumMapsToPick; i++) {
     g_ClientMapPicks[client][j] = -1;
   }
   g_ClientMapPosition[client] = 0;
@@ -176,8 +176,7 @@ public Action Timer_CollectIRVResults(Handle timer) {
 
   int mapLoser = -1;
   int winner = 0;
-  for (int mapsLeft = CountMapsAlive(winner); mapsLeft > 1;
-       mapsLeft = CountMapsAlive(winner)) {  // Should be while(true), but don't want the warning :)
+  for (int mapsLeft = CountMapsAlive(winner); mapsLeft > 1; mapsLeft = CountMapsAlive(winner)) {
     mapLoser = FindLeastVotedMap();
     char loserName[64];
     g_MapList.GetString(mapLoser, loserName, sizeof(loserName));
