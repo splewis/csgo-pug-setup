@@ -15,7 +15,7 @@ int g_ClientMapPosition[MAXPLAYERS + 1];
 
 public void ResetClientVote(int client) {
   for (int i = 0; i < kNumMapsToPick; i++) {
-    g_ClientMapPicks[client][j] = -1;
+    g_ClientMapPicks[client][i] = -1;
   }
   g_ClientMapPosition[client] = 0;
 }
