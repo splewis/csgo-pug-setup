@@ -457,4 +457,9 @@
 		"#format"		"{1:s}"
 		"en"		"<font size='22'>Vote over... {1} won!</font>"
 	}
+	"IRVResultMessage"
+	{
+		"#format"		"{1:s},{2:s},{3:s}"
+		"en"		"{GREEN}{1}{NORMAL} won, {GREEN}{2}{NORMAL} came in 2nd, {GREEN}{3}{NORMAL} in 3rd"
+	}
 }

@@ -8,7 +8,7 @@ public void CreateMapVote() {
     RandomizeArray(GetCurrentMapList());
   }
 
-  if (g_InstantRunoffVotingCvar.IntValue == 0) {
+  if (g_InstantRunoffVotingCvar.IntValue == 0 || g_MapList.Length < 3) {
     StartMapVote();
   } else {
     StartInstantRunoffMapVote();

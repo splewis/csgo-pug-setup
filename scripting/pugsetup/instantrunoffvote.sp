@@ -2,6 +2,8 @@ const int kNumMapsToPick = 3;
 
 bool g_IRVActive = false;
 ArrayList g_MapAliveInVote;
+int g_RunnerUpMapIndex = -1;
+int g_SecondRunnerUpMapIndex = -2;
 
 // Contains the votes (by map index) for each client, in the order selected.
 int g_VoteStartTime;
@@ -84,8 +86,7 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
     int mapIndex = GetMenuInt(menu, param2);
     char mapName[255];
     FormatMapName(mapList, mapIndex, mapName, sizeof(mapName));
-    PugSetup_Message(client, "%t", "IRVSelectionMessage",
-                     mapName, g_ClientMapPosition[client] + 1);
+    PugSetup_Message(client, "%t", "IRVSelectionMessage", mapName, g_ClientMapPosition[client] + 1);
 
     g_ClientMapPicks[client][g_ClientMapPosition[client]] = mapIndex;
     g_ClientMapPosition[client]++;
@@ -179,11 +180,18 @@ public Action Timer_CollectIRVResults(Handle timer) {
 
   int mapLoser = -1;
   int winner = 0;
-  while (CountMapsAlive(winner) > 1) {  // Should be while(true), but don't want the warning :)
+  for (int mapsLeft = CountMapsAlive(winner); mapsLeft > 1;
+       mapsLeft = CountMapsAlive(winner)) {  // Should be while(true), but don't want the warning :)
     mapLoser = FindLeastVotedMap();
     char loserName[64];
     g_MapList.GetString(mapLoser, loserName, sizeof(loserName));
     LogDebug("Map %d (%s) is the least voted map, eliminating", mapLoser, loserName);
+
+    if (mapsLeft == 2) {
+      g_RunnerUpMapIndex = mapLoser;
+    } else if (mapsLeft == 3) {
+      g_SecondRunnerUpMapIndex = mapLoser;
+    }
 
     g_MapAliveInVote.Set(mapLoser, false);
     for (int i = 1; i <= MaxClients; i++) {
@@ -196,8 +204,16 @@ public Action Timer_CollectIRVResults(Handle timer) {
     }
   }
 
-  char mapName[64];
-  FormatMapName(g_MapList, winner, mapName, sizeof(mapName));
-  PrintHintTextToAll("%t", "MapVoteWinnerHintText", mapName);
-  ChangeMap(g_MapList, winner);
+  char map1[64];
+  FormatMapName(g_MapList, winner, map1, sizeof(map1));
+  ChangeMap(g_MapList, winner, 10.0);
+  PrintHintTextToAll("%t", "MapVoteWinnerHintText", map1);
+
+  char map2[64];
+  FormatMapName(g_MapList, g_RunnerUpMapIndex, map2, sizeof(map2));
+
+  char map3[64];
+  FormatMapName(g_MapList, g_SecondRunnerUpMapIndex, map3, sizeof(map3));
+
+  PugSetup_MessageToAll("%t", "IRVResultMessage", map1, map2, map3);
 }
