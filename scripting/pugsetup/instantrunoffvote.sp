@@ -36,6 +36,10 @@ public void StartInstantRunoffMapVote() {
 }
 
 public Action Timer_ShowVoteStatus(Handle timer) {
+  if (g_GameState != GameState_Warmup) {
+    return Plugin_Stop;
+  }
+
   int endTime = g_VoteStartTime + g_MapVoteTimeCvar.IntValue;
   int timeLeft = endTime - GetTime();
   if (timeLeft >= 1) {
@@ -60,11 +64,18 @@ public void ShowInstantRunoffMapVote(int client, int round) {
   menu.SetTitle("%T", "IRVMenuTitle", client, round + 1);
   menu.ExitButton = false;
 
+  // Don't paginate the menu if we have 7 maps or less, as they will fit
+  // on one page when we don't add the pagination options
+  if (g_MapList.Length <= 7) {
+    menu.Pagination = MENU_NO_PAGINATION;
+  }
+
   for (int i = 0; i < g_MapList.Length; i++) {
     if (!HasClientPickedMap(client, i)) {
       AddMapIndexToMenu(menu, g_MapList, i);
     }
   }
+
 
   menu.Display(client, g_MapVoteTimeCvar.IntValue);
 }
@@ -150,6 +161,10 @@ static int CountMapsAlive(int& winner) {
 
 public Action Timer_CollectIRVResults(Handle timer) {
   g_IRVActive = false;
+
+  if (g_GameState != GameState_Warmup) {
+    return;
+  }
 
   if (g_MapAliveInVote == null) {
     g_MapAliveInVote = new ArrayList();

@@ -26,6 +26,12 @@ static void StartMapVote() {
     AddMenuItem(menu, RANDOM_MAP_VOTE, buffer);
   }
 
+  // Don't paginate the menu if we have 7 maps or less, as they will fit
+  // on one page when we don't add the pagination options
+  if (g_MapList.Length <= 7) {
+    menu.Pagination = MENU_NO_PAGINATION;
+  }
+
   for (int i = 0; i < g_MapList.Length; i++) {
     AddMapIndexToMenu(menu, g_MapList, i);
   }
