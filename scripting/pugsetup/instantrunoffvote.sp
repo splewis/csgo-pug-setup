@@ -66,13 +66,13 @@ public void ShowInstantRunoffMapVote(int client, int round) {
 
   // Don't paginate the menu if we have 7 maps or less, as they will fit
   // on one page when we don't add the pagination options
-  if (g_MapList.Length <= 7) {
+  if (g_MapVotePool.Length <= 7) {
     menu.Pagination = MENU_NO_PAGINATION;
   }
 
-  for (int i = 0; i < g_MapList.Length; i++) {
+  for (int i = 0; i < g_MapVotePool.Length; i++) {
     if (!HasClientPickedMap(client, i)) {
-      AddMapIndexToMenu(menu, g_MapList, i);
+      AddMapIndexToMenu(menu, g_MapVotePool, i);
     }
   }
 
@@ -92,7 +92,7 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
 
     int mapIndex = GetMenuInt(menu, param2);
     char mapName[255];
-    FormatMapName(g_MapList, mapIndex, mapName, sizeof(mapName));
+    FormatMapName(g_MapVotePool, mapIndex, mapName, sizeof(mapName));
     PugSetup_Message(client, "%t", "IRVSelectionMessage", mapName, g_ClientMapPosition[client] + 1);
 
     g_ClientMapPicks[client][g_ClientMapPosition[client]] = mapIndex;
@@ -111,7 +111,7 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
 
 static int FindLeastVotedMap() {
   ArrayList voteCounts = new ArrayList();
-  for (int i = 0; i < g_MapList.Length; i++) {
+  for (int i = 0; i < g_MapVotePool.Length; i++) {
     voteCounts.Push(0);
   }
 
@@ -182,7 +182,7 @@ public Action Timer_CollectIRVResults(Handle timer) {
       for (int j = 0; j < kNumMapsToPick; j++) {
         if (g_ClientMapPicks[i][j] >= 0) {
           char mapName[64];
-          g_MapList.GetString(g_ClientMapPicks[i][j], mapName, sizeof(mapName));
+          g_MapVotePool.GetString(g_ClientMapPicks[i][j], mapName, sizeof(mapName));
           LogDebug("Client %L choice %d = %d (%s)", i, j, g_ClientMapPicks[j], mapName);
         }
       }
@@ -194,7 +194,7 @@ public Action Timer_CollectIRVResults(Handle timer) {
   for (int mapsLeft = CountMapsAlive(winner); mapsLeft > 1; mapsLeft = CountMapsAlive(winner)) {
     mapLoser = FindLeastVotedMap();
     char loserName[64];
-    g_MapList.GetString(mapLoser, loserName, sizeof(loserName));
+    g_MapVotePool.GetString(mapLoser, loserName, sizeof(loserName));
     LogDebug("Map %d (%s) is the least voted map, eliminating", mapLoser, loserName);
 
     if (mapsLeft == 2) {
@@ -215,15 +215,15 @@ public Action Timer_CollectIRVResults(Handle timer) {
   }
 
   char map1[64];
-  FormatMapName(g_MapList, winner, map1, sizeof(map1));
-  ChangeMap(g_MapList, winner, 10.0);
+  FormatMapName(g_MapVotePool, winner, map1, sizeof(map1));
+  ChangeMap(g_MapVotePool, winner, 10.0);
   PrintHintTextToAll("%t", "MapVoteWinnerHintText", map1);
 
   char map2[64];
-  FormatMapName(g_MapList, g_RunnerUpMapIndex, map2, sizeof(map2));
+  FormatMapName(g_MapVotePool, g_RunnerUpMapIndex, map2, sizeof(map2));
 
   char map3[64];
-  FormatMapName(g_MapList, g_SecondRunnerUpMapIndex, map3, sizeof(map3));
+  FormatMapName(g_MapVotePool, g_SecondRunnerUpMapIndex, map3, sizeof(map3));
 
   PugSetup_MessageToAll("%t", "IRVResultMessage", map1, map2, map3);
 }
