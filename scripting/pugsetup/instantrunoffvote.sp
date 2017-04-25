@@ -123,7 +123,7 @@ static int FindLeastVotedMap() {
         voteCounts.Set(mapIndex, voteCounts.Get(mapIndex) + 1);
 
         char mapName[64];
-        g_MapList.GetString(mapIndex, mapName, sizeof(mapName));
+        g_MapVotePool.GetString(mapIndex, mapName, sizeof(mapName));
         LogDebug("%L has active vote for %d (%s) -> %d votes now", i, mapIndex, mapName,
                  voteCounts.Get(mapIndex));
       }
@@ -171,7 +171,7 @@ public Action Timer_CollectIRVResults(Handle timer) {
   } else {
     g_MapAliveInVote.Clear();
   }
-  for (int i = 0; i < g_MapList.Length; i++) {
+  for (int i = 0; i < g_MapVotePool.Length; i++) {
     g_MapAliveInVote.Push(true);
   }
 
