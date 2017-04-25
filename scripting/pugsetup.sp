@@ -1953,7 +1953,6 @@ public void GetMapVotePool() {
     }
     if (!mapExists) {
       g_MapVotePool.PushString(mapNamePrimary);
-    } else {
     }
   }
 }
