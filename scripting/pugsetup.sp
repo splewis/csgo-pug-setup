@@ -1540,22 +1540,9 @@ public Action Event_MatchOver(Event event, const char[] name, bool dontBroadcast
   GetCurrentMap(map, sizeof(map));
   g_PastMaps.PushString(map);
 
-  for (int i = 0; i < g_PastMaps.Length; i++) {
-    g_PastMaps.GetString(i, map, sizeof(map));
-    PrintToChatAll("%i - %s", i, map);
-  }
-
   if (g_PastMaps.Length > g_ExcludedMaps.IntValue)
   {
     g_PastMaps.Erase(0);
-    PrintToChatAll("Deleted Map");
-  } else {
-    PrintToChatAll("No Deletion Required");
-  }
-
-  for (int i = 0; i < g_PastMaps.Length; i++) {
-    g_PastMaps.GetString(i, map, sizeof(map));
-    PrintToChatAll("%i - %s", i, map);
   }
 
   return Plugin_Continue;
