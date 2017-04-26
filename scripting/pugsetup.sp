@@ -1936,19 +1936,19 @@ stock void EndMatch(bool execConfigs = true, bool doRestart = true) {
   }
 }
 
-public void SetupMapVotePool(bool excludeRecentMaps = false) {
+public void SetupMapVotePool(bool excludeRecentMaps) {
   g_MapVotePool.Clear();
 
   char mapNamePrimary[PLATFORM_MAX_PATH];
   char mapNameSecondary[PLATFORM_MAX_PATH];
 
   for (int i = 0; i < g_MapList.Length; i++) {
-    bool mapExists = 0;
+    bool mapExists = false;
     FormatMapName(g_MapList, i, mapNamePrimary, sizeof(mapNamePrimary));
     for (int v = 0; v < g_PastMaps.Length; v++) {
       g_PastMaps.GetString(v, mapNameSecondary, sizeof(mapNameSecondary));
       if (StrEqual(mapNamePrimary, mapNameSecondary)) {
-        mapExists = 1;
+        mapExists = true;
       }
     }
     if (!mapExists || !excludeRecentMaps) {

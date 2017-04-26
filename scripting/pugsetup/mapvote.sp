@@ -7,7 +7,7 @@ public void CreateMapVote() {
   if (g_ExcludedMaps.IntValue > 0 && g_MapList.Length > g_PastMaps.Length) {
     SetupMapVotePool(true);
   } else {
-    SetupMapVotePool();
+    SetupMapVotePool(false);
   }
 
   if (g_RandomizeMapOrderCvar.IntValue != 0) {
