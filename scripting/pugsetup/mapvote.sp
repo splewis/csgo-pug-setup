@@ -5,11 +5,11 @@
  */
 public void CreateMapVote() {
   if (g_ExcludedMaps.IntValue > 0 && g_MapList.Length > g_PastMaps.Length) {
-    GetMapVotePool();
+    SetupMapVotePool(true);
   } else {
-    g_MapVotePool = g_MapList;
+    SetupMapVotePool();
   }
-  
+
   if (g_RandomizeMapOrderCvar.IntValue != 0) {
     RandomizeArray(g_MapVotePool);
   }
