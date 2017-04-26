@@ -439,8 +439,8 @@ public void OnPluginStart() {
   g_LiveTimerRunning = false;
   ReadSetupOptions();
 
-  g_MapVotePool = new ArrayList(64);
-  g_PastMaps = new ArrayList(64);
+  g_MapVotePool = new ArrayList(PLATFORM_MAX_PATH);
+  g_PastMaps = new ArrayList(PLATFORM_MAX_PATH);
 
   // Get workshop cache file setup
   BuildPath(Path_SM, g_DataDir, sizeof(g_DataDir), "data/pugsetup");
@@ -1936,14 +1936,14 @@ stock void EndMatch(bool execConfigs = true, bool doRestart = true) {
   }
 }
 
-public void GetMapVotePool() {
+public void SetupMapVotePool(bool excludeRecentMaps = false) {
   g_MapVotePool.Clear();
 
   char mapNamePrimary[PLATFORM_MAX_PATH];
   char mapNameSecondary[PLATFORM_MAX_PATH];
 
   for (int i = 0; i < g_MapList.Length; i++) {
-    int mapExists = 0;
+    bool mapExists = 0;
     FormatMapName(g_MapList, i, mapNamePrimary, sizeof(mapNamePrimary));
     for (int v = 0; v < g_PastMaps.Length; v++) {
       g_PastMaps.GetString(v, mapNameSecondary, sizeof(mapNameSecondary));
@@ -1951,7 +1951,7 @@ public void GetMapVotePool() {
         mapExists = 1;
       }
     }
-    if (!mapExists) {
+    if (!mapExists || !excludeRecentMaps) {
       g_MapVotePool.PushString(mapNamePrimary);
     }
   }
