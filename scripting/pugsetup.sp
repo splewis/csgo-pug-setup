@@ -54,6 +54,7 @@ ConVar g_MaxTeamSizeCvar;
 ConVar g_MessagePrefixCvar;
 ConVar g_MutualUnpauseCvar;
 ConVar g_PausingEnabledCvar;
+ConVar g_PlayerPickConfirmationTimeCvar;
 ConVar g_PostGameCfgCvar;
 ConVar g_QuickRestartsCvar;
 ConVar g_RandomizeMapOrderCvar;
@@ -143,6 +144,7 @@ int g_capt2 = -1;
 int g_Teams[MAXPLAYERS + 1];
 bool g_Ready[MAXPLAYERS + 1];
 bool g_PlayerAtStart[MAXPLAYERS + 1];
+float g_LastCaptainMenuTime = 0.0;
 
 /** Clan tag data **/
 #define CLANTAG_LENGTH 16
@@ -287,6 +289,9 @@ public void OnPluginStart() {
       "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
   g_PausingEnabledCvar =
       CreateConVar("sm_pugsetup_pausing_enabled", "1", "Whether pausing is allowed.");
+  g_PlayerPickConfirmationTimeCvar = CreateConVar(
+      "sn_pugsetup_menu_confirmation_time", "0.5",
+      "If captains pick in less time than this, they get a confirmation menu for their player choice. Set to 0 to disable.");
   g_PostGameCfgCvar =
       CreateConVar("sm_pugsetup_postgame_cfg", "sourcemod/pugsetup/warmup.cfg",
                    "Config to execute after games finish; should be in the csgo/cfg directory.");

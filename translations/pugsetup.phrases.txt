@@ -218,6 +218,11 @@
 		"#format"	"{1:s},{2:s}"
 		"en"		"{1} has picked {2}."
 	}
+	"PlayerConfirmationTitle"
+	{
+		"#format"		"{1:s}"
+		"en"		"Are you sure you mean to pick {1}?"
+	}
 	"SpecCantReady"
 	{
 		"en"		"You cannot ready up whe you are on spectator."

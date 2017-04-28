@@ -8,8 +8,8 @@ public Action Timer_InitialChoiceMenu(Handle timer) {
   if (!g_DoKnifeRound) {
     // if no knife rounds, they get to choose between side/1st pick
     Menu menu = new Menu(InitialChoiceHandler);
-    SetMenuTitle(menu, "%T", "InitialPickTitle", client);
-    SetMenuExitButton(menu, false);
+    menu.SetTitle("%T", "InitialPickTitle", client);
+    menu.ExitButton = false;
     AddMenuOption(menu, "side", "%T", "InitialPickSides", client);
     AddMenuOption(menu, "player", "%T", "InitialPickPlayer", client);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -50,8 +50,8 @@ public int InitialChoiceHandler(Menu menu, MenuAction action, int param1, int pa
 
 public void SideMenu(int client) {
   Menu menu = new Menu(SideMenuHandler);
-  SetMenuTitle(menu, "%T", "SideChoiceTitle", client);
-  SetMenuExitButton(menu, false);
+  menu.SetTitle("%T", "SideChoiceTitle", client);
+  menu.ExitButton = false;
   AddMenuInt(menu, CS_TEAM_CT, "CT");
   AddMenuInt(menu, CS_TEAM_T, "T");
   DisplayMenu(menu, client, MENU_TIME_FOREVER);
@@ -103,10 +103,11 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
   } else {
     if (IsValidClient(client)) {
       Menu menu = new Menu(PlayerMenuHandler);
-      SetMenuTitle(menu, "%T", "PlayerPickTitle", client);
-      SetMenuExitButton(menu, false);
+      menu.SetTitle("%T", "PlayerPickTitle", client);
+      menu.ExitButton = false;
       if (AddPlayersToMenu(menu) > 0) {
-        DisplayMenu(menu, client, MENU_TIME_FOREVER);
+        g_LastCaptainMenuTime = GetEngineTime();
+        menu.Display(client, MENU_TIME_FOREVER);
       } else {
         PugSetup_MessageToAll("Not enough players for picking, aborting the game.");
         EndMatch(false);
@@ -122,28 +123,18 @@ public Action GivePlayerSelectionMenu(Handle timer, int serial) {
 }
 
 public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
-  if (g_GameState != GameState_PickingPlayers)
-    return;
-
-  if (action == MenuAction_Select) {
+  if (action == MenuAction_Select && g_GameState == GameState_PickingPlayers) {
     int client = param1;
     int selected = GetClientFromSerial(GetMenuInt(menu, param2));
 
     if (IsPlayer(selected)) {
-      g_Teams[selected] = g_Teams[client];
-      SwitchPlayerTeam(selected, g_Teams[client]);
-
-      char captName[64];
-      char selectedName[64];
-      FormatPlayerName(client, client, captName);
-      FormatPlayerName(client, selected, selectedName);
-      PugSetup_MessageToAll("%t", "PlayerPickChoice", captName, selectedName);
-
-      if (!IsPickingFinished()) {
-        MoreMenuPicks(GetNextCaptain(client));
-      } else {
-        CreateTimer(1.0, FinishPicking);
+      float dt = GetEngineTime() - g_LastCaptainMenuTime;
+      if (g_PlayerPickConfirmationTimeCvar.FloatValue > 0.0 &&
+          dt < g_PlayerPickConfirmationTimeCvar.FloatValue) {
+        GiveConfirmationMenu(client, selected);
+        return;
       }
+      PickPlayer(client, selected);
     } else {
       MoreMenuPicks(client);
     }
@@ -154,6 +145,52 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 
   } else if (action == MenuAction_End) {
     delete menu;
+  }
+}
+
+static void GiveConfirmationMenu(int captain, int pick) {
+  Menu menu = new Menu(ConfirmationMenuHandler);
+  menu.ExitButton = false;
+  menu.SetTitle("%T", "PlayerConfirmationTitle", captain, pick);
+  AddMenuInt(menu, -1, "%T", "No", captain);  // Purposefully invalid client index passed.
+  AddMenuInt(menu, pick, "%T", "Yes", captain);
+  menu.Display(captain, MENU_TIME_FOREVER);
+}
+
+public int ConfirmationMenuHandler(Menu menu, MenuAction action, int param1, int param2) {
+  if (action == MenuAction_Select && g_GameState == GameState_PickingPlayers) {
+    int client = param1;
+    int selected = GetClientFromSerial(GetMenuInt(menu, param2));
+
+    if (IsPlayer(selected)) {
+      PickPlayer(client, selected);
+    } else {
+      CreateTimer(0.1, GivePlayerSelectionMenu, GetClientSerial(client));
+    }
+
+  } else if (action == MenuAction_Cancel) {
+    PugSetup_MessageToAll("Failed to get captain pick. Aborting the game.");
+    EndMatch(false);
+
+  } else if (action == MenuAction_End) {
+    delete menu;
+  }
+}
+
+static void PickPlayer(int captain, int pick) {
+  g_Teams[pick] = g_Teams[captain];
+  SwitchPlayerTeam(pick, g_Teams[captain]);
+
+  char captName[64];
+  char selectedName[64];
+  FormatPlayerName(captain, captain, captName);
+  FormatPlayerName(captain, pick, selectedName);
+  PugSetup_MessageToAll("%t", "PlayerPickChoice", captName, selectedName);
+
+  if (!IsPickingFinished()) {
+    MoreMenuPicks(GetNextCaptain(captain));
+  } else {
+    CreateTimer(1.0, FinishPicking);
   }
 }
 
