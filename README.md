@@ -7,7 +7,7 @@ This is a useful plugin for managing pug games, especially **10 mans**/gathers. 
 - how to choose the teams (players do it manually, random teams, captains select teams)
 - how to choose the map (use the current map, do a map vote, veto maps)
 
-The goal is to allow a **lightweight, easy-to-use setup system** that automates as much as possible with as few dependencies as possible. However,
+The goal is to allow a **lightweight and easy-to-use setup system** that automates as much as possible with as few dependencies as possible. However,
 the goal isn't fully automated - it assumes the players know each other or there is an admin. There is no mechanism for kicking players or anything similar.
 
 Part of being lightweight is doing nothing that can interfere with the server's performance. **When the game is actually live, the plugin is doing extremely little work** - the only thing it does is read chat commands (e.g. pausing when a captain types .pause). Otherwise, there is 0 effect on gameplay and the rounds progress the same as without sourcemod on the server. This is in contrast to the WarMod plugin or what ESEA servers use, where they are tracking the overall score, overriding the in-game warmup period, etc.
