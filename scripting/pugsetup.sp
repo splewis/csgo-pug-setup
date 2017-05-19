@@ -42,6 +42,7 @@ ConVar g_DemoTimeFormatCvar;
 ConVar g_DisplayMapVotesCvar;
 ConVar g_DoVoteForKnifeRoundDecisionCvar;
 ConVar g_EchoReadyMessagesCvar;
+ConVar g_ExcludedMaps;
 ConVar g_ExcludeSpectatorsCvar;
 ConVar g_ExecDefaultConfigCvar;
 ConVar g_ForceDefaultsCvar;
@@ -78,6 +79,7 @@ bool g_DisplayPlayout = false;
 /** Setup info **/
 int g_Leader = -1;
 ArrayList g_MapList;
+ArrayList g_PastMaps;
 ArrayList g_AimMapList;
 bool g_ForceEnded = false;
 
@@ -133,6 +135,7 @@ ArrayList g_Commands;  // just a list of all known pugsetup commands
 
 /** Map-choosing variables **/
 ArrayList g_MapVetoed;
+ArrayList g_MapVotePool;
 
 /** Data about team selections **/
 int g_capt1 = -1;
@@ -250,6 +253,9 @@ public void OnPluginStart() {
       "If 0, the first player to type .stay/.swap/.t/.ct will decide the round round winner decision - otherwise a majority vote will be used");
   g_EchoReadyMessagesCvar = CreateConVar("sm_pugsetup_echo_ready_messages", "1",
                                          "Whether to print to chat when clients ready/unready.");
+  g_ExcludedMaps = CreateConVar(
+      "sm_pugsetup_excluded_maps", "0",
+      "Number of past maps to exclude from map votes. Setting this to 0 disables this feature.");
   g_ExcludeSpectatorsCvar = CreateConVar(
       "sm_pugsetup_exclude_spectators", "0",
       "Whether to exclude spectators in the ready-up counts. Setting this to 1 will exclude specators from being selected by captains as well.");
@@ -432,6 +438,9 @@ public void OnPluginStart() {
 
   g_LiveTimerRunning = false;
   ReadSetupOptions();
+
+  g_MapVotePool = new ArrayList(PLATFORM_MAX_PATH);
+  g_PastMaps = new ArrayList(PLATFORM_MAX_PATH);
 
   // Get workshop cache file setup
   BuildPath(Path_SM, g_DataDir, sizeof(g_DataDir), "data/pugsetup");
@@ -1527,6 +1536,15 @@ public Action Event_MatchOver(Event event, const char[] name, bool dontBroadcast
     ExecCfg(g_WarmupCfgCvar);
   }
 
+  char map[PLATFORM_MAX_PATH];
+  GetCurrentMap(map, sizeof(map));
+  g_PastMaps.PushString(map);
+
+  if (g_PastMaps.Length > g_ExcludedMaps.IntValue)
+  {
+    g_PastMaps.Erase(0);
+  }
+
   return Plugin_Continue;
 }
 
@@ -1915,6 +1933,27 @@ stock void EndMatch(bool execConfigs = true, bool doRestart = true) {
   }
   if (doRestart) {
     RestartGame(1);
+  }
+}
+
+public void SetupMapVotePool(bool excludeRecentMaps) {
+  g_MapVotePool.Clear();
+
+  char mapNamePrimary[PLATFORM_MAX_PATH];
+  char mapNameSecondary[PLATFORM_MAX_PATH];
+
+  for (int i = 0; i < g_MapList.Length; i++) {
+    bool mapExists = false;
+    FormatMapName(g_MapList, i, mapNamePrimary, sizeof(mapNamePrimary));
+    for (int v = 0; v < g_PastMaps.Length; v++) {
+      g_PastMaps.GetString(v, mapNameSecondary, sizeof(mapNameSecondary));
+      if (StrEqual(mapNamePrimary, mapNameSecondary)) {
+        mapExists = true;
+      }
+    }
+    if (!mapExists || !excludeRecentMaps) {
+      g_MapVotePool.PushString(mapNamePrimary);
+    }
   }
 }
 

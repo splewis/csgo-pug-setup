@@ -4,8 +4,14 @@
  * Map voting functions
  */
 public void CreateMapVote() {
+  if (g_ExcludedMaps.IntValue > 0 && g_MapList.Length > g_PastMaps.Length) {
+    SetupMapVotePool(true);
+  } else {
+    SetupMapVotePool(false);
+  }
+
   if (g_RandomizeMapOrderCvar.IntValue != 0) {
-    RandomizeArray(g_MapList);
+    RandomizeArray(g_MapVotePool);
   }
 
   if (g_InstantRunoffVotingCvar.IntValue == 0 || g_MapList.Length < 3) {
@@ -28,12 +34,12 @@ static void StartMapVote() {
 
   // Don't paginate the menu if we have 7 maps or less, as they will fit
   // on one page when we don't add the pagination options
-  if (g_MapList.Length <= 7) {
+  if (g_MapVotePool.Length <= 7) {
     menu.Pagination = MENU_NO_PAGINATION;
   }
 
-  for (int i = 0; i < g_MapList.Length; i++) {
-    AddMapIndexToMenu(menu, g_MapList, i);
+  for (int i = 0; i < g_MapVotePool.Length; i++) {
+    AddMapIndexToMenu(menu, g_MapVotePool, i);
   }
 
   VoteMenuToAll(menu, g_MapVoteTimeCvar.IntValue);
@@ -51,7 +57,7 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
     char mapName[255];
 
     if (mapIndex >= 0) {
-      FormatMapName(g_MapList, mapIndex, mapName, sizeof(mapName));
+      FormatMapName(g_MapVotePool, mapIndex, mapName, sizeof(mapName));
     } else {
       Format(mapName, sizeof(mapName), "%T", "RandomMapVote", LANG_SERVER);
     }
@@ -75,9 +81,9 @@ public int MapVoteHandler(Menu menu, MenuAction action, int param1, int param2) 
   } else if (action == MenuAction_VoteEnd) {
     int winner = GetMenuInt(menu, param1);
     if (winner == StringToInt(RANDOM_MAP_VOTE)) {
-      ChangeMap(g_MapList, GetArrayRandomIndex(g_MapList));
+      ChangeMap(g_MapVotePool, GetArrayRandomIndex(g_MapVotePool));
     } else {
-      ChangeMap(g_MapList, GetMenuInt(menu, param1));
+      ChangeMap(g_MapVotePool, GetMenuInt(menu, param1));
     }
 
   } else if (action == MenuAction_End) {
