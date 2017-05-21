@@ -687,15 +687,27 @@ static void GiveReadyHints() {
 static void GiveCaptainHint(int client, int readyPlayers, int totalPlayers) {
   char cap1[MAX_NAME_LENGTH];
   char cap2[MAX_NAME_LENGTH];
-  if (IsPlayer(g_capt1))
-    Format(cap1, sizeof(cap1), "%N", g_capt1);
-  else
-    Format(cap1, sizeof(cap1), "%T", "CaptainNotSelected", client);
+  const int kMaxNameLength = 14;
 
-  if (IsPlayer(g_capt2))
+  if (IsPlayer(g_capt1)) {
+    Format(cap1, sizeof(cap1), "%N", g_capt1);
+    if (strlen(cap1) > kMaxNameLength) {
+      strcopy(cap1, kMaxNameLength, cap1);
+      Format(cap1, sizeof(cap1), "%s...", cap1);
+    }
+  } else {
+    Format(cap1, sizeof(cap1), "%T", "CaptainNotSelected", client);
+  }
+
+  if (IsPlayer(g_capt2)) {
     Format(cap2, sizeof(cap2), "%N", g_capt2);
-  else
+    if (strlen(cap2) > kMaxNameLength) {
+      strcopy(cap2, kMaxNameLength, cap2);
+      Format(cap2, sizeof(cap2), "%s...", cap2);
+    }
+  } else {
     Format(cap2, sizeof(cap2), "%T", "CaptainNotSelected", client);
+  }
 
   PrintHintTextToAll("%t", "ReadyStatusCaptains", readyPlayers, totalPlayers, cap1, cap2);
 
