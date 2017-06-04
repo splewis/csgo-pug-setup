@@ -1,3 +1,9 @@
+# 2.0.3
+- update practicemode to 1.1.3
+- update maplists to use better pagination settings
+- add instant runoff voting cvar (sm_pugsetup_instant_runoff_voting)
+- fix for long captain names in hint texts
+
 ## 2.0.2
 - update autoupdate url
 
