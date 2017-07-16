@@ -456,3 +456,12 @@ stock bool SplitOnSpace(const char[] str, char[] buf1, int len1, char[] buf2, in
   }
   return false;
 }
+
+stock bool IsClientCoaching(int client) {
+  return GetClientTeam(client) == CS_TEAM_SPECTATOR &&
+         GetEntProp(client, Prop_Send, "m_iCoachingTeam") != 0;
+}
+
+stock void UpdateCoachTarget(int client, int csTeam) {
+  SetEntProp(client, Prop_Send, "m_iCoachingTeam", csTeam);
+}

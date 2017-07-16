@@ -71,10 +71,18 @@ public void EndKnifeRound(bool swap) {
     for (int i = 1; i <= MaxClients; i++) {
       if (IsValidClient(i)) {
         int team = GetClientTeam(i);
-        if (team == CS_TEAM_T)
+        if (team == CS_TEAM_T) {
           SwitchPlayerTeam(i, CS_TEAM_CT);
-        else if (team == CS_TEAM_CT)
+        } else if (team == CS_TEAM_CT) {
           SwitchPlayerTeam(i, CS_TEAM_T);
+
+        } else if (IsClientCoaching(i)) {
+          if (team == CS_TEAM_T) {
+            UpdateCoachTarget(i, CS_TEAM_CT);
+          } else if (team == CS_TEAM_CT) {
+            UpdateCoachTarget(i, CS_TEAM_T);
+          }
+        }
       }
     }
   }
