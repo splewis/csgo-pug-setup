@@ -1,5 +1,3 @@
-Include('csgo-practice-mode')
-
 Plugin(source='scripting/pugsetup.sp')
 
 addon_plugins = [
@@ -17,9 +15,8 @@ for p in addon_plugins:
     Plugin(source='scripting/' + p + '.sp')
 
 Package(name='pugsetup',
-        extends=['practicemode'],
         plugins=pugsetup_plugins,
-        disabled_plugins=addon_plugins + ['practicemode'],
+        disabled_plugins=addon_plugins,
         filegroups={
             '.': ['LICENSE' , 'CHANGELOG.md', 'README.md'],
         },

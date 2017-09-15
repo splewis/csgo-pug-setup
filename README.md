@@ -218,6 +218,3 @@ This plugin prints out the team members' money to chat on round starts, you can 
 
 #### pugsetup_damageprinter
 This plugin adds a .dmg command that also prints damage done/taken from players on round ends. You can disable the usage of the .dmg command with ``sm_pugsetup_damageprint_allow_dmg_command 0`` and change the format of the messages with ``sm_pugsetup_damageprint_format`` by editing ``cfg/sourcemod/pugsetup_damageprint.cfg``.
-
-#### practicemode
-This plugin was formerly a part of pugsetup, but has since been made separate. It is still included in the pugsetup releases, however. For a description, visit [its repository](https://github.com/splewis/csgo-practice-mode).
