@@ -1546,14 +1546,13 @@ public Action Event_MatchOver(Event event, const char[] name, bool dontBroadcast
   if (g_GameState == GameState_Live) {
     CreateTimer(15.0, Timer_EndMatch);
     ExecCfg(g_WarmupCfgCvar);
+
+    char map[PLATFORM_MAX_PATH];
+    GetCurrentMap(map, sizeof(map));
+    g_PastMaps.PushString(map);
   }
 
-  char map[PLATFORM_MAX_PATH];
-  GetCurrentMap(map, sizeof(map));
-  g_PastMaps.PushString(map);
-
-  if (g_PastMaps.Length > g_ExcludedMaps.IntValue)
-  {
+  if (g_PastMaps.Length > g_ExcludedMaps.IntValue) {
     g_PastMaps.Erase(0);
   }
 
