@@ -1106,7 +1106,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
 
   // Allow using .map as a map-vote revote alias and as a
   // shortcut to the mapchange menu (if avaliable).
-  if (StrEqual(sArgs[0], ".map")) {
+  if (StrEqual(sArgs, ".map") || StrEqual(sArgs, "!revote")) {
     if (IsVoteInProgress() && IsClientInVotePool(client)) {
       RedrawClientVoteMenu(client);
     } else if (g_IRVActive) {
