@@ -155,8 +155,10 @@ enum KnifeDecision {
   KnifeDecision_None,
   KnifeDecision_Stay,
   KnifeDecision_Swap,
-} KnifeDecision g_KnifeRoundVotes[MAXPLAYERS + 1];
-int g_KnifeRoundVotesCast = 0;
+};
+KnifeDecision g_KnifeRoundVotes[MAXPLAYERS + 1];
+int g_KnifeNumVotesNeeded = 0;
+
 
 /** Forwards **/
 Handle g_OnForceEnd = INVALID_HANDLE;

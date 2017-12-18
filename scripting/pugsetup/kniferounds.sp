@@ -18,7 +18,7 @@ public Action StartKnifeRound(Handle timer) {
   }
 
   RestartGame(1);
-  g_KnifeRoundVotesCast = 0;
+  g_KnifeNumVotesNeeded = g_PlayersPerTeam / 2 + 1;
   for (int i = 1; i <= MaxClients; i++) {
     g_KnifeRoundVotes[i] = KnifeDecision_None;
   }
@@ -40,26 +40,36 @@ public Action Timer_AnnounceKnife(Handle timer) {
 }
 
 public Action Timer_HandleKnifeDecisionVote(Handle timer) {
-  HandleKnifeDecisionVote();
+  HandleKnifeDecisionVote(true);
 }
 
-public void HandleKnifeDecisionVote() {
+static void HandleKnifeDecisionVote(bool timeExpired = false) {
   if (g_GameState != GameState_WaitingForKnifeRoundDecision) {
     return;
   }
 
   int stayCount = 0;
   int swapCount = 0;
+  CountKnifeVotes(stayCount, swapCount);
+  if (stayCount >= g_KnifeNumVotesNeeded) {
+    EndKnifeRound(false);
+  } else if (swapCount >= g_KnifeNumVotesNeeded) {
+    EndKnifeRound(true);
+  } else if (timeExpired) {
+    EndKnifeRound(false);
+  }
+}
+
+public void CountKnifeVotes(int& stayCount, int& swapCount) {
   for (int i = 1; i <= MaxClients; i++) {
     if (IsValidClient(i) && GetClientTeam(i) == g_KnifeWinner) {
-      if (g_KnifeRoundVotes[i] == KnifeDecision_Stay)
+      if (g_KnifeRoundVotes[i] == KnifeDecision_Stay) {
         stayCount++;
-      else if (g_KnifeRoundVotes[i] == KnifeDecision_Swap)
+      } else if (g_KnifeRoundVotes[i] == KnifeDecision_Swap) {
         swapCount++;
+      }
     }
   }
-  bool doSwap = (swapCount > stayCount);
-  EndKnifeRound(doSwap);
 }
 
 public void EndKnifeRound(bool swap) {
@@ -120,10 +130,7 @@ public Action Command_Stay(int client, int args) {
     } else {
       g_KnifeRoundVotes[client] = KnifeDecision_Stay;
       PugSetup_Message(client, "%t", "KnifeRoundVoteStay");
-      g_KnifeRoundVotesCast++;
-      if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
-        HandleKnifeDecisionVote();
-      }
+      HandleKnifeDecisionVote();
     }
   }
   return Plugin_Handled;
@@ -136,10 +143,7 @@ public Action Command_Swap(int client, int args) {
     } else {
       g_KnifeRoundVotes[client] = KnifeDecision_Swap;
       PugSetup_Message(client, "%t", "KnifeRoundVoteSwap");
-      g_KnifeRoundVotesCast++;
-      if (g_KnifeRoundVotesCast == g_PlayersPerTeam) {
-        HandleKnifeDecisionVote();
-      }
+      HandleKnifeDecisionVote();
     }
   }
   return Plugin_Handled;
