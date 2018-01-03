@@ -76,7 +76,6 @@ public void ShowInstantRunoffMapVote(int client, int round) {
     }
   }
 
-
   menu.Display(client, g_MapVoteTimeCvar.IntValue);
 }
 

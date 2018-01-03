@@ -70,9 +70,11 @@ public void CountKnifeVotes(int& stayCount, int& swapCount) {
       }
     }
   }
+  LogDebug("CountKnifeVotes stayCount=%d, swapCount=%d", stayCount, swapCount);
 }
 
 public void EndKnifeRound(bool swap) {
+  LogDebug("EndKnifeRound swap=%d", swap);
   Call_StartForward(g_hOnKnifeRoundDecision);
   Call_PushCell(swap);
   Call_Finish();
@@ -119,6 +121,8 @@ static bool AwaitingDecision(int client, const char[] command) {
     bool canMakeDecision = (g_GameState == GameState_WaitingForKnifeRoundDecision) &&
                            IsPlayer(client) && GetClientTeam(client) == g_KnifeWinner;
     bool hasPermissions = DoPermissionCheck(client, command);
+    LogDebug("Knife AwaitingDecision Vote: client=%L canMakeDecision=%d, hasPermissions=%d", client,
+             canMakeDecision, hasPermissions);
     return canMakeDecision && hasPermissions;
   }
 }
@@ -173,6 +177,7 @@ public int GetKnifeRoundWinner() {
   int ctAlive = CountAlivePlayersOnTeam(CS_TEAM_CT);
   int tAlive = CountAlivePlayersOnTeam(CS_TEAM_T);
   int winningCSTeam = CS_TEAM_NONE;
+  LogDebug("GetKnifeRoundWinner: ctAlive=%d, tAlive=%d", ctAlive, tAlive);
   if (ctAlive > tAlive) {
     winningCSTeam = CS_TEAM_CT;
   } else if (tAlive > ctAlive) {
@@ -180,11 +185,13 @@ public int GetKnifeRoundWinner() {
   } else {
     int ctHealth = SumHealthOfTeam(CS_TEAM_CT);
     int tHealth = SumHealthOfTeam(CS_TEAM_T);
+    LogDebug("GetKnifeRoundWinner: ctHealth=%d, tHealth=%d", ctHealth, tHealth);
     if (ctHealth > tHealth) {
       winningCSTeam = CS_TEAM_CT;
     } else if (tHealth > ctHealth) {
       winningCSTeam = CS_TEAM_T;
     } else {
+      LogDebug("GetKnifeRoundWinner: Falling to random knife winner");
       if (GetRandomFloat(0.0, 1.0) < 0.5) {
         winningCSTeam = CS_TEAM_CT;
       } else {

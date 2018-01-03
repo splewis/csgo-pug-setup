@@ -159,7 +159,6 @@ enum KnifeDecision {
 KnifeDecision g_KnifeRoundVotes[MAXPLAYERS + 1];
 int g_KnifeNumVotesNeeded = 0;
 
-
 /** Forwards **/
 Handle g_OnForceEnd = INVALID_HANDLE;
 Handle g_hOnGoingLive = INVALID_HANDLE;
@@ -1574,6 +1573,7 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
   if (g_GameState == GameState_KnifeRound) {
     ChangeState(GameState_WaitingForKnifeRoundDecision);
     g_KnifeWinner = GetKnifeRoundWinner();
+    LogDebug("Set g_KnifeWinner = %d", g_KnifeWinner);
 
     char teamString[4];
     if (g_KnifeWinner == CS_TEAM_CT)
