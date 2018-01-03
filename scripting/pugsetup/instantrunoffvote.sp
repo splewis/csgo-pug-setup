@@ -236,12 +236,14 @@ public Action Timer_CollectIRVResults(Handle timer) {
 public void PrintIRVInfoToConsole(int client) {
   PrintToConsole(client, "--------------------------------------");
   PrintToConsole(client, "Instant runoff map vote results:");
-  for (int i = 0; i < kNumMapsToPick; i++) {
-    char mapName[255];
-    int mapIndex = g_ClientMapPicks[client][i];
-    if (mapIndex >= 0) {
-      FormatMapName(g_MapVotePool, mapIndex, mapName, sizeof(mapName));
-      PrintToConsole(client, "%L map %d: %s", client, mapIndex, mapName);
+  for (int i = 0; i <= MaxClients; i++) {
+    for (int j = 0; j < kNumMapsToPick; j++) {
+      char mapName[255];
+      int mapIndex = g_ClientMapPicks[i][j];
+      if (mapIndex >= 0) {
+        FormatMapName(g_MapVotePool, mapIndex, mapName, sizeof(mapName));
+        PrintToConsole(client, "%L map %d: %s", i, j, mapName);
+      }
     }
   }
 }
