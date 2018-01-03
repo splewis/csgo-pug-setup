@@ -225,4 +225,23 @@ public Action Timer_CollectIRVResults(Handle timer) {
   FormatMapName(g_MapVotePool, g_SecondRunnerUpMapIndex, map3, sizeof(map3));
 
   PugSetup_MessageToAll("%t", "IRVResultMessage", map1, map2, map3);
+
+  for (int i = 1; i <= MaxClients; i++) {
+    if (IsPlayer(i)) {
+      PrintIRVInfoToConsole(i);
+    }
+  }
+}
+
+public void PrintIRVInfoToConsole(int client) {
+  PrintToConsole(client, "--------------------------------------");
+  PrintToConsole(client, "Instant runoff map vote results:");
+  for (int i = 0; i < kNumMapsToPick; i++) {
+    char mapName[255];
+    int mapIndex = g_ClientMapPicks[client][i];
+    if (mapIndex >= 0) {
+      FormatMapName(g_MapVotePool, mapIndex, mapName, sizeof(mapName));
+      PrintToConsole(client, "%L map %d: %s", client, mapIndex, mapName);
+    }
+  }
 }
