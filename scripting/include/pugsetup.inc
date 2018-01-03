@@ -42,6 +42,11 @@ enum GameState {
   GameState_Live,                          // the match is live
 };
 
+enum ChatAliasMode {
+  ChatAlias_Always,     // Alias is always enabled
+  ChatAlias_WhenSetup,  // Alias is only available when game state is not GameState_None
+};
+
 /**
  * Called when a setup menu is opened.
  *
@@ -290,7 +295,8 @@ native bool PugSetup_HasPermissions(int client, Permission p, bool allowLeaderRe
 native void PugSetup_SetRandomCaptains();
 
 // Adds a chat alias for a command. For example: .setup as a chat trigger for sm_setup
-native void PugSetup_AddChatAlias(const char[] alias, const char[] command);
+native void PugSetup_AddChatAlias(const char[] alias, const char[] command,
+                                  ChatAliasMode mode = ChatAlias_Always);
 
 // Give a client the root setup menu again.
 // This is intended to be called in the PugSetup_OnSetupMenuSelect forward.
