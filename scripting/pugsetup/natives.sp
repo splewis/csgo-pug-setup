@@ -13,6 +13,8 @@
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
   g_ChatAliases = new ArrayList(ALIAS_LENGTH);
   g_ChatAliasesCommands = new ArrayList(COMMAND_LENGTH);
+  g_ChatAliasesModes = new ArrayList();
+
   g_MapList = new ArrayList(PLATFORM_MAX_PATH);
   g_AimMapList = new ArrayList(PLATFORM_MAX_PATH);
   g_PermissionsMap = new StringMap();
@@ -432,10 +434,17 @@ public int Native_AddChatAlias(Handle plugin, int numParams) {
   GetNativeString(1, alias, sizeof(alias));
   GetNativeString(2, command, sizeof(command));
 
+  ChatAliasMode mode = ChatAlias_Always;
+  if (numParams >= 3) {
+    mode = GetNativeCell(3);
+  }
+  LogMessage("Native_AddChatAlias mode=%d, numparams=%d", mode, numParams);
+
   // don't allow duplicate aliases to be added
   if (g_ChatAliases.FindString(alias) == -1) {
     g_ChatAliases.PushString(alias);
     g_ChatAliasesCommands.PushString(command);
+    g_ChatAliasesModes.Push(mode);
   }
 }
 

@@ -128,6 +128,7 @@ KeyValues g_WorkshopCache;            // keyvalue struct for the cache
 /** Chat aliases loaded **/
 ArrayList g_ChatAliases;
 ArrayList g_ChatAliasesCommands;
+ArrayList g_ChatAliasesModes;
 
 /** Permissions **/
 StringMap g_PermissionsMap;
@@ -333,35 +334,42 @@ public void OnPluginStart() {
   /** Commands **/
   g_Commands = new ArrayList(COMMAND_LENGTH);
   LoadTranslatedAliases();
-  AddPugSetupCommand("ready", Command_Ready, "Marks the client as ready", Permission_All);
-  AddPugSetupCommand("notready", Command_NotReady, "Marks the client as not ready", Permission_All);
+  AddPugSetupCommand("ready", Command_Ready, "Marks the client as ready", Permission_All,
+                     ChatAlias_WhenSetup);
+  AddPugSetupCommand("notready", Command_NotReady, "Marks the client as not ready", Permission_All,
+                     ChatAlias_WhenSetup);
   AddPugSetupCommand("setup", Command_Setup,
                      "Starts pug setup (.ready, .capt commands become avaliable)", Permission_All);
   AddPugSetupCommand("10man", Command_10man,
                      "Starts 10man setup (alias for .setup with 10 man/gather settings)",
                      Permission_All);
-  AddPugSetupCommand("rand", Command_Rand, "Sets random captains", Permission_Captains);
-  AddPugSetupCommand("pause", Command_Pause, "Pauses the game", Permission_All);
-  AddPugSetupCommand("unpause", Command_Unpause, "Unpauses the game", Permission_All);
+  AddPugSetupCommand("rand", Command_Rand, "Sets random captains", Permission_Captains,
+                     ChatAlias_WhenSetup);
+  AddPugSetupCommand("pause", Command_Pause, "Pauses the game", Permission_All,
+                     ChatAlias_WhenSetup);
+  AddPugSetupCommand("unpause", Command_Unpause, "Unpauses the game", Permission_All,
+                     ChatAlias_WhenSetup);
   AddPugSetupCommand("endgame", Command_EndGame, "Pre-emptively ends the match", Permission_Leader);
   AddPugSetupCommand("forceend", Command_ForceEnd,
                      "Pre-emptively ends the match, without any confirmation menu",
                      Permission_Leader);
-  AddPugSetupCommand("forceready", Command_ForceReady, "Force-readies a player", Permission_Admin);
+  AddPugSetupCommand("forceready", Command_ForceReady, "Force-readies a player", Permission_Admin,
+                     ChatAlias_WhenSetup);
   AddPugSetupCommand("leader", Command_Leader, "Sets the pug leader", Permission_Leader);
   AddPugSetupCommand("capt", Command_Capt, "Gives the client a menu to pick captains",
                      Permission_Leader);
   AddPugSetupCommand("stay", Command_Stay,
                      "Elects to stay on the current team after winning a knife round",
-                     Permission_All);
+                     Permission_All, ChatAlias_WhenSetup);
   AddPugSetupCommand("swap", Command_Swap,
-                     "Elects to swap the current teams after winning a knife round",
-                     Permission_All);
+                     "Elects to swap the current teams after winning a knife round", Permission_All,
+                     ChatAlias_WhenSetup);
   AddPugSetupCommand("t", Command_T, "Elects to start on T side after winning a knife round",
-                     Permission_All);
+                     Permission_All, ChatAlias_WhenSetup);
   AddPugSetupCommand("ct", Command_Ct, "Elects to start on CT side after winning a knife round",
-                     Permission_All);
-  AddPugSetupCommand("forcestart", Command_ForceStart, "Force starts the game", Permission_Admin);
+                     Permission_All, ChatAlias_WhenSetup);
+  AddPugSetupCommand("forcestart", Command_ForceStart, "Force starts the game", Permission_Admin,
+                     ChatAlias_WhenSetup);
   AddPugSetupCommand("addmap", Command_AddMap, "Adds a map to the current maplist",
                      Permission_Admin);
   AddPugSetupCommand("removemap", Command_RemoveMap, "Removes a map to the current maplist",
@@ -371,7 +379,7 @@ public void OnPluginStart() {
   AddPugSetupCommand("listaimmaps", Command_ListAimMaps, "Lists the current aim maplist",
                      Permission_All);
   AddPugSetupCommand("start", Command_Start, "Starts the game if autolive is disabled",
-                     Permission_Leader);
+                     Permission_Leader, ChatAlias_WhenSetup);
   AddPugSetupCommand("addalias", Command_AddAlias,
                      "Adds a pugsetup alias, and saves it to the chatalias.cfg file",
                      Permission_Admin);
@@ -459,7 +467,7 @@ public void OnPluginStart() {
 }
 
 static void AddPugSetupCommand(const char[] command, ConCmd callback, const char[] description,
-                               Permission p) {
+                               Permission p, ChatAliasMode mode = ChatAlias_Always) {
   char smCommandBuffer[64];
   Format(smCommandBuffer, sizeof(smCommandBuffer), "sm_%s", command);
   g_Commands.PushString(smCommandBuffer);
@@ -468,7 +476,8 @@ static void AddPugSetupCommand(const char[] command, ConCmd callback, const char
 
   char dotCommandBuffer[64];
   Format(dotCommandBuffer, sizeof(dotCommandBuffer), ".%s", command);
-  PugSetup_AddChatAlias(dotCommandBuffer, smCommandBuffer);
+  LogMessage("calling PugSetup_AddChatAlias mode=%d", mode);
+  PugSetup_AddChatAlias(dotCommandBuffer, smCommandBuffer, mode);
 }
 
 public void OnMapListChanged(ConVar convar, const char[] oldValue, const char[] newValue) {
@@ -953,16 +962,16 @@ public Action Command_Start(int client, int args) {
 public void LoadTranslatedAliases() {
   // For each of these sm_x commands, we need the
   // translation phrase sm_x_alias to be present.
-  AddTranslatedAlias("sm_capt");
-  AddTranslatedAlias("sm_endgame");
-  AddTranslatedAlias("sm_notready");
-  AddTranslatedAlias("sm_pause");
-  AddTranslatedAlias("sm_ready");
+  AddTranslatedAlias("sm_capt", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_endgame", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_notready", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_pause", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_ready", ChatAlias_WhenSetup);
   AddTranslatedAlias("sm_setup");
-  AddTranslatedAlias("sm_stay");
-  AddTranslatedAlias("sm_swap");
-  AddTranslatedAlias("sm_unpause");
-  AddTranslatedAlias("sm_start");
+  AddTranslatedAlias("sm_stay", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_swap", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_unpause", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_start", ChatAlias_WhenSetup);
 }
 
 public void LoadExtraAliases() {
@@ -970,29 +979,29 @@ public void LoadExtraAliases() {
   ReadChatConfig();
 
   // Any extra chat aliases we want
-  PugSetup_AddChatAlias(".captain", "sm_capt");
-  PugSetup_AddChatAlias(".captains", "sm_capt");
-  PugSetup_AddChatAlias(".setcaptains", "sm_capt");
-  PugSetup_AddChatAlias(".endmatch", "sm_endgame");
-  PugSetup_AddChatAlias(".cancel", "sm_endgame");
-  PugSetup_AddChatAlias(".gaben", "sm_ready");
-  PugSetup_AddChatAlias(".gs4lyfe", "sm_ready");
-  PugSetup_AddChatAlias(".splewis", "sm_ready");
-  PugSetup_AddChatAlias(".unready", "sm_notready");
-  PugSetup_AddChatAlias(".paws", "sm_pause");
-  PugSetup_AddChatAlias(".unpaws", "sm_unpause");
-  PugSetup_AddChatAlias(".switch", "sm_swap");
-  PugSetup_AddChatAlias(".forcestop", "sm_forceend");
+  PugSetup_AddChatAlias(".captain", "sm_capt", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".captains", "sm_capt", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".setcaptains", "sm_capt", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".endmatch", "sm_endgame", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".cancel", "sm_endgame", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".gaben", "sm_ready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".gs4lyfe", "sm_ready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".splewis", "sm_ready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".unready", "sm_notready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".paws", "sm_pause", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".unpaws", "sm_unpause", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".switch", "sm_swap", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".forcestop", "sm_forceend", ChatAlias_WhenSetup);
 }
 
-static void AddTranslatedAlias(const char[] command) {
+static void AddTranslatedAlias(const char[] command, ChatAliasMode mode=ChatAlias_Always) {
   char translationName[128];
   Format(translationName, sizeof(translationName), "%s_alias", command);
 
   char alias[ALIAS_LENGTH];
   Format(alias, sizeof(alias), "%T", translationName, LANG_SERVER);
 
-  PugSetup_AddChatAlias(alias, command);
+  PugSetup_AddChatAlias(alias, command, mode);
 }
 
 public bool FindAliasFromCommand(const char[] command, char alias[ALIAS_LENGTH]) {
@@ -1030,8 +1039,14 @@ public bool FindComandFromAlias(const char[] alias, char command[COMMAND_LENGTH]
 }
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] chatCommand,
-                           const char[] chatArgs, int client) {
+                           const char[] chatArgs, int client, ChatAliasMode mode) {
+  LogMessage("alias=%s, command=%s, chatCommand=%s", alias, command, chatCommand);
   if (StrEqual(chatCommand, alias, false)) {
+    LogMessage("mode = %d  state = %d",mode, g_GameState);
+    if (mode == ChatAlias_WhenSetup && g_GameState == GameState_None) {
+      return false;
+    }
+
     // Get the original cmd reply source so it can be restored after the fake client command.
     // This means and ReplyToCommand will go into the chat area, rather than console, since
     // *chat* aliases are for *chat* commands.
@@ -1067,8 +1082,7 @@ public void OnClientSayCommand_Post(int client, const char[] command, const char
     for (int i = 0; i < GetArraySize(g_ChatAliases); i++) {
       GetArrayString(g_ChatAliases, i, alias, sizeof(alias));
       GetArrayString(g_ChatAliasesCommands, i, cmd, sizeof(cmd));
-
-      if (CheckChatAlias(alias, cmd, chatCommand, chatArgs, client)) {
+      if (CheckChatAlias(alias, cmd, chatCommand, chatArgs, client, g_ChatAliasesModes.Get(i))) {
         break;
       }
     }
@@ -1459,6 +1473,7 @@ public Action Command_RemoveAlias(int client, int args) {
     } else {
       g_ChatAliasesCommands.Erase(index);
       g_ChatAliases.Erase(index);
+      g_ChatAliasesModes.Erase(index);
 
       if (RemoveChatAliasFromFile(alias))
         PugSetup_Message(client, "Succesfully removed alias %s", alias);
