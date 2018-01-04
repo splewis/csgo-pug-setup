@@ -962,16 +962,16 @@ public Action Command_Start(int client, int args) {
 public void LoadTranslatedAliases() {
   // For each of these sm_x commands, we need the
   // translation phrase sm_x_alias to be present.
-  AddTranslatedAlias("sm_capt");
-  AddTranslatedAlias("sm_endgame");
-  AddTranslatedAlias("sm_notready");
-  AddTranslatedAlias("sm_pause");
-  AddTranslatedAlias("sm_ready");
+  AddTranslatedAlias("sm_capt", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_endgame", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_notready", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_pause", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_ready", ChatAlias_WhenSetup);
   AddTranslatedAlias("sm_setup");
-  AddTranslatedAlias("sm_stay");
-  AddTranslatedAlias("sm_swap");
-  AddTranslatedAlias("sm_unpause");
-  AddTranslatedAlias("sm_start");
+  AddTranslatedAlias("sm_stay", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_swap", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_unpause", ChatAlias_WhenSetup);
+  AddTranslatedAlias("sm_start", ChatAlias_WhenSetup);
 }
 
 public void LoadExtraAliases() {
@@ -979,29 +979,29 @@ public void LoadExtraAliases() {
   ReadChatConfig();
 
   // Any extra chat aliases we want
-  PugSetup_AddChatAlias(".captain", "sm_capt");
-  PugSetup_AddChatAlias(".captains", "sm_capt");
-  PugSetup_AddChatAlias(".setcaptains", "sm_capt");
-  PugSetup_AddChatAlias(".endmatch", "sm_endgame");
-  PugSetup_AddChatAlias(".cancel", "sm_endgame");
-  PugSetup_AddChatAlias(".gaben", "sm_ready");
-  PugSetup_AddChatAlias(".gs4lyfe", "sm_ready");
-  PugSetup_AddChatAlias(".splewis", "sm_ready");
-  PugSetup_AddChatAlias(".unready", "sm_notready");
-  PugSetup_AddChatAlias(".paws", "sm_pause");
-  PugSetup_AddChatAlias(".unpaws", "sm_unpause");
-  PugSetup_AddChatAlias(".switch", "sm_swap");
-  PugSetup_AddChatAlias(".forcestop", "sm_forceend");
+  PugSetup_AddChatAlias(".captain", "sm_capt", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".captains", "sm_capt", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".setcaptains", "sm_capt", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".endmatch", "sm_endgame", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".cancel", "sm_endgame", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".gaben", "sm_ready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".gs4lyfe", "sm_ready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".splewis", "sm_ready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".unready", "sm_notready", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".paws", "sm_pause", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".unpaws", "sm_unpause", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".switch", "sm_swap", ChatAlias_WhenSetup);
+  PugSetup_AddChatAlias(".forcestop", "sm_forceend", ChatAlias_WhenSetup);
 }
 
-static void AddTranslatedAlias(const char[] command) {
+static void AddTranslatedAlias(const char[] command, ChatAliasMode mode=ChatAlias_Always) {
   char translationName[128];
   Format(translationName, sizeof(translationName), "%s_alias", command);
 
   char alias[ALIAS_LENGTH];
   Format(alias, sizeof(alias), "%T", translationName, LANG_SERVER);
 
-  PugSetup_AddChatAlias(alias, command);
+  PugSetup_AddChatAlias(alias, command, mode);
 }
 
 public bool FindAliasFromCommand(const char[] command, char alias[ALIAS_LENGTH]) {
