@@ -56,7 +56,7 @@ static void HandleKnifeDecisionVote(bool timeExpired = false) {
   } else if (swapCount >= g_KnifeNumVotesNeeded) {
     EndKnifeRound(true);
   } else if (timeExpired) {
-    EndKnifeRound(false);
+    EndKnifeRound(swapCount > stayCount);
   }
 }
 
