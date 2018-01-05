@@ -236,7 +236,11 @@ public Action Timer_CollectIRVResults(Handle timer) {
 public void PrintIRVInfoToConsole(int client) {
   PrintToConsole(client, "--------------------------------------");
   PrintToConsole(client, "Instant runoff map vote results:");
-  for (int i = 0; i <= MaxClients; i++) {
+  for (int i = 1; i <= MaxClients; i++) {
+    if (!IsPlayer(i)) {
+      continue;
+    }
+
     for (int j = 0; j < kNumMapsToPick; j++) {
       char mapName[255];
       int mapIndex = g_ClientMapPicks[i][j];
