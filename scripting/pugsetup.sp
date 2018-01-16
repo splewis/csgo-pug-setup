@@ -476,7 +476,6 @@ static void AddPugSetupCommand(const char[] command, ConCmd callback, const char
 
   char dotCommandBuffer[64];
   Format(dotCommandBuffer, sizeof(dotCommandBuffer), ".%s", command);
-  LogMessage("calling PugSetup_AddChatAlias mode=%d", mode);
   PugSetup_AddChatAlias(dotCommandBuffer, smCommandBuffer, mode);
 }
 
@@ -1040,9 +1039,7 @@ public bool FindComandFromAlias(const char[] alias, char command[COMMAND_LENGTH]
 
 static bool CheckChatAlias(const char[] alias, const char[] command, const char[] chatCommand,
                            const char[] chatArgs, int client, ChatAliasMode mode) {
-  LogMessage("alias=%s, command=%s, chatCommand=%s", alias, command, chatCommand);
   if (StrEqual(chatCommand, alias, false)) {
-    LogMessage("mode = %d  state = %d",mode, g_GameState);
     if (mode == ChatAlias_WhenSetup && g_GameState == GameState_None) {
       return false;
     }
