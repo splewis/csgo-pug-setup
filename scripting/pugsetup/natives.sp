@@ -438,7 +438,6 @@ public int Native_AddChatAlias(Handle plugin, int numParams) {
   if (numParams >= 3) {
     mode = GetNativeCell(3);
   }
-  LogMessage("Native_AddChatAlias mode=%d, numparams=%d", mode, numParams);
 
   // don't allow duplicate aliases to be added
   if (g_ChatAliases.FindString(alias) == -1) {
