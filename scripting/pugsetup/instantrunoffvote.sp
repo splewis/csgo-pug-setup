@@ -246,7 +246,7 @@ public void PrintIRVInfoToConsole(int client) {
       int mapIndex = g_ClientMapPicks[i][j];
       if (mapIndex >= 0) {
         FormatMapName(g_MapVotePool, mapIndex, mapName, sizeof(mapName));
-        PrintToConsole(client, "%L map %d: %s", i + 1, j, mapName);
+        PrintToConsole(client, "%L map %d: %s", i, j + 1, mapName);
       }
     }
   }
