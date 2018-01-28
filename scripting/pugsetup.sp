@@ -2111,7 +2111,7 @@ public void ExecFromFile(const char[] path) {
 }
 
 stock void UpdateClanTag(int client, bool strip = false) {
-  if (IsPlayer(client)) {
+  if (IsPlayer(client) && GetClientTeam(client) != CS_TEAM_NONE) {
     if (!g_SavedClanTag[client]) {
       CS_GetClientClanTag(client, g_ClanTag[client], CLANTAG_LENGTH);
       g_SavedClanTag[client] = true;
