@@ -1205,9 +1205,18 @@ public Action Command_ForceReady(int client, int args) {
 
   char buffer[MAX_NAME_LENGTH];
   if (args >= 1 && GetCmdArg(1, buffer, sizeof(buffer))) {
-    int target = FindTarget(client, buffer, true, false);
-    if (IsPlayer(target))
-      PugSetup_ReadyPlayer(target);
+    if (StrEqual(buffer, "all")) {
+      for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i)) {
+          PugSetup_ReadyPlayer(i);
+        }
+      }
+    } else {
+      int target = FindTarget(client, buffer, true, false);
+      if (IsPlayer(target)) {
+        PugSetup_ReadyPlayer(target);
+      }
+    }
   } else {
     PugSetup_Message(client, "Usage: .forceready <player>");
   }
