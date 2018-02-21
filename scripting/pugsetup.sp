@@ -993,7 +993,7 @@ public void LoadExtraAliases() {
   PugSetup_AddChatAlias(".forcestop", "sm_forceend", ChatAlias_WhenSetup);
 }
 
-static void AddTranslatedAlias(const char[] command, ChatAliasMode mode=ChatAlias_Always) {
+static void AddTranslatedAlias(const char[] command, ChatAliasMode mode = ChatAlias_Always) {
   char translationName[128];
   Format(translationName, sizeof(translationName), "%s_alias", command);
 

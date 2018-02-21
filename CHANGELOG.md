@@ -1,4 +1,8 @@
-# 2.0.3
+## 2.0.4
+- make instant runoff voting as the default mode for map votes
+- make knife round decisions reached as soon as a majority is reached
+
+## 2.0.3
 - update practicemode to 1.1.3
 - update maplists to use better pagination settings
 - add instant runoff voting cvar (sm_pugsetup_instant_runoff_voting)
