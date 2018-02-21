@@ -225,7 +225,7 @@ public void OnPluginStart() {
       "Admin flag to mark players as having elevated permissions - e.g. can always pause,setup,end the game, etc.");
   g_AimMapListCvar = CreateConVar(
       "sm_pugsetup_maplist_aim_maps", "aim_maps.txt",
-      "Maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
+      "If using aim map warmup, the maplist file in addons/sourcemod/configs/pugsetup to use. You may also use a workshop collection ID instead of a maplist if you have the SteamWorks extension installed.");
   g_AllowCustomReadyMessageCvar =
       CreateConVar("sm_pugsetup_allow_custom_ready_messages", "1",
                    "Whether users can set custom ready messages saved via a clientprefs cookie");
