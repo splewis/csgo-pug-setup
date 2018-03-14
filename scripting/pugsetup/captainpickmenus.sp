@@ -186,13 +186,21 @@ static bool IsPlayerPicked(int client) {
 static int GetNextCaptain(int captain) {
   if (GetConVarInt(g_SnakeCaptainsCvar) == 0) {
     return OtherCaptain(captain);
-  } else {
+  }
+  if (GetConVarInt(g_SnakeCaptainsCvar) == 1) {
     if (g_PickCounter == 0) {
       g_PickCounter = 1;
       return OtherCaptain(captain);
     } else {
       g_PickCounter--;
       return captain;
+    }
+  } else {
+    if (g_PickCounter == 1) {
+      return captain;
+    } else {
+      g_PickCounter++;
+      return OtherCaptain(captain);
     }
   }
 }
