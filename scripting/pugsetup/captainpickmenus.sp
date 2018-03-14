@@ -196,11 +196,14 @@ static int GetNextCaptain(int captain) {
       return captain;
     }
   } else {
+    if (g_PickCounter == 0) {
+      g_PickCounter++;
+      return OtherCaptain(captain);
+    }
     if (g_PickCounter == 1) {
       g_PickCounter++;
       return captain;
     } else {
-      g_PickCounter++;
       return OtherCaptain(captain);
     }
   }
