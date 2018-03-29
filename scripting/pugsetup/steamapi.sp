@@ -105,7 +105,7 @@ stock void WriteCollectionInfo(KeyValues kv, const char[] collectionId, ArrayLis
     delete mapIds;
 
   } else {
-    LogError("Recieved improperly formatted respone in response kv");
+    LogError("Recieved improperly formatted response in response kv");
   }
 }
 
