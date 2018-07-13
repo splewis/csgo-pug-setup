@@ -52,7 +52,7 @@ Note that sourcemod also requires MetaMod:Source to be on the server. You can do
 
 Installing these simply means placing their files on the game server. Uploading them over FTP (for example, using FileZilla) is all you need to do.
 
-**As of 1.3.0, sourcemod 1.7 is required.**
+**As of the panorama update, sourcemod 1.9 (v6241 and later) is required.**
 
 Download pugsetup.zip and extract the files to the game server. You can simply upload the ``addons`` and ``cfg`` directories to the server's ``csgo`` directory and be done.
 
