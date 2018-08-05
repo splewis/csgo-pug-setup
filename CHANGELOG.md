@@ -1,3 +1,8 @@
+## 2.0.5
+- update default maplist configs
+- update default warmup config to not set mp_maxrounds so high (freezes game on panorama UI)
+- add new setting (sm_pugsetup_snake_captain_picks 2) to do ABBABABA picking
+
 ## 2.0.4
 - make instant runoff voting as the default mode for map votes
 - make knife round decisions reached as soon as a majority is reached
