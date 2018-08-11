@@ -232,7 +232,7 @@ public void TeamSizeMenu(int client) {
 
   for (int i = 1; i <= g_MaxTeamSizeCvar.IntValue; i++) {
     char teamSizeStr[32];
-    IntToString(i, teamSizeStr, sizeof(teamSizeStr))
+    IntToString(i, teamSizeStr, sizeof(teamSizeStr));
 
     AddMenuInt(menu, i, teamSizeStr);
   }
