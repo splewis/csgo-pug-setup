@@ -10,6 +10,9 @@ If reporting a bug, fill in the following sections:
 
 
 ### Steps to reproduce
+
+Please note that "latest" is NOT a version! Run "sm plugins" in console to find out the exact plugin version.
+
 - Plugin version:
 - Sourcemod version:
 - Steps to reproduce (please be specific):
