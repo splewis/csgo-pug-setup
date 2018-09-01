@@ -6,7 +6,7 @@
 #include "include/logdebug.inc"
 #include "include/pugsetup.inc"
 #include "include/restorecvars.inc"
-#include "pugsetup/generic.sp"
+#include "pugsetup/util.sp"
 
 #undef REQUIRE_EXTENSIONS
 #include <SteamWorks>

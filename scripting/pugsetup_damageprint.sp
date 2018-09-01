@@ -2,7 +2,7 @@
 #include <sourcemod>
 
 #include "include/pugsetup.inc"
-#include "pugsetup/generic.sp"
+#include "pugsetup/util.sp"
 
 #pragma semicolon 1
 #pragma newdecls required
