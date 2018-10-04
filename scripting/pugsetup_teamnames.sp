@@ -10,6 +10,8 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+ConVar g_UseCaptainNamesCvar;
+
 /** Client cookie handles **/
 Handle g_teamNameCookie = INVALID_HANDLE;
 Handle g_teamFlagCookie = INVALID_HANDLE;
@@ -39,6 +41,9 @@ public void OnPluginStart() {
       RegClientCookie("pugsetup_teamname", "Pugsetup team name", CookieAccess_Protected);
   g_teamFlagCookie = RegClientCookie(
       "pugsetup_teamflag", "Pugsetup team flag (2-letter country code)", CookieAccess_Protected);
+  g_UseCaptainNamesCvar = CreateConVar(
+      "sm_pugsetup_use_captain_names", "1",
+      "Whether to use captain's team name. If disabled, a random player's team name is chosen.");
 }
 
 public void PugSetup_OnGoingLive() {
@@ -135,6 +140,11 @@ static bool GetPlayerFlagFromIP(int client, char flag[3]) {
 public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
   for (int i = 1; i <= MaxClients; i++) {
     if (IsPlayer(i) && GetClientTeam(i) == team && AreClientCookiesCached(i)) {
+      if (g_UseCaptainNamesCvar.IntValue != 0 && PugSetup_GetTeamType() == TeamType_Captains) {
+        // Only allow captains
+        if(i != PugSetup_GetCaptain(1) && i != PugSetup_GetCaptain(2))
+          continue;
+      }
       char name[TEAM_NAME_LENGTH];
       char flag[TEAM_FLAG_LENGTH];
       GetClientCookie(i, g_teamNameCookie, name, sizeof(name));
