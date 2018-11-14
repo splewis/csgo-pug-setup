@@ -96,7 +96,7 @@ Just like with setup options, you can edit these in game. For example, you could
 
 This will automatically save to the chataliases config file.
 
-By default the plugin uses the ``cfg/sourcemod/pugsetup/live.cfg`` config when going live. You are free to change this file all you want (or change which file is used via the ``sm_pugsetup_live_cfg`` cvar). (Note: if you use knife rounds, and the knife config is executed, the cvars it sets are saved before execution then restored when the knife round finishes.)
+By default the plugin uses the ``cfg/sourcemod/pugsetup/live.cfg`` config when going live. You are free to change this file all you want (or change which file is used via the ``sm_pugsetup_live_cfg`` cvar). (Note: if you use knife rounds, the knife config will be executed after the live config, but all the cvars it changed will be restored to their previous values after the knife round finishes.)
 
 ## For developers
 There is some extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
