@@ -37,7 +37,7 @@ public void OnPluginStart() {
                                     "Whether players can type .dmg to see damage done");
   g_hMessageFormat = CreateConVar(
       "sm_pugsetup_damageprint_format",
-      "--> ({DMG_TO} dmg / {HITS_TO} hits) to ({DMG_FROM} dmg / {HITS_FROM} hits) from {NAME} ({HEALTH} HP)",
+      "--> To: [{DMG_TO} / {HITS_TO} hits] From: [{DMG_FROM} / {HITS_FROM} hits] - {NAME} ({HEALTH} hp)",
       "Format of the damage output string. Avaliable tags are in the default, color tags such as {LIGHT_RED} and {GREEN} also work.");
 
   AutoExecConfig(true, "pugsetup_damageprint", "sourcemod/pugsetup");
