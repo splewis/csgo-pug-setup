@@ -36,6 +36,11 @@
 	{
 		"en"		"The game is already live!"
 	}
+	"ReadyStatusPlayers"
+	{
+		"#format"	"{1:i},{2:i}"
+		"en"		"{1} out of {2} players are ready"
+	}
 	"ReadyStatus"
 	{
 		"#format"	"{1:i},{2:i},{3:s}"
@@ -45,6 +50,26 @@
 	{
 		"#format"	"{1:i},{2:i},{3:s},{4:s}"
 		"en"		"{1} out of {2} players are ready\nCaptain 1: {3}\nCaptain 2: {4}"
+	}
+	"ReadyStatusAllReadyPick"
+	{
+		"en"		"Starting player picking..."
+	}
+	"ReadyStatusAllReady"
+	{
+		"en"		"Starting match..."
+	}
+	"ReadyStatusAllReadyWaiting"
+	{
+		"en"		"Waiting to start..."
+	}
+	"ReadyStatusAllReadyVeto"
+	{
+		"en"		"Starting map veto process..."
+	}
+	"ReadyStatusAllReadyVote"
+	{
+		"en"		"Starting map voting..."
 	}
 	"CaptainNotSelected"
 	{

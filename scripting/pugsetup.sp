@@ -604,6 +604,7 @@ public Action Timer_CheckReady(Handle timer) {
       if (g_TeamType == TeamType_Captains) {
         if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
           g_LiveTimerRunning = false;
+          PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers, "ReadyStatusAllReadyPick");
           CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
           return Plugin_Stop;
         } else {
@@ -611,6 +612,13 @@ public Action Timer_CheckReady(Handle timer) {
         }
       } else {
         g_LiveTimerRunning = false;
+
+        if (g_AutoLive) {
+          PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers, "ReadyStatusAllReady");
+        } else {
+          PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers, "ReadyStatusAllReadyWaiting");
+        }
+
         ReadyToStart();
         return Plugin_Stop;
       }
@@ -619,6 +627,7 @@ public Action Timer_CheckReady(Handle timer) {
       if (g_MapType == MapType_Veto) {
         if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
           g_LiveTimerRunning = false;
+          PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers, "ReadyStatusAllReadyVeto");
           PugSetup_MessageToAll("%t", "VetoMessage");
           CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
           return Plugin_Stop;
@@ -628,6 +637,7 @@ public Action Timer_CheckReady(Handle timer) {
 
       } else {
         g_LiveTimerRunning = false;
+        PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers, "ReadyStatusAllReadyVote");
         PugSetup_MessageToAll("%t", "VoteMessage");
         CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
         return Plugin_Stop;
