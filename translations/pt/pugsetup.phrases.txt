@@ -36,6 +36,11 @@
 		"pt"		"times aleatórios"
 	}
 
+	"ReadyStatusPlayers"
+	{
+		"pt"		"{1} de {2} jogadores estão prontos"
+	}
+
 	"ReadyStatus"
 	{
 		"pt"		"{1} de {2} jogadores estão prontos\nDigite .ready para ficar pronto"

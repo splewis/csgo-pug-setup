@@ -241,6 +241,11 @@
 		"no"		"Velg den startende siden"
 	}
 
+	"ReadyStatusPlayers"
+	{
+		"no"		"{1} av {2} spillere er klare"
+	}
+
 	"ReadyStatus"
 	{
 		"no"		"{1} av {2} spillere er klare\nSkriv .ready for å vise at du er klar"

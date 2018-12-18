@@ -12,6 +12,10 @@
 	{
 		"es"		"El juego ya comenzó!"
 	}
+	"ReadyStatusPlayers"
+	{
+		"es"		"{1} de {2} jugadores están listos"
+	}
 	"ReadyStatus"
 	{
 		"es"		"{1} de {2} jugadores están listos\nEscribe {3} cuando estés listo"

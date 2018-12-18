@@ -36,6 +36,10 @@
 	{
 		"ro"		"Meciul a început deja!"
 	}
+	"ReadyStatusPlayers"
+	{
+		"ro"		"{1} din {2} jucători sunt pregătiți"
+	}
 	"ReadyStatus"
 	{
 		"ro"		"{1} din {2} jucători sunt pregătiți\nScrie {3} când ești pregătit"

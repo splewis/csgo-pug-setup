@@ -36,6 +36,10 @@
 	{
 		"de"		"Das Spiel ist bereits gestartet!"
 	}
+	"ReadyStatusPlayers"
+	{
+		"de"		"{1} von {2} Spielern ist bereit"
+	}
 	"ReadyStatus"
 	{
 		"de"		"{1} von {2} Spielern ist bereit\nType {3} um zu starten"
