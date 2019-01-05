@@ -36,6 +36,10 @@
 	{
 		"pl"		"Gra trwa!"
 	}
+	"ReadyStatusPlayers"
+	{
+		"pl"		"{1} z {2} graczy jest gotowych"
+	}
 	"ReadyStatus"
 	{
 		"pl"		"{1} z {2} graczy jest gotowych\nWpisz {3} aby zgłosić gotowość."
