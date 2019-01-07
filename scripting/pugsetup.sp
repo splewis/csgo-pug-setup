@@ -1850,7 +1850,7 @@ public void StartGame() {
     ScrambleTeams();
   }
 
-  CreateTimer(3.0, Timer_BeginMatch);
+  CreateTimer(2.0, Timer_BeginMatch);
   ExecGameConfigs();
   if (InWarmup()) {
     EndWarmup();
