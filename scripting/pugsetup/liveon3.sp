@@ -28,8 +28,8 @@ public Action BeginLO3(Handle timer) {
     CreateTimer(2.0, Restart2);
   } else {
     // single restart
-    RestartGame(5);
-    CreateTimer(5.1, MatchLive);
+    RestartGame(3);
+    CreateTimer(3.1, MatchLive);
   }
 
   return Plugin_Handled;
@@ -51,8 +51,8 @@ public Action Restart3(Handle timer) {
     return Plugin_Handled;
 
   PugSetup_MessageToAll("%t", "RestartCounter", 3);
-  RestartGame(5);
-  CreateTimer(5.1, MatchLive);
+  RestartGame(3);
+  CreateTimer(3.1, MatchLive);
 
   return Plugin_Handled;
 }
