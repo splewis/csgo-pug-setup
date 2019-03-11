@@ -25,11 +25,11 @@ public Action BeginLO3(Handle timer) {
     // start lo3
     PugSetup_MessageToAll("%t", "RestartCounter", 1);
     RestartGame(1);
-    CreateTimer(3.0, Restart2);
+    CreateTimer(2.0, Restart2);
   } else {
     // single restart
-    RestartGame(5);
-    CreateTimer(5.1, MatchLive);
+    RestartGame(3);
+    CreateTimer(3.1, MatchLive);
   }
 
   return Plugin_Handled;
@@ -41,7 +41,7 @@ public Action Restart2(Handle timer) {
 
   PugSetup_MessageToAll("%t", "RestartCounter", 2);
   RestartGame(1);
-  CreateTimer(4.0, Restart3);
+  CreateTimer(2.0, Restart3);
 
   return Plugin_Handled;
 }
@@ -51,8 +51,8 @@ public Action Restart3(Handle timer) {
     return Plugin_Handled;
 
   PugSetup_MessageToAll("%t", "RestartCounter", 3);
-  RestartGame(5);
-  CreateTimer(5.1, MatchLive);
+  RestartGame(3);
+  CreateTimer(3.1, MatchLive);
 
   return Plugin_Handled;
 }
