@@ -1,4 +1,4 @@
-const int kNumMapsToPick = 3;
+const int kIRVNumMapsToPick = 3;
 
 bool g_IRVActive = false;
 ArrayList g_MapAliveInVote;
@@ -7,14 +7,14 @@ int g_SecondRunnerUpMapIndex = -2;
 
 // Contains the votes (by map index) for each client, in the order selected.
 int g_VoteStartTime;
-int g_ClientMapPicks[MAXPLAYERS + 1][kNumMapsToPick];
+int g_ClientMapPicks[MAXPLAYERS + 1][kIRVNumMapsToPick];
 int g_ClientMapPosition[MAXPLAYERS + 1];
 
 // Histogram of votes where map index -> current votes for that map.
 // ArrayList g_CurrentVoteTallies;
 
 public void ResetClientVote(int client) {
-  for (int i = 0; i < kNumMapsToPick; i++) {
+  for (int i = 0; i < kIRVNumMapsToPick; i++) {
     g_ClientMapPicks[client][i] = -1;
   }
   g_ClientMapPosition[client] = 0;
@@ -51,7 +51,7 @@ public Action Timer_ShowVoteStatus(Handle timer) {
 }
 
 static bool HasClientPickedMap(int client, int mapIndex) {
-  for (int i = 0; i < kNumMapsToPick; i++) {
+  for (int i = 0; i < kIRVNumMapsToPick; i++) {
     if (g_ClientMapPicks[client][i] == mapIndex) {
       return true;
     }
@@ -97,7 +97,7 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
     g_ClientMapPicks[client][g_ClientMapPosition[client]] = mapIndex;
     g_ClientMapPosition[client]++;
 
-    if (g_ClientMapPosition[client] < kNumMapsToPick) {
+    if (g_ClientMapPosition[client] < kIRVNumMapsToPick) {
       ShowInstantRunoffMapVote(client, g_ClientMapPosition[client]);
     }
 
@@ -116,7 +116,7 @@ static int FindLeastVotedMap() {
 
   for (int i = 1; i <= MaxClients; i++) {
     int pos = g_ClientMapPosition[i];
-    if (pos >= 0 && pos < kNumMapsToPick) {
+    if (pos >= 0 && pos < kIRVNumMapsToPick) {
       int mapIndex = g_ClientMapPicks[i][pos];
       if (mapIndex >= 0) {
         voteCounts.Set(mapIndex, voteCounts.Get(mapIndex) + 1);
@@ -178,7 +178,7 @@ public Action Timer_CollectIRVResults(Handle timer) {
     // Reset client ballots to slot 0 (first choice).
     if (g_ClientMapPosition[i] > 0) {
       g_ClientMapPosition[i] = 0;
-      for (int j = 0; j < kNumMapsToPick; j++) {
+      for (int j = 0; j < kIRVNumMapsToPick; j++) {
         if (g_ClientMapPicks[i][j] >= 0) {
           char mapName[64];
           g_MapVotePool.GetString(g_ClientMapPicks[i][j], mapName, sizeof(mapName));
@@ -205,7 +205,7 @@ public Action Timer_CollectIRVResults(Handle timer) {
     g_MapAliveInVote.Set(mapLoser, false);
     for (int i = 1; i <= MaxClients; i++) {
       int pos = g_ClientMapPosition[i];
-      if (pos >= 0 && pos < kNumMapsToPick) {
+      if (pos >= 0 && pos < kIRVNumMapsToPick) {
         if (g_ClientMapPicks[i][pos] == mapLoser) {
           g_ClientMapPosition[i]++;
         }
@@ -241,7 +241,7 @@ public void PrintIRVInfoToConsole(int client) {
       continue;
     }
 
-    for (int j = 0; j < kNumMapsToPick; j++) {
+    for (int j = 0; j < kIRVNumMapsToPick; j++) {
       char mapName[255];
       int mapIndex = g_ClientMapPicks[i][j];
       if (mapIndex >= 0) {
