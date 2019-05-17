@@ -38,12 +38,10 @@
 	}
 	"ReadyStatus"
 	{
-		"#format"	"{1:i},{2:i},{3:s}"
 		"pt"		"{1} de {2} players estão prontos.\nDigite: {3} para se preparar."
 	}
 	"ReadyStatusCaptains"
 	{
-		"#format"	"{1:i},{2:i},{3:s},{4:s}"
 		"pt"		"{1} de {2} players estão prontos.\nCapitão 1: {3}\nCapitão 2: {4}"
 	}
 	"CaptainNotSelected"
@@ -52,12 +50,10 @@
 	}
 	"SetCaptainsHint"
 	{
-		"#format"		"{1:N},{2:s}"
 		"pt"		"Aguardando {GREEN}{1} {NORMAL}para digitar {GREEN}{2} {NORMAL}para selecionar os capitães."
 	}
 	"ReadyCommandHint"
 	{
-		"#format"		"{1:s}"
 		"pt"		"Você ainda precisa estar ready digitando {GREEN}{1}"
 	}
 	"NoPermission"
@@ -74,32 +70,26 @@
 	}
 	"ForceEnd"
 	{
-		"#format"	"{1:N}"
 		"pt"		"A partida foi finalizada por {GREEN}{1}{NORMAL}."
 	}
 	"Pause"
 	{
-		"#format"	"{1:N}"
 		"pt"		"{GREEN}{1} {NORMAL}pediu uma pausa."
 	}
 	"Unpause"
 	{
-		"#format"	"{1:N}"
 		"pt"		"{GREEN}{1} {NORMAL}pediu unpause."
 	}
 	"SetupBy"
 	{
-		"#format"	"{1:N}"
 		"pt"		"PUG Líder: {GREEN}{1}"
 	}
 	"NewLeader"
 	{
-		"#format"		"{1:N}"
 		"pt"		"O novo líder é {GREEN}{1}"
 	}
 	"CaptMessage"
 	{
-		"#format"		"{1:d},{2:s}"
 		"pt"		"Capitão {1} será {2}"
 	}
 	"TeamSetupMenuTitle"
@@ -192,12 +182,10 @@
 	}
 	"InitialPickPlayerChoice"
 	{
-		"#format"	"{1:s}"
 		"pt"		"{1} selecionou para escolher o {GREEN}primeiro player."
 	}
 	"InitialPickSideChoice"
 	{
-		"#format"	"{1:s}"
 		"pt"		"{1} selecionou para escolher os {GREEN}lados iniciais."
 	}
 	"SideChoiceTitle"
@@ -206,7 +194,6 @@
 	}
 	"SideChoiceSelected"
 	{
-		"#format"	"{1:s},{2:s}"
 		"pt"		"{1} escolheu {GREEN}{2} {NORMAL}primeiro."
 	}
 	"PlayerPickTitle"
@@ -215,7 +202,6 @@
 	}
 	"PlayerPickChoice"
 	{
-		"#format"	"{1:s},{2:s}"
 		"pt"		"{1} escolheu {2}."
 	}
 	"SpecCantReady"
@@ -224,7 +210,6 @@
 	}
 	"RestartCounter"
 	{
-		"#format"	"{1:d}"
 		"pt"		"Restart {1}/3"
 	}
 	"Live"
@@ -237,7 +222,6 @@
 	}
 	"PlayerVetoed"
 	{
-		"#format"	"{1:s},{2:s}"
 		"pt"		"{1} {NORMAL}vetado {LIGHT_RED}{2}."
 	}
 	"MapsLeft"
@@ -274,7 +258,6 @@
 	}
 	"MutualUnpauseMessage"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"pt"		"O time {1} deseja unpause, aguardando o time {2} digitar {GREEN}{3}"
 	}
 	"CancelCountdownMessage"
@@ -283,7 +266,6 @@
 	}
 	"Countdown"
 	{
-		"#format"	"{1:d}"
 		"pt"		"Contagem Regressiva: {GREEN}{1} {NORMAL}segundos"
 	}
 	"Ready"
@@ -304,12 +286,10 @@
 	}
 	"KnifeRoundWinner"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"pt"		"O time {1} venceu o Round Faca. Esperando que eles digitem {GREEN}{2} {NORMAL}ou {GREEN}{3}{NORMAL}."
 	}
 	"KnifeRoundWinnerVote"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"pt"		"O time {1} venceu o Round Faca. Esperando que eles votem digitando {GREEN}{2} {NORMAL}ou {GREEN}{3}{NORMAL}."
 	}
 	"TVDisabled"
@@ -370,7 +350,6 @@
 	}
 	"ChooseCaptainTitle"
 	{
-		"#format"	"{1:d}"
 		"pt"		"Escolha o capitão {1}:"
 	}
 	"ChooseLeaderTitle"
@@ -379,7 +358,6 @@
 	}
 	"WaitingForStart"
 	{
-		"#format"		"{1:N},{2:s}"
 		"pt"		"Todos os players estão .ready, esperando que {GREEN}{1} {NORMAL}digite {GREEN}{2}"
 	}
 	"StartMatchMenuOption"
@@ -408,12 +386,10 @@
 	}
 	"IsNowReady"
 	{
-		"#format"		"{1:N}"
 		"pt"		"{1} está .ready agora."
 	}
 	"IsNoLongerReady"
 	{
-		"#format"		"{1:N}"
 		"pt"		"{1} não está .ready mais."
 	}
 	"SavedReadyMessage"
@@ -434,32 +410,26 @@
 	}
 	"ChangeMapMessage"
 	{
-		"#format"		"{1:s}"
 		"pt"		"Alterar mapa para {GREEN}{1}{NORMAL}..."
 	}
 	"TimeLeftInVoteHint"
 	{
-		"#format"		"{1:d}"
 		"pt"		"<font size='22'>{1} segundos restantes em votação...</font>"
 	}
 	"IRVMenuTitle"
 	{
-		"#format"		"{1:d}"
 		"pt"		"Selecione sua #{1} escolha"
 	}
 	"IRVSelectionMessage"
 	{
-		"#format"		"{1:s},{2:d}"
 		"pt"		"Você escolheu {GREEN}{1} {NORMAL}como sua opção {GREEN}#{2} {NORMAL}."
 	}
 	"MapVoteWinnerHintText"
 	{
-		"#format"		"{1:s}"
 		"pt"		"<font size='22'>Vote sobre... {1} ganhou!</font>"
 	}
 	"IRVResultMessage"
 	{
-		"#format"		"{1:s},{2:s},{3:s}"
 		"pt"		"{GREEN}{1}{NORMAL} ganhou, {GREEN}{2} {NORMAL}veio em 2º, {GREEN}{3} {NORMAL}em 3º."
 	}
 }
