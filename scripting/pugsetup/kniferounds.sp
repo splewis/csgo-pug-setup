@@ -89,6 +89,7 @@ public void EndKnifeRound(bool swap) {
           SwitchPlayerTeam(i, CS_TEAM_T);
 
         } else if (IsClientCoaching(i)) {
+          team = GetCoachTeam(i);
           if (team == CS_TEAM_T) {
             UpdateCoachTarget(i, CS_TEAM_CT);
           } else if (team == CS_TEAM_CT) {
