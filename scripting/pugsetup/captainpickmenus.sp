@@ -195,6 +195,7 @@ static int GetNextCaptain(int captain) {
       g_PickCounter--;
       return captain;
     }
+  }
   if (GetConVarInt(g_SnakeCaptainsCvar) == 2) {
     if (g_PickCounter == 0) {
       g_PickCounter++;
