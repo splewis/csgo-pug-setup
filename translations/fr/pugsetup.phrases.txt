@@ -238,7 +238,7 @@
 	}
 	"MapsLeft"
 	{
-		"fr"		"Cartes restantes:"
+		"fr"		"Cartes restantes :"
 	}
 	"VoteMenuTitle"
 	{
@@ -287,14 +287,22 @@
 	"NotReady"
 	{
 		"fr"		"[Pas prêt]"
+	}	
+	"KnifeRound"
+	{
+		"en"		"COUTEAU!"
+	}
+	"KnifeRoundOption"
+	{
+		"en"		"Round au couteau"
 	}
 	"KnifeRoundWinner"
 	{
-		"fr"		"Les {1} gagnent le round du couteau. En attente de leur choix en tapant {GREEN}{2} {NORMAL}ou {GREEN}{3}"
+		"fr"		"Les {1} gagnent le couteau. En attente de leur choix en tapant {GREEN}{2} {NORMAL}ou {GREEN}{3}"
 	}
 	"KnifeRoundWinnerVote"
 	{
-		"fr"		"Les {1} gagnent le round du couteau. En attente de leur vote en tapant {GREEN}{2} {NORMAL}ou {GREEN}{3}"
+		"fr"		"Les {1} gagnent le couteau. En attente de leur vote en tapant {GREEN}{2} {NORMAL}ou {GREEN}{3}"
 	}
 	"TVDisabled"
 	{
