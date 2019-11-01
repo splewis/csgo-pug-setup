@@ -290,11 +290,11 @@
 	}	
 	"KnifeRound"
 	{
-		"en"		"COUTEAU!"
+		"fr"		"COUTEAU!"
 	}
 	"KnifeRoundOption"
 	{
-		"en"		"Round au couteau"
+		"fr"		"Round au couteau"
 	}
 	"KnifeRoundWinner"
 	{
