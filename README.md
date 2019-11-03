@@ -48,7 +48,7 @@ Generally, here is what happens:
 ## Installation
 Since this is a sourcemod plugin, you must have sourcemod installed. You can download it at http://www.sourcemod.net/downloads.php.
 
-Note that sourcemod also requires MetaMod:Source to be on the server. You can download it at http://www.sourcemm.net/downloads.
+Note that sourcemod also requires MetaMod:Source to be on the server. You can download it at http://www.sourcemm.net/downloads.php.
 
 Installing these simply means placing their files on the game server. Uploading them over FTP (for example, using FileZilla) is all you need to do.
 
