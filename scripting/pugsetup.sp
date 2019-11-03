@@ -305,7 +305,7 @@ public void OnPluginStart() {
                                     "Whether the sm_setup and sm_10man commands are enabled");
   g_SnakeCaptainsCvar = CreateConVar(
       "sm_pugsetup_snake_captain_picks", "0",
-      "If set to 0: captains pick players in a ABABABAB order. If set to 1, in a ABBAABBA order. If set to 2, in a ABBABABA order.");
+      "If set to 0: captains pick players in a ABABABAB order. If set to 1, in a ABBAABBA order. If set to 2, in a ABBABABA order. If set to 3, in a ABBABAAB order.");
   g_StartDelayCvar =
       CreateConVar("sm_pugsetup_start_delay", "5",
                    "How many seconds of a countdown phase right before the lo3 process begins.", _,
