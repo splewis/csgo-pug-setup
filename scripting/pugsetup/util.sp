@@ -82,7 +82,7 @@ stock bool GetMenuBool(Menu menu, int param2) {
 stock int GetNumHumansOnTeam(int team) {
   int count = 0;
   for (int i = 1; i <= MaxClients; i++) {
-    if (IsValidClient(i) && !IsFakeClient(i))
+    if (IsValidClient(i) && !IsFakeClient(i) && GetClientTeam(i) == team)
       count++;
   }
   return count;
