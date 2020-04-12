@@ -22,7 +22,7 @@
 	}
 	"AutoLiveOption"
 	{
-		"chi"		"自动录制"
+		"chi"		"自动开始"
 	}
 	"VetoMessage"
 	{
@@ -34,7 +34,7 @@
 	}
 	"AlreadyLive"
 	{
-		"chi"		"游戏已开始录制！"
+		"chi"		"游戏已经开始了！"
 	}
 	"ReadyStatusPlayers"
 	{
