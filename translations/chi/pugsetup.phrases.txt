@@ -438,7 +438,7 @@
 	}
 	"TimeLeftInVoteHint"
 	{
-		"chi"		"<font size='22'>投票时间剩余 {1} 秒</font>"
+		"chi"		"投票时间剩余 {1} 秒"
 	}
 	"IRVMenuTitle"
 	{
@@ -450,7 +450,7 @@
 	}
 	"MapVoteWinnerHintText"
 	{
-		"chi"		"<font size='22'>投票结束！{1} 获胜！</font>"
+		"chi"		"投票结束！{1} 获胜！"
 	}
 	"IRVResultMessage"
 	{

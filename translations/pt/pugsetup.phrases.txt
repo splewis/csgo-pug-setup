@@ -414,7 +414,7 @@
 	}
 	"TimeLeftInVoteHint"
 	{
-		"pt"		"<font size='22'>{1} segundos restantes em votação...</font>"
+		"pt"		"{1} segundos restantes em votação..."
 	}
 	"IRVMenuTitle"
 	{
@@ -426,7 +426,7 @@
 	}
 	"MapVoteWinnerHintText"
 	{
-		"pt"		"<font size='22'>Vote sobre... {1} ganhou!</font>"
+		"pt"		"Vote sobre... {1} ganhou!"
 	}
 	"IRVResultMessage"
 	{
