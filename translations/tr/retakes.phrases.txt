@@ -465,7 +465,7 @@
 	"TimeLeftInVoteHint"
 	{
 		"#format"		"{1:d}"
-		"tr"		"<font size='22'>Oylamanın bitmesine {1} saniye...</font>"
+		"tr"		"Oylamanın bitmesine {1} saniye..."
 	}
 	"IRVMenuTitle"
 	{
@@ -480,7 +480,7 @@
 	"MapVoteWinnerHintText"
 	{
 		"#format"		"{1:s}"
-		"tr"		"<font size='22'>Oylama bitti... {1} won!</font>"
+		"tr"		"Oylama bitti... {1} won!"
 	}
 	"IRVResultMessage"
 	{
