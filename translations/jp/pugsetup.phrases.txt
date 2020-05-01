@@ -440,7 +440,7 @@
 	"TimeLeftInVoteHint"
 	{
 		"#format"	"{1:d}"
-		"jp"		"<font size='22'>投票締切まであと{1}秒</font>"
+		"jp"		"投票締切まであと{1}秒"
 	}
 	"IRVMenuTitle"
 	{
@@ -455,7 +455,7 @@
 	"MapVoteWinnerHintText"
 	{
 		"#format"	"{1:s}"
-		"jp"		"<font size='22'>投票の結果{1}になりました。</font>"
+		"jp"		"投票の結果{1}になりました。"
 	}
 	"IRVResultMessage"
 	{
