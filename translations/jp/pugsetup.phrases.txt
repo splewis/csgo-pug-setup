@@ -52,12 +52,12 @@
 	}
 	"SetCaptainsHint"
 	{
-		"#format"		"{1:N},{2:s}"
+		"#format"	"{1:N},{2:s}"
 		"jp"		"{GREEN}{1}{NORMAL}がキャプテンを決めるために{GREEN}{2}{NORMAL}を実行するのを待っています。"
 	}
 	"ReadyCommandHint"
 	{
-		"#format"		"{1:s}"
+		"#format"	"{1:s}"
 		"jp"		"{GREEN}{1}{NORMAL}を実行して準備完了を知らせる必要があります。"
 	}
 	"NoPermission"
@@ -94,12 +94,12 @@
 	}
 	"NewLeader"
 	{
-		"#format"		"{1:N}"
+		"#format"	"{1:N}"
 		"jp"		"新しいリーダーは{GREEN}{1}{NORMAL}になりました。"
 	}
 	"CaptMessage"
 	{
-		"#format"		"{1:d},{2:s}"
+		"#format"	"{1:d},{2:s}"
 		"jp"		"Captain {1} は{2}に指名されました。"
 	}
 	"TeamSetupMenuTitle"
