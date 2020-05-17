@@ -38,12 +38,10 @@
 	}
 	"ReadyStatus"
 	{
-		"#format"	"{1:i},{2:i},{3:s}"
 		"jp"		"{2}人中{1}人が準備完了しました。\n{3} で準備完了"
 	}
 	"ReadyStatusCaptains"
 	{
-		"#format"	"{1:i},{2:i},{3:s},{4:s}"
 		"jp"		"{2}人中{1}人が準備完了しました。\nCaptain 1: {3}\nCaptain 2: {4}"
 	}
 	"CaptainNotSelected"
@@ -52,12 +50,10 @@
 	}
 	"SetCaptainsHint"
 	{
-		"#format"	"{1:N},{2:s}"
 		"jp"		"{GREEN}{1}{NORMAL}がキャプテンを決めるために{GREEN}{2}{NORMAL}を実行するのを待っています。"
 	}
 	"ReadyCommandHint"
 	{
-		"#format"	"{1:s}"
 		"jp"		"{GREEN}{1}{NORMAL}を実行して準備完了を知らせる必要があります。"
 	}
 	"NoPermission"
@@ -74,32 +70,26 @@
 	}
 	"ForceEnd"
 	{
-		"#format"	"{1:N}"
 		"jp"		"この試合は{GREEN}{1}{NORMAL}によって強制終了されました。"
 	}
 	"Pause"
 	{
-		"#format"	"{1:N}"
 		"jp"		"{GREEN}{1}{NORMAL}はポーズを宣言しました。"
 	}
 	"Unpause"
 	{
-		"#format"	"{1:N}"
 		"jp"		"{GREEN}{1}{NORMAL}は試合の再開を希望しています。"
 	}
 	"SetupBy"
 	{
-		"#format"	"{1:N}"
 		"jp"		"ゲームリーダー: {GREEN}{1}"
 	}
 	"NewLeader"
 	{
-		"#format"	"{1:N}"
 		"jp"		"新しいリーダーは{GREEN}{1}{NORMAL}になりました。"
 	}
 	"CaptMessage"
 	{
-		"#format"	"{1:d},{2:s}"
 		"jp"		"Captain {1} は{2}に指名されました。"
 	}
 	"TeamSetupMenuTitle"
@@ -192,12 +182,10 @@
 	}
 	"InitialPickPlayerChoice"
 	{
-		"#format"	"{1:s}"
 		"jp"		"{1}は最初に{GREEN}プレイヤーを選ぶ{NORMAL}を選択しました。"
 	}
 	"InitialPickSideChoice"
 	{
-		"#format"	"{1:s}"
 		"jp"		"{1}は最初に{GREEN}陣営を選ぶ{NORMAL}を選択しました。"
 	}
 	"SideChoiceTitle"
@@ -206,7 +194,6 @@
 	}
 	"SideChoiceSelected"
 	{
-		"#format"	"{1:s},{2:s}"
 		"jp"		"{1}は{GREEN}{2}{NORMAL}スタートを選択しました。"
 	}
 	"PlayerPickTitle"
@@ -215,7 +202,6 @@
 	}
 	"PlayerPickChoice"
 	{
-		"#format"	"{1:s},{2:s}"
 		"jp"		"{1}は{GREEN}{2}{NORMAL}を選びました。"
 	}
 	"SpecCantReady"
@@ -224,7 +210,6 @@
 	}
 	"RestartCounter"
 	{
-		"#format"	"{1:d}"
 		"jp"		"Restart {1}/3"
 	}
 	"Live"
@@ -237,7 +222,6 @@
 	}
 	"PlayerVetoed"
 	{
-		"#format"	"{1:s},{2:s}"
 		"jp"		"{1}{NORMAL}は{LIGHT_RED}{2}{NORMAL}をBANしました。"
 	}
 	"MapsLeft"
@@ -274,7 +258,6 @@
 	}
 	"MutualUnpauseMessage"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"jp"		"{1}チームが試合の再開を希望しています。{2}チームが{GREEN}{3}{NORMAL}を実行するのを待っています。"
 	}
 	"CancelCountdownMessage"
@@ -283,7 +266,6 @@
 	}
 	"Countdown"
 	{
-		"#format"	"{1:d}"
 		"jp"		"カウントダウン: {GREEN}{1}{NORMAL}秒前"
 	}
 	"Ready"
@@ -304,12 +286,10 @@
 	}
 	"KnifeRoundWinner"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"jp"		"{1}チームがナイフラウンドで勝利しました。{GREEN}{2}{NORMAL}または{GREEN}{3}{NORMAL}を実行するのを待っています。"
 	}
 	"KnifeRoundWinnerVote"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"jp"		"{1}チームがナイフラウンドで勝利しました。{GREEN}{2}{NORMAL}または{GREEN}{3}{NORMAL}で陣営を投票してください。"
 	}
 	"TVDisabled"
@@ -370,7 +350,6 @@
 	}
 	"ChooseCaptainTitle"
 	{
-		"#format"	"{1:d}"
 		"jp"		"Captain {1}を選んでください"
 	}
 	"ChooseLeaderTitle"
@@ -379,7 +358,6 @@
 	}
 	"WaitingForStart"
 	{
-		"#format"	"{1:N},{2:s}"
 		"jp"		"全てのプレイヤーが準備完了しました。{GREEN}{1}{NORMAL}が{GREEN}{2}{NORMAL}を実行するのを待っています。"
 	}
 	"StartMatchMenuOption"
@@ -408,12 +386,10 @@
 	}
 	"IsNowReady"
 	{
-		"#format"	"{1:N}"
 		"jp"		"{1}は準備完了しました。"
 	}
 	"IsNoLongerReady"
 	{
-		"#format"	"{1:N}"
 		"jp"		"{1}は準備完了を解除しました。"
 	}
 	"SavedReadyMessage"
@@ -434,32 +410,26 @@
 	}
 	"ChangeMapMessage"
 	{
-		"#format"	"{1:s}"
 		"jp"		"{GREEN}{1}{NORMAL}にマップを変更しています。"
 	}
 	"TimeLeftInVoteHint"
 	{
-		"#format"	"{1:d}"
 		"jp"		"投票締切まであと{1}秒"
 	}
 	"IRVMenuTitle"
 	{
-		"#format"	"{1:d}"
 		"jp"		"プレイしたいマップの第{1}希望を選んでください。"
 	}
 	"IRVSelectionMessage"
 	{
-		"#format"	"{1:s},{2:d}"
 		"jp"		"あなたは第{2}希望に{GREEN}{1}{NORMAL}を選びました。"
 	}
 	"MapVoteWinnerHintText"
 	{
-		"#format"	"{1:s}"
 		"jp"		"投票の結果{1}になりました。"
 	}
 	"IRVResultMessage"
 	{
-		"#format"	"{1:s},{2:s},{3:s}"
 		"jp"		"1位:{GREEN}{1}{NORMAL}, 2位:{GREEN}{2}{NORMAL}, 3位:{GREEN}{3}{NORMAL}"
 	}
 }
