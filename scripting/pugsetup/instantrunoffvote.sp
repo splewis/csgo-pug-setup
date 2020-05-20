@@ -4,8 +4,7 @@ bool g_IRVActive = false;
 ArrayList g_MapAliveInVote;
 int g_RunnerUpMapIndex = -1;
 int g_SecondRunnerUpMapIndex = -2;
-// Contains handle of results timer
-Handle resultsTimer = INVALID_HANDLE;
+Handle g_IRVResultTimer = INVALID_HANDLE;
 
 // Contains the votes (by map index) for each client, in the order selected.
 int g_VoteStartTime;
@@ -34,7 +33,7 @@ public void StartInstantRunoffMapVote() {
   g_VoteStartTime = GetTime();
   g_IRVActive = true;
   CreateTimer(1.0, Timer_ShowVoteStatus, _, TIMER_REPEAT);
-  resultsTimer = CreateTimer(g_MapVoteTimeCvar.FloatValue, Timer_CollectIRVResults);
+  g_IRVResultTimer = CreateTimer(g_MapVoteTimeCvar.FloatValue, Timer_CollectIRVResults);
 }
 
 public Action Timer_ShowVoteStatus(Handle timer) {
@@ -104,18 +103,18 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
     } else {
       for (int i = 1; i <= MaxClients; i++) {
         if (IsPlayer(i) && g_ClientMapPosition[client] < kIRVNumMapsToPick) {
-	      return 0;
-	    }
-	  }
-
-	  // All clients have picked their top 3
-	  // Stop results timer
-      if (resultsTimer != INVALID_HANDLE) {
-        CloseHandle(resultsTimer);
+          return 0;
+        }
       }
-      // Start collecting results immediately
+
+      // At this point, all clients must have selected their top kIRVNumMapsToPick already, we can
+      // proceed directly to the collectin phase in `CollectIRVResults` instead of waiting on the
+      // timer.
+      if (g_IRVResultTimer != INVALID_HANDLE) {
+        CloseHandle(g_IRVResultTimer);
+      }
       CollectIRVResults();
-	}
+    }
 
   } else if (action == MenuAction_End) {
     delete menu;
@@ -191,7 +190,7 @@ public Action Timer_CollectIRVResults(Handle timer) {
 
 public void CollectIRVResults() {
   if (!g_IRVActive) {
-	return;
+    return;
   }
 
   g_IRVActive = false;

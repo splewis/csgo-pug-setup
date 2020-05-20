@@ -142,7 +142,7 @@ public void FillPotentialNames(int team, ArrayList names, ArrayList flags) {
     if (IsPlayer(i) && GetClientTeam(i) == team && AreClientCookiesCached(i)) {
       if (g_UseCaptainNamesCvar.IntValue != 0 && PugSetup_GetTeamType() == TeamType_Captains) {
         // Only allow captains
-        if(i != PugSetup_GetCaptain(1) && i != PugSetup_GetCaptain(2))
+        if (i != PugSetup_GetCaptain(1) && i != PugSetup_GetCaptain(2))
           continue;
       }
       char name[TEAM_NAME_LENGTH];
