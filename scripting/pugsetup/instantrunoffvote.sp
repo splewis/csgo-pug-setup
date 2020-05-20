@@ -4,6 +4,8 @@ bool g_IRVActive = false;
 ArrayList g_MapAliveInVote;
 int g_RunnerUpMapIndex = -1;
 int g_SecondRunnerUpMapIndex = -2;
+// Contains handle of results timer
+Handle resultsTimer = INVALID_HANDLE;
 
 // Contains the votes (by map index) for each client, in the order selected.
 int g_VoteStartTime;
@@ -32,7 +34,7 @@ public void StartInstantRunoffMapVote() {
   g_VoteStartTime = GetTime();
   g_IRVActive = true;
   CreateTimer(1.0, Timer_ShowVoteStatus, _, TIMER_REPEAT);
-  CreateTimer(g_MapVoteTimeCvar.FloatValue, Timer_CollectIRVResults);
+  resultsTimer = CreateTimer(g_MapVoteTimeCvar.FloatValue, Timer_CollectIRVResults);
 }
 
 public Action Timer_ShowVoteStatus(Handle timer) {
@@ -99,7 +101,21 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
 
     if (g_ClientMapPosition[client] < kIRVNumMapsToPick) {
       ShowInstantRunoffMapVote(client, g_ClientMapPosition[client]);
-    }
+    } else {
+      for (int i = 1; i <= MaxClients; i++) {
+        if (IsPlayer(i) && g_ClientMapPosition[client] < kIRVNumMapsToPick) {
+	      return 0;
+	    }
+	  }
+
+	  // All clients have picked their top 3
+	  // Stop results timer
+      if (resultsTimer != INVALID_HANDLE) {
+        CloseHandle(resultsTimer);
+      }
+      // Start collecting results immediately
+      CollectIRVResults();
+	}
 
   } else if (action == MenuAction_End) {
     delete menu;
@@ -129,20 +145,31 @@ static int FindLeastVotedMap() {
     }
   }
 
-  // TODO: break ties randomly instead of always picking the earlier entry as the loser.
-  int loserIndex = 0;
+  // Arraylist containing least vote indices
+  ArrayList loserIndices = new ArrayList();
   int loserVotes = -1;
   for (int i = 0; i < voteCounts.Length; i++) {
     if (!g_MapAliveInVote.Get(i)) {
       continue;
     }
 
-    if (voteCounts.Get(i) < loserVotes || loserVotes == -1) {
+    // Less votes, resetting list of indices
+    if (voteCounts.Get(i) < loserVotes) {
+      loserIndices.Clear();
+    }
+
+    // Contender, adding to list of indices
+    if (voteCounts.Get(i) <= loserVotes || loserVotes == -1) {
       loserVotes = voteCounts.Get(i);
-      loserIndex = i;
+      loserIndices.Push(i);
     }
   }
 
+  // Selecting random loser
+  int randomListIndex = GetRandomInt(0, loserIndices.Length - 1);
+  int loserIndex = loserIndices.Get(randomListIndex);
+
+  delete loserIndices;
   delete voteCounts;
   return loserIndex;
 }
@@ -159,6 +186,14 @@ static int CountMapsAlive(int& winner) {
 }
 
 public Action Timer_CollectIRVResults(Handle timer) {
+  CollectIRVResults();
+}
+
+public void CollectIRVResults() {
+  if (!g_IRVActive) {
+	return;
+  }
+
   g_IRVActive = false;
 
   if (g_GameState != GameState_Warmup) {
