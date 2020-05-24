@@ -1,4 +1,3 @@
-#define KNIFE_CONFIG "sourcemod/pugsetup/knife.cfg"
 Handle g_KnifeCvarRestore = INVALID_HANDLE;
 
 public Action StartKnifeRound(Handle timer) {
@@ -12,9 +11,14 @@ public Action StartKnifeRound(Handle timer) {
     }
   }
 
-  g_KnifeCvarRestore = ExecuteAndSaveCvars(KNIFE_CONFIG);
+  // TODO: the config execution used by knife rounds (`ExecuteAndSaveCvars` function) should
+  // probably be unified with how the warmup/live/postgame cvars are executed (`ExecCfg` function).
+  char configPath[PLATFORM_MAX_PATH + 1];
+  g_KnifeConfigCvar.GetString(configPath, sizeof(configPath));
+
+  g_KnifeCvarRestore = ExecuteAndSaveCvars(configPath);
   if (g_KnifeCvarRestore == INVALID_HANDLE) {
-    LogError("Failed to save cvar values when executing %s", KNIFE_CONFIG);
+    LogError("Failed to save cvar values when executing %s", configPath);
   }
 
   RestartGame(1);

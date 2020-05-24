@@ -47,6 +47,7 @@ ConVar g_ExcludeSpectatorsCvar;
 ConVar g_ExecDefaultConfigCvar;
 ConVar g_ForceDefaultsCvar;
 ConVar g_InstantRunoffVotingCvar;
+ConVar g_KnifeConfigCvar;
 ConVar g_LiveCfgCvar;
 ConVar g_MapListCvar;
 ConVar g_MapVoteTimeCvar;
@@ -270,6 +271,9 @@ public void OnPluginStart() {
   g_InstantRunoffVotingCvar = CreateConVar(
       "sm_pugsetup_instant_runoff_voting", "1",
       "If set, map votes will run instant-runoff style where each client selects their top 3 maps in preference order.");
+  g_KnifeConfigCvar = CreateConVar(
+      "sm_pugsetup_knife_cfg", "sourcemod/pugsetup/knife.cfg",
+      "Config to execute when the knife round begins. CVars set in this file are saved before execution, and reverted back to their pre-knife-config values when the game goes live, before executing the live.cfg.");
   g_LiveCfgCvar = CreateConVar("sm_pugsetup_live_cfg", "sourcemod/pugsetup/live.cfg",
                                "Config to execute when the game goes live");
   g_MapListCvar = CreateConVar(
