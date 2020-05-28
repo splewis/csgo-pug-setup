@@ -102,7 +102,7 @@ public int MapSelectionHandler(Menu menu, MenuAction action, int param1, int par
       ShowInstantRunoffMapVote(client, g_ClientMapPosition[client]);
     } else {
       for (int i = 1; i <= MaxClients; i++) {
-        if (IsPlayer(i) && g_ClientMapPosition[client] < kIRVNumMapsToPick) {
+        if (IsPlayer(i) && g_ClientMapPosition[i] < kIRVNumMapsToPick) {
           return 0;
         }
       }
