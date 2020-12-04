@@ -397,7 +397,7 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
     return isAdmin;
   else if (p == Permission_Leader)
     return isLeader || isAdmin;
-  else if (p == Permission_Captains && UsingCaptains())
+  else if (p == Permission_Captains)
     return isCapt || isLeader || isAdmin;
   else if (p == Permission_All)
     return true;
