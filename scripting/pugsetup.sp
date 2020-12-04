@@ -12,7 +12,7 @@
 #include <SteamWorks>
 
 #undef REQUIRE_PLUGIN
-#include <updater>
+#include "include/updater.inc"
 #define UPDATE_URL "http://dl.whiffcity.com/plugins/pugsetup/pugsetup.txt"
 
 #define ALIAS_LENGTH 64
