@@ -108,9 +108,9 @@ stock bool CheckSetupOptionValidity(int client, char[] setting, const char[] val
 
   if (StrEqual(setting, "maptype", false)) {
     if (setDefault && !StrEqual(value, "vote") && !StrEqual(value, "veto") &&
-        !StrEqual(value, "manual")) {
+        !StrEqual(value, "current")) {
       PugSetup_Message(
-          client, "%s is not a valid option for setting %s, valid options are vote, veto, manual",
+          client, "%s is not a valid option for setting %s, valid options are vote, veto, current",
           value, setting);
       return false;
     } else if (setDefault) {
