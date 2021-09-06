@@ -3,5 +3,5 @@ de_inferno
 de_mirage
 de_nuke
 de_overpass
-de_train
+de_ancient
 de_vertigo
