@@ -43,7 +43,7 @@ public Action Timer_DelayedChangeMap(Handle timer, Handle data) {
 
 public void AddBackupMaps(ArrayList maplist) {
   char backupMaps[][] = {
-      "de_cache", "de_dust2", "de_inferno", "de_mirage", "de_nuke", "de_overpass", "de_train",
+      "de_ancient", "de_cbble", "de_dust2", "de_inferno", "de_mirage", "de_nuke", "de_overpass", "de_train", "de_vertigo",
   };
 
   for (int i = 0; i < sizeof(backupMaps); i++)
@@ -222,6 +222,7 @@ public bool IsStockMap(const char[] map) {
     stockMaps.SetValue("cs_italy", 0);
     stockMaps.SetValue("cs_militia", 0);
     stockMaps.SetValue("cs_office", 0);
+    stockMaps.SetValue("de_ancient", 0);
     stockMaps.SetValue("de_cbble", 0);
     stockMaps.SetValue("de_dust", 0);
     stockMaps.SetValue("de_dust2", 0);
