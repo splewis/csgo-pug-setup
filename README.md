@@ -3,6 +3,7 @@ csgo-pug-setup
 
 [![Build status](http://ci.splewis.net/job/csgo-pug-setup/badge/icon)](http://ci.splewis.net/job/csgo-pug-setup/)
 [![GitHub Downloads](https://img.shields.io/github/downloads/splewis/csgo-pug-setup/total.svg?style=flat-square&label=Downloads)](https://github.com/splewis/csgo-pug-setup/releases/latest)
+[![Discord Chat](https://img.shields.io/discord/926309849673895966.svg)](https://discord.gg/)
 
 **Status: Supported.**
 
@@ -97,6 +98,10 @@ Just like with setup options, you can edit these in game. For example, you could
 This will automatically save to the chataliases config file.
 
 By default the plugin uses the ``cfg/sourcemod/pugsetup/live.cfg`` config when going live. You are free to change this file all you want (or change which file is used via the ``sm_pugsetup_live_cfg`` cvar). (Note: if you use knife rounds, the knife config will be executed after the live config, but all the cvars it changed will be restored to their previous values after the knife round finishes.)
+
+## Discord Chat
+
+A [Discord](https://discord.gg/zmqEa4keCk) channel is available for general discussion.
 
 ## For developers
 There is some extension support in the form of some natives and forwards. See [pugsetup.inc](scripting/include/pugsetup.inc).
