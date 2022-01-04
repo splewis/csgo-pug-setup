@@ -3,7 +3,7 @@ csgo-pug-setup
 
 [![Build status](http://ci.splewis.net/job/csgo-pug-setup/badge/icon)](http://ci.splewis.net/job/csgo-pug-setup/)
 [![GitHub Downloads](https://img.shields.io/github/downloads/splewis/csgo-pug-setup/total.svg?style=flat-square&label=Downloads)](https://github.com/splewis/csgo-pug-setup/releases/latest)
-[![Discord Chat](https://img.shields.io/discord/926309849673895966.svg)](https://discord.gg/)
+[![Discord Chat](https://img.shields.io/discord/926309849673895966.svg)](https://discord.gg/zmqEa4keCk)
 
 **Status: Supported.**
 
