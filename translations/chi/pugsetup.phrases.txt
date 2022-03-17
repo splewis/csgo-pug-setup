@@ -42,7 +42,7 @@
 	}
 	"ReadyStatus"
 	{
-		"chi"		"{1}/{2} 名玩家已就绪\n键入 .r 或者 {3} 以准备"
+		"chi"		"{1}/{2} 名玩家已就绪\n键入 {3} 以准备"
 	}
 	"ReadyStatusCaptains"
 	{
