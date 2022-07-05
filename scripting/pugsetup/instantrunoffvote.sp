@@ -37,7 +37,7 @@ public void StartInstantRunoffMapVote() {
 }
 
 public Action Timer_ShowVoteStatus(Handle timer) {
-  if (g_GameState != GameState_Warmup) {
+  if (g_GameState != GameState_Warmup || !g_IRVActive) {
     return Plugin_Stop;
   }
 
