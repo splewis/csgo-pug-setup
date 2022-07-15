@@ -186,6 +186,7 @@ static int CountMapsAlive(int& winner) {
 
 public Action Timer_CollectIRVResults(Handle timer) {
   CollectIRVResults();
+  return Plugin_Continue;
 }
 
 public void CollectIRVResults() {

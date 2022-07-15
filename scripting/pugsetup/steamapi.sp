@@ -47,7 +47,7 @@ public int OnWorkshopInfoReceived(Handle request, bool failure, bool requestSucc
     LogError("Steamworks collection request failed, HTTP status code = %d", statusCode);
     AddWorkshopMapsToList(collectionId, list);  // add backup maps that might already be cached
     delete pack;
-    return;
+    return 0;
   }
 
   int len = 0;
@@ -65,6 +65,7 @@ public int OnWorkshopInfoReceived(Handle request, bool failure, bool requestSucc
   AddWorkshopMapsToList(collectionId, list);
   delete pack;
   delete kv;
+  return 1;
 }
 
 stock void WriteCollectionInfo(KeyValues kv, const char[] collectionId, ArrayList mapList) {
@@ -216,7 +217,7 @@ public int OnMapInfoReceived(Handle request, bool failure, bool requestSuccessfu
     AddWorkshopMapsToList(collectionId, list);
     delete pack;
     delete mapIds;
-    return;
+    return 0;
   }
 
   int len = 0;
@@ -239,6 +240,7 @@ public int OnMapInfoReceived(Handle request, bool failure, bool requestSuccessfu
   delete pack;
   delete mapIds;
   delete kv;
+  return 1;
 }
 
 public void WriteMapInfo(KeyValues kv, int index, const char[] mapId) {

@@ -195,6 +195,7 @@ public int SetupMenuHandler(Menu menu, MenuAction action, int param1, int param2
   } else if (action == MenuAction_End) {
     delete menu;
   }
+  return 1;
 }
 
 public void TeamTypeMenu(int client) {
@@ -222,6 +223,7 @@ public int TeamTypeMenuHandler(Menu menu, MenuAction action, int param1, int par
   } else if (action == MenuAction_End) {
     delete menu;
   }
+  return 1;
 }
 
 public void TeamSizeMenu(int client) {
@@ -251,6 +253,7 @@ public int TeamSizeHandler(Menu menu, MenuAction action, int param1, int param2)
   } else if (action == MenuAction_End) {
     delete menu;
   }
+  return 1;
 }
 
 /**
@@ -279,6 +282,7 @@ public int MapTypeHandler(Menu menu, MenuAction action, int param1, int param2) 
   } else if (action == MenuAction_End) {
     delete menu;
   }
+  return 1;
 }
 
 public int DemoHandler(int client) {
@@ -288,6 +292,7 @@ public int DemoHandler(int client) {
     g_RecordGameOption = false;
   }
   PugSetup_GiveSetupMenu(client);
+  return 1;
 }
 
 /**
@@ -405,4 +410,5 @@ public int ChangeMapHandler(Menu menu, MenuAction action, int param1, int param2
   } else if (action == MenuAction_End) {
     delete menu;
   }
+  return 1;
 }
