@@ -1,5 +1,6 @@
 #include <cstrike>
 #include <sdktools>
+#include <clientprefs>
 
 #tryinclude "manual_version.sp"
 #if !defined PLUGIN_VERSION
