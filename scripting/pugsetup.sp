@@ -290,7 +290,7 @@ public void OnPluginStart() {
                    "Maximum size of a team when selecting team sizes.", _, true, 2.0);
   g_MessagePrefixCvar = CreateConVar(
       "sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]",
-      "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
+      "The tag applied before plugin messages. If you want no tag, you can set an empty string here. Note that beginning the string with a color will not render that color - you can workaround with a space or another character first.");
   g_MutualUnpauseCvar = CreateConVar(
       "sm_pugsetup_mutual_unpausing", "1",
       "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
