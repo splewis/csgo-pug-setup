@@ -8,6 +8,7 @@
 #include "include/restorecvars.inc"
 #include "pugsetup/util.sp"
 
+
 #undef REQUIRE_EXTENSIONS
 #include <SteamWorks>
 
@@ -18,6 +19,7 @@
 #define ALIAS_LENGTH 64
 #define COMMAND_LENGTH 64
 #define LIVE_TIMER_INTERVAL 0.3
+#define LoopClients(%1)    for (int %1 = 1; %1 <= MaxClients; %1++)
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -65,6 +67,7 @@ ConVar g_StartDelayCvar;
 ConVar g_UseGameWarmupCvar;
 ConVar g_WarmupCfgCvar;
 ConVar g_WarmupMoneyOnSpawnCvar;
+ConVar g_EndGameOnLastPlayerInServerCvar;
 
 /** Setup menu options **/
 bool g_DisplayMapType = true;
@@ -287,7 +290,7 @@ public void OnPluginStart() {
                    "Maximum size of a team when selecting team sizes.", _, true, 2.0);
   g_MessagePrefixCvar = CreateConVar(
       "sm_pugsetup_message_prefix", "[{YELLOW}PugSetup{NORMAL}]",
-      "The tag applied before plugin messages. If you want no tag, you can set an empty string here. Note that beginning the string with a color will not render that color - you can workaround with a space or another character first.");
+      "The tag applied before plugin messages. If you want no tag, you can set an empty string here.");
   g_MutualUnpauseCvar = CreateConVar(
       "sm_pugsetup_mutual_unpausing", "1",
       "Whether an unpause command requires someone from both teams to fully unpause the match. Note that this forces the pause/unpause commands to be unrestricted (so anyone can use them).");
@@ -323,6 +326,10 @@ public void OnPluginStart() {
   g_WarmupMoneyOnSpawnCvar = CreateConVar(
       "sm_pugsetup_money_on_warmup_spawn", "1",
       "Whether clients recieve 16,000 dollars when they spawn. It's recommended you use mp_death_drop_gun 0 in your warmup config if you use this.");
+      
+  g_EndGameOnLastPlayerInServerCvar = CreateConVar(
+  "sm_pugsetup_forceend_on_players_leave", "0", 
+  "Should PugSetup end match if is just 1 player in match and it is LIVE? (its good enable if you have server hibernation actives, it will prevens crash.)");
 
   /** Create and exec plugin's configuration file **/
   AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -2236,4 +2243,31 @@ stock bool PermissionFromString(const char[] permissionString, Permission& p,
   }
 
   return true;
+}
+
+public int GetTotalPlayers()
+{
+    int count;
+    LoopClients(client)
+    {
+        count++;
+    }
+    
+    return count;
+}
+
+public void OnClientDisconnect(int client)
+{
+    if (g_GameState == GameState_Live)
+    {    
+        if(GetTotalPlayers() <= 2)
+        {
+            GetConVarBool(g_EndGameOnLastPlayerInServerCvar);
+            {
+                ServerCommand("sm_forceend");
+                ReadSetupOptions();
+                SetupFinished();
+            }
+        }
+    }
 }
