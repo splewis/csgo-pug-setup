@@ -2262,12 +2262,12 @@ public void OnClientDisconnect(int client)
     {    
         if(GetTotalPlayers() <= 2)
         {
-            GetConVarBool(g_EndGameOnLastPlayerInServerCvar);
-            {
-                ServerCommand("sm_forceend");
-                ReadSetupOptions();
-                SetupFinished();
-            }
+        	if (g_EndGameOnLastPlayerInServerCvar.BoolValue)
+        	{
+        		ServerCommand("sm_forceend");
+        		ReadSetupOptions();
+        		SetupFinished();
+        	}
         }
     }
 }
