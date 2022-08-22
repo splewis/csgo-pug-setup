@@ -19,7 +19,6 @@
 #define ALIAS_LENGTH 64
 #define COMMAND_LENGTH 64
 #define LIVE_TIMER_INTERVAL 0.3
-#define LoopClients(%1)    for (int %1 = 1; %1 <= MaxClients; %1++)
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -2245,29 +2244,15 @@ stock bool PermissionFromString(const char[] permissionString, Permission& p,
   return true;
 }
 
-public int GetTotalPlayers()
-{
-    int count;
-    LoopClients(client)
-    {
-        count++;
-    }
-    
-    return count;
-}
-
 public void OnClientDisconnect(int client)
 {
-    if (g_GameState == GameState_Live)
-    {    
-        if(GetTotalPlayers() <= 2)
-        {
-        	if (g_EndGameOnLastPlayerInServerCvar.BoolValue)
-        	{
-        		ServerCommand("sm_forceend");
-        		ReadSetupOptions();
-        		SetupFinished();
-        	}
-        }
-    }
+  if(GetClientCount() <= 2)
+	{
+		if (g_EndGameOnLastPlayerInServerCvar.BoolValue)
+		{
+			ServerCommand("sm_forceend");
+			ReadSetupOptions();
+			SetupFinished();
+		}
+	} 
 }
