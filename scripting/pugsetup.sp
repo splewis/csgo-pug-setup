@@ -12,7 +12,7 @@
 #include <SteamWorks>
 
 #undef REQUIRE_PLUGIN
-#include "include/updater.inc"
+#include <updater>
 #define UPDATE_URL "http://dl.whiffcity.com/plugins/pugsetup/pugsetup.txt"
 
 #define ALIAS_LENGTH 64
@@ -269,7 +269,7 @@ public void OnPluginStart() {
       "sm_pugsetup_force_defaults", "0",
       "Whether the default setup options are forced as the setup options (note that admins can override them still).");
   g_InstantRunoffVotingCvar = CreateConVar(
-      "sm_pugsetup_instant_runoff_voting", "1",
+      "sm_pugsetup_instant_runoff_voting", "0",
       "If set, map votes will run instant-runoff style where each client selects their top 3 maps in preference order.");
   g_KnifeConfigCvar = CreateConVar(
       "sm_pugsetup_knife_cfg", "sourcemod/pugsetup/knife.cfg",
@@ -609,7 +609,7 @@ public Action Timer_CheckReady(Handle timer) {
         if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
           g_LiveTimerRunning = false;
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-                             "ReadyStatusAllReadyPick");
+          "ReadyStatusAllReadyPick");
           CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
           return Plugin_Stop;
         } else {
@@ -620,10 +620,10 @@ public Action Timer_CheckReady(Handle timer) {
 
         if (g_AutoLive) {
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-                             "ReadyStatusAllReady");
+          "ReadyStatusAllReady");
         } else {
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-                             "ReadyStatusAllReadyWaiting");
+          "ReadyStatusAllReadyWaiting");
         }
 
         ReadyToStart();
@@ -635,7 +635,7 @@ public Action Timer_CheckReady(Handle timer) {
         if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
           g_LiveTimerRunning = false;
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-                             "ReadyStatusAllReadyVeto");
+          "ReadyStatusAllReadyVeto");
           PugSetup_MessageToAll("%t", "VetoMessage");
           CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
           return Plugin_Stop;
@@ -646,7 +646,7 @@ public Action Timer_CheckReady(Handle timer) {
       } else {
         g_LiveTimerRunning = false;
         PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-                           "ReadyStatusAllReadyVote");
+        "ReadyStatusAllReadyVote");
         PugSetup_MessageToAll("%t", "VoteMessage");
         CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
         return Plugin_Stop;
