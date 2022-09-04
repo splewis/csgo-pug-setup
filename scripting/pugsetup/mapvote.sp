@@ -45,6 +45,7 @@ public int MapVoteHandler2(Menu menu, MenuAction action, int param1, int param2)
 public Action Timer_Continue(Handle timer)
 {
         CreateMapVote2();
+        return Plugin_Handled;
 }
 public void CreateMapVote2() {
   if (g_ExcludedMaps.IntValue > 0 && g_MapList.Length > g_PastMaps.Length) {

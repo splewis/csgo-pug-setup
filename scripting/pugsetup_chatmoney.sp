@@ -28,7 +28,7 @@ public void OnPluginStart() {
 
 public Action Event_Round_Start(Event event, const char[] name, bool dontBroadcast) {
   if (!PugSetup_IsMatchLive() || g_hEnabled.IntValue == 0)
-    return;
+    return Plugin_Continue;
 
   ArrayList players = new ArrayList();
 
@@ -68,6 +68,7 @@ public Action Event_Round_Start(Event event, const char[] name, bool dontBroadca
   }
 
   delete players;
+  return Plugin_Continue;
 }
 
 public int SortMoneyFunction(int index1, int index2, Handle array, Handle hnd) {

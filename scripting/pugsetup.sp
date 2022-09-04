@@ -609,7 +609,7 @@ public Action Timer_CheckReady(Handle timer) {
         if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
           g_LiveTimerRunning = false;
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-          "ReadyStatusAllReadyPick");
+                             "ReadyStatusAllReadyPick");
           CreateTimer(1.0, StartPicking, _, TIMER_FLAG_NO_MAPCHANGE);
           return Plugin_Stop;
         } else {
@@ -620,10 +620,10 @@ public Action Timer_CheckReady(Handle timer) {
 
         if (g_AutoLive) {
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-          "ReadyStatusAllReady");
+                             "ReadyStatusAllReady");
         } else {
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-          "ReadyStatusAllReadyWaiting");
+                             "ReadyStatusAllReadyWaiting");
         }
 
         ReadyToStart();
@@ -635,7 +635,7 @@ public Action Timer_CheckReady(Handle timer) {
         if (IsPlayer(g_capt1) && IsPlayer(g_capt2) && g_capt1 != g_capt2) {
           g_LiveTimerRunning = false;
           PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-          "ReadyStatusAllReadyVeto");
+                             "ReadyStatusAllReadyVeto");
           PugSetup_MessageToAll("%t", "VetoMessage");
           CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
           return Plugin_Stop;
@@ -646,7 +646,7 @@ public Action Timer_CheckReady(Handle timer) {
       } else {
         g_LiveTimerRunning = false;
         PrintHintTextToAll("%t\n%t", "ReadyStatusPlayers", readyPlayers, totalPlayers,
-        "ReadyStatusAllReadyVote");
+                           "ReadyStatusAllReadyVote");
         PugSetup_MessageToAll("%t", "VoteMessage");
         CreateTimer(2.0, MapSetup, _, TIMER_FLAG_NO_MAPCHANGE);
         return Plugin_Stop;
@@ -1196,6 +1196,7 @@ public int MatchEndHandler(Menu menu, MenuAction action, int param1, int param2)
   } else if (action == MenuAction_End) {
     CloseHandle(menu);
   }
+  return 1;
 }
 
 public Action Command_ForceEnd(int client, int args) {
@@ -1603,10 +1604,12 @@ public Action Event_MatchOver(Event event, const char[] name, bool dontBroadcast
 /** Helper timer to delay starting warmup period after match is over by a little bit **/
 public Action Timer_EndMatch(Handle timer) {
   EndMatch(false, false);
+  return Plugin_Continue;
 }
 
 public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
   CheckAutoSetup();
+  return Plugin_Continue;
 }
 
 public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
@@ -1633,16 +1636,18 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
       PugSetup_MessageToAll("%t", "KnifeRoundWinner", teamString, stayCmd, swapCmd);
     }
   }
+  return Plugin_Continue;
 }
 
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast) {
   if (g_GameState != GameState_Warmup)
-    return;
+    return Plugin_Continue;
 
   int client = GetClientOfUserId(event.GetInt("userid"));
   if (IsPlayer(client) && OnActiveTeam(client) && g_WarmupMoneyOnSpawnCvar.IntValue != 0) {
     SetEntProp(client, Prop_Send, "m_iAccount", GetCvarIntSafe("mp_maxmoney"));
   }
+  return Plugin_Continue;
 }
 
 public Action Event_PlayerConnect(Event event, const char[] name, bool dontBroadcast) {
@@ -1650,6 +1655,7 @@ public Action Event_PlayerConnect(Event event, const char[] name, bool dontBroad
   int client = GetClientOfUserId(userid);
   g_Teams[client] = CS_TEAM_NONE;
   g_PlayerAtStart[client] = false;
+  return Plugin_Continue;
 }
 
 public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBroadcast) {
@@ -1661,6 +1667,7 @@ public Action Event_PlayerDisconnect(Event event, const char[] name, bool dontBr
     g_capt1 = -1;
   if (g_capt2 == client)
     g_capt2 = -1;
+  return Plugin_Continue;
 }
 
 /**
@@ -1874,6 +1881,7 @@ public Action Timer_BeginMatch(Handle timer) {
     ChangeState(GameState_GoingLive);
     CreateTimer(3.0, BeginLO3, _, TIMER_FLAG_NO_MAPCHANGE);
   }
+  return Plugin_Continue;
 }
 
 public void ScrambleTeams() {
