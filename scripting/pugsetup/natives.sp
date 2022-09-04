@@ -513,7 +513,8 @@ public int Native_SetTeamBalancer(Handle plugin, int numParams) {
   bool override = GetNativeCell(2);
   if (!PugSetup_IsTeamBalancerAvaliable() || override) {
     g_BalancerFunctionPlugin = plugin;
-    ArrayList players = new ArrayList();
+    //ArrayList players = new ArrayList();
+    g_BalancerFunction = view_as<TeamBalancerFunction>(GetNativeFunction(1));
     for (int i = 1; i <= MaxClients; i++) {
       if (IsPlayer(i)) {
         if (PugSetup_IsReady(i))
