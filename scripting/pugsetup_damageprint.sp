@@ -138,14 +138,13 @@ public Action Command_Damage(int client, int args) {
 
 public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
   if (!PugSetup_IsMatchLive() || g_hEnabled.IntValue == 0)
-    return Plugin_Continue;
+    return;
 
   for (int i = 1; i <= MaxClients; i++) {
     if (IsValidClient(i)) {
       PrintDamageInfo(i);
     }
   }
-  return Plugin_Continue;
 }
 
 public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcast) {
@@ -156,7 +155,6 @@ public Action Event_RoundStart(Event event, const char[] name, bool dontBroadcas
       g_GotKill[i][j] = false;
     }
   }
-  return Plugin_Continue;
 }
 
 public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadcast) {
@@ -180,7 +178,6 @@ public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadca
     g_DamageDone[attacker][victim] += damage;
     g_DamageDoneHits[attacker][victim]++;
   }
-  return Plugin_Continue;
 }
 
 public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) {
@@ -192,5 +189,4 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
   if (validAttacker && validVictim) {
     g_GotKill[attacker][victim] = true;
   }
-  return Plugin_Continue;
 }

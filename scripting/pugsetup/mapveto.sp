@@ -71,7 +71,6 @@ public int VetoHandler(Menu menu, MenuAction action, int param1, int param2) {
   } else if (action == MenuAction_End) {
     CloseHandle(menu);
   }
-  return 1;
 }
 
 static void VetoStatusDisplay(int client) {
@@ -90,5 +89,4 @@ public int VetoStatusHandler(Menu menu, MenuAction action, int param1, int param
   if (action == MenuAction_End) {
     CloseHandle(menu);
   }
-  return 1;
 }

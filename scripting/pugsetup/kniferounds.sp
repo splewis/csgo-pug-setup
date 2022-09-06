@@ -45,7 +45,6 @@ public Action Timer_AnnounceKnife(Handle timer) {
 
 public Action Timer_HandleKnifeDecisionVote(Handle timer) {
   HandleKnifeDecisionVote(true);
-  return Plugin_Continue;
 }
 
 static void HandleKnifeDecisionVote(bool timeExpired = false) {
