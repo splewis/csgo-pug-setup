@@ -1,17 +1,17 @@
 #define RANDOM_MAP_VOTE "-1"  // must be in invalid index for array indexing
 
 char mapGroups[][] = {
-      "competitive.txt", "fun.txt", "all.txt"
+      "competitive.txt", "fun.txt", "maps.txt"
 };
 
 /**
  * Map voting functions
  */
 public void CreateMapVote() {
-          StartMapVote2();
+          StartMappoolVote();
 }
-static void StartMapVote2() {
-  Menu menu = new Menu(MapVoteHandler2);
+static void StartMappoolVote() {
+  Menu menu = new Menu(MappoolVoteHandler);
   menu.SetTitle("%T", "VoteMenuTitle", LANG_SERVER);
   menu.ExitButton = false;
   for (int i = 0; i < sizeof(mapGroups); i++) {
@@ -23,17 +23,17 @@ static void StartMapVote2() {
   }
   VoteMenuToAll(menu, g_MapVoteTimeCvar.IntValue);
 }
-public int MapVoteHandler2(Menu menu, MenuAction action, int param1, int param2) {
+public int MappoolVoteHandler(Menu menu, MenuAction action, int param1, int param2) {
   if (action == MenuAction_VoteEnd) {
         int winner = GetMenuInt(menu, param1);
     
         ServerCommand("sm_pugsetup_maplist %s", mapGroups[winner]);
         
-        char text[64];
+        char text[PLATFORM_MAX_PATH];
         Format(text, 64, mapGroups[winner]);
         ReplaceString(text, 64, ".txt", "", false);
         
-        PrintCenterTextAll("Winner is %s", text);
+        PrintCenterTextAll("%t","MapVoteWinnerHintText", text);
         
         CreateTimer(0.5, Timer_Continue, _, TIMER_FLAG_NO_MAPCHANGE);
       
@@ -44,10 +44,10 @@ public int MapVoteHandler2(Menu menu, MenuAction action, int param1, int param2)
 }
 public Action Timer_Continue(Handle timer)
 {
-        CreateMapVote2();
+        CreateMappoolVote();
         return Plugin_Handled;
 }
-public void CreateMapVote2() {
+public void CreateMappoolVote() {
   if (g_ExcludedMaps.IntValue > 0 && g_MapList.Length > g_PastMaps.Length) {
     SetupMapVotePool(true);
   } else {

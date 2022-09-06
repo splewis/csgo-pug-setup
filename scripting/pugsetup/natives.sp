@@ -404,7 +404,7 @@ public int Native_HasPermissions(Handle plugin, int numParams) {
     return isAdmin;
   else if (p == Permission_Leader)
     return isLeader || isAdmin;
-  else if (p == Permission_Captains && UsingCaptains())
+  else if (p == Permission_Captains)
     return isCapt || isLeader || isAdmin;
   else if (p == Permission_All)
     return true;
@@ -513,19 +513,7 @@ public int Native_SetTeamBalancer(Handle plugin, int numParams) {
   bool override = GetNativeCell(2);
   if (!PugSetup_IsTeamBalancerAvaliable() || override) {
     g_BalancerFunctionPlugin = plugin;
-    //ArrayList players = new ArrayList();
     g_BalancerFunction = view_as<TeamBalancerFunction>(GetNativeFunction(1));
-    for (int i = 1; i <= MaxClients; i++) {
-      if (IsPlayer(i)) {
-        if (PugSetup_IsReady(i))
-          players.Push(i);
-      }
-    }
-    Call_StartFunction(g_BalancerFunctionPlugin, g_BalancerFunction);
-    Call_PushCell(players);
-    Call_Finish();
-    delete players;
-
     return true;
   }
   return false;
