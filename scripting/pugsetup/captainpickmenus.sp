@@ -6,6 +6,8 @@ public Action Timer_InitialChoiceMenu(Handle timer) {
   int client = g_capt1;
   
   if(!IsClientInGame(client))
+    PugSetup_MessageToAll("A captain is missing, aborting the game.");
+    EndMatch(false);
     return Plugin_Handled;
     
   if (!g_DoKnifeRound) {
