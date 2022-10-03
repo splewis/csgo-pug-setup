@@ -328,7 +328,7 @@ public void OnPluginStart() {
       
   g_EndGameOnLastPlayerInServerCvar = CreateConVar(
   "sm_pugsetup_forceend_on_players_leave", "0", 
-  "Should PugSetup end match if is just 1 player in match and it is LIVE? (its good enable if you have server hibernation actives, it will prevens crash.)");
+  "Whether to force end a live match if only 1 player is left in the server. This may help prevent crashes for servers with hibernation enabled.");
 
   /** Create and exec plugin's configuration file **/
   AutoExecConfig(true, "pugsetup", "sourcemod/pugsetup");
@@ -2244,15 +2244,13 @@ stock bool PermissionFromString(const char[] permissionString, Permission& p,
   return true;
 }
 
-public void OnClientDisconnect(int client)
+public void OnClientDisconnect_Post(int client)
 {
-  if(GetClientCount() <= 2)
+  if(GetClientCount() < 2)
 	{
 		if (g_EndGameOnLastPlayerInServerCvar.BoolValue)
 		{
 			ServerCommand("sm_forceend");
-			ReadSetupOptions();
-			SetupFinished();
 		}
 	} 
 }
