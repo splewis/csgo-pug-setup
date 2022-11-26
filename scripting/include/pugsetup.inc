@@ -317,7 +317,8 @@ native Permission PugSetup_GetPermissions(const char[] command);
 native bool PugSetup_SetPermissions(const char[] command, Permission p);
 
 public SharedPlugin __pl_pugsetup = {
-    name = "pugsetup", file = "pugsetup.smx",
+    name = "pugsetup",
+    file = "pugsetup.smx",
 #if defined REQUIRE_PLUGIN
     required = 1,
 #else

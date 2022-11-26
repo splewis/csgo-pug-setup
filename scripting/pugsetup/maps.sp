@@ -43,7 +43,8 @@ public Action Timer_DelayedChangeMap(Handle timer, Handle data) {
 
 public void AddBackupMaps(ArrayList maplist) {
   char backupMaps[][] = {
-      "de_ancient", "de_cbble", "de_dust2", "de_inferno", "de_mirage", "de_nuke", "de_overpass", "de_train", "de_vertigo",
+      "de_ancient", "de_cbble",    "de_dust2", "de_inferno", "de_mirage",
+      "de_nuke",    "de_overpass", "de_train", "de_vertigo",
   };
 
   for (int i = 0; i < sizeof(backupMaps); i++)

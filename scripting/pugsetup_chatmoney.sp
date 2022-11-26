@@ -90,14 +90,6 @@ public int GetClientMoney(int client) {
   return GetEntData(client, offset);
 }
 
-/**
-* Get the comma'd string version of an integer
-*
-* @param  OldMoney          the integer to convert
-* @param  String:NewMoney   the buffer to save the string in
-* @param  size              the size of the buffer
-* @noreturn
-*/
 public void IntToMoney(int OldMoney, char[] NewMoney, int size) {
   char Temp[32];
   char OldMoneyStr[32];

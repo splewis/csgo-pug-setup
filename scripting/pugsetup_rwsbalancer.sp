@@ -192,7 +192,7 @@ public void BalancerFunction(ArrayList players) {
  */
 public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadcast) {
   if (!PugSetup_IsMatchLive())
-    return;
+    return Plugin_Continue;
 
   int victim = GetClientOfUserId(event.GetInt("userid"));
   int attacker = GetClientOfUserId(event.GetInt("attacker"));
@@ -203,19 +203,21 @@ public Action Event_PlayerDeath(Event event, const char[] name, bool dontBroadca
   if (validAttacker && validVictim && HelpfulAttack(attacker, victim)) {
     g_RoundPoints[attacker] += 100;
   }
+  return Plugin_Continue;
 }
 
 public Action Event_Bomb(Event event, const char[] name, bool dontBroadcast) {
   if (!PugSetup_IsMatchLive())
-    return;
+    return Plugin_Continue;
 
   int client = GetClientOfUserId(event.GetInt("userid"));
   g_RoundPoints[client] += 50;
+  return Plugin_Continue;
 }
 
 public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadcast) {
   if (!PugSetup_IsMatchLive())
-    return;
+    return Plugin_Continue;
 
   int attacker = GetClientOfUserId(event.GetInt("attacker"));
   int victim = GetClientOfUserId(event.GetInt("userid"));
@@ -226,6 +228,7 @@ public Action Event_DamageDealt(Event event, const char[] name, bool dontBroadca
     int damage = event.GetInt("dmg_health");
     g_RoundPoints[attacker] += damage;
   }
+  return Plugin_Continue;
 }
 
 public bool HelpfulAttack(int attacker, int victim) {
@@ -242,7 +245,7 @@ public bool HelpfulAttack(int attacker, int victim) {
  */
 public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast) {
   if (!PugSetup_IsMatchLive() || g_RecordRWSCvar.IntValue == 0)
-    return;
+    return Plugin_Continue;
 
   int winner = event.GetInt("winner");
   for (int i = 1; i <= MaxClients; i++) {
@@ -257,6 +260,7 @@ public Action Event_RoundEnd(Event event, const char[] name, bool dontBroadcast)
       g_RoundPoints[i] = 0;
     }
   }
+  return Plugin_Continue;
 }
 
 /**
