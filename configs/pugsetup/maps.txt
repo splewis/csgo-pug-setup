@@ -1,5 +1,5 @@
 de_ancient
-de_cbble
+de_anubis
 de_dust2
 de_inferno
 de_mirage
