@@ -4,7 +4,12 @@ int g_PickCounter = 0;
 
 public Action Timer_InitialChoiceMenu(Handle timer) {
   int client = g_capt1;
-
+  
+  if(!IsClientInGame(client))
+    PugSetup_MessageToAll("A captain is missing, aborting the game.");
+    EndMatch(false);
+    return Plugin_Handled;
+    
   if (!g_DoKnifeRound) {
     // if no knife rounds, they get to choose between side/1st pick
     Menu menu = new Menu(InitialChoiceHandler);
