@@ -269,7 +269,7 @@ public void OnPluginStart() {
       "sm_pugsetup_force_defaults", "0",
       "Whether the default setup options are forced as the setup options (note that admins can override them still).");
   g_InstantRunoffVotingCvar = CreateConVar(
-      "sm_pugsetup_instant_runoff_voting", "1",
+      "sm_pugsetup_instant_runoff_voting", "0",
       "If set, map votes will run instant-runoff style where each client selects their top 3 maps in preference order.");
   g_KnifeConfigCvar = CreateConVar(
       "sm_pugsetup_knife_cfg", "sourcemod/pugsetup/knife.cfg",

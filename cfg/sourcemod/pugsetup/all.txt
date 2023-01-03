@@ -1,0 +1,1 @@
+// add all maps on the server here
